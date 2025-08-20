@@ -1,12 +1,10 @@
 package org.example.be_sp.controller;
 
-import jakarta.validation.constraints.Pattern;
-import org.example.be_sp.entity.MauSac;
+
 import org.example.be_sp.model.request.MauSacRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.MauSacService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

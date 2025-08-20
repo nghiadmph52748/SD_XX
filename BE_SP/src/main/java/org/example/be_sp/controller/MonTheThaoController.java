@@ -2,10 +2,8 @@ package org.example.be_sp.controller;
 
 import org.example.be_sp.model.request.MonTheThaoRequest;
 import org.example.be_sp.model.response.ResponseObject;
-import org.example.be_sp.repository.MonTheThaoRepository;
 import org.example.be_sp.service.MonTheThaoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

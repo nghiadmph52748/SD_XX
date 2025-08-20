@@ -1,6 +1,5 @@
 package org.example.be_sp.model.request;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MauSacRequest {
-    String tenMauSac;
+public class ChiTietDotGiamGiaRequest {
+    Integer idDotGiamGia;
+    Integer idChiTietSanPham;
     Boolean deleted;
 }

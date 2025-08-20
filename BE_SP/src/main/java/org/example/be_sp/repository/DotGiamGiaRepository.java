@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DotGiamGiaRepository extends JpaRepository<DotGiamGia, Integer> {
+    DotGiamGia findDotGiamGiaById(Integer id);
 }

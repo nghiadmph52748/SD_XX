@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.be_sp.entity.SanPham;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Getter
 @Setter

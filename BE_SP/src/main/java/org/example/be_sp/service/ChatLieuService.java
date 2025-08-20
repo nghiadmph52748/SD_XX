@@ -1,10 +1,7 @@
 package org.example.be_sp.service;
 
-import org.example.be_sp.entity.AnhSanPham;
 import org.example.be_sp.entity.ChatLieu;
-import org.example.be_sp.model.request.AnhSanPhamRequest;
 import org.example.be_sp.model.request.ChatLieuRequest;
-import org.example.be_sp.model.response.AnhSanPhamResponse;
 import org.example.be_sp.model.response.ChatLieuResponse;
 import org.example.be_sp.repository.ChatLieuRepository;
 import org.example.be_sp.util.GenericCrudService;

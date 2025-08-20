@@ -4,7 +4,6 @@ import org.example.be_sp.model.request.DeGiayRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.DeGiayService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
