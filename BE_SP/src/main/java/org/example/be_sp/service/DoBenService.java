@@ -19,4 +19,10 @@ public class DoBenService extends GenericCrudService<DoBen, Integer, DoBenRespon
         super(entity, doBenResponseClass, dobenRequestClass, doBenRepository);
     }
 
+    public void updateStatus(Integer id) {
+        DoBen doBen = doBenRepository.findById(id).orElseThrow(() -> new ApiException("Độ bền không tồn tại", "404"));
+        doBen.setDeleted(true);
+        doBenRepository.save(doBen);
+    }
+
 }
