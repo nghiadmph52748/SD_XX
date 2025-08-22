@@ -39,4 +39,9 @@ public class DeGiayController {
         deGiayService.update(id, deGiayRequest);
         return new ResponseObject<>(null,"Cập nhật đế giày thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        deGiayService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái đế giày thành");
+    }
 }

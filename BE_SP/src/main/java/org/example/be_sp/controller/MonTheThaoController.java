@@ -39,4 +39,9 @@ public class MonTheThaoController {
         monTheThaoService.update(id, monTheThaoRequest);
         return new ResponseObject<>(null, "Cập nhật thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        monTheThaoService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái thành công");
+    }
 }

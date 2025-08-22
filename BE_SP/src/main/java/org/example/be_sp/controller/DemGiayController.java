@@ -38,6 +38,10 @@ public class DemGiayController {
     public ResponseObject<?> update(@RequestBody DemGiayRequest demGiayRequest, @PathVariable Integer id) {
         demGiayService.update(id, demGiayRequest);
         return new ResponseObject<>(null, "Cập nhật đệm giày thành công");
-
+    }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        demGiayService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái đệm giày thành công");
     }
 }

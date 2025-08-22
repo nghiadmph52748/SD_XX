@@ -34,4 +34,9 @@ public class LoaiMuaController {
         loaiMuaService.update(id, loaiMuaRequest);
         return new ResponseObject<>(null, "Cập nhật loại mua thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        loaiMuaService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái loại mua thành công");
+    }
 }

@@ -40,4 +40,9 @@ public class TrongLuongController {
         trongLuongService.update(id, request);
         return new ResponseObject<>(null, "Cập nhật thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        trongLuongService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái thành công");
+    }
 }

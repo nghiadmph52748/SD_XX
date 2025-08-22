@@ -1,6 +1,7 @@
 package org.example.be_sp.service;
 
 import org.example.be_sp.entity.DoBen;
+import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.DobenRequest;
 import org.example.be_sp.model.response.DoBenResponse;
 import org.example.be_sp.repository.DoBenRepository;
@@ -17,4 +18,5 @@ public class DoBenService extends GenericCrudService<DoBen, Integer, DoBenRespon
     public DoBenService(Class<DoBen> entity, Class<DoBenResponse> doBenResponseClass, Class<DobenRequest> dobenRequestClass, JpaRepository<DoBen, Integer> doBenRepository) {
         super(entity, doBenResponseClass, dobenRequestClass, doBenRepository);
     }
+
 }

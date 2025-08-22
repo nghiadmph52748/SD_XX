@@ -33,4 +33,9 @@ public class NhaSanXuatController {
         nhaSanXuatService.update(id, request);
         return new ResponseObject<>(null, "Cap nhat thanh cong");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        nhaSanXuatService.updateStatus(id);
+        return new ResponseObject<>(null, "Xoa nha san xuat thanh cong");
+    }
 }

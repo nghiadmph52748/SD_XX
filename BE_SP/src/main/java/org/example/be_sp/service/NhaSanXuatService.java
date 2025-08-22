@@ -1,6 +1,7 @@
 package org.example.be_sp.service;
 
 import org.example.be_sp.entity.NhaSanXuat;
+import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.NhaSanXuatRequest;
 import org.example.be_sp.model.response.NhaSanXuatResponse;
 import org.example.be_sp.repository.NhaSanXuatRepository;
@@ -15,6 +16,12 @@ public class NhaSanXuatService extends GenericCrudService<NhaSanXuat, Integer, N
     private NhaSanXuatRepository nhaSanXuatRepository;
     public NhaSanXuatService(Class<NhaSanXuat> entity, Class<NhaSanXuatResponse> nhaSanXuatResponseClass, Class<NhaSanXuatRequest> nhaSanXuatRequestClass, JpaRepository<NhaSanXuat, Integer> nhaSanXuatRepository) {
         super(entity, nhaSanXuatResponseClass, nhaSanXuatRequestClass, nhaSanXuatRepository);
+    }
+
+    public void updateStatus(Integer id) {
+        NhaSanXuat nhaSanXuat = nhaSanXuatRepository.findById(id).orElseThrow(() -> new ApiException("NhaSanXuat not found", "404"));
+        nhaSanXuat.setDeleted(true);
+        nhaSanXuatRepository.save(nhaSanXuat);
     }
 
 }

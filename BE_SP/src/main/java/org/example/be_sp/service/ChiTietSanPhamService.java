@@ -84,4 +84,10 @@ public class ChiTietSanPhamService {
         e.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
         repository.save(e);
     }
+
+    public void updateStatus(Integer id) {
+        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+        chiTietSanPham.setDeleted(true);
+        repository.save(chiTietSanPham);
+    }
 }

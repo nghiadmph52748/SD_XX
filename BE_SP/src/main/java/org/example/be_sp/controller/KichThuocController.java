@@ -34,4 +34,14 @@ public class KichThuocController {
         kichThuocService.add(kichThuocRequest);
         return new ResponseObject<>(null,"Thêm kích thước thành công");
     }
+    @PutMapping("/update/{id}")
+    public ResponseObject<?> update(@PathVariable Integer id, @RequestBody KichThuocRequest kichThuocRequest) {
+        kichThuocService.update(id, kichThuocRequest);
+        return new ResponseObject<>(null, "Cập nhật kích thước thành công");
+    }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        kichThuocService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái kích thước thành công");
+    }
 }

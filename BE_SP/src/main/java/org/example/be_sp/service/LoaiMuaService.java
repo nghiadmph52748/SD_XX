@@ -1,6 +1,7 @@
 package org.example.be_sp.service;
 
 import org.example.be_sp.entity.LoaiMua;
+import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.LoaiMuaRequest;
 import org.example.be_sp.model.response.LoaiMuaResponse;
 import org.example.be_sp.repository.LoaiMuaRepository;
@@ -16,5 +17,10 @@ public class LoaiMuaService extends GenericCrudService<LoaiMua, Integer, LoaiMua
 
     public LoaiMuaService(Class<LoaiMua> entity, Class<LoaiMuaResponse> loaiMuaResponseClass, Class<LoaiMuaRequest> loaiMuaRequestClass, JpaRepository<LoaiMua, Integer> loaiMuaRepository) {
         super(entity, loaiMuaResponseClass, loaiMuaRequestClass, loaiMuaRepository);
+    }
+    public void updateStatus(Integer id) {
+        LoaiMua loaiMua = loaiMuaRepository.findById(id).orElseThrow(() -> new ApiException("LoaiMua not found","404"));
+        loaiMua.setDeleted(true);
+        loaiMuaRepository.save(loaiMua);
     }
 }

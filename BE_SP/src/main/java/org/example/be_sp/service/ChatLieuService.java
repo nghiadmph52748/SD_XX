@@ -1,6 +1,7 @@
 package org.example.be_sp.service;
 
 import org.example.be_sp.entity.ChatLieu;
+import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.ChatLieuRequest;
 import org.example.be_sp.model.response.ChatLieuResponse;
 import org.example.be_sp.repository.ChatLieuRepository;
@@ -14,8 +15,13 @@ public class ChatLieuService extends GenericCrudService<ChatLieu, Integer, ChatL
     @Autowired
     private ChatLieuRepository chatLieuRepository;
 
-
     public ChatLieuService(Class<ChatLieu> entity, Class<ChatLieuResponse> chatLieuResponseClass, Class<ChatLieuRequest> chatLieuRequestClass, JpaRepository<ChatLieu, Integer> chatLieuRepository) {
         super(entity, chatLieuResponseClass, chatLieuRequestClass, chatLieuRepository);
+    }
+
+    public void updateStatus(Integer id) {
+        ChatLieu chatLieu = chatLieuRepository.findById(id).orElseThrow(() -> new ApiException("ChatLieu not found", "404"));
+        chatLieu.setDeleted(true);
+        chatLieuRepository.save(chatLieu);
     }
 }

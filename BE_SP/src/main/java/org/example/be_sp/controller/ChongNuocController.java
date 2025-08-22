@@ -36,4 +36,9 @@ public class ChongNuocController {
         chongNuocService.update(id,chongNuocRequest);
         return new ResponseObject<>("Cập nhật thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable("id") Integer id) {
+        chongNuocService.updateStatus(id);
+        return new ResponseObject<>("Cập nhật trạng thái thành công");
+    }
 }

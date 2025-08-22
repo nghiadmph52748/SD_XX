@@ -35,4 +35,10 @@ public class DoBenController{
         doBenService.update(id, doBenRequest);
         return new ResponseObject<>(null, "Cập nhật độ bền thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        doBenService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái độ bền thành công");
+    }
+
 }

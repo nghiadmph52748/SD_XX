@@ -40,4 +40,9 @@ public class MauSacController {
         mauSacService.update(id, mauSacRequest);
         return new ResponseObject<>(null, "Cập nhật màu sắc thành công");
     }
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        mauSacService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái màu sắc thành công");
+    }
 }
