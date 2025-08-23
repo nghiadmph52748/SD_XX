@@ -5,7 +5,6 @@ import './styles/globals.css'
 import App from './App.vue'
 
 // Import pages
-import Login from './pages/DangNhap.vue'
 import Dashboard from './pages/BangDieuKhien.vue'
 
 // User Management (ERD: nguoi_dung)
@@ -53,7 +52,6 @@ import ActivityLogsManagement from './pages/management/QuanLyNhatKyHoatDong.vue'
 import PriceHistoryManagement from './pages/management/QuanLyLichSuGia.vue'
 
 const routes = [
-  { path: '/login', component: Login },
   { path: '/', redirect: '/dashboard' },
   { path: '/dashboard', component: Dashboard },
   

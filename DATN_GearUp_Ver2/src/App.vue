@@ -1,14 +1,12 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, markRaw } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useAuth } from './services/khoXacThuc.js'
 import { useNotifications } from './composables/useNotifications.js'
 import { setGlobalNotificationInstance } from './services/dichVuThongBao.js'
 import logoUrl from '@/assets/gearup-logo-official.svg'
 
 const router = useRouter()
 const route = useRoute()
-const { authState, logout: authLogout, initializeAuth } = useAuth()
 
 const sidebarOpen = ref(true) // Always keep sidebar open
 const showNotifications = ref(false)
@@ -55,26 +53,19 @@ const notificationFilters = markRaw([
 
 const selectedFilter = ref('all')
 
-// Current user data from auth state
+// Current user data - placeholder/default data
 const currentUser = computed(() => {
-  if (!authState.user) {
-    return {
-      name: 'Guest',
-      role: 'guest',
-      fullName: 'Khách'
-    }
-  }
-  
+  // Return default user data since authentication is removed
   return {
-    name: authState.user.hoTen || 'User',
-    role: authState.user.loaiNguoiDung === 'nhan_vien' ? 'staff' : 'customer',
-    fullName: authState.user.hoTen || 'User',
-    quyenHan: authState.user.quyenHan
+    name: 'Admin User',
+    role: 'staff',
+    fullName: 'Admin User',
+    quyenHan: 'Admin'
   }
 })
 
-// Check if current route is login page
-const isLoginPage = computed(() => route.path === '/login')
+// Check if current route is login page - always false since login removed
+const isLoginPage = computed(() => false)
 
 // Computed for display name with role
 const displayName = computed(() => {
@@ -367,8 +358,8 @@ const navigateToDashboard = () => {
 
 const logout = () => {
   showUserDropdown.value = false
-  authLogout()
-  router.push('/login')
+  // Authentication removed - redirect to dashboard instead
+  router.push('/dashboard')
 }
 
 const closeMobileMenu = () => {
@@ -421,7 +412,7 @@ const closeDropdowns = (event) => {
 
 onMounted(() => {
   document.addEventListener('click', closeDropdowns)
-  initializeAuth() // Initialize auth state from localStorage
+  // Authentication removed - removed initializeAuth() call
   startPolling() // Start notification system
   
   // Set up global notification instance
