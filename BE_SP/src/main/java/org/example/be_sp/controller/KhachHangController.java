@@ -9,33 +9,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/khach-hang")
+@RequestMapping("/api/khach-hang-management")
 public class KhachHangController {
 
     @Autowired
     private KhachHangService khachHangService;
 
-    @GetMapping
+    @GetMapping("/playlist")
     public ResponseEntity<List<KhachHang>> getAll() {
         return ResponseEntity.ok(khachHangService.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("detail/{id}")
     public ResponseEntity<KhachHang> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(khachHangService.findById(id));
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<KhachHang> create(@RequestBody KhachHang khachHang) {
         return ResponseEntity.ok(khachHangService.save(khachHang));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}")
     public ResponseEntity<KhachHang> update(@PathVariable Integer id, @RequestBody KhachHang khachHang) {
         return ResponseEntity.ok(khachHangService.update(id, khachHang));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         khachHangService.delete(id);
         return ResponseEntity.noContent().build();

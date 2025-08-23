@@ -59,6 +59,7 @@ public class KhachHangService {
         old.setDeleted(kh.getDeleted());
         old.setUpdateAt(kh.getUpdateAt());
         old.setUpdateBy(kh.getUpdateBy());
+
         return khachHangRepository.save(old);
     }
 

@@ -20,7 +20,7 @@ public class TrangThaiDonHang {
     private Integer id;
 
     @ColumnDefault("'TTDH'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_trang_thai_don_hang", length = 9)
+    @Column(name = "ma_trang_thai_don_hang", length = 9, insertable = false, updatable = false)
     private String maTrangThaiDonHang;
 
     @Nationalized

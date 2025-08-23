@@ -26,7 +26,7 @@ public class HinhThucThanhToan {
     private PhuongThucThanhToan idPhuongThucThanhToan;
 
     @ColumnDefault("'HTTT'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_hinh_thuc_thanh_toan", length = 9)
+    @Column(name = "ma_hinh_thuc_thanh_toan", length = 9, insertable = false, updatable = false)
     private String maHinhThucThanhToan;
 
     @Column(name = "tien_chuyen_khoan", precision = 18, scale = 2)
