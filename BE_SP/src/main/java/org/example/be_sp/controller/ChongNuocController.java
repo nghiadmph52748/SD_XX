@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/chong-nuoc-management")
+@CrossOrigin(origins = "*")
 public class ChongNuocController {
     @Autowired
     private ChongNuocService chongNuocService;

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/nha-san-xuat-management")
+@CrossOrigin(origins = "*")
 public class NhaSanXuatController {
     @Autowired
     NhaSanXuatService nhaSanXuatService;

@@ -16,7 +16,6 @@ import CustomerManagement from './pages/management/QuanLyKhachHang.vue'
 import ProductManagement from './pages/management/QuanLySanPham.vue'
 
 // Product Attributes (ERD: danh_muc, thuong_hieu, mau_sac, kich_thuoc)
-import ProductTypes from './pages/products/LoaiSanPham.vue'
 import ProductDetails from './pages/products/ChiTietSanPham.vue'
 
 // Order Management (ERD: hoa_don, hoa_don_chi_tiet, thanh_toan)
@@ -75,7 +74,6 @@ const routes = [
   // Product Management
   { path: '/products', component: ProductManagement },
   { path: '/products/details', component: ProductDetails },
-  { path: '/products/categories', component: ProductTypes },
   { path: '/products/xuat-xu', component: ProductXuatXu },
   { path: '/products/nha-san-xuat', component: ProductNhaSanXuat },
   { path: '/products/mau-sac', component: MauSac },

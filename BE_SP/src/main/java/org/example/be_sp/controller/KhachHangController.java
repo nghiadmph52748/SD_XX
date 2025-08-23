@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/khach-hang-management")
+@CrossOrigin(origins = "*")
 public class KhachHangController {
 
     @Autowired
