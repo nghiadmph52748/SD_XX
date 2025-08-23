@@ -43,17 +43,17 @@ public class SanPhamService {
 
     public void add(SanPhamRequest sanPhamRequest) {
         SanPham sp = MapperUtils.map(sanPhamRequest, SanPham.class);
-        sp.setIdXuatXu(xuatXuService.findXuatXuById(sanPhamRequest.getIdNhaSanXuat()));
-        sp.setIdNhaSanXuat(nhaSanXuatService.findNhaSanXuatById(sanPhamRequest.getIdXuatXu()));
+        sp.setIdXuatXu(xuatXuService.findXuatXuById(sanPhamRequest.getIdXuatXu()));
+        sp.setIdNhaSanXuat(nhaSanXuatService.findNhaSanXuatById(sanPhamRequest.getIdNhaSanXuat()));
         sanPhamRepository.save(sp);
 
     }
 
     public void update(SanPhamRequest sanPhamRequest, Integer id) {
-        SanPham existing = sanPhamRepository.findSanPhamById((id));
-        MapperUtils.mapToExisting(sanPhamRequest, existing);
-        existing.setIdXuatXu(xuatXuService.findXuatXuById(sanPhamRequest.getIdNhaSanXuat()));
-        existing.setIdNhaSanXuat(nhaSanXuatService.findNhaSanXuatById(sanPhamRequest.getIdXuatXu()));
+        SanPham existing = MapperUtils.map(sanPhamRequest, SanPham.class);
+        existing.setId(id);
+        existing.setIdXuatXu(xuatXuService.findXuatXuById(sanPhamRequest.getIdXuatXu()));
+        existing.setIdNhaSanXuat(nhaSanXuatService.findNhaSanXuatById(sanPhamRequest.getIdNhaSanXuat()));
         sanPhamRepository.save(existing);
     }
 

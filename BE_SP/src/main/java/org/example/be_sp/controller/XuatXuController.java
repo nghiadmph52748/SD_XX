@@ -5,6 +5,7 @@ import org.example.be_sp.model.request.XuatXuRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.XuatXuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,5 +40,11 @@ public class XuatXuController {
     public ResponseObject<?> update(@RequestBody @Valid XuatXuRequest xuatXuRequest, @PathVariable Integer id) {
         xuatXuService.update(id, xuatXuRequest);
         return new ResponseObject<>(null, "Cập nhật xuất xứ thành công");
+    }
+
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        xuatXuService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái xuất xứ thành công");
     }
 }

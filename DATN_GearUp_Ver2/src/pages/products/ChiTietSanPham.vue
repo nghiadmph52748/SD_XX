@@ -37,7 +37,7 @@
             <h3>Tìm kiếm & Lọc chi tiết sản phẩm</h3>
           </div>
           <div class="filter-stats">
-            {{ filteredDetails.length }} / {{ productDetails.length }} chi tiết sản phẩm
+            <!-- {{ filteredDetails.length }} / {{ productDetails.length }} chi tiết sản phẩm -->
           </div>
         </div>
         
@@ -374,32 +374,19 @@ const editingDetail = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
-const formData = ref({
-  id_san_pham: '',
-  id_mau_sac: '',
-  id_kich_thuoc: '',
-  id_chat_lieu: '',
-  id_de_giay: '',
-  id_dem_giay: '',
-  id_trong_luong: '',
-  id_mon_the_thao: '',
-  id_loai_mua: '',
-  id_do_ben: '',
-  id_chong_nuoc: '',
-  so_luong: 0,
-  gia_ban: 0,
-  trang_thai: 1,
-  ghi_chu: ''
-})
-
-// Mock data - Replace with actual API calls
+const formData = ref({})
 const productDetails = ref([])
-const products = ref([])
-const colors = ref([])
-const sizes = ref([])
-const materials = ref([])
-const soles = ref([])
-const insoles = ref([])
+const newProductDetail = ref([])
+const selectedProductDetail = ref([])
+// API call
+const fetchProductDetails = async () => {
+  try {
+    const response = await fetchAllChiTietSanPham();
+    productDetails.value = response.data
+  } catch (error) {
+    console.error('Error fetching product details:', error)
+  }
+}
 
 // Computed
 const filteredDetails = computed(() => {
@@ -422,140 +409,140 @@ const totalPages = computed(() => Math.ceil(filteredDetails.value.length / items
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
 const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length))
 
-const paginatedDetails = computed(() => {
-  return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
-})
+// const paginatedDetails = computed(() => {
+//   return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
+// })
 
 // Methods
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(amount).replace('₫', ' VND')
-}
+// const formatCurrency = (amount) => {
+//   return new Intl.NumberFormat('vi-VN', {
+//     style: 'currency',
+//     currency: 'VND',
+//     minimumFractionDigits: 0
+//   }).format(amount).replace('₫', ' VND')
+// }
 
-const getColorCode = (colorName) => {
-  const colorMap = {
-    'Đen': '#000000',
-    'Trắng': '#FFFFFF',
-    'Đỏ': '#FF0000',
-    'Xanh': '#0000FF',
-    'Vàng': '#FFFF00',
-    'Xám': '#808080',
-    'Nâu': '#8B4513',
-    'Hồng': '#FFC0CB'
-  }
-  return colorMap[colorName] || '#E5E7EB'
-}
+// const getColorCode = (colorName) => {
+//   const colorMap = {
+//     'Đen': '#000000',
+//     'Trắng': '#FFFFFF',
+//     'Đỏ': '#FF0000',
+//     'Xanh': '#0000FF',
+//     'Vàng': '#FFFF00',
+//     'Xám': '#808080',
+//     'Nâu': '#8B4513',
+//     'Hồng': '#FFC0CB'
+//   }
+//   return colorMap[colorName] || '#E5E7EB'
+// }
 
-const editDetail = (detail) => {
-  editingDetail.value = detail
-  formData.value = { 
-    ...detail,
-    id_san_pham: detail.id_san_pham,
-    id_mau_sac: detail.id_mau_sac,
-    id_kich_thuoc: detail.id_kich_thuoc,
-    id_chat_lieu: detail.id_chat_lieu,
-    id_de_giay: detail.id_de_giay,
-    id_dem_giay: detail.id_dem_giay
-  }
-  showEditModal.value = true
-}
+// const editDetail = (detail) => {
+//   editingDetail.value = detail
+//   formData.value = { 
+//     ...detail,
+//     id_san_pham: detail.id_san_pham,
+//     id_mau_sac: detail.id_mau_sac,
+//     id_kich_thuoc: detail.id_kich_thuoc,
+//     id_chat_lieu: detail.id_chat_lieu,
+//     id_de_giay: detail.id_de_giay,
+//     id_dem_giay: detail.id_dem_giay
+//   }
+//   showEditModal.value = true
+// }
 
-const deleteDetail = (id) => {
-  if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
-    const index = productDetails.value.findIndex(d => d.id === id)
-    if (index > -1) {
-      productDetails.value.splice(index, 1)
-    }
-  }
-}
+// const deleteDetail = (id) => {
+//   if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
+//     const index = productDetails.value.findIndex(d => d.id === id)
+//     if (index > -1) {
+//       productDetails.value.splice(index, 1)
+//     }
+//   }
+// }
 
-const saveDetail = () => {
-  if (!formData.value.id_san_pham || !formData.value.id_mau_sac || !formData.value.id_kich_thuoc) {
-    alert('Vui lòng nhập đầy đủ thông tin bắt buộc')
-    return
-  }
+// const saveDetail = () => {
+//   if (!formData.value.id_san_pham || !formData.value.id_mau_sac || !formData.value.id_kich_thuoc) {
+//     alert('Vui lòng nhập đầy đủ thông tin bắt buộc')
+//     return
+//   }
 
-  if (showAddModal.value) {
-    const newDetail = {
-      ...formData.value,
-      id: Date.now(),
-      product: products.value.find(p => p.id == formData.value.id_san_pham),
-      color: colors.value.find(c => c.id == formData.value.id_mau_sac),
-      size: sizes.value.find(s => s.id == formData.value.id_kich_thuoc),
-      material: materials.value.find(m => m.id == formData.value.id_chat_lieu)
-    }
-    productDetails.value.unshift(newDetail)
-  } else if (showEditModal.value && editingDetail.value) {
-    const index = productDetails.value.findIndex(d => d.id === editingDetail.value.id)
-    if (index > -1) {
-      productDetails.value[index] = {
-        ...editingDetail.value,
-        ...formData.value,
-        product: products.value.find(p => p.id == formData.value.id_san_pham),
-        color: colors.value.find(c => c.id == formData.value.id_mau_sac),
-        size: sizes.value.find(s => s.id == formData.value.id_kich_thuoc),
-        material: materials.value.find(m => m.id == formData.value.id_chat_lieu)
-      }
-    }
-  }
+//   if (showAddModal.value) {
+//     const newDetail = {
+//       ...formData.value,
+//       id: Date.now(),
+//       product: products.value.find(p => p.id == formData.value.id_san_pham),
+//       color: colors.value.find(c => c.id == formData.value.id_mau_sac),
+//       size: sizes.value.find(s => s.id == formData.value.id_kich_thuoc),
+//       material: materials.value.find(m => m.id == formData.value.id_chat_lieu)
+//     }
+//     productDetails.value.unshift(newDetail)
+//   } else if (showEditModal.value && editingDetail.value) {
+//     const index = productDetails.value.findIndex(d => d.id === editingDetail.value.id)
+//     if (index > -1) {
+//       productDetails.value[index] = {
+//         ...editingDetail.value,
+//         ...formData.value,
+//         product: products.value.find(p => p.id == formData.value.id_san_pham),
+//         color: colors.value.find(c => c.id == formData.value.id_mau_sac),
+//         size: sizes.value.find(s => s.id == formData.value.id_kich_thuoc),
+//         material: materials.value.find(m => m.id == formData.value.id_chat_lieu)
+//       }
+//     }
+//   }
 
-  closeModals()
-}
+//   closeModals()
+// }
 
-const closeModals = () => {
-  showAddModal.value = false
-  showEditModal.value = false
-  editingDetail.value = null
-  formData.value = {
-    id_san_pham: '',
-    id_mau_sac: '',
-    id_kich_thuoc: '',
-    id_chat_lieu: '',
-    id_de_giay: '',
-    id_dem_giay: '',
-    id_trong_luong: '',
-    id_mon_the_thao: '',
-    id_loai_mua: '',
-    id_do_ben: '',
-    id_chong_nuoc: '',
-    so_luong: 0,
-    gia_ban: 0,
-    trang_thai: 1,
-    ghi_chu: ''
-  }
-}
+// const closeModals = () => {
+//   showAddModal.value = false
+//   showEditModal.value = false
+//   editingDetail.value = null
+//   formData.value = {
+//     id_san_pham: '',
+//     id_mau_sac: '',
+//     id_kich_thuoc: '',
+//     id_chat_lieu: '',
+//     id_de_giay: '',
+//     id_dem_giay: '',
+//     id_trong_luong: '',
+//     id_mon_the_thao: '',
+//     id_loai_mua: '',
+//     id_do_ben: '',
+//     id_chong_nuoc: '',
+//     so_luong: 0,
+//     gia_ban: 0,
+//     trang_thai: 1,
+//     ghi_chu: ''
+//   }
+// }
 
-const clearFilters = () => {
-  searchQuery.value = ''
-  selectedProduct.value = ''
-  selectedColor.value = ''
-  selectedSize.value = ''
-  statusFilter.value = ''
-  currentPage.value = 1
-}
+// const clearFilters = () => {
+//   searchQuery.value = ''
+//   selectedProduct.value = ''
+//   selectedColor.value = ''
+//   selectedSize.value = ''
+//   statusFilter.value = ''
+//   currentPage.value = 1
+// }
 
-const applyFilters = () => {
-  currentPage.value = 1
-}
+// const applyFilters = () => {
+//   currentPage.value = 1
+// }
 
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
-}
+// const previousPage = () => {
+//   if (currentPage.value > 1) {
+//     currentPage.value--
+//   }
+// }
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-  }
-}
+// const nextPage = () => {
+//   if (currentPage.value < totalPages.value) {
+//     currentPage.value++
+//   }
+// }
 
-const refreshData = () => {
-  console.log('Refreshing product details data...')
-}
+// const refreshData = () => {
+//   console.log('Refreshing product details data...')
+// }
 
 const exportData = () => {
   console.log('Exporting product details report...')
@@ -567,57 +554,57 @@ const exportDetailsToExcel = () => {
   alert('Xuất Excel thành công! (Chức năng đang được phát triển)')
 }
 
-onMounted(() => {
-  // Load initial data - Replace with actual API calls
-  loadMockData()
-})
+// onMounted(() => {
+//   // Load initial data - Replace with actual API calls
+//   loadMockData()
+// })
 
-const loadMockData = () => {
-  // Mock products
-  products.value = [
-    { id: 1, ten_san_pham: 'Nike Air Force 1', ma_san_pham: 'NAF001' },
-    { id: 2, ten_san_pham: 'Adidas Ultraboost 22', ma_san_pham: 'AUB022' },
-    { id: 3, ten_san_pham: 'Converse Chuck Taylor', ma_san_pham: 'CCT001' }
-  ]
+// const loadMockData = () => {
+//   // Mock products
+//   products.value = [
+//     { id: 1, ten_san_pham: 'Nike Air Force 1', ma_san_pham: 'NAF001' },
+//     { id: 2, ten_san_pham: 'Adidas Ultraboost 22', ma_san_pham: 'AUB022' },
+//     { id: 3, ten_san_pham: 'Converse Chuck Taylor', ma_san_pham: 'CCT001' }
+//   ]
 
-  // Mock colors
-  colors.value = [
-    { id: 1, ten_mau_sac: 'Đen' },
-    { id: 2, ten_mau_sac: 'Trắng' },
-    { id: 3, ten_mau_sac: 'Đỏ' },
-    { id: 4, ten_mau_sac: 'Xanh' }
-  ]
+//   // Mock colors
+//   colors.value = [
+//     { id: 1, ten_mau_sac: 'Đen' },
+//     { id: 2, ten_mau_sac: 'Trắng' },
+//     { id: 3, ten_mau_sac: 'Đỏ' },
+//     { id: 4, ten_mau_sac: 'Xanh' }
+//   ]
 
-  // Mock sizes
-  sizes.value = [
-    { id: 1, ten_kich_thuoc: '39' },
-    { id: 2, ten_kich_thuoc: '40' },
-    { id: 3, ten_kich_thuoc: '41' },
-    { id: 4, ten_kich_thuoc: '42' },
-    { id: 5, ten_kich_thuoc: '43' }
-  ]
+//   // Mock sizes
+//   sizes.value = [
+//     { id: 1, ten_kich_thuoc: '39' },
+//     { id: 2, ten_kich_thuoc: '40' },
+//     { id: 3, ten_kich_thuoc: '41' },
+//     { id: 4, ten_kich_thuoc: '42' },
+//     { id: 5, ten_kich_thuoc: '43' }
+//   ]
 
-  // Mock materials
-  materials.value = [
-    { id: 1, ten_chat_lieu: 'Da thật' },
-    { id: 2, ten_chat_lieu: 'Da tổng hợp' },
-    { id: 3, ten_chat_lieu: 'Vải canvas' },
-    { id: 4, ten_chat_lieu: 'Vải lưới' }
-  ]
+//   // Mock materials
+//   materials.value = [
+//     { id: 1, ten_chat_lieu: 'Da thật' },
+//     { id: 2, ten_chat_lieu: 'Da tổng hợp' },
+//     { id: 3, ten_chat_lieu: 'Vải canvas' },
+//     { id: 4, ten_chat_lieu: 'Vải lưới' }
+//   ]
 
-  // Mock soles and insoles
-  soles.value = [
-    { id: 1, ten_de_giay: 'Cao su' },
-    { id: 2, ten_de_giay: 'EVA' },
-    { id: 3, ten_de_giay: 'TPU' }
-  ]
+//   // Mock soles and insoles
+//   soles.value = [
+//     { id: 1, ten_de_giay: 'Cao su' },
+//     { id: 2, ten_de_giay: 'EVA' },
+//     { id: 3, ten_de_giay: 'TPU' }
+//   ]
 
-  insoles.value = [
-    { id: 1, ten_dem_giay: 'Memory Foam' },
-    { id: 2, ten_dem_giay: 'Gel' },
-    { id: 3, ten_dem_giay: 'Air' }
-  ]
-}
+//   insoles.value = [
+//     { id: 1, ten_dem_giay: 'Memory Foam' },
+//     { id: 2, ten_dem_giay: 'Gel' },
+//     { id: 3, ten_dem_giay: 'Air' }
+//   ]
+// }
 </script>
 
 <style scoped>

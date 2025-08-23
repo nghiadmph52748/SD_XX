@@ -53,4 +53,10 @@ public class AnhSanPhamService extends GenericCrudService<AnhSanPham, Integer, A
         MapperUtils.mapToExisting(anhSanPhamRequest, existing);
         anhSanPhamRepository.save(existing);
     }
+
+    public void updateStatus(int id) {
+        AnhSanPham existing = anhSanPhamRepository.findById(id).orElseThrow(() -> new ApiException("Không tìm thấy ảnh sản phẩm với id: " + id, "404"));
+        existing.setDeleted(true);
+        anhSanPhamRepository.save(existing);
+    }
 }

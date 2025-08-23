@@ -17,10 +17,6 @@ import ProductManagement from './pages/management/QuanLySanPham.vue'
 
 // Product Attributes (ERD: danh_muc, thuong_hieu, mau_sac, kich_thuoc)
 import ProductTypes from './pages/products/LoaiSanPham.vue'
-import ProductBrands from './pages/products/ThuongHieuSanPham.vue'
-import ProductColors from './pages/products/MauSacSanPham.vue'
-import ProductSizes from './pages/management/KichThuocSanPham.vue'
-import ProductMaterials from './pages/products/ChatLieuSanPham.vue'
 import ProductDetails from './pages/products/ChiTietSanPham.vue'
 
 // Order Management (ERD: hoa_don, hoa_don_chi_tiet, thanh_toan)
@@ -52,51 +48,74 @@ import InventoryImportManagement from './pages/management/QuanLyNhapKho.vue'
 import ActivityLogsManagement from './pages/management/QuanLyNhatKyHoatDong.vue'
 import PriceHistoryManagement from './pages/management/QuanLyLichSuGia.vue'
 
+// 
+import ProductXuatXu from './pages/products/XuatXu.vue'
+import ProductNhaSanXuat from './pages/products/NhaSanXuat.vue'
+import MauSac from './pages/products/MauSac.vue'
+import KichThuoc from './pages/products/KichThuoc.vue'
+import DeGiay from './pages/products/DeGiay.vue'
+import ChatLieu from './pages/products/ChatLieu.vue'
+import DemGiay from './pages/products/DemGiay.vue'
+import TrongLuong from './pages/products/TrongLuong.vue'
+import MonTheThao from './pages/products/MonTheThao.vue'
+import LoaiMua from './pages/products/LoaiMua.vue'
+import DoBen from './pages/products/DoBen.vue'
+import ChongNuoc from './pages/products/ChongNuoc.vue'
+import AnhSanPham from './pages/products/AnhSanPham.vue'
+
 const routes = [
   { path: '/login', component: Login },
   { path: '/', redirect: '/dashboard' },
   { path: '/dashboard', component: Dashboard },
-  
+
   // User Management
   { path: '/users/employees', component: EmployeeManagement },
   { path: '/users/customers', component: CustomerManagement },
-  
+
   // Product Management
   { path: '/products', component: ProductManagement },
   { path: '/products/details', component: ProductDetails },
   { path: '/products/categories', component: ProductTypes },
-  { path: '/products/brands', component: ProductBrands },
-  { path: '/products/colors', component: ProductColors },
-  { path: '/products/sizes', component: ProductSizes },
-  { path: '/products/materials', component: ProductMaterials },
-  
+  { path: '/products/xuat-xu', component: ProductXuatXu },
+  { path: '/products/nha-san-xuat', component: ProductNhaSanXuat },
+  { path: '/products/mau-sac', component: MauSac },
+  { path: '/products/kich-thuoc', component: KichThuoc },
+  { path: '/products/de-giay', component: DeGiay },
+  { path: '/products/chat-lieu', component: ChatLieu },
+  { path: '/products/dem-giay', component: DemGiay },
+  { path: '/products/trong-luong', component: TrongLuong },
+  { path: '/products/mon-the-thao', component: MonTheThao },
+  { path: '/products/loai-mua', component: LoaiMua },
+  { path: '/products/do-ben', component: DoBen },
+  { path: '/products/chong-nuoc', component: ChongNuoc },
+  { path: '/products/anh-san-pham', component: AnhSanPham },
   // Sales & Orders
   { path: '/sales/pos', component: POSSystem },
   { path: '/sales/orders', component: OrderManagement },
   { path: '/sales/returns', component: ReturnsManagement },
-  
+
   // Marketing & Promotions
   { path: '/marketing/discounts', component: DiscountCoupons },
   { path: '/marketing/campaigns', component: DiscountCampaigns },
   { path: '/marketing/vouchers', component: UserVouchersManagement },
-  
+
   // Customer Engagement
   { path: '/customers/carts', component: CartManagement },
   { path: '/customers/favorites', component: FavoritesManagement },
   { path: '/customers/reviews', component: ReviewsManagement },
   { path: '/customers/comments', component: CommentsManagement },
-  
+
   // Communication
   { path: '/communication/notifications', component: NotificationsManagement },
   { path: '/communication/contacts', component: ContactManagement },
-  
+
   // Inventory
   { path: '/inventory/imports', component: InventoryImportManagement },
-  
+
   // Analytics & System
   { path: '/analytics/price-history', component: PriceHistoryManagement },
   { path: '/system/activity-logs', component: ActivityLogsManagement },
-  
+
   // Legacy routes (for compatibility)
   { path: '/orders', redirect: '/sales/orders' },
   { path: '/pos', redirect: '/sales/pos' },

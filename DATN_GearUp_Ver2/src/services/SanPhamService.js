@@ -16,8 +16,36 @@ export const fetchAllSanPham = async () => {
     return res.json();
 }
 
+export const fetchCreateSanPham = async (data) => {
+    const response = await fetch(`${API}/add`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create product");
+    }
+}
+
+export const fetchUpdateSanPham = async (id, data) => {
+    const res = await fetch(`${API}/update/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to update product");
+    }
+}
+
 export const fetchUpdateStatusSanPham = async (id) => {
-    const res = await fetch(`${API}/update/status/${id}`, {
+    await fetch(`${API}/update/status/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"

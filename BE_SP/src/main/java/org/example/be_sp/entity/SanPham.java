@@ -29,7 +29,7 @@ public class SanPham {
     private XuatXu idXuatXu;
 
     @ColumnDefault("'SP'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_san_pham", length = 7)
+    @Column(name = "ma_san_pham", length = 7, updatable = false, insertable = false)
     private String maSanPham;
 
     @Nationalized

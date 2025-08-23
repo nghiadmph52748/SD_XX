@@ -1,28 +1,28 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, markRaw } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuth } from './services/khoXacThuc.js'
-import { useNotifications } from './composables/useNotifications.js'
-import { setGlobalNotificationInstance } from './services/dichVuThongBao.js'
-import logoUrl from '@/assets/gearup-logo-official.svg'
+import { ref, computed, onMounted, onUnmounted, watch, markRaw } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useAuth } from "./services/khoXacThuc.js";
+import { useNotifications } from "./composables/useNotifications.js";
+import { setGlobalNotificationInstance } from "./services/dichVuThongBao.js";
+import logoUrl from "@/assets/gearup-logo-official.svg";
 
-const router = useRouter()
-const route = useRoute()
-const { authState, logout: authLogout, initializeAuth } = useAuth()
+const router = useRouter();
+const route = useRoute();
+const { authState, logout: authLogout, initializeAuth } = useAuth();
 
-const sidebarOpen = ref(true) // Always keep sidebar open
-const showNotifications = ref(false)
-const showUserDropdown = ref(false)
-const showAllNotificationsModal = ref(false)
-const isModalClosing = ref(false)
-const isCountUpdating = ref(false)
+const sidebarOpen = ref(true); // Always keep sidebar open
+const showNotifications = ref(false);
+const showUserDropdown = ref(false);
+const showAllNotificationsModal = ref(false);
+const isModalClosing = ref(false);
+const isCountUpdating = ref(false);
 const expandedMenus = ref({
-  'QUẢN LÝ ĐƠN HÀNG': true,
-  'QUẢN LÝ SẢN PHẨM': true,
-  'GIẢM GIÁ & KHUYẾN MÃI': true,
-  'HỖ TRỢ KHÁCH HÀNG': true,
-  'NGƯỜI DÙNG': true
-})
+  "QUẢN LÝ ĐƠN HÀNG": true,
+  "QUẢN LÝ SẢN PHẨM": true,
+  "GIẢM GIÁ & KHUYẾN MÃI": true,
+  "HỖ TRỢ KHÁCH HÀNG": true,
+  "NGƯỜI DÙNG": true,
+});
 
 // Notifications
 const {
@@ -36,415 +36,443 @@ const {
   createOrderNotification,
   createProductNotification,
   createCustomerNotification,
-  createSystemNotification
-} = useNotifications()
+  createSystemNotification,
+} = useNotifications();
 
-const unreadNotifications = computed(() => unreadCount.value)
-const previousUnreadCount = ref(0)
+const unreadNotifications = computed(() => unreadCount.value);
+const previousUnreadCount = ref(0);
 
 // Filters
 const notificationFilters = markRaw([
-  { key: 'all', label: 'Tất cả', icon: '📋' },
-  { key: 'unread', label: 'Chưa đọc', icon: '🔴' },
-  { key: 'order', label: 'Đơn hàng', icon: '🛒' },
-  { key: 'inventory', label: 'Kho hàng', icon: '📦' },
-  { key: 'review', label: 'Đánh giá', icon: '⭐' },
-  { key: 'customer', label: 'Khách hàng', icon: '👥' },
-  { key: 'report', label: 'Báo cáo', icon: '📊' }
-])
+  { key: "all", label: "Tất cả", icon: "📋" },
+  { key: "unread", label: "Chưa đọc", icon: "🔴" },
+  { key: "order", label: "Đơn hàng", icon: "🛒" },
+  { key: "inventory", label: "Kho hàng", icon: "📦" },
+  { key: "review", label: "Đánh giá", icon: "⭐" },
+  { key: "customer", label: "Khách hàng", icon: "👥" },
+  { key: "report", label: "Báo cáo", icon: "📊" },
+]);
 
-const selectedFilter = ref('all')
+const selectedFilter = ref("all");
 
 // Current user data from auth state
 const currentUser = computed(() => {
   if (!authState.user) {
     return {
-      name: 'Guest',
-      role: 'guest',
-      fullName: 'Khách'
-    }
+      name: "Guest",
+      role: "guest",
+      fullName: "Khách",
+    };
   }
-  
+
   return {
-    name: authState.user.hoTen || 'User',
-    role: authState.user.loaiNguoiDung === 'nhan_vien' ? 'staff' : 'customer',
-    fullName: authState.user.hoTen || 'User',
-    quyenHan: authState.user.quyenHan
-  }
-})
+    name: authState.user.hoTen || "User",
+    role: authState.user.loaiNguoiDung === "nhan_vien" ? "staff" : "customer",
+    fullName: authState.user.hoTen || "User",
+    quyenHan: authState.user.quyenHan,
+  };
+});
 
 // Check if current route is login page
-const isLoginPage = computed(() => route.path === '/login')
+const isLoginPage = computed(() => route.path === "/login");
 
 // Computed for display name with role
 const displayName = computed(() => {
-  const user = currentUser.value
-  
-  if (user.role === 'staff') {
+  const user = currentUser.value;
+
+  if (user.role === "staff") {
     // For employees, show Admin or Staff based on permission
-    const roleLabel = user.quyenHan === 'Admin' ? 'Admin' : 'Staff'
+    const roleLabel = user.quyenHan === "Admin" ? "Admin" : "Staff";
     return {
       name: user.name,
-      role: roleLabel
-    }
-  } else if (user.role === 'customer') {
+      role: roleLabel,
+    };
+  } else if (user.role === "customer") {
     return {
       name: user.name,
-      role: 'Customer'
-    }
+      role: "Customer",
+    };
   } else {
     return {
       name: user.name,
-      role: 'Guest'
-    }
+      role: "Guest",
+    };
   }
-})
+});
 
 // Page title from route
 const pageTitle = computed(() => {
   const titleMap = {
     // Dashboard
-    '/dashboard': 'Thống kê & Báo cáo',
-    
+    "/dashboard": "Thống kê & Báo cáo",
+
     // User Management
-    '/users/employees': 'Quản lý Nhân viên',
-    '/users/customers': 'Quản lý Khách hàng',
-    
+    "/users/employees": "Quản lý Nhân viên",
+    "/users/customers": "Quản lý Khách hàng",
+
     // Product Management
-    '/products': 'Quản lý Sản phẩm',
-    '/products/details': 'Chi tiết Sản phẩm',
-    '/products/categories': 'Danh mục Sản phẩm',
-    '/products/brands': 'Thương hiệu',
-    '/products/colors': 'Màu sắc',
-    '/products/sizes': 'Kích thước',
-    '/products/materials': 'Chất liệu',
-    
+    "/products": "Quản lý Sản phẩm",
+    "/products/details": "Chi tiết Sản phẩm",
+    "/products/categories": "Danh mục Sản phẩm",
+    "/products/xuat-xu": "Xuất xứ",
+    "/products/nha-san-xuat": "Nhà sản xuất",
+    "/products/mau-sac": "Màu sắc",
+    "/products/kich-thuoc": "Kích thước",
+    "/products/de-giay": "Đế giày",
+    "/products/chat-lieu": "Chất liệu",
+    "/products/dem-giay": "Đệm giày",
+    "/products/trong-luong": "Trọng lượng",
+    "/products/mon-the-thao": "Môn thể thao",
+    "/products/loai-mua": "Loại mùa",
+    "/products/do-ben": "Độ bền",
+    "/products/chong-nuoc": "Chống nước",
+    "/products/anh-san-pham": "Ảnh sản phẩm",
+
     // Sales & Orders
-    '/sales/pos': 'Bán hàng tại quầy',
-    '/sales/orders': 'Quản lý Đơn hàng',
-    '/sales/returns': 'Quản lý Trả hàng',
-    
+    "/sales/pos": "Bán hàng tại quầy",
+    "/sales/orders": "Quản lý Đơn hàng",
+    "/sales/returns": "Quản lý Trả hàng",
+
     // Marketing & Promotions
-    '/marketing/discounts': 'Mã giảm giá',
-    '/marketing/campaigns': 'Chiến dịch khuyến mãi',
-    '/marketing/vouchers': 'Phiếu giảm giá người dùng',
-    
+    "/marketing/discounts": "Mã giảm giá",
+    "/marketing/campaigns": "Chiến dịch khuyến mãi",
+    "/marketing/vouchers": "Phiếu giảm giá người dùng",
+
     // Customer Engagement
-    '/customers/carts': 'Quản lý Giỏ hàng',
-    '/customers/favorites': 'Sản phẩm Yêu thích',
-    '/customers/reviews': 'Đánh giá Sản phẩm',
-    '/customers/comments': 'Bình luận',
-    
+    "/customers/carts": "Quản lý Giỏ hàng",
+    "/customers/favorites": "Sản phẩm Yêu thích",
+    "/customers/reviews": "Đánh giá Sản phẩm",
+    "/customers/comments": "Bình luận",
+
     // Communication
-    '/communication/notifications': 'Thông báo',
-    '/communication/contacts': 'Liên hệ',
-    
+    "/communication/notifications": "Thông báo",
+    "/communication/contacts": "Liên hệ",
+
     // Inventory
-    '/inventory/imports': 'Nhập kho',
-    
+    "/inventory/imports": "Nhập kho",
+
     // Analytics & System
-    '/analytics/price-history': 'Lịch sử Giá',
-    '/system/activity-logs': 'Nhật ký Hoạt động'
-  }
-  return titleMap[route.path] || 'GearUp Admin'
-})
+    "/analytics/price-history": "Lịch sử Giá",
+    "/system/activity-logs": "Nhật ký Hoạt động",
+  };
+  return titleMap[route.path] || "GearUp Admin";
+});
 
 const menuItems = [
   // Dashboard Section
-  { 
-    path: '/dashboard',
-    name: 'THỐNG KÊ & BÁO CÁO', 
+  {
+    path: "/dashboard",
+    name: "THỐNG KÊ & BÁO CÁO",
     iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
     </svg>`,
-    hasSubmenu: false
+    hasSubmenu: false,
   },
-  
+
   // Order Management Section
-  { 
-    name: 'QUẢN LÝ ĐƠN HÀNG', 
+  {
+    name: "QUẢN LÝ ĐƠN HÀNG",
     iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
     </svg>`,
     hasSubmenu: true,
     submenu: [
-      { path: '/sales/pos', name: 'Bán hàng tại quầy' },
-      { path: '/sales/orders', name: 'Danh sách đơn hàng' },
-      { path: '/sales/returns', name: 'Trả hàng & hoàn tiền' },
-      { path: '/inventory/imports', name: 'Nhập hàng' },
-      { path: '/analytics/price-history', name: 'Lịch sử giá bán' },
-      { path: '/system/activity-logs', name: 'Nhật ký giao dịch' }
-    ]
+      { path: "/sales/pos", name: "Bán hàng tại quầy" },
+      { path: "/sales/orders", name: "Danh sách đơn hàng" },
+      { path: "/sales/returns", name: "Trả hàng & hoàn tiền" },
+      { path: "/inventory/imports", name: "Nhập hàng" },
+      { path: "/analytics/price-history", name: "Lịch sử giá bán" },
+      { path: "/system/activity-logs", name: "Nhật ký giao dịch" },
+    ],
   },
-  
+
   // Product Management Section
-  { 
-    name: 'QUẢN LÝ SẢN PHẨM', 
+  {
+    name: "QUẢN LÝ SẢN PHẨM",
     iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2L2 7L12 12L22 7L12 2ZM2 17L12 22L22 17M2 12L12 17L22 12"/>
     </svg>`,
     hasSubmenu: true,
     submenu: [
-      { path: '/products', name: 'Danh sách sản phẩm' },
-      { path: '/products/categories', name: 'Danh mục sản phẩm' },
-      { path: '/products/brands', name: 'Thương hiệu' },
-      { path: '/products/colors', name: 'Màu sắc' },
-      { path: '/products/sizes', name: 'Kích thước' },
-      { path: '/products/materials', name: 'Chất liệu' },
-      { path: '/products/details', name: 'Chi tiết sản phẩm' }
-    ]
+      { path: "/products", name: "Danh sách sản phẩm" },
+      { path: "/products/categories", name: "Danh mục sản phẩm" },
+      { path: "/products/details", name: "Chi tiết sản phẩm" },
+      { path: "/products/xuat-xu", name: "Xuất xứ" },
+      { path: "/products/nha-san-xuat", name: "Nhà sản xuất" },
+      { path: "/products/mau-sac", name: "Màu sắc" },
+      { path: "/products/kich-thuoc", name: "Kích thước" },
+      { path: "/products/de-giay", name: "Đế giày" },
+      { path: "/products/chat-lieu", name: "Chất liệu" },
+      { path: "/products/dem-giay", name: "Đệm giày" },
+      { path: "/products/trong-luong", name: "Trọng lượng" },
+      { path: "/products/mon-the-thao", name: "Môn thể thao" },
+      { path: "/products/loai-mua", name: "Loại mùa" },
+      { path: "/products/do-ben", name: "Độ bền" },
+      { path: "/products/chong-nuoc", name: "Chống nước" },
+      { path: "/products/anh-san-pham", name: "Ảnh sản phẩm" },
+    ],
   },
-  
+
   // Discounts Section
-  { 
-    name: 'GIẢM GIÁ & KHUYẾN MÃI',
+  {
+    name: "GIẢM GIÁ & KHUYẾN MÃI",
     iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12.79 21L3 11.21V2H11.21L21 11.79L12.79 21ZM4.41 4H6.58V5.17C6.58 5.72 7.03 6.17 7.58 6.17S8.58 5.72 8.58 5.17V4H10.76L19 12.24L12.79 18.45L4.55 10.21L4.41 4Z"/>
     </svg>`,
     hasSubmenu: true,
     submenu: [
-      { path: '/marketing/discounts', name: 'Mã giảm giá' },
-      { path: '/marketing/campaigns', name: 'Chiến dịch khuyến mãi' },
-      { path: '/marketing/vouchers', name: 'Phiếu giảm giá' }
-    ]
+      { path: "/marketing/discounts", name: "Mã giảm giá" },
+      { path: "/marketing/campaigns", name: "Chiến dịch khuyến mãi" },
+      { path: "/marketing/vouchers", name: "Phiếu giảm giá" },
+    ],
   },
-  
+
   // Customer Support Section
-  { 
-    name: 'HỖ TRỢ KHÁCH HÀNG',
+  {
+    name: "HỖ TRỢ KHÁCH HÀNG",
     iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 4V6L21 9ZM3 9L9 6V4L3 7V9ZM15 18V20L21 17V15L15 18ZM3 15V17L9 20V18L3 15ZM12 8L18 11V13L12 16L6 13V11L12 8Z"/>
     </svg>`,
     hasSubmenu: true,
     submenu: [
-      { path: '/customers/carts', name: 'Quản lý giỏ hàng' },
-      { path: '/customers/favorites', name: 'Sản phẩm yêu thích' },
-      { path: '/customers/reviews', name: 'Đánh giá sản phẩm' },
-      { path: '/customers/comments', name: 'Bình luận khách hàng' },
-      { path: '/communication/notifications', name: 'Thông báo hệ thống' },
-      { path: '/communication/contacts', name: 'Liên hệ & khiếu nại' }
-    ]
+      { path: "/customers/carts", name: "Quản lý giỏ hàng" },
+      { path: "/customers/favorites", name: "Sản phẩm yêu thích" },
+      { path: "/customers/reviews", name: "Đánh giá sản phẩm" },
+      { path: "/customers/comments", name: "Bình luận khách hàng" },
+      { path: "/communication/notifications", name: "Thông báo hệ thống" },
+      { path: "/communication/contacts", name: "Liên hệ & khiếu nại" },
+    ],
   },
-  
+
   // Users Section
-  { 
-    name: 'NGƯỜI DÙNG', 
+  {
+    name: "NGƯỜI DÙNG",
     iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M16 4C18.2 4 20 5.8 20 8S18.2 12 16 12S12 10.2 12 8S13.8 4 16 4ZM4 8C4 5.8 5.8 4 8 4S12 5.8 12 8S10.2 12 8 12S4 10.2 4 8ZM8 14C12.4 14 16 16.6 16 20V22H0V20C0 16.6 3.6 14 8 14ZM24 20V22H18V20C18 18.2 17.2 16.5 15.8 15.3C17.1 14.8 18.5 14.5 20 14.5C22.2 14.5 24 17.1 24 20Z"/>
     </svg>`,
     hasSubmenu: true,
     submenu: [
-      { path: '/users/employees', name: 'Nhân viên' },
-      { path: '/users/customers', name: 'Khách hàng' }
-    ]
-  }
-]
+      { path: "/users/employees", name: "Nhân viên" },
+      { path: "/users/customers", name: "Khách hàng" },
+    ],
+  },
+];
 
 // Computed properties for filtered notifications
 const filteredNotificationsModal = computed(() => {
-  const notifs = notifications.value
+  const notifs = notifications.value;
 
   // Early return for 'all' filter to avoid unnecessary filtering
-  if (selectedFilter.value === 'all') {
-    return [...notifs].sort((a, b) => b.timestamp - a.timestamp)
+  if (selectedFilter.value === "all") {
+    return [...notifs].sort((a, b) => b.timestamp - a.timestamp);
   }
 
-  let filtered
-  if (selectedFilter.value === 'unread') {
-    filtered = notifs.filter(n => !n.isRead)
+  let filtered;
+  if (selectedFilter.value === "unread") {
+    filtered = notifs.filter((n) => !n.isRead);
   } else {
     // For type filters
-    filtered = notifs.filter(n => n.type === selectedFilter.value)
+    filtered = notifs.filter((n) => n.type === selectedFilter.value);
   }
 
-  return filtered.sort((a, b) => b.timestamp - a.timestamp)
-})
+  return filtered.sort((a, b) => b.timestamp - a.timestamp);
+});
 
 // Create reactive computed properties for filter counts
 const filterCounts = computed(() => {
   const counts = {
     all: notifications.value.length,
-    unread: notifications.value.filter(n => !n.isRead).length,
-    order: notifications.value.filter(n => n.type === 'order').length,
-    inventory: notifications.value.filter(n => n.type === 'inventory').length,
-    review: notifications.value.filter(n => n.type === 'review').length,
-    customer: notifications.value.filter(n => n.type === 'customer').length,
-    report: notifications.value.filter(n => n.type === 'report').length
-  }
+    unread: notifications.value.filter((n) => !n.isRead).length,
+    order: notifications.value.filter((n) => n.type === "order").length,
+    inventory: notifications.value.filter((n) => n.type === "inventory").length,
+    review: notifications.value.filter((n) => n.type === "review").length,
+    customer: notifications.value.filter((n) => n.type === "customer").length,
+    report: notifications.value.filter((n) => n.type === "report").length,
+  };
 
-  return counts
-})
+  return counts;
+});
 
 // Notification functions
 const toggleNotifications = () => {
-  console.log('Toggle notifications clicked, current state:', showNotifications.value)
-  showNotifications.value = !showNotifications.value
-  console.log('New state:', showNotifications.value)
-}
+  console.log(
+    "Toggle notifications clicked, current state:",
+    showNotifications.value
+  );
+  showNotifications.value = !showNotifications.value;
+  console.log("New state:", showNotifications.value);
+};
 
-const markAsRead = async notificationId => {
-  markAsReadComposable(notificationId)
-}
+const markAsRead = async (notificationId) => {
+  markAsReadComposable(notificationId);
+};
 
 const markAllAsRead = async () => {
-  markAllAsReadComposable()
-}
+  markAllAsReadComposable();
+};
 
 const viewAllNotifications = () => {
-  showNotifications.value = false
-  showAllNotificationsModal.value = true
-}
+  showNotifications.value = false;
+  showAllNotificationsModal.value = true;
+};
 
 const closeAllNotificationsModal = () => {
-  isModalClosing.value = true
+  isModalClosing.value = true;
   setTimeout(() => {
-    showAllNotificationsModal.value = false
-    isModalClosing.value = false
-  }, 400)
-}
+    showAllNotificationsModal.value = false;
+    isModalClosing.value = false;
+  }, 400);
+};
 
-const getUnreadCountForFilter = filterKey => {
+const getUnreadCountForFilter = (filterKey) => {
   switch (filterKey) {
-    case 'all':
-      return notifications.value.filter(n => !n.isRead).length
-    case 'unread':
-      return notifications.value.filter(n => !n.isRead).length
+    case "all":
+      return notifications.value.filter((n) => !n.isRead).length;
+    case "unread":
+      return notifications.value.filter((n) => !n.isRead).length;
     default:
       // For specific types, count unread notifications of that type
-      return notifications.value.filter(n => n.type === filterKey && !n.isRead).length
+      return notifications.value.filter(
+        (n) => n.type === filterKey && !n.isRead
+      ).length;
   }
-}
+};
 
-const getTypeLabel = type => {
+const getTypeLabel = (type) => {
   const typeLabels = {
-    order: 'Đơn hàng',
-    inventory: 'Kho hàng',
-    review: 'Đánh giá',
-    customer: 'Khách hàng',
-    report: 'Báo cáo'
-  }
-  return typeLabels[type] || 'Khác'
-}
+    order: "Đơn hàng",
+    inventory: "Kho hàng",
+    review: "Đánh giá",
+    customer: "Khách hàng",
+    report: "Báo cáo",
+  };
+  return typeLabels[type] || "Khác";
+};
 
 const getEmptyMessage = () => {
-  const filter = selectedFilter.value
-  if (filter === 'all') return 'Hiện tại không có thông báo nào.'
-  if (filter === 'unread') return 'Tất cả thông báo đã được đọc.'
-  const filterObj = notificationFilters.find(f => f.key === filter)
-  return `Không có thông báo ${filterObj ? filterObj.label.toLowerCase() : 'này'}.`
-}
+  const filter = selectedFilter.value;
+  if (filter === "all") return "Hiện tại không có thông báo nào.";
+  if (filter === "unread") return "Tất cả thông báo đã được đọc.";
+  const filterObj = notificationFilters.find((f) => f.key === filter);
+  return `Không có thông báo ${
+    filterObj ? filterObj.label.toLowerCase() : "này"
+  }.`;
+};
 
-const formatTimeAgo = timestamp => {
-  const now = new Date()
-  const diff = now - timestamp
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatTimeAgo = (timestamp) => {
+  const now = new Date();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return 'Vừa xong'
-  if (minutes < 60) return `${minutes} phút trước`
-  if (hours < 24) return `${hours} giờ trước`
-  return `${days} ngày trước`
-}
+  if (minutes < 1) return "Vừa xong";
+  if (minutes < 60) return `${minutes} phút trước`;
+  if (hours < 24) return `${hours} giờ trước`;
+  return `${days} ngày trước`;
+};
 
-const formatFullDate = timestamp => {
-  return new Intl.DateTimeFormat('vi-VN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(timestamp)
-}
+const formatFullDate = (timestamp) => {
+  return new Intl.DateTimeFormat("vi-VN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(timestamp);
+};
 
 const toggleUserDropdown = () => {
-  showUserDropdown.value = !showUserDropdown.value
-}
+  showUserDropdown.value = !showUserDropdown.value;
+};
 
 const navigateToDashboard = () => {
-  router.push('/dashboard')
-}
+  router.push("/dashboard");
+};
 
 const logout = () => {
-  showUserDropdown.value = false
-  authLogout()
-  router.push('/login')
-}
+  showUserDropdown.value = false;
+  authLogout();
+  router.push("/login");
+};
 
 const closeMobileMenu = () => {
   // For mobile menu handling if needed
-}
+};
 
 const toggleSubmenu = (menuName) => {
-  expandedMenus.value[menuName] = !expandedMenus.value[menuName]
-}
+  expandedMenus.value[menuName] = !expandedMenus.value[menuName];
+};
 
 const isSubmenuExpanded = (menuName) => {
-  return expandedMenus.value[menuName] || false
-}
+  return expandedMenus.value[menuName] || false;
+};
 
 const isSubmenuItemActive = (submenu) => {
-  return submenu.some(item => route.path === item.path)
-}
+  return submenu.some((item) => route.path === item.path);
+};
 
 // Watch for unread count changes to trigger animation
 watch(
   unreadNotifications,
   (newCount, oldCount) => {
     if (newCount !== oldCount && newCount > 0) {
-      isCountUpdating.value = true
+      isCountUpdating.value = true;
       setTimeout(() => {
-        isCountUpdating.value = false
-      }, 600)
+        isCountUpdating.value = false;
+      }, 600);
     }
-    previousUnreadCount.value = oldCount
+    previousUnreadCount.value = oldCount;
   },
   { immediate: false }
-)
+);
 
 // Close dropdown when clicking outside
 const closeDropdowns = (event) => {
-  if (!event.target.closest('.user-profile')) {
-    showUserDropdown.value = false
+  if (!event.target.closest(".user-profile")) {
+    showUserDropdown.value = false;
   }
   if (
     showNotifications.value &&
-    !event.target.closest('.notification-button') &&
-    !event.target.closest('.notifications-dropdown')
+    !event.target.closest(".notification-button") &&
+    !event.target.closest(".notifications-dropdown")
   ) {
-    showNotifications.value = false
+    showNotifications.value = false;
   }
-  if (showAllNotificationsModal.value && !event.target.closest('.notifications-modal')) {
-    closeAllNotificationsModal()
+  if (
+    showAllNotificationsModal.value &&
+    !event.target.closest(".notifications-modal")
+  ) {
+    closeAllNotificationsModal();
   }
-}
+};
 
 onMounted(() => {
-  document.addEventListener('click', closeDropdowns)
-  initializeAuth() // Initialize auth state from localStorage
-  startPolling() // Start notification system
-  
+  document.addEventListener("click", closeDropdowns);
+  initializeAuth(); // Initialize auth state from localStorage
+  startPolling(); // Start notification system
+
   // Set up global notification instance
   setGlobalNotificationInstance({
     addNotification,
     createOrderNotification,
     createProductNotification,
     createCustomerNotification,
-    createSystemNotification
-  })
-  
+    createSystemNotification,
+  });
+
   // No automatic notifications - only trigger on actual changes
-})
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', closeDropdowns)
-})
+  document.removeEventListener("click", closeDropdowns);
+});
 </script>
 
 <template>
   <!-- Login Page (standalone) -->
   <router-view v-if="isLoginPage" />
-  
+
   <!-- Admin Layout (with sidebar and header) -->
   <div v-else class="admin-layout">
     <!-- Sidebar -->
@@ -460,40 +488,53 @@ onUnmounted(() => {
       <nav class="nav-menu">
         <template v-for="item in menuItems" :key="item.name">
           <!-- Regular menu item -->
-          <router-link 
+          <router-link
             v-if="!item.hasSubmenu"
-            :to="item.path" 
+            :to="item.path"
             class="menu-item"
-            :class="{ 'active': route.path === item.path }"
+            :class="{ active: route.path === item.path }"
             @click="closeMobileMenu"
           >
-            <div class="menu-icon" v-if="item.iconSvg" v-html="item.iconSvg"></div>
+            <div
+              class="menu-icon"
+              v-if="item.iconSvg"
+              v-html="item.iconSvg"
+            ></div>
             <div class="menu-icon-placeholder" v-else></div>
             <span class="menu-text">{{ item.name }}</span>
           </router-link>
-          
+
           <!-- Menu item with submenu -->
           <div v-else class="menu-group">
-            <div 
+            <div
               class="menu-item menu-parent"
-              :class="{ 
-                'active': isSubmenuItemActive(item.submenu),
-                'expanded': isSubmenuExpanded(item.name)
+              :class="{
+                active: isSubmenuItemActive(item.submenu),
+                expanded: isSubmenuExpanded(item.name),
               }"
               @click="toggleSubmenu(item.name)"
             >
-              <div class="menu-icon" v-if="item.iconSvg" v-html="item.iconSvg"></div>
+              <div
+                class="menu-icon"
+                v-if="item.iconSvg"
+                v-html="item.iconSvg"
+              ></div>
               <div class="menu-icon-placeholder" v-else></div>
               <span class="menu-text">{{ item.name }}</span>
               <span class="menu-arrow">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7 10l5 5 5-5z"/>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M7 10l5 5 5-5z" />
                 </svg>
               </span>
             </div>
-            
+
             <!-- Submenu items -->
-            <div 
+            <div
               class="submenu"
               :class="{ 'submenu-expanded': isSubmenuExpanded(item.name) }"
             >
@@ -502,7 +543,7 @@ onUnmounted(() => {
                 :key="subitem.path"
                 :to="subitem.path"
                 class="submenu-item"
-                :class="{ 'active': route.path === subitem.path }"
+                :class="{ active: route.path === subitem.path }"
                 @click="closeMobileMenu"
               >
                 <span class="submenu-bullet">•</span>
@@ -518,8 +559,7 @@ onUnmounted(() => {
     <div class="main-content">
       <!-- Header -->
       <header class="header">
-        <div class="header-left">
-        </div>
+        <div class="header-left"></div>
 
         <div class="header-right">
           <div class="header-actions">
@@ -546,16 +586,24 @@ onUnmounted(() => {
                   class="notification-count"
                   :class="{ updating: isCountUpdating }"
                 >
-                  {{ unreadNotifications > 9 ? '9+' : unreadNotifications }}
+                  {{ unreadNotifications > 9 ? "9+" : unreadNotifications }}
                 </div>
               </div>
             </button>
 
             <!-- Notifications Dropdown -->
-            <div v-if="showNotifications" class="notifications-dropdown" @click.stop>
+            <div
+              v-if="showNotifications"
+              class="notifications-dropdown"
+              @click.stop
+            >
               <div class="notifications-header">
                 <h3>Thông báo</h3>
-                <button v-if="unreadNotifications > 0" class="mark-all-read" @click="markAllAsRead">
+                <button
+                  v-if="unreadNotifications > 0"
+                  class="mark-all-read"
+                  @click="markAllAsRead"
+                >
                   Đánh dấu đã đọc
                 </button>
               </div>
@@ -594,7 +642,9 @@ onUnmounted(() => {
               </div>
 
               <div class="notifications-footer">
-                <button class="view-all-btn" @click="viewAllNotifications">Xem tất cả thông báo</button>
+                <button class="view-all-btn" @click="viewAllNotifications">
+                  Xem tất cả thông báo
+                </button>
               </div>
             </div>
           </div>
@@ -607,7 +657,9 @@ onUnmounted(() => {
               </div>
               <div class="user-avatar">
                 <div class="avatar-circle">
-                  <span class="avatar-initial">{{ displayName.name.charAt(0) }}</span>
+                  <span class="avatar-initial">{{
+                    displayName.name.charAt(0)
+                  }}</span>
                 </div>
                 <div class="online-indicator"></div>
               </div>
@@ -620,7 +672,7 @@ onUnmounted(() => {
                 </div>
               </div>
               <div class="dropdown-divider"></div>
-              
+
               <button class="dropdown-item logout" @click="logout">
                 🚪 Đăng xuất
               </button>
@@ -642,26 +694,49 @@ onUnmounted(() => {
       :class="{ 'modal-closing': isModalClosing }"
       @click="closeAllNotificationsModal"
     >
-      <div class="notifications-modal" :class="{ 'modal-closing': isModalClosing }" @click.stop>
+      <div
+        class="notifications-modal"
+        :class="{ 'modal-closing': isModalClosing }"
+        @click.stop
+      >
         <div class="modal-header">
           <div class="modal-title-section">
             <h2 class="modal-title">
               <i class="modal-icon">🔔</i>
               Tất cả thông báo
             </h2>
-            <span class="notifications-count">{{ notifications.length }} thông báo</span>
+            <span class="notifications-count"
+              >{{ notifications.length }} thông báo</span
+            >
           </div>
           <div class="modal-actions">
-            <button v-if="unreadNotifications > 0" class="mark-all-read-modal" @click="markAllAsRead">
+            <button
+              v-if="unreadNotifications > 0"
+              class="mark-all-read-modal"
+              @click="markAllAsRead"
+            >
               <i class="check-icon">✓</i>
               Đánh dấu tất cả đã đọc
             </button>
-            <button v-if="notifications.length > 0" class="clear-all-btn" @click="clearAllNotifications">
+            <button
+              v-if="notifications.length > 0"
+              class="clear-all-btn"
+              @click="clearAllNotifications"
+            >
               <i class="clear-icon">🗑️</i>
               Xóa tất cả
             </button>
             <button class="close-modal-btn" @click="closeAllNotificationsModal">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -680,10 +755,14 @@ onUnmounted(() => {
             >
               <i class="tab-icon">{{ filter.icon }}</i>
               <span class="tab-label">{{ filter.label }}</span>
-              <span v-if="filterCounts[filter.key] > 0" class="tab-badge" :class="{
-                'badge-unread': getUnreadCountForFilter(filter.key) > 0,
-                'badge-read': getUnreadCountForFilter(filter.key) === 0
-              }">
+              <span
+                v-if="filterCounts[filter.key] > 0"
+                class="tab-badge"
+                :class="{
+                  'badge-unread': getUnreadCountForFilter(filter.key) > 0,
+                  'badge-read': getUnreadCountForFilter(filter.key) === 0,
+                }"
+              >
                 {{ filterCounts[filter.key] }}
               </span>
             </button>
@@ -691,7 +770,10 @@ onUnmounted(() => {
         </div>
 
         <div class="modal-content">
-          <div v-if="filteredNotificationsModal.length === 0" class="empty-notifications">
+          <div
+            v-if="filteredNotificationsModal.length === 0"
+            class="empty-notifications"
+          >
             <div class="empty-icon">📭</div>
             <h3>Không có thông báo</h3>
             <p>{{ getEmptyMessage() }}</p>
@@ -707,12 +789,19 @@ onUnmounted(() => {
               @click="markAsRead(notification.id)"
             >
               <div class="card-header">
-                <div class="notification-type" :class="`type-${notification.type}`">
+                <div
+                  class="notification-type"
+                  :class="`type-${notification.type}`"
+                >
                   <i class="type-icon">{{ notification.icon }}</i>
-                  <span class="type-label">{{ getTypeLabel(notification.type) }}</span>
+                  <span class="type-label">{{
+                    getTypeLabel(notification.type)
+                  }}</span>
                 </div>
                 <div class="notification-meta">
-                  <span class="notification-time-full">{{ formatFullDate(notification.timestamp) }}</span>
+                  <span class="notification-time-full">{{
+                    formatFullDate(notification.timestamp)
+                  }}</span>
                   <div v-if="!notification.isRead" class="unread-dot" />
                 </div>
               </div>
@@ -727,7 +816,9 @@ onUnmounted(() => {
               </div>
 
               <div class="card-footer">
-                <span class="time-ago">{{ formatTimeAgo(notification.timestamp) }}</span>
+                <span class="time-ago">{{
+                  formatTimeAgo(notification.timestamp)
+                }}</span>
                 <button
                   v-if="!notification.isRead"
                   class="mark-read-btn"
@@ -867,7 +958,7 @@ onUnmounted(() => {
 }
 
 .submenu-expanded {
-  max-height: 500px;
+  max-height: 800px;
 }
 
 .submenu-item {
@@ -973,7 +1064,6 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--spacing-lg);
 }
-
 
 .page-title {
   margin: 0;
@@ -1247,7 +1337,8 @@ onUnmounted(() => {
   background: white;
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   z-index: 1000;
   min-width: 380px;
   max-width: 400px;
@@ -1934,7 +2025,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-500) 0%,
+    var(--primary-600) 100%
+  );
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   border: 2px solid var(--surface);
@@ -1990,7 +2085,7 @@ onUnmounted(() => {
   .admin-layout {
     position: relative;
   }
-  
+
   .sidebar {
     position: fixed;
     left: -280px;
@@ -2001,19 +2096,19 @@ onUnmounted(() => {
     transition: left 0.3s ease;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
-  
+
   .sidebar.mobile-open {
     left: 0;
   }
-  
+
   .main-content {
     margin-left: 0;
   }
-  
+
   .header {
     padding: 1rem;
   }
-  
+
   .page-content {
     padding: 1rem;
   }
@@ -2023,28 +2118,28 @@ onUnmounted(() => {
   .page-content {
     padding: var(--spacing-md);
   }
-  
+
   .header {
     padding: var(--spacing-md);
   }
-  
+
   .page-title {
     font-size: var(--font-size-lg);
   }
-  
+
   .user-text-info {
     display: none;
   }
-  
+
   .avatar-circle {
     width: 36px;
     height: 36px;
   }
-  
+
   .avatar-initial {
     font-size: var(--font-size-sm);
   }
-  
+
   .online-indicator {
     width: 10px;
     height: 10px;

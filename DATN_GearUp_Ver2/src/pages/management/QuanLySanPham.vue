@@ -40,7 +40,7 @@
             {{ filteredProducts.length }} / {{ products.length }} sản phẩm
           </div>
         </div>
-        
+
         <div class="filter-content">
           <div class="search-section">
             <div class="input-group">
@@ -51,12 +51,16 @@
                 placeholder="Tìm kiếm tên sản phẩm, mã sản phẩm, mô tả..."
                 class="form-control search-input"
               />
-              <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="clear-btn"
+              >
                 <span>✕</span>
               </button>
             </div>
           </div>
-          
+
           <div class="filters-grid">
             <div class="filter-group">
               <label class="filter-label">
@@ -70,7 +74,7 @@
                 <option value="giay-cao-co">🥾 Giày cao cổ</option>
               </select>
             </div>
-            
+
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">🏷️</span>
@@ -96,7 +100,7 @@
                 <option value="inactive">❌ Ngừng hoạt động</option>
               </select>
             </div>
-            
+
             <div class="filter-actions">
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
@@ -118,62 +122,41 @@
         <table class="table">
           <thead>
             <tr>
-              <th>
-                <input type="checkbox" @change="toggleSelectAll" :checked="allSelected">
-              </th>
-              <th>Ảnh</th>
+              <th>STT</th>
+              <th>Mã sản phẩm</th>
               <th>Tên sản phẩm</th>
-              <th>Thương hiệu</th>
-              <th>Danh mục</th>
-              <th>Giá bán</th>
-              <th>Số lượng</th>
+              <th>Nhà sản xuất</th>
+              <th>Xuất xứ</th>
               <th>Trạng thái</th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="product in filteredProducts" :key="product.id">
-              <td>
-                <input 
-                  type="checkbox" 
-                  :value="product.id" 
-                  v-model="selectedProducts"
-                >
-              </td>
-              <td>
-                <div class="product-image">
-                  <img v-if="product.image" :src="product.image" :alt="product.name">
-                  <div v-else class="placeholder-image">👟</div>
-                </div>
-              </td>
-              <td>
-                <div class="product-info">
-                  <strong>{{ product.name }}</strong>
-                  <p class="product-code">{{ product.code }}</p>
-                </div>
-              </td>
-              <td>{{ product.brand }}</td>
-              <td>{{ product.category }}</td>
-              <td class="price">{{ formatCurrency(product.price) }}</td>
-              <td>
-                <span :class="['stock', { 'low-stock': product.stock < 10 }]">
-                  {{ product.stock }}
-                </span>
-              </td>
-              <td>
-                <span :class="['badge', product.status === 'active' ? 'badge-success' : 'badge-danger']">
-                  {{ product.status === 'active' ? 'Hoạt động' : 'Ngừng hoạt động' }}
-                </span>
-              </td>
+            <tr v-for="(product, i) in filteredProducts" :key="i">
+              <td>{{ i + 1 }}</td>
+              <td>{{ product.maSanPham }}</td>
+              <td>{{ product.tenSanPham }}</td>
+              <td>{{ product.tenNhaSanXuat }}</td>
+              <td>{{ product.tenXuatXu }}</td>
+              <td>{{ product.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
               <td>
                 <ButtonGroup spacing="xs">
-                  <button class="btn btn-secondary" @click="viewProduct(product)">
+                  <button
+                    class="btn btn-secondary"
+                    @click="viewProduct(product)"
+                  >
                     👁️
                   </button>
-                  <button class="btn btn-secondary" @click="editProduct(product)">
+                  <button
+                    class="btn btn-secondary"
+                    @click="editProduct(product)"
+                  >
                     ✏️
                   </button>
-                  <button class="btn btn-danger" @click="deleteProduct(product)">
+                  <button
+                    class="btn btn-danger"
+                    @click="deleteProduct(product)"
+                  >
                     🗑️
                   </button>
                 </ButtonGroup>
@@ -181,24 +164,25 @@
             </tr>
           </tbody>
         </table>
-        
+
         <!-- Pagination -->
         <div class="pagination-wrapper">
           <div class="pagination-info">
-            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ totalProducts }} sản phẩm
+            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+            {{ totalProducts }} sản phẩm
           </div>
           <div class="pagination">
-            <button 
-              class="btn btn-outline btn-sm" 
-              @click="previousPage" 
+            <button
+              class="btn btn-outline btn-sm"
+              @click="previousPage"
               :disabled="currentPage === 1"
             >
               ❮ Trước
             </button>
             <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button 
-              class="btn btn-outline btn-sm" 
-              @click="nextPage" 
+            <button
+              class="btn btn-outline btn-sm"
+              @click="nextPage"
               :disabled="currentPage === totalPages"
             >
               Sau ❯
@@ -209,24 +193,45 @@
     </div>
 
     <!-- Modern Add/Edit Product Modal -->
-    <div v-if="showAddModal || showEditModal" class="modern-modal-overlay" @click="closeModals">
+    <div
+      v-if="showAddModal || showEditModal"
+      class="modern-modal-overlay"
+      @click="closeModals"
+    >
       <div class="modern-modal-content" @click.stop>
         <!-- Modal Header -->
         <div class="modern-modal-header">
           <div class="header-content">
             <div class="header-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                />
               </svg>
             </div>
             <div class="header-text">
-              <h2>{{ showAddModal ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm' }}</h2>
-              <p>{{ showAddModal ? 'Tạo sản phẩm mới với thể loại 8-core attributes và SKU auto-generation' : 'Cập nhật thông tin sản phẩm' }}</p>
+              <h2>
+                {{ showAddModal ? "Thêm sản phẩm mới" : "Chỉnh sửa sản phẩm" }}
+              </h2>
+              <p>
+                {{
+                  showAddModal
+                    ? "Tạo sản phẩm mới với thể loại 8-core attributes và SKU auto-generation"
+                    : "Cập nhật thông tin sản phẩm"
+                }}
+              </p>
             </div>
           </div>
           <button class="modern-close-btn" @click="closeModals">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
             </svg>
           </button>
         </div>
@@ -241,311 +246,138 @@
             <div class="section-content">
               <div class="form-grid">
                 <div class="form-field">
-                  <label class="modern-label">Mã sản phẩm *</label>
-                  <div class="input-group">
-                    <input 
-                      type="text" 
-                      v-model="productForm.code" 
-                      class="modern-input" 
-                      placeholder="Ví dụ: MSA-MZ-2024-NoIR-SP001"
-                      required
-                    >
-                    <button type="button" class="input-addon-btn" @click="generateProductCode">
-                      🔄
-                    </button>
-                  </div>
-                  <small class="field-hint">Mã này sẽ không thể thay đổi sau khi tạo sản phẩm.</small>
-                </div>
-
-                <div class="form-field">
                   <label class="modern-label">Tên sản phẩm *</label>
-                  <input 
-                    type="text" 
-                    v-model="productForm.name" 
-                    class="modern-input" 
+                  <input
+                    type="text"
+                    v-model="productForm.tenSanPham"
+                    class="modern-input"
                     placeholder="Nhập tên sản phẩm"
                     required
-                  >
+                  />
                 </div>
 
                 <div class="form-field">
-                  <label class="modern-label">Danh mục *</label>
-                  <select v-model="productForm.category" class="modern-select" required>
-                    <option value="">Chọn danh mục</option>
-                    <option value="giay-the-thao">Giày thể thao</option>
-                    <option value="giay-luoi">Giày lười</option>
-                    <option value="giay-cao-co">Giày cao cổ</option>
+                  <label class="modern-label">Nhà sản xuất</label>
+                  <select
+                    v-model="productForm.maNhaSanXuat"
+                    class="modern-select"
+                    required
+                  >
+                    <option
+                      v-for="value in NhaSanXuats"
+                      :key="value.id"
+                      :value="value.maNhaSanXuat"
+                    >
+                      {{ value.tenNhaSanXuat }}
+                    </option>
                   </select>
                 </div>
 
                 <div class="form-field">
-                  <label class="modern-label">Thương hiệu *</label>
-                  <select v-model="productForm.brand" class="modern-select" required>
-                    <option value="">Chọn thương hiệu</option>
-                    <option value="balenciaga">Balenciaga</option>
-                    <option value="converse">Converse</option>
-                    <option value="nike">Nike</option>
-                    <option value="adidas">Adidas</option>
+                  <label class="modern-label">Xuất xứ</label>
+                  <select
+                    v-model="productForm.maXuatXu"
+                    class="modern-select"
+                    required
+                  >
+                    <option
+                      v-for="value in XuatXus"
+                      :key="value.id"
+                      :value="value.maXuatXu"
+                    >
+                      {{ value.tenXuatXu }}
+                    </option>
                   </select>
                 </div>
 
                 <div class="form-field span-2">
                   <label class="modern-label">Trạng thái</label>
                   <div class="toggle-group">
-                    <label class="toggle-option" :class="{ active: productForm.status === 'active' }">
-                      <input 
-                        type="radio" 
-                        value="active" 
-                        v-model="productForm.status" 
-                        style="display: none"
-                      >
-                      <span class="toggle-indicator"></span>
+                    <label
+                      class="toggle-option"
+                      :class="{ active: productForm.deleted === false }"
+                    >
+                      <input
+                        class="toggle-indicator"
+                        type="radio"
+                        value="false"
+                        v-model="productForm.deleted"
+                      />
                       Hoạt động
                     </label>
-                    <label class="toggle-option" :class="{ active: productForm.status === 'inactive' }">
-                      <input 
-                        type="radio" 
-                        value="inactive" 
-                        v-model="productForm.status" 
-                        style="display: none"
-                      >
-                      <span class="toggle-indicator"></span>
-                      Tạm dừng
+                    <label
+                      class="toggle-option"
+                      :class="{ active: productForm.deleted === true }"
+                    >
+                      <input
+                        class="toggle-indicator"
+                        type="radio"
+                        value="true"
+                        v-model="productForm.deleted"
+                      />
+                      Không hoạt động
                     </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Product Images Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">🖼️</div>
-              <h3>Hình ảnh sản phẩm</h3>
-            </div>
-            <div class="section-content">
-              <div class="image-upload-grid">
-                <div class="image-upload-item main-image" @click="triggerImageUpload(0)">
-                  <div v-if="productImages[0]" class="uploaded-image">
-                    <img :src="productImages[0]" alt="Product Image">
-                    <button class="remove-image" @click.stop="removeImage(0)">✕</button>
-                  </div>
-                  <div v-else class="upload-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
-                    </svg>
-                    <p>Thêm ảnh</p>
-                    <span>Kéo và thả hoặc click để chọn</span>
-                  </div>
-                </div>
-                
-                <div v-for="index in 4" :key="index" class="image-upload-item" @click="triggerImageUpload(index)">
-                  <div v-if="productImages[index]" class="uploaded-image">
-                    <img :src="productImages[index]" alt="Product Image">
-                    <button class="remove-image" @click.stop="removeImage(index)">✕</button>
-                  </div>
-                  <div v-else class="upload-placeholder small">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                    <span>Thêm ảnh</span>
-                  </div>
-                </div>
-              </div>
-              <input 
-                ref="imageInput" 
-                type="file" 
-                @change="handleImageUpload" 
-                accept="image/*" 
-                multiple
-                style="display: none"
-              >
-              <div class="upload-guidelines">
-                <p>Hướng dẫn tải ảnh:</p>
-                <ul>
-                  <li>Tối đa 5 hình ảnh</li>
-                  <li>Kích thước tối đa 500KB mỗi ảnh</li>
-                  <li>Định dạng JPG, PNG, WebP</li>
-                  <li>Khuyến nghị: Anh trường 500x500 (1:1)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Variant Configuration Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">⚙️</div>
-              <h3>Biến thể sản phẩm</h3>
-              <div class="section-badge">❓</div>
-            </div>
-            <div class="section-content">
-              <div class="variant-tabs">
-                <button 
-                  v-for="tab in variantTabs" 
-                  :key="tab.id"
-                  :class="['variant-tab', { active: activeVariantTab === tab.id }]"
-                  @click="activeVariantTab = tab.id"
-                >
-                  {{ tab.name }}
-                </button>
-              </div>
-
-              <div class="variant-content">
-                <!-- Auto Variant Creation Tab -->
-                <div v-if="activeVariantTab === 'auto'" class="variant-panel">
-                  <div class="auto-variant-section">
-                    <h4>Tạo biến thể tự động</h4>
-                    <div class="form-grid">
-                      <div class="form-field">
-                        <label class="modern-label">Màu sắc</label>
-                        <select class="modern-select">
-                          <option>Chọn màu sắc</option>
-                          <option value="white">Trắng</option>
-                          <option value="black">Đen</option>
-                          <option value="red">Đỏ</option>
-                          <option value="blue">Xanh dương</option>
-                          <option value="green">Xanh lá</option>
-                          <option value="yellow">Vàng</option>
-                          <option value="pink">Hồng</option>
-                          <option value="gray">Xám</option>
-                        </select>
-                      </div>
-                      <div class="form-field">
-                        <label class="modern-label">Kích thước</label>
-                        <select class="modern-select">
-                          <option>Chọn kích thước</option>
-                          <option value="35">35</option>
-                          <option value="36">36</option>
-                          <option value="37">37</option>
-                          <option value="38">38</option>
-                          <option value="39">39</option>
-                          <option value="40">40</option>
-                          <option value="41">41</option>
-                          <option value="42">42</option>
-                          <option value="43">43</option>
-                          <option value="44">44</option>
-                          <option value="45">45</option>
-                        </select>
-                      </div>
-                      <div class="form-field">
-                        <label class="modern-label">Chất liệu</label>
-                        <select class="modern-select">
-                          <option>Chọn chất liệu</option>
-                          <option value="leather">Da thật</option>
-                          <option value="synthetic">Da tổng hợp</option>
-                          <option value="canvas">Vải canvas</option>
-                          <option value="mesh">Vải lưới</option>
-                          <option value="suede">Da lộn</option>
-                          <option value="rubber">Cao su</option>
-                        </select>
-                      </div>
-                      <div class="form-field">
-                        <label class="modern-label">Kiểu dáng</label>
-                        <select class="modern-select">
-                          <option>Chọn kiểu dáng</option>
-                          <option value="low-top">Cổ thấp</option>
-                          <option value="mid-top">Cổ vừa</option>
-                          <option value="high-top">Cổ cao</option>
-                          <option value="slip-on">Giày lười</option>
-                          <option value="sneaker">Sneaker</option>
-                          <option value="boot">Boot</option>
-                        </select>
-                      </div>
-                    </div>
-                    <button class="create-variant-btn">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                      </svg>
-                      Tạo biến thể
-                    </button>
-                    <small class="variant-note">Gói bán sẽ được tạo theo những gì đã chọn và tạo đủ chỉnh thành giá bản đĩa</small>
-                  </div>
-                </div>
-
-                <!-- Basic Info Tab -->
-                <div v-if="activeVariantTab === 'basic'" class="variant-panel">
-                  <div class="form-grid">
-                    <div class="form-field">
-                      <label class="modern-label">Giá bán *</label>
-                      <input 
-                        type="number" 
-                        v-model="productForm.price" 
-                        class="modern-input" 
-                        min="0"
-                        required
-                      >
-                    </div>
-                    <div class="form-field">
-                      <label class="modern-label">Số lượng *</label>
-                      <input 
-                        type="number" 
-                        v-model="productForm.stock" 
-                        class="modern-input" 
-                        min="0"
-                        required
-                      >
-                    </div>
-                    <div class="form-field span-2">
-                      <label class="modern-label">Mô tả sản phẩm</label>
-                      <textarea 
-                        v-model="productForm.description" 
-                        class="modern-textarea" 
-                        rows="4"
-                        placeholder="Nhập mô tả chi tiết về sản phẩm..."
-                      ></textarea>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
         <!-- Modal Footer -->
         <div class="modern-modal-footer">
           <button type="button" class="btn-secondary" @click="closeModals">
             Hủy bỏ
           </button>
           <button type="button" class="btn-primary" @click="saveProduct">
-            {{ showAddModal ? 'Tạo biến thể' : 'Cập nhật' }}
+            {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Product Detail Modal -->
-    <div v-if="showDetailModal" class="modal-overlay" @click="showDetailModal = false">
+    <div
+      v-if="showDetailModal"
+      class="modal-overlay"
+      @click="showDetailModal = false"
+    >
       <div class="modal-content large" @click.stop>
         <div class="modal-header">
           <h3>Chi tiết sản phẩm</h3>
-          <button class="modal-close" @click="showDetailModal = false">✕</button>
+          <button class="modal-close" @click="showDetailModal = false">
+            ✕
+          </button>
         </div>
-        
+
         <div class="modal-body" v-if="selectedProduct">
           <div class="product-detail">
-            <div class="product-detail-image">
-              <img v-if="selectedProduct.image" :src="selectedProduct.image" :alt="selectedProduct.name">
-              <div v-else class="placeholder-image large">👟</div>
-            </div>
-            
             <div class="product-detail-info">
-              <h4>{{ selectedProduct.name }}</h4>
-              <p><strong>Mã sản phẩm:</strong> {{ selectedProduct.code }}</p>
-              <p><strong>Thương hiệu:</strong> {{ selectedProduct.brand }}</p>
-              <p><strong>Danh mục:</strong> {{ selectedProduct.category }}</p>
-              <p><strong>Giá bán:</strong> {{ formatCurrency(selectedProduct.price) }}</p>
-              <p><strong>Số lượng tồn kho:</strong> {{ selectedProduct.stock }}</p>
-              <p><strong>Trạng thái:</strong> 
-                <span :class="['badge', selectedProduct.status === 'active' ? 'badge-success' : 'badge-danger']">
-                  {{ selectedProduct.status === 'active' ? 'Hoạt động' : 'Ngừng hoạt động' }}
+              <h4>{{ selectedProduct.tenSanPham }}</h4>
+              <p>
+                <strong>Mã sản phẩm:</strong> {{ selectedProduct.maSanPham }}
+              </p>
+              <p>
+                <strong>Nhà sản xuất:</strong>
+                {{ selectedProduct.tenNhaSanXuat }}
+              </p>
+              <p><strong>Xuất xứ:</strong> {{ selectedProduct.tenXuatXu }}</p>
+              <p>
+                <strong>Trạng thái:</strong>
+                <span
+                  :class="[
+                    'badge',
+                    selectedProduct.deleted === false
+                      ? 'badge-success'
+                      : 'badge-danger',
+                  ]"
+                >
+                  {{
+                    selectedProduct.deleted === false
+                      ? "Hoạt động"
+                      : "Ngừng hoạt động"
+                  }}
                 </span>
               </p>
-              <div class="description">
-                <strong>Mô tả:</strong>
-                <p>{{ selectedProduct.description || 'Chưa có mô tả' }}</p>
-              </div>
             </div>
           </div>
         </div>
@@ -555,285 +387,299 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from "vue";
 // import ActionButton from '@/components/ui/ActionButton.vue'
-import ButtonGroup from '@/components/ui/NhomNut.vue'
+import ButtonGroup from "@/components/ui/NhomNut.vue";
+import {
+  fetchAllSanPham,
+  fetchCreateSanPham,
+  fetchUpdateSanPham,
+  fetchUpdateStatusSanPham,
+} from "../../services/SanPhamService";
+import { fetchAllNhaSanXuat } from "../../services/NhaSanXuatService";
+import { fetchAllXuatXu } from "../../services/XuatXuService";
 
-// Data
-const searchQuery = ref('')
-const selectedCategory = ref('')
-const selectedBrand = ref('')
-const selectedStatus = ref('')
-const selectedProducts = ref([])
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const searchQuery = ref("");
+const selectedCategory = ref("");
+const selectedBrand = ref("");
+const selectedStatus = ref("");
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const showDetailModal = ref(false);
+const selectedProduct = ref(null);
+const activeVariantTab = ref("auto");
+const productForm = ref({});
 
-const showAddModal = ref(false)
-const showEditModal = ref(false)
-const showDetailModal = ref(false)
-const selectedProduct = ref(null)
-const imagePreview = ref('')
-
-// Modern UI state
-const productImages = ref([])
-const variantTabs = ref([
-  { id: 'auto', name: 'Tạo biến thể tự động' },
-  { id: 'basic', name: 'Thông tin cơ bản' }
-])
-const activeVariantTab = ref('auto')
-const imageInput = ref(null)
-
-const productForm = ref({
-  id: null,
-  name: '',
-  code: '',
-  brand: '',
-  category: '',
-  price: 0,
-  stock: 0,
-  description: '',
-  image: '',
-  status: 'active'
-})
-
-// Mock data
-const products = ref([])
-
+const products = ref([]);
+const NhaSanXuats = ref([]);
+const XuatXus = ref([]);
+const fetch = async () => {
+  await fetchAllData();
+  await fetchAllNSX();
+  await fetchAllXX();
+};
+const fetchAllData = async () => {
+  try {
+    const res = await fetchAllSanPham();
+    products.value = res.data;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  }
+};
+const fetchAllNSX = async () => {
+  try {
+    const res = await fetchAllNhaSanXuat();
+    NhaSanXuats.value = res.data;
+  } catch (error) {
+    console.error("Error fetching manufacturers:", error);
+  }
+};
+const fetchAllXX = async () => {
+  try {
+    const res = await fetchAllXuatXu();
+    XuatXus.value = res.data;
+  } catch (error) {
+    console.error("Error fetching origins:", error);
+  }
+};
+const fetchCreate = async (data) => {
+  try {
+    await fetchCreateSanPham(data);
+    await fetchAllData();
+  } catch (error) {
+    console.error("Error creating product:", error);
+  }
+};
+const fetchUpdate = async (id, data) => {
+  try {
+    await fetchUpdateSanPham(id, data);
+  } catch (error) {
+    console.error("Error updating product:", error);
+  }
+};
+const getOneXX = (ma) => {
+  try {
+    const selectedXX = XuatXus.value.find((item) => item.maXuatXu === ma);
+    return selectedXX.id;
+  } catch (error) {
+    console.error("Error fetching origin:", error);
+  }
+};
+const getOneNSX = (ma) => {
+  try {
+    const selectedNSX = NhaSanXuats.value.find(
+      (item) => item.maNhaSanXuat === ma
+    );
+    return selectedNSX.id;
+  } catch (error) {
+    console.error("Error fetching manufacturer:", error);
+  }
+};
 // Computed
 const filteredProducts = computed(() => {
-  let filtered = products.value
-
+  let filtered = products.value;
   if (searchQuery.value) {
-    filtered = filtered.filter(product => 
-      product.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+    filtered = filtered.filter(
+      (product) =>
+        product.maSanPham
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        product.tenSanPham
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase())
+    );
   }
 
   if (selectedCategory.value) {
-    filtered = filtered.filter(product => product.category === selectedCategory.value)
+    filtered = filtered.filter(
+      (product) =>
+        product.tenNhaSanXuat.toLowerCase() === selectedCategory.value
+    );
   }
-
   if (selectedBrand.value) {
-    filtered = filtered.filter(product => product.brand.toLowerCase() === selectedBrand.value)
+    filtered = filtered.filter(
+      (product) => product.tenXuatXu.toLowerCase() === selectedBrand.value
+    );
   }
-
   if (selectedStatus.value) {
-    filtered = filtered.filter(product => product.status === selectedStatus.value)
+    filtered = filtered.filter(
+      (product) => product.deleted === selectedStatus.value
+    );
   }
-
-  return filtered.slice(startIndex.value, endIndex.value)
-})
+  return filtered.slice(startIndex.value, endIndex.value);
+});
 
 const totalProducts = computed(() => {
-  let filtered = products.value
+  let filtered = products.value;
 
   if (searchQuery.value) {
-    filtered = filtered.filter(product => 
-      product.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+    filtered = filtered.filter(
+      (product) =>
+        product.maSanPham
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        product.tenSanPham
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase())
+    );
   }
 
   if (selectedCategory.value) {
-    filtered = filtered.filter(product => product.category === selectedCategory.value)
+    filtered = filtered.filter(
+      (product) =>
+        product.tenNhaSanXuat.toLowerCase() === selectedCategory.value
+    );
   }
 
   if (selectedBrand.value) {
-    filtered = filtered.filter(product => product.brand.toLowerCase() === selectedBrand.value)
+    filtered = filtered.filter(
+      (product) => product.tenXuatXu.toLowerCase() === selectedBrand.value
+    );
   }
 
   if (selectedStatus.value) {
-    filtered = filtered.filter(product => product.status === selectedStatus.value)
+    filtered = filtered.filter(
+      (product) => product.deleted.toLowerCase() === selectedStatus.value
+    );
   }
 
-  return filtered.length
-})
+  return filtered.length;
+});
 
-const totalPages = computed(() => Math.ceil(totalProducts.value / itemsPerPage.value))
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
-const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, totalProducts.value))
-
-const allSelected = computed(() => {
-  return filteredProducts.value.length > 0 && 
-         filteredProducts.value.every(product => selectedProducts.value.includes(product.id))
-})
-
-// Methods
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(amount).replace('₫', ' VND')
-}
-
-const toggleSelectAll = () => {
-  if (allSelected.value) {
-    selectedProducts.value = []
-  } else {
-    selectedProducts.value = filteredProducts.value.map(product => product.id)
-  }
-}
+const totalPages = computed(() =>
+  Math.ceil(totalProducts.value / itemsPerPage.value)
+);
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endIndex = computed(() =>
+  Math.min(startIndex.value + itemsPerPage.value, totalProducts.value)
+);
 
 const previousPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
+    currentPage.value--;
   }
-}
+};
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
+    currentPage.value++;
   }
-}
+};
 
 const viewProduct = (product) => {
-  selectedProduct.value = product
-  showDetailModal.value = true
-}
+  selectedProduct.value = product;
+  showDetailModal.value = true;
+};
 
 const editProduct = (product) => {
-  productForm.value = { ...product }
-  imagePreview.value = product.image || ''
-  showEditModal.value = true
-}
-
-const deleteProduct = (product) => {
-  if (confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${product.name}"?`)) {
-    const index = products.value.findIndex(p => p.id === product.id)
-    if (index > -1) {
-      products.value.splice(index, 1)
-    }
+  productForm.value = { ...product };
+  showEditModal.value = true;
+};
+const deleteProduct = async (product) => {
+  if (confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${product.tenSanPham}"?`)) {
+    await fetchUpdateStatus(product);
+    await fetch();
   }
-}
-
+};
+const fetchUpdateStatus = async (product) => {
+  try {
+    await fetchUpdateStatusSanPham(product.id);
+    await fetchAllData();
+  } catch (error) {
+    console.error("Error updating product status:", error);
+  }
+};
 const closeModals = () => {
-  showAddModal.value = false
-  showEditModal.value = false
-  resetForm()
-}
-
+  showAddModal.value = false;
+  showEditModal.value = false;
+  resetForm();
+};
 const resetForm = () => {
   productForm.value = {
-    id: null,
-    name: '',
-    code: '',
-    brand: '',
-    category: '',
-    price: 0,
-    stock: 0,
-    description: '',
-    image: '',
-    status: 'active'
-  }
-  imagePreview.value = ''
-  productImages.value = []
-  activeVariantTab.value = 'auto'
-}
-
-
-const saveProduct = () => {
+    tenSanPham: "",
+    maNhaSanXuat: "",
+    maXuatXu: "",
+    deleted: false,
+  };
+  activeVariantTab.value = "auto";
+};
+const saveProduct = async () => {
   if (showAddModal.value) {
-    // Add new product
     const newProduct = {
-      ...productForm.value,
-      id: Math.max(...products.value.map(p => p.id)) + 1
-    }
-    products.value.push(newProduct)
+      tenSanPham: productForm.value.tenSanPham,
+      idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
+      idXuatXu: getOneXX(productForm.value.maXuatXu),
+      deleted: productForm.value.deleted,
+    };
+    await fetchCreate(newProduct);
   } else if (showEditModal.value) {
-    // Update existing product
-    const index = products.value.findIndex(p => p.id === productForm.value.id)
-    if (index > -1) {
-      products.value[index] = { ...productForm.value }
-    }
+    const newProduct = {
+      tenSanPham: productForm.value.tenSanPham,
+      idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
+      idXuatXu: getOneXX(productForm.value.maXuatXu),
+      deleted: productForm.value.deleted,
+    };
+    console.log("Updating product:", newProduct);
+    await fetchUpdate(productForm.value.id, newProduct);
   }
-  
-  closeModals()
-}
-
-// Modern UI methods
-const generateProductCode = () => {
-  const timestamp = Date.now().toString().slice(-6)
-  const random = Math.random().toString(36).substr(2, 4).toUpperCase()
-  productForm.value.code = `MSA-MZ-2024-${random}-SP${timestamp}`
-}
-
-const triggerImageUpload = (index) => {
-  if (imageInput.value) {
-    imageInput.value.dataset.index = index
-    imageInput.value.click()
-  }
-}
-
-const handleImageUpload = (event) => {
-  const files = Array.from(event.target.files)
-  const index = parseInt(event.target.dataset.index || '0')
-  
-  files.forEach((file, i) => {
-    if (file && (index + i) < 5) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        productImages.value[index + i] = e.target.result
-      }
-      reader.readAsDataURL(file)
-    }
-  })
-}
-
-const removeImage = (index) => {
-  productImages.value[index] = null
-}
-
-const refreshData = () => {
-  // Simulate data refresh
-  console.log('Refreshing products data...')
-}
-
+  closeModals();
+  await fetch();
+};
 const exportData = () => {
-  alert('Xuất báo cáo sản phẩm')
-}
+  alert("Xuất báo cáo sản phẩm");
+};
 
-const exportProductsToExcel = () => {
-  try {
-    const headerMapping = {
-      'id': 'ID',
-      'name': 'Tên sản phẩm',
-      'brand': 'Thương hiệu',
-      'category': 'Danh mục',
-      'price': 'Giá (VND)',
-      'stock': 'Tồn kho',
-      'status': 'Trạng thái',
-      'created_date': 'Ngày tạo'
-    }
-    
-    const filteredData = filteredProducts.value.map(item => ({
-      id: item.id || 'N/A',
-      name: item.name || 'N/A',
-      brand: item.brand || 'N/A',
-      category: item.category || 'N/A',
-      price: item.price ? new Intl.NumberFormat('vi-VN').format(item.price) : 'N/A',
-      stock: item.stock || 0,
-      status: item.status === 'active' ? 'Hoạt động' : 'Tạm dừng',
-      created_date: item.created_date ? new Date(item.created_date).toLocaleDateString('vi-VN') : 'N/A'
-    }))
-    
-    const result = exportToExcel(filteredData, 'Product_Management', 'Danh sách sản phẩm', headerMapping)
-    
-    if (result && result.success) {
-      alert(`✅ ${result.message}`)
-    } else {
-      alert(`❌ ${result ? result.message : 'Có lỗi xảy ra khi xuất file Excel'}`)
-    }
-  } catch (error) {
-    console.error('Error exporting to Excel:', error)
-    alert(`❌ Có lỗi xảy ra khi xuất file Excel: ${error.message}`)
-  }
-}
+// const exportProductsToExcel = () => {
+//   try {
+//     const headerMapping = {
+//       id: "ID",
+//       name: "Tên sản phẩm",
+//       brand: "Thương hiệu",
+//       category: "Danh mục",
+//       price: "Giá (VND)",
+//       stock: "Tồn kho",
+//       status: "Trạng thái",
+//       created_date: "Ngày tạo",
+//     };
 
-onMounted(() => {
-  // Initialize component
-})
+//     const filteredData = filteredProducts.value.map((item) => ({
+//       id: item.id || "N/A",
+//       name: item.name || "N/A",
+//       brand: item.brand || "N/A",
+//       category: item.category || "N/A",
+//       price: item.price
+//         ? new Intl.NumberFormat("vi-VN").format(item.price)
+//         : "N/A",
+//       stock: item.stock || 0,
+//       status: item.status === "active" ? "Hoạt động" : "Tạm dừng",
+//       created_date: item.created_date
+//         ? new Date(item.created_date).toLocaleDateString("vi-VN")
+//         : "N/A",
+//     }));
+
+//     const result = exportToExcel(
+//       filteredData,
+//       "Product_Management",
+//       "Danh sách sản phẩm",
+//       headerMapping
+//     );
+
+//     if (result && result.success) {
+//       alert(`✅ ${result.message}`);
+//     } else {
+//       alert(
+//         `❌ ${result ? result.message : "Có lỗi xảy ra khi xuất file Excel"}`
+//       );
+//     }
+//   } catch (error) {
+//     console.error("Error exporting to Excel:", error);
+//     alert(`❌ Có lỗi xảy ra khi xuất file Excel: ${error.message}`);
+//   }
+// };
+
+onMounted(fetch);
 </script>
 
 <style scoped>
@@ -974,7 +820,6 @@ onMounted(() => {
 .stock.low-stock {
   color: var(--danger-color);
 }
-
 
 /* Pagination */
 .pagination-wrapper {
@@ -1152,21 +997,22 @@ onMounted(() => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-box {
     min-width: auto;
   }
-  
+
   .product-detail {
     grid-template-columns: 1fr;
     text-align: center;
   }
-  
+
   .table {
     font-size: 0.875rem;
   }
-  
-  .table th, .table td {
+
+  .table th,
+  .table td {
     padding: 0.75rem 0.5rem;
   }
 }
@@ -1177,33 +1023,34 @@ onMounted(() => {
     gap: 1rem;
     align-items: stretch;
   } */
-  
+
   .filter-controls {
     flex-direction: column;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .pagination-wrapper {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-  
+
   .modal-overlay {
     padding: 1rem;
   }
-  
+
   .table {
     font-size: 0.8125rem;
   }
-  
-  .table th, .table td {
+
+  .table th,
+  .table td {
     padding: 0.5rem 0.25rem;
   }
-  
+
   /* Hide less important columns on mobile */
   .table th:nth-child(2),
   .table td:nth-child(2),
@@ -1217,15 +1064,15 @@ onMounted(() => {
   .product-management {
     padding: 0 0.5rem;
   }
-  
+
   .filter-section {
     padding: 1rem;
   }
-  
+
   .table {
     font-size: 0.75rem;
   }
-  
+
   /* Hide more columns on very small screens */
   .table th:nth-child(4),
   .table td:nth-child(4),
@@ -1233,7 +1080,7 @@ onMounted(() => {
   .table td:nth-child(7) {
     display: none;
   }
-  
+
   .card {
     margin: 0 -0.5rem;
     border-radius: 0;
@@ -1416,7 +1263,9 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
-.modern-input, .modern-select, .modern-textarea {
+.modern-input,
+.modern-select,
+.modern-textarea {
   padding: 0.75rem 1rem;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -1425,7 +1274,9 @@ onMounted(() => {
   background: #ffffff;
 }
 
-.modern-input:focus, .modern-select:focus, .modern-textarea:focus {
+.modern-input:focus,
+.modern-select:focus,
+.modern-textarea:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -1504,7 +1355,7 @@ onMounted(() => {
 }
 
 .toggle-option.active .toggle-indicator::after {
-  content: '';
+  content: "";
   width: 6px;
   height: 6px;
   background: #ffffff;
@@ -1702,7 +1553,8 @@ onMounted(() => {
 }
 
 /* Modal Footer Buttons */
-.btn-secondary, .btn-primary {
+.btn-secondary,
+.btn-primary {
   padding: 0.75rem 2rem;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -1741,42 +1593,42 @@ onMounted(() => {
   .modern-modal-overlay {
     padding: 1rem;
   }
-  
+
   .modern-modal-content {
     max-width: 100%;
   }
-  
+
   .modern-modal-header,
   .modern-modal-body,
   .modern-modal-footer {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .image-upload-grid {
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
   }
-  
+
   .image-upload-item.main-image {
     grid-column: span 2;
     grid-row: span 1;
   }
-  
+
   .variant-tabs {
     flex-direction: column;
   }
-  
+
   .variant-tab {
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
     border-right: 2px solid transparent;
   }
-  
+
   .variant-tab.active {
     border-bottom-color: #e5e7eb;
     border-right-color: #3b82f6;
@@ -1789,11 +1641,11 @@ onMounted(() => {
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .modern-modal-footer {
     flex-direction: column-reverse;
   }
-  
+
   .btn-secondary,
   .btn-primary {
     width: 100%;

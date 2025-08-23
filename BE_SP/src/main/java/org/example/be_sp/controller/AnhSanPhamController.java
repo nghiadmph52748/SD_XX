@@ -5,6 +5,7 @@ import org.example.be_sp.model.request.AnhSanPhamRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.AnhSanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,5 +40,11 @@ public class AnhSanPhamController {
     public ResponseObject<?> update(@RequestBody @Valid AnhSanPhamRequest anhSanPhamRequest, @PathVariable int id) {
         anhSanPhamService.update(id, anhSanPhamRequest);
         return new ResponseObject<>(null, "Cập nhật ảnh sản phẩm thành công");
+    }
+
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable int id) {
+        anhSanPhamService.updateStatus(id);
+        return new ResponseObject<>(null, "Cập nhật trạng thái ảnh sản phẩm thành công");
     }
 }
