@@ -211,11 +211,9 @@
           <div class="modal-actions">
             <button class="btn-export" @click="showDeleteModal = false">
               <span class="btn-icon">❌</span>
-              <span class="btn-icon">✕</span>
               <span class="btn-text">Hủy</span>
             </button>
             <button class="btn-export" @click="confirmDelete">
-              <span class="btn-icon">🗑️</span>
               <span class="btn-icon">🗑️</span>
               <span class="btn-text">Xóa</span>
             </button>
