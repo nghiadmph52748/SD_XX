@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Image Upload và Hiển thị</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .image-preview { max-width: 200px; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Test Image Upload và Hiển thị</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Upload Ảnh</h3>
+        <form id="uploadForm">
+            <div>
+                <label>Chọn ảnh:</label>
+                <input type="file" name="file" accept="image/*" required>
+            </div>
+            <div>
+                <label>Loại ảnh:</label>
+                <input type="text" name="loaiAnh" value="test" required>
+            </div>
+            <div>
+                <label>Mô tả:</label>
+                <input type="text" name="moTa" value="Test upload">
+            </div>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="uploadResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Hiển thị Ảnh</h3>
+        <div>
+            <label>Nhập đường dẫn ảnh:</label>
+            <input type="text" id="imagePath" placeholder="uploads/images/filename.jpg" style="width: 300px;">
+            <button onclick="testDisplayImage()">Hiển thị</button>
+        </div>
+        <div id="imageDisplay">
+            <img id="testImage" style="max-width: 200px; display: none;">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test Backend Status</h3>
+        <button onclick="testBackend()">Kiểm tra Backend</button>
+        <div id="backendResult"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/anh-san-pham-management/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                document.getElementById('uploadResult').innerHTML = 
+                    `<div class="success">Upload thành công: ${result.message}</div>`;
+                
+                // Tự động điền đường dẫn ảnh vào test hiển thị
+                if (result.data && result.data.duongDanAnh) {
+                    document.getElementById('imagePath').value = result.data.duongDanAnh;
+                }
+            } catch (error) {
+                document.getElementById('uploadResult').innerHTML = 
+                    `<div class="error">Lỗi upload: ${error.message}</div>`;
+            }
+        });
+
+        function testDisplayImage() {
+            const imagePath = document.getElementById('imagePath').value;
+            if (!imagePath) {
+                alert('Vui lòng nhập đường dẫn ảnh');
+                return;
+            }
+
+            const img = document.getElementById('testImage');
+            const fullUrl = `http://localhost:8080/${imagePath}`;
+            img.src = fullUrl;
+            img.style.display = 'block';
+            
+            img.onload = function() {
+                console.log('Ảnh load thành công:', fullUrl);
+            };
+            
+            img.onerror = function() {
+                console.error('Không thể load ảnh:', fullUrl);
+                img.style.display = 'none';
+                alert('Không thể load ảnh. Kiểm tra console để xem lỗi.');
+            };
+        }
+
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:8080/api/anh-san-pham-management/test-upload');
+                const result = await response.json();
+                document.getElementById('backendResult').innerHTML = 
+                    `<div class="success">${result.message}</div>`;
+            } catch (error) {
+                document.getElementById('backendResult').innerHTML = 
+                    `<div class="error">Lỗi kết nối backend: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

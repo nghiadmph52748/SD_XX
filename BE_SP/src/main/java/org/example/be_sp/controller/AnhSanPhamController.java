@@ -1,12 +1,21 @@
 package org.example.be_sp.controller;
 
-import jakarta.validation.Valid;
+import java.io.File;
+
 import org.example.be_sp.model.request.AnhSanPhamRequest;
+import org.example.be_sp.model.response.AnhSanPhamResponse;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.AnhSanPhamService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/anh-san-pham-management")
@@ -31,20 +40,80 @@ public class AnhSanPhamController {
     }
 
     @PostMapping("/add")
-    public ResponseObject<?> add(@RequestBody @Valid AnhSanPhamRequest anhSanPhamRequest) {
-        anhSanPhamService.add(anhSanPhamRequest);
-        return new ResponseObject<>(null,"Thêm ảnh sản phẩm thành công");
+    public ResponseObject<?> add(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("loaiAnh") String loaiAnh,
+            @RequestParam(value = "moTa", required = false) String moTa,
+            @RequestParam(value = "deleted", defaultValue = "false") Boolean deleted) {
+        try {
+            // Tạo request object từ các tham số
+            AnhSanPhamRequest request = new AnhSanPhamRequest();
+            request.setLoaiAnh(loaiAnh);
+            request.setMoTa(moTa);
+            request.setDeleted(deleted);
+            
+            // Xử lý file upload và lưu đường dẫn
+            String filePath = anhSanPhamService.uploadFile(file);
+            request.setDuongDanAnh(filePath);
+            
+            anhSanPhamService.add(request);
+            return new ResponseObject<>(null, "Thêm ảnh sản phẩm thành công");
+        } catch (Exception e) {
+            return new ResponseObject<>(null, "Lỗi khi thêm ảnh sản phẩm: " + e.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseObject<?> update(@RequestBody @Valid AnhSanPhamRequest anhSanPhamRequest, @PathVariable int id) {
-        anhSanPhamService.update(id, anhSanPhamRequest);
-        return new ResponseObject<>(null, "Cập nhật ảnh sản phẩm thành công");
+    public ResponseObject<?> update(
+            @PathVariable int id,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam("loaiAnh") String loaiAnh,
+            @RequestParam(value = "moTa", required = false) String moTa,
+            @RequestParam(value = "deleted", defaultValue = "false") Boolean deleted) {
+        try {
+            AnhSanPhamRequest request = new AnhSanPhamRequest();
+            request.setLoaiAnh(loaiAnh);
+            request.setMoTa(moTa);
+            request.setDeleted(deleted);
+            
+            // Nếu có file mới, upload file mới
+            if (file != null && !file.isEmpty()) {
+                String filePath = anhSanPhamService.uploadFile(file);
+                request.setDuongDanAnh(filePath);
+            } else {
+                // Nếu không có file mới, lấy đường dẫn ảnh hiện tại từ database
+                AnhSanPhamResponse existing = anhSanPhamService.getAnhSanPhamById(id);
+                request.setDuongDanAnh(existing.getDuongDanAnh());
+            }
+            
+            anhSanPhamService.update(id, request);
+            return new ResponseObject<>(null, "Cập nhật ảnh sản phẩm thành công");
+        } catch (Exception e) {
+            return new ResponseObject<>(null, "Lỗi khi cập nhật ảnh sản phẩm: " + e.getMessage());
+        }
     }
 
     @PutMapping("/update/status/{id}")
     public ResponseObject<?> updateStatus(@PathVariable int id) {
         anhSanPhamService.updateStatus(id);
         return new ResponseObject<>(null, "Cập nhật trạng thái ảnh sản phẩm thành công");
+    }
+
+    // Endpoint test để kiểm tra file upload
+    @GetMapping("/test-upload")
+    public ResponseObject<?> testUpload() {
+        try {
+            // Kiểm tra thư mục uploads có tồn tại không
+            File uploadDir = new File("uploads/images");
+            if (uploadDir.exists()) {
+                File[] files = uploadDir.listFiles();
+                int fileCount = files != null ? files.length : 0;
+                return new ResponseObject<>(null, "Thư mục uploads tồn tại, có " + fileCount + " files");
+            } else {
+                return new ResponseObject<>(null, "Thư mục uploads không tồn tại");
+            }
+        } catch (Exception e) {
+            return new ResponseObject<>(null, "Lỗi khi kiểm tra: " + e.getMessage());
+        }
     }
 }

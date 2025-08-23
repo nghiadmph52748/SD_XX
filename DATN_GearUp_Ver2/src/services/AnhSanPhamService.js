@@ -21,29 +21,40 @@ export const fetchPagingAnhSanPham = async (page, size) => {
     }
     return res.json();
 }
-export const fetchCreateAnhSanPham = async (data) => {
+export const fetchCreateAnhSanPham = async (formData) => {
     const res = await fetch(`${API}/add`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        body: formData, // Không cần Content-Type header khi gửi FormData
     });
     if (!res.ok) {
-        throw new Error("Failed to create product image");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to create product image");
     }
+    return res.json();
 }
 export const fetchUpdateAnhSanPham = async (id, data) => {
-    const res = await fetch(`${API}/update/${id}`, {
+    let url = `${API}/update/${id}`;
+    let options = {
         method: "PUT",
-        headers: {
+    };
+    
+    // Nếu data là FormData (có file), gửi FormData
+    if (data instanceof FormData) {
+        options.body = data;
+    } else {
+        // Nếu data là object thường, gửi JSON
+        options.headers = {
             "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        throw new Error("Failed to update product image");
+        };
+        options.body = JSON.stringify(data);
     }
+    
+    const res = await fetch(url, options);
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update product image");
+    }
+    return res.json();
 }
 export const fetchUpdateStatusAnhSanPham = async (id) => {
     const res = await fetch(`${API}/update/status/${id}`, {
@@ -53,6 +64,7 @@ export const fetchUpdateStatusAnhSanPham = async (id) => {
         }
     });
     if (!res.ok) {
-        throw new Error("Failed to update product image status");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update product image status");
     }
 }
