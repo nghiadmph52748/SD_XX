@@ -179,12 +179,10 @@
 
             <div class="modal-actions">
               <button type="button" class="btn-export" @click="closeModal">
-                <span class="btn-icon">❌</span>
                 <span class="btn-icon">✕</span>
                 <span class="btn-text">Hủy</span>
               </button>
               <button type="submit" class="btn-export">
-                <span class="btn-icon">💾</span>
                 <span class="btn-icon">{{ showAddModal ? '➕' : '✏️' }}</span>
                 <span class="btn-text">{{ showAddModal ? 'Thêm' : 'Cập nhật' }}</span>
               </button>
@@ -209,7 +207,7 @@
           <p class="text-warning">⚠️ Hành động này không thể hoàn tác!</p>
           
           <div class="modal-actions">
-            <button class="btn-export" @click="showDeleteModal = false">
+            <button class="btn-export">
               <span class="btn-icon">❌</span>
               <span class="btn-text">Hủy</span>
             </button>

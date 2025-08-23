@@ -2,7 +2,7 @@
 // This file provides easy access to all services in the GearUp application
 
 // Base API configuration
-export { default as api, authService, uploadService, createCRUDService } from './api.js'
+export { default as api, uploadService, createCRUDService } from './api.js'
 
 // User Management Services (ERD: nguoi_dung)
 export { 
@@ -92,8 +92,7 @@ export {
 
 // Service collections organized by functional area
 export const services = {
-  // Authentication & Core
-  auth: authService,
+  // Core
   upload: uploadService,
   
   // User Management

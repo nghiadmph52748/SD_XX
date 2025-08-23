@@ -11,13 +11,9 @@ const api = axios.create({
   }
 })
 
-// Request interceptor to add auth token
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
     return config
   },
   (error) => {
@@ -32,13 +28,6 @@ api.interceptors.response.use(
     return response.data
   },
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('user_info')
-      window.location.href = '/login'
-    }
-    
     // Handle Spring Boot error responses
     const errorMessage = error.response?.data?.message || 
                         error.response?.data?.error || 
@@ -91,25 +80,7 @@ export const createCRUDService = (endpoint) => ({
   }
 })
 
-// Authentication service
-export const authService = {
-  login: (usernameOrEmail, password) => {
-    return api.post('/auth/login', { usernameOrEmail, password })
-  },
-  
-  logout: () => {
-    return api.post('/auth/logout')
-  },
-  
-  refreshToken: () => {
-    const refreshToken = localStorage.getItem('refresh_token')
-    return api.post('/auth/refresh', { refresh_token: refreshToken })
-  },
-  
-  getCurrentUser: () => {
-    return api.get('/auth/me')
-  }
-}
+
 
 // File upload service
 export const uploadService = {
