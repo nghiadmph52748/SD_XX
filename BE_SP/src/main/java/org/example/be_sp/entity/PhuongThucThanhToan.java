@@ -20,7 +20,7 @@ public class PhuongThucThanhToan {
     private Integer id;
 
     @ColumnDefault("'PTTT'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_phuong_thuc_thanh_toan", length = 9)
+    @Column(name = "ma_phuong_thuc_thanh_toan", length = 9, insertable = false, updatable = false)
     private String maPhuongThucThanhToan;
 
     @Nationalized

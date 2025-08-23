@@ -27,7 +27,7 @@ public class HoaDonChiTiet {
     private ChiTietSanPham idChiTietSanPham;
 
     @ColumnDefault("'HDCT'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_hoa_don_chi_tiet", length = 9)
+    @Column(name = "ma_hoa_don_chi_tiet", length = 9,insertable = false, updatable = false)
     private String maHoaDonChiTiet;
 
     @ColumnDefault("0")

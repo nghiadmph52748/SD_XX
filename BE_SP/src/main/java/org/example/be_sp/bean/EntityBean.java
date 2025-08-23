@@ -227,4 +227,42 @@ public class EntityBean {
     public Class<ChiTietSanPhamRequest> chiTietSanPhamRequestClass() {
         return ChiTietSanPhamRequest.class;
     }
+    @Bean
+    public Class<QuyenHan> quyenHanClass() {
+        return QuyenHan.class;
+    }
+    @Bean
+    public Class<QuyenHanResponse> quyenHanResponseClass() {
+        return QuyenHanResponse.class;
+    }
+    @Bean
+    public Class<QuyenHanRequest> quyenHanRequestClass() {
+        return QuyenHanRequest.class;
+    }
+    @Bean
+    public Class<PhuongThucThanhToan> phuongThucThanhToanClass() {
+        return PhuongThucThanhToan.class;
+    }
+    @Bean
+    public Class<PhuongThucThanhToanResponse> phuongThucThanhToanResponseClass() {
+        return PhuongThucThanhToanResponse.class;
+    }
+    @Bean
+    public Class<PhuongThucThanhToanRequest> phuongThucThanhToanRequestClass() {
+        return PhuongThucThanhToanRequest.class;
+    }
+    @Bean
+    public Class<TrangThaiDonHang> trangThaiDonHangClass() {
+        return TrangThaiDonHang.class;
+    }
+    @Bean
+    public Class<TrangThaiDonHangResponse> trangThaiDonHangResponseClass() {
+        return TrangThaiDonHangResponse.class;
+    }
+    @Bean
+    public Class<TrangThaiDonHangRequest> trangThaiDonHangRequestClass() {
+        return TrangThaiDonHangRequest.class;
+    }
+
+
 }

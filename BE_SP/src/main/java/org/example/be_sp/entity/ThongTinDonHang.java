@@ -7,6 +7,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -27,11 +28,11 @@ public class ThongTinDonHang {
     private TrangThaiDonHang idTrangThaiDonHang;
 
     @ColumnDefault("'TTDH'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_thong_tin_don_hang", length = 9)
+    @Column(name = "ma_thong_tin_don_hang", length = 9, insertable = false, updatable = false)
     private String maThongTinDonHang;
 
     @Column(name = "thoi_gian")
-    private Instant thoiGian;
+    private LocalDate thoiGian;
 
     @Nationalized
     @Column(name = "ghi_chu")

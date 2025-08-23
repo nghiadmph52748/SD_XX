@@ -34,7 +34,7 @@ public class HoaDon {
     private NhanVien idNhanVien;
 
     @ColumnDefault("'HD'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_hoa_don", length = 7)
+    @Column(name = "ma_hoa_don", length = 7,insertable = false, updatable = false)
     private String maHoaDon;
 
     @Nationalized
@@ -60,17 +60,17 @@ public class HoaDon {
 
     @Nationalized
     @Column(name = "ten_khach_hang")
-    private String tenKhachHang;
+    private String tenNguoiNhan;
 
     @Nationalized
     @Column(name = "dia_chi_khach_hang")
-    private String diaChiKhachHang;
+    private String diaChiNguoiNhan;
 
     @Column(name = "so_dien_thoai_khach_hang", length = 12)
-    private String soDienThoaiKhachHang;
+    private String soDienThoaiNguoiNhan;
 
     @Column(name = "email_khach_hang")
-    private String emailKhachHang;
+    private String emailNguoiNhan;
 
     @Column(name = "ngay_tao")
     private LocalDate ngayTao;
