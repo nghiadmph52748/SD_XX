@@ -2,8 +2,45 @@
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <div class="add-form">
-    <h3>Thêm Hình Ảnh Sản Phẩm Mới</h3>
+  <div class="management-header">
+    <h2><i class="fas fa-images"></i> Quản Lý Hình Ảnh</h2>
+    <button @click="showAddForm = true" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Thêm Hình Ảnh Mới
+    </button>
+  </div>
+
+  <!-- Search và Filter -->
+  <div class="search-filter-section">
+    <div class="search-box">
+      <div class="search-input-group">
+        <label><i class="fas fa-search"></i> Tìm kiếm:</label>
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Tìm theo loại ảnh hoặc mô tả..."
+          @input="handleSearch"
+        />
+      </div>
+      <div class="filter-group">
+        <label><i class="fas fa-filter"></i> Lọc theo trạng thái:</label>
+        <select v-model="statusFilter" @change="handleFilter">
+          <option value="">Tất cả</option>
+          <option value="false">Hoạt động</option>
+          <option value="true">Không hoạt động</option>
+        </select>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Form thêm mới (ẩn mặc định) -->
+  <div class="add-form" v-if="showAddForm">
+    <div class="form-header">
+      <h3>Thêm Hình Ảnh Sản Phẩm Mới</h3>
+      <button @click="closeAddForm" class="btn-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     <form @submit.prevent="fetchCreate">
       <div>
         <label>Chọn ảnh từ máy:</label>
@@ -52,9 +89,14 @@
           </label>
         </div>
       </div>
-      <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
-      </button>
+      <div class="form-actions">
+        <button type="submit" :disabled="uploading" class="btn btn-primary">
+          <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        </button>
+        <button type="button" @click="closeAddForm" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Hủy bỏ
+        </button>
+      </div>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
       <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
     </form>
@@ -338,21 +380,50 @@ const showDeleteModal = ref(false);
 const deleteItemId = ref(null);
 const deleteItemName = ref('');
 
+// Biến cho form thêm mới
+const showAddForm = ref(false);
+
+// Biến cho tìm kiếm và lọc
+const searchQuery = ref('');
+const statusFilter = ref('');
+
 // Pagination variables
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalItems = ref(0);
 
 // Refs cho file input
 const fileInput = ref(null);
 const editFileInput = ref(null);
 
-// Pagination computed properties
+// Computed properties cho tìm kiếm, lọc và phân trang
+const filteredAnhSanPhams = computed(() => {
+  let filtered = [...AnhSanPhams.value];
+  
+  // Tìm kiếm theo loại ảnh hoặc mô tả
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(item => 
+      item.loaiAnh?.toLowerCase().includes(query) ||
+      item.moTa?.toLowerCase().includes(query)
+    );
+  }
+  
+  // Lọc theo trạng thái
+  if (statusFilter.value !== '') {
+    filtered = filtered.filter(item => 
+      item.deleted === (statusFilter.value === 'true')
+    );
+  }
+  
+  return filtered;
+});
+
+const totalItems = computed(() => filteredAnhSanPhams.value.length);
 const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value));
 const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
 const endIndex = computed(() => startIndex.value + pageSize.value);
 const paginatedAnhSanPhams = computed(() => {
-  return AnhSanPhams.value.slice(startIndex.value, endIndex.value);
+  return filteredAnhSanPhams.value.slice(startIndex.value, endIndex.value);
 });
 
 const handleFileChange = (event) => {
@@ -394,7 +465,6 @@ const fetchAll = async () => {
   try {
     const response = await fetchAllAnhSanPham();
     AnhSanPhams.value = response.data;
-    totalItems.value = AnhSanPhams.value.length; // Update total items for pagination
   } catch (error) {
     console.error("Error fetching:", error);
   }
@@ -438,9 +508,10 @@ const fetchCreate = async () => {
       fileInput.value.value = '';
     }
     
-    await fetchAll();
-    successMessage.value = "Ảnh sản phẩm đã được thêm thành công!";
-    clearSuccessMessage();
+         await fetchAll();
+     successMessage.value = "Ảnh sản phẩm đã được thêm thành công!";
+     clearSuccessMessage();
+     closeAddForm(); // Đóng form sau khi thêm thành công
   } catch (error) {
     console.error("Error creating:", error);
     errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo ảnh sản phẩm");
@@ -593,6 +664,37 @@ const closeDeleteModal = () => {
   deleteItemName.value = '';
 };
 
+const closeAddForm = () => {
+  showAddForm.value = false;
+  // Reset form
+  newAnhSanPham.value = {
+    loaiAnh: "",
+    moTa: "",
+    deleted: false
+  };
+  file.value = null;
+  previewUrl.value = null;
+  errorMessage.value = null;
+  successMessage.value = null;
+  
+  // Reset file input
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
+};
+
+// Hàm xử lý tìm kiếm
+const handleSearch = () => {
+  currentPage.value = 1; // Reset về trang đầu tiên
+};
+
+// Hàm xử lý lọc
+const handleFilter = () => {
+  currentPage.value = 1; // Reset về trang đầu tiên
+};
+
+
+
 const closeEditForm = () => {
   showEditForm.value = false;
   editFile.value = null;
@@ -697,6 +799,79 @@ onMounted(fetchAll);
 </script>
 
 <style scoped>
+/* Header quản lý */
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-radius: 12px;
+  color: white;
+}
+
+.management-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.management-header h2 i {
+  margin-right: 12px;
+}
+
+/* Search và Filter Section */
+.search-filter-section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border: 2px solid #d4edda;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
+}
+
+.search-box {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input-group,
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.search-input-group label,
+.filter-group label {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 14px;
+}
+
+.search-input-group input,
+.filter-group select {
+  padding: 10px 12px;
+  border: 2px solid #d4edda;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8fff9;
+}
+
+.search-input-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+/* Form thêm mới */
 .add-form,
 .edit-form {
   background: #ffffff;
@@ -705,6 +880,50 @@ onMounted(fetchAll);
   margin-bottom: 25px;
   border: 2px solid #4ade80;
   box-shadow: 0 4px 12px rgba(74, 222, 128, 0.1);
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #d4edda;
+}
+
+.form-header h3 {
+  margin: 0;
+  color: #4ade80;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-close:hover {
+  background-color: #f8f9fa;
+  color: #dc3545;
+  transform: scale(1.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 .add-form h3,
@@ -980,6 +1199,29 @@ p[style*="color: green"] {
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .management-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .management-header h2 {
+    font-size: 24px;
+  }
+
+  .search-filter-section {
+    padding: 15px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input-group,
+  .filter-group {
+    min-width: auto;
+  }
 
   .add-form,
   .edit-form {
@@ -997,6 +1239,10 @@ p[style*="color: green"] {
   .table td {
     padding: 12px 8px;
     font-size: 14px;
+  }
+
+  .form-actions {
+    flex-direction: column;
   }
 }
 
