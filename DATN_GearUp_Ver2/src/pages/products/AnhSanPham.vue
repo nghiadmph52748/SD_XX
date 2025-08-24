@@ -31,18 +31,26 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input
-          type="radio"
-          name="Trạng thái"
-          :value="false"
-          v-model="newAnhSanPham.deleted"
-        />Hoạt động
-        <input
-          type="radio"
-          name="Trạng thái"
-          :value="true"
-          v-model="newAnhSanPham.deleted"
-        />Không hoạt động
+        <div class="radio-group">
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="Trạng thái"
+              :value="false"
+              v-model="newAnhSanPham.deleted"
+            />
+            <span>Hoạt động</span>
+          </label>
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="Trạng thái"
+              :value="true"
+              v-model="newAnhSanPham.deleted"
+            />
+            <span>Không hoạt động</span>
+          </label>
+        </div>
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-primary">
         <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
@@ -90,8 +98,26 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedAnhSanPham.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedAnhSanPham.deleted" />Không hoạt động
+        <div class="radio-group">
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="editTrạng thái"
+              :value="false"
+              v-model="selectedAnhSanPham.deleted"
+            />
+            <span>Hoạt động</span>
+          </label>
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="editTrạng thái"
+              :value="true"
+              v-model="selectedAnhSanPham.deleted"
+            />
+            <span>Không hoạt động</span>
+          </label>
+        </div>
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-success">
         <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
@@ -218,14 +244,16 @@
           <div class="detail-row">
             <div class="detail-label">Trạng thái:</div>
             <div class="detail-value">
-              <label class="detail-radio">
-                <input type="radio" name="detailTrạng thái" :value="false" v-model="selectedAnhSanPham.deleted" />
-                Hoạt động
-              </label>
-              <label class="detail-radio">
-                <input type="radio" name="detailTrạng thái" :value="true" v-model="selectedAnhSanPham.deleted" />
-                Không hoạt động
-              </label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="detailTrạng thái" :value="false" v-model="selectedAnhSanPham.deleted" />
+                  <span>Hoạt động</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="detailTrạng thái" :value="true" v-model="selectedAnhSanPham.deleted" />
+                  <span>Không hoạt động</span>
+                </label>
+              </div>
             </div>
           </div>
           
@@ -240,6 +268,37 @@
            <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Lưu thay đổi' }}
          </button>
        </div>
+    </div>
+  </div>
+
+  <!-- Modal Xác nhận Xóa -->
+  <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+    <div class="modal-content delete-modal" @click.stop>
+      <div class="modal-header delete-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Xác nhận xóa</h3>
+        <button class="modal-close" @click="closeDeleteModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="delete-content">
+          <div class="delete-icon">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <h4>Bạn có chắc chắn muốn xóa?</h4>
+          <p class="delete-message">
+            Bạn sắp xóa <strong>"{{ deleteItemName }}"</strong>. Hành động này không thể hoàn tác.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer delete-footer">
+        <button class="btn btn-secondary" @click="closeDeleteModal" :disabled="uploading">
+          <i class="fas fa-times"></i> Hủy bỏ
+        </button>
+        <button class="btn btn-delete" @click="confirmDelete" :disabled="uploading">
+          <i class="fas fa-trash"></i> {{ uploading ? 'Đang xóa...' : 'Xóa' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -273,6 +332,11 @@ const successMessage = ref(null);
 const editSuccessMessage = ref(null);
 const isEditing = ref(false);
 const originalData = ref({});
+
+// Biến cho modal xóa
+const showDeleteModal = ref(false);
+const deleteItemId = ref(null);
+const deleteItemName = ref('');
 
 // Pagination variables
 const currentPage = ref(1);
@@ -491,22 +555,42 @@ const fetchUpdate = async () => {
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa ảnh sản phẩm này?')) {
-    return;
+  // Hiển thị modal xác nhận xóa
+  showDeleteModal.value = true;
+  deleteItemId.value = id;
+  
+  // Lấy tên ảnh để hiển thị trong thông báo
+  const item = AnhSanPhams.value.find(item => item.id === id);
+  if (item) {
+    deleteItemName.value = item.loaiAnh || 'Ảnh sản phẩm';
   }
+};
 
+const confirmDelete = async () => {
+  if (!deleteItemId.value) return;
+  
   try {
-    await fetchUpdateStatusAnhSanPham(id);
+    uploading.value = true;
+    await fetchUpdateStatusAnhSanPham(deleteItemId.value);
     await fetchAll();
     successMessage.value = "Ảnh sản phẩm đã được xóa thành công!";
     clearSuccessMessage();
+    closeDeleteModal();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
     errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa ảnh sản phẩm");
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
+  } finally {
+    uploading.value = false;
   }
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteItemId.value = null;
+  deleteItemName.value = '';
 };
 
 const closeEditForm = () => {
@@ -681,18 +765,7 @@ onMounted(fetchAll);
   border-color: #22c55e;
 }
 
-.add-form input[type="radio"],
-.edit-form input[type="radio"] {
-  margin-right: 8px;
-  margin-left: 20px;
-  accent-color: #4ade80;
-  transform: scale(1.2);
-}
-
-.add-form input[type="radio"]:first-of-type,
-.edit-form input[type="radio"]:first-of-type {
-  margin-left: 0;
-}
+/* CSS cho radio button đã được thay thế bằng CSS mới ở dưới */
 
 .btn {
   padding: 12px 24px;
@@ -873,13 +946,7 @@ p[style*="color: green"] {
 }
 
 /* Form enhancements */
-.add-form input[type="radio"]+label,
-.edit-form input[type="radio"]+label {
-  display: inline;
-  margin-left: 5px;
-  font-weight: 500;
-  color: #495057;
-}
+/* CSS cho radio button đã được thay thế bằng CSS mới */
 
 /* Table enhancements */
 .table tbody tr:hover {
@@ -1171,10 +1238,72 @@ p[style*="color: green"] {
   cursor: pointer;
 }
 
-.detail-radio input[type="radio"] {
+/* CSS cho radio button trong detail modal */
+.detail-value .radio-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.detail-value .radio-label {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+/* CSS cho radio button trong form */
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
   margin-right: 8px;
-  accent-color: #4ade80;
-  transform: scale(1.1);
+  vertical-align: middle;
+}
+
+input[type="radio"]:checked {
+  border-color: #4ade80;
+  background-color: #4ade80;
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+input[type="radio"]:hover {
+  border-color: #4ade80;
+}
+
+/* Style cho label của radio button */
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
 }
 
 .detail-error {
@@ -1268,5 +1397,62 @@ p[style*="color: green"] {
     width: 100%;
     max-width: 200px;
   }
+}
+
+/* CSS cho Modal Xóa */
+.delete-modal {
+  max-width: 500px;
+}
+
+.delete-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.delete-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.delete-icon {
+  font-size: 60px;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.delete-content h4 {
+  color: #dc3545;
+  font-size: 20px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.delete-message {
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.delete-footer {
+  justify-content: space-between;
+  padding: 20px 25px;
+}
+
+.delete-footer .btn {
+  min-width: 120px;
+}
+
+.delete-footer .btn-delete {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.delete-footer .btn-delete:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a);
+}
+
+.delete-footer .btn-delete:disabled {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  opacity: 0.6;
 }
 </style>
