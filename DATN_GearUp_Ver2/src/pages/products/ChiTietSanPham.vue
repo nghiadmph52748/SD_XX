@@ -211,16 +211,12 @@
               </select>
             </div>
 
-            <div class="filter-actions">
-              <button @click="clearFilters" class="btn btn-outline">
-                <span class="btn-icon">🔄</span>
-                Đặt lại
-              </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">🔍</span>
-                Áp dụng
-              </button>
-            </div>
+                         <div class="filter-actions">
+               <button @click="clearFilters" class="btn btn-outline">
+                 <span class="btn-icon">🔄</span>
+                 Đặt lại
+               </button>
+             </div>
           </div>
         </div>
       </div>
@@ -583,12 +579,8 @@
            </div>
          </div>
         <div class="modal-footer">
-          <button class="btn-export" @click="closeModals">
-            <span class="btn-icon">❌</span>
-            Hủy
-          </button>
-          <button class="btn-export" @click="saveDetail">
-            <span class="btn-icon">💾</span>
+          <button class="btn-save" @click="saveDetail">
+            <span class="btn-icon">{{ showAddModal ? "➕" : "💾" }}</span>
             {{ showAddModal ? "Thêm" : "Cập nhật" }}
           </button>
         </div>
@@ -1276,6 +1268,11 @@ onMounted(async () => {
   color: #9ca3af;
   font-size: 1.5rem;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .clear-btn {
@@ -1361,7 +1358,7 @@ onMounted(async () => {
   gap: 1rem;
   align-items: end;
   grid-column: span 4;
-  justify-content: center;
+  justify-content: flex-end;
   margin-top: 1rem;
 }
 
@@ -1874,13 +1871,13 @@ onMounted(async () => {
   align-items: center;
   padding: 2rem 2rem 1.5rem 2rem;
   border-bottom: 2px solid #f3f4f6;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: #22c55e;
   border-radius: 16px 16px 0 0;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #1e293b;
+  color: white;
   font-size: 1.5rem;
   font-weight: 700;
   font-family: 'Inter', sans-serif;
@@ -1914,12 +1911,52 @@ onMounted(async () => {
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   padding: 1.5rem 2rem 2rem 2rem;
   border-top: 2px solid #f3f4f6;
   background: #f8fafc;
   border-radius: 0 0 16px 16px;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+.btn-save:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-save .btn-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-save:hover .btn-icon {
+  transform: scale(1.1);
 }
 
 /* Form styles */
