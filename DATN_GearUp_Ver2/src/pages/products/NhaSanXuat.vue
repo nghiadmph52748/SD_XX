@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllNhaSanXuat, fetchCreateNhaSanXuat, fetchUpdateNhaSanXuat, fetchUpdateStatusNhaSanXuat } from '../../services/NhaSanXuatService';
+import { fetchAllNhaSanXuat, fetchCreateNhaSanXuat, fetchUpdateNhaSanXuat, fetchUpdateStatusNhaSanXuat } from '../../services/ThuocTinh/NhaSanXuatService';
 const newNSX = ref({});
 const selectedNSX = ref({});
 const NSXs = ref([]);

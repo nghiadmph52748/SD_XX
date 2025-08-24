@@ -51,7 +51,7 @@ import {
   fetchCreateXuatXu,
   fetchUpdateStatusXuatXu,
   fetchUpdateXuatXu,
-} from "../../services/XuatXuService";
+} from "../../services/ThuocTinh/XuatXuService";
 const XuatXus = ref([]);
 const newXuatXu = ref({});
 const selectedXuatXu = ref({});

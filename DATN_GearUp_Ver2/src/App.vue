@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, markRaw } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useAuth } from "./services/khoXacThuc.js";
+import { useAuth } from "../src/services/response/khoXacThuc.js";
 import { useNotifications } from "./composables/useNotifications.js";
-import { setGlobalNotificationInstance } from "./services/dichVuThongBao.js";
+import { setGlobalNotificationInstance } from "../src/services/response/dichVuThongBao.js";
 import logoUrl from "@/assets/gearup-logo-official.svg";
 
 const router = useRouter();
@@ -25,7 +25,7 @@ const expandedMenus = ref({
 });
 
 const expandedSubMenus = ref({
-  "Thuộc tính sản phẩm": false
+  "Thuộc tính sản phẩm": false,
 });
 
 // Notifications
@@ -111,7 +111,7 @@ const pageTitle = computed(() => {
     "/dashboard": "Thống kê & Báo cáo",
 
     // User Management
-    "/users/employees": "Quản lý Nhân viên",
+    "/users/nhan-vien": "Quản lý Nhân viên",
     "/users/customers": "Quản lý Khách hàng",
 
     // Product Management
@@ -199,8 +199,8 @@ const menuItems = [
     submenu: [
       { path: "/products", name: "Danh sách sản phẩm" },
       { path: "/products/details", name: "Chi tiết sản phẩm" },
-      { 
-        name: "Thuộc tính sản phẩm", 
+      {
+        name: "Thuộc tính sản phẩm",
         hasSubSubmenu: true,
         subSubmenu: [
           { path: "/products/xuat-xu", name: "Xuất xứ" },
@@ -216,7 +216,7 @@ const menuItems = [
           { path: "/products/do-ben", name: "Độ bền" },
           { path: "/products/chong-nuoc", name: "Chống nước" },
           { path: "/products/anh-san-pham", name: "Ảnh sản phẩm" },
-        ]
+        ],
       },
     ],
   },
@@ -260,7 +260,7 @@ const menuItems = [
     </svg>`,
     hasSubmenu: true,
     submenu: [
-      { path: "/users/employees", name: "Nhân viên" },
+      { path: "/users/nhan-vien", name: "Nhân viên" },
       { path: "/users/customers", name: "Khách hàng" },
     ],
   },
@@ -430,7 +430,9 @@ const isSubmenuItemActive = (submenu) => {
       return route.path === item.path;
     }
     if (item.hasSubSubmenu) {
-      return item.subSubmenu.some((subSubitem) => route.path === subSubitem.path);
+      return item.subSubmenu.some(
+        (subSubitem) => route.path === subSubitem.path
+      );
     }
     return false;
   });
@@ -450,8 +452,6 @@ watch(
   },
   { immediate: false }
 );
-
-
 
 // Close dropdown when clicking outside
 const closeDropdowns = (event) => {
@@ -569,17 +569,29 @@ onUnmounted(() => {
                 v-for="subitem in item.submenu"
                 :key="subitem.path || subitem.name"
                 class="submenu-item"
-                :class="{ 
+                :class="{
                   active: subitem.path ? route.path === subitem.path : false,
                   'has-sub-submenu': subitem.hasSubSubmenu,
-                  'expanded': subitem.hasSubSubmenu && isSubSubmenuExpanded(subitem.name)
+                  expanded:
+                    subitem.hasSubSubmenu && isSubSubmenuExpanded(subitem.name),
                 }"
-                @click="subitem.hasSubSubmenu ? toggleSubSubmenu(subitem.name) : (subitem.path ? router.push(subitem.path) : null)"
+                @click="
+                  subitem.hasSubSubmenu
+                    ? toggleSubSubmenu(subitem.name)
+                    : subitem.path
+                    ? router.push(subitem.path)
+                    : null
+                "
               >
                 <span class="submenu-bullet">•</span>
                 <span class="submenu-text">{{ subitem.name }}</span>
                 <span v-if="subitem.hasSubSubmenu" class="submenu-arrow-sub">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
                     <path d="M7 10l5 5 5-5z" />
                   </svg>
                 </span>
@@ -589,8 +601,12 @@ onUnmounted(() => {
               <div
                 v-if="item.name === 'QUẢN LÝ SẢN PHẨM'"
                 class="sub-submenu"
-                :class="{ 'sub-submenu-expanded': isSubSubmenuExpanded('Thuộc tính sản phẩm') }"
-                style="margin-left: 1rem;"
+                :class="{
+                  'sub-submenu-expanded': isSubSubmenuExpanded(
+                    'Thuộc tính sản phẩm'
+                  ),
+                }"
+                style="margin-left: 1rem"
               >
                 <div
                   v-for="subSubitem in [
@@ -606,7 +622,7 @@ onUnmounted(() => {
                     { path: '/products/loai-mua', name: 'Loại mùa' },
                     { path: '/products/do-ben', name: 'Độ bền' },
                     { path: '/products/chong-nuoc', name: 'Chống nước' },
-                    { path: '/products/anh-san-pham', name: 'Ảnh sản phẩm' }
+                    { path: '/products/anh-san-pham', name: 'Ảnh sản phẩm' },
                   ]"
                   :key="subSubitem.path"
                   class="sub-submenu-item"

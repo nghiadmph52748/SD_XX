@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllDemGiay, fetchCreateDemGiay, fetchUpdateDemGiay, fetchUpdateStatusDemGiay } from '../../services/DemGiayService';
+import { fetchAllDemGiay, fetchCreateDemGiay, fetchUpdateDemGiay, fetchUpdateStatusDemGiay } from '../../services/ThuocTinh/DemGiayService';
 
 const DemGiays = ref([]);
 const newDemGiay = ref({});

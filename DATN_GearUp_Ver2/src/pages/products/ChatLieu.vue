@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllChatLieu, fetchCreateChatLieu, fetchUpdateChatLieu, fetchUpdateStatusChatLieu } from '../../services/ChatLieuService';
+import { fetchAllChatLieu, fetchCreateChatLieu, fetchUpdateChatLieu, fetchUpdateStatusChatLieu } from '../../services/ThuocTinh/ChatLieuService';
 
 const ChatLieus = ref([]);
 const newChatLieu = ref({});

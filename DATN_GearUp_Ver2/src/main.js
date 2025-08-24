@@ -9,7 +9,7 @@ import Login from './pages/DangNhap.vue'
 import Dashboard from './pages/BangDieuKhien.vue'
 
 // User Management (ERD: nguoi_dung)
-import EmployeeManagement from './pages/management/QuanLyNhanVien.vue'
+import EmployeeManagement from './pages/management/NhanVien.vue'
 import CustomerManagement from './pages/management/QuanLyKhachHang.vue'
 
 // Product Management (ERD: san_pham, bien_the_san_pham, hinh_anh_san_pham)
@@ -20,7 +20,7 @@ import ProductDetails from './pages/products/ChiTietSanPham.vue'
 
 // Order Management (ERD: hoa_don, hoa_don_chi_tiet, thanh_toan)
 import OrderManagement from './pages/management/QuanLyDonHang.vue'
-import POSSystem from './pages/sales/HePOSBanHang.vue'
+import POSSystem from './pages/sales/BanHang.vue'
 
 // Return Management (ERD: hoa_don_tra, hoa_don_tra_chi_tiet)
 import ReturnsManagement from './pages/management/QuanLyTraHang.vue'
@@ -68,7 +68,7 @@ const routes = [
   { path: '/dashboard', component: Dashboard },
 
   // User Management
-  { path: '/users/employees', component: EmployeeManagement },
+  { path: '/users/nhan-vien', component: EmployeeManagement },
   { path: '/users/customers', component: CustomerManagement },
 
   // Product Management
@@ -117,7 +117,7 @@ const routes = [
   // Legacy routes (for compatibility)
   { path: '/orders', redirect: '/sales/orders' },
   { path: '/pos', redirect: '/sales/pos' },
-  { path: '/employees', redirect: '/users/employees' },
+  { path: '/employees', redirect: '/users/nhan-vien' },
   { path: '/customers', redirect: '/users/customers' },
   { path: '/discounts', redirect: '/marketing/discounts' },
   { path: '/returns', redirect: '/sales/returns' },

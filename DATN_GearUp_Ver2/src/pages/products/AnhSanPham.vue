@@ -128,7 +128,7 @@ import {
   fetchCreateAnhSanPham,
   fetchUpdateAnhSanPham,
   fetchUpdateStatusAnhSanPham,
-} from "../../services/AnhSanPhamService";
+} from "../../services/ThuocTinh/AnhSanPhamService";
 
 const AnhSanPhams = ref([]);
 const newAnhSanPham = ref({

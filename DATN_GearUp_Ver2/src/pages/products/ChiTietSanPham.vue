@@ -5,7 +5,9 @@
       <div class="header-content">
         <div class="header-text">
           <h1 class="page-title">Quản lý Chi tiết sản phẩm</h1>
-          <p class="page-subtitle">Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho</p>
+          <p class="page-subtitle">
+            Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho
+          </p>
         </div>
         <div class="header-actions">
           <button class="btn-refresh" @click="refreshData">
@@ -16,18 +18,22 @@
             <span class="btn-icon">📊</span>
             Xuất báo cáo
           </button>
-                     <button class="btn-export" @click="exportDetailsToExcel">
-             <span class="btn-icon">📗</span>
-             Xuất Excel
-           </button>
-           <button class="btn-export" @click="loadSampleData" title="Load dữ liệu mẫu">
-             <span class="btn-icon">📊</span>
-             Load mẫu
-           </button>
-           <button class="btn-export" @click="showAddModal = true">
-             <span class="btn-icon">➕</span>
-             Thêm chi tiết SP
-           </button>
+          <button class="btn-export" @click="exportDetailsToExcel">
+            <span class="btn-icon">📗</span>
+            Xuất Excel
+          </button>
+          <button
+            class="btn-export"
+            @click="loadSampleData"
+            title="Load dữ liệu mẫu"
+          >
+            <span class="btn-icon">📊</span>
+            Load mẫu
+          </button>
+          <button class="btn-export" @click="showAddModal = true">
+            <span class="btn-icon">➕</span>
+            Thêm chi tiết SP
+          </button>
         </div>
       </div>
     </div>
@@ -44,7 +50,7 @@
             <!-- {{ filteredDetails.length }} / {{ productDetails.length }} chi tiết sản phẩm -->
           </div>
         </div>
-        
+
         <div class="filter-content">
           <div class="search-section">
             <div class="input-group">
@@ -55,12 +61,16 @@
                 placeholder="Tìm kiếm tên sản phẩm, màu sắc, kích thước..."
                 class="form-control search-input"
               />
-              <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="clear-btn"
+              >
                 <span>✕</span>
               </button>
             </div>
           </div>
-          
+
           <div class="filters-grid">
             <div class="filter-group">
               <label class="filter-label">
@@ -69,12 +79,16 @@
               </label>
               <select v-model="selectedProduct" class="form-select">
                 <option value="">Tất cả sản phẩm</option>
-                <option v-for="product in products" :key="product.id" :value="product.id">
+                <option
+                  v-for="product in products"
+                  :key="product.id"
+                  :value="product.id"
+                >
                   {{ product.tenSanPham }}
                 </option>
               </select>
             </div>
-            
+
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">🎨</span>
@@ -82,7 +96,11 @@
               </label>
               <select v-model="selectedColor" class="form-select">
                 <option value="">Tất cả màu sắc</option>
-                <option v-for="color in colors" :key="color.id" :value="color.id">
+                <option
+                  v-for="color in colors"
+                  :key="color.id"
+                  :value="color.id"
+                >
                   {{ color.tenMauSac }}
                 </option>
               </select>
@@ -112,7 +130,7 @@
                 <option value="0">❌ Ngừng hoạt động</option>
               </select>
             </div>
-            
+
             <div class="filter-actions">
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
@@ -156,74 +174,158 @@
             </thead>
             <tbody>
               <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
-                <td class="stt-col">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                                 <td class="product-col">
-                   <div class="product-info">
-                     <strong>{{ detail.tenSanPham || detail.sanPham?.tenSanPham || 'N/A' }}</strong>
-                   </div>
-                 </td>
-                                 <td class="color-col">
-                   <span class="color-badge" :style="{ backgroundColor: getColorCode(detail.tenMauSac || detail.mauSac?.tenMauSac) }">
-                     {{ detail.tenMauSac || detail.mauSac?.tenMauSac || 'N/A' }}
-                   </span>
-                 </td>
-                 <td class="size-col">
-                   <span class="size-badge">{{ detail.tenKichThuoc || detail.kichThuoc?.tenKichThuoc || 'N/A' }}</span>
-                 </td>
-                                 <td class="sole-col">
-                   <span class="attribute-text">{{ detail.tenDeGiay || detail.deGiay?.tenDeGiay || 'N/A' }}</span>
-                 </td>
-                 <td class="material-col">
-                   <span class="attribute-text">{{ detail.tenChatLieu || detail.chatLieu?.tenChatLieu || 'N/A' }}</span>
-                 </td>
-                 <td class="insole-col">
-                   <span class="attribute-text">{{ detail.tenDemGiay || detail.demGiay?.tenDemGiay || 'N/A' }}</span>
-                 </td>
-                 <td class="weight-col">
-                   <span class="attribute-text">{{ detail.tenTrongLuong || detail.trongLuong?.tenTrongLuong || 'N/A' }}</span>
-                 </td>
-                 <td class="sport-col">
-                   <span class="attribute-text">{{ detail.tenMonTheThao || detail.monTheThao?.tenMonTheThao || 'N/A' }}</span>
-                 </td>
-                                 <td class="season-col">
-                   <span class="attribute-text">{{ detail.tenLoaiMua || detail.loaiMua?.tenLoaiMua || 'N/A' }}</span>
-                 </td>
-                 <td class="durability-col">
-                   <span class="attribute-text">{{ detail.tenDoBen || detail.doBen?.tenDoBen || 'N/A' }}</span>
-                 </td>
-                 <td class="waterproof-col">
-                   <span class="attribute-text">{{ detail.tenChongNuoc || detail.chongNuoc?.tenChongNuoc || 'N/A' }}</span>
-                 </td>
-                 <td class="image-col">
-                   <div v-if="detail.anhSanPham && detail.anhSanPham.length > 0" class="image-preview">
-                     <img :src="detail.anhSanPham[0]" :alt="detail.tenSanPham" class="product-image" />
-                     <span v-if="detail.anhSanPham.length > 1" class="image-count">+{{ detail.anhSanPham.length - 1 }}</span>
-                   </div>
-                   <div v-else-if="detail.chiTietSanPhamAnhs && detail.chiTietSanPhamAnhs.length > 0" class="image-preview">
-                     <img :src="detail.chiTietSanPhamAnhs[0].idAnhSanPham?.duongDanAnh" :alt="detail.tenSanPham" class="product-image" />
-                     <span v-if="detail.chiTietSanPhamAnhs.length > 1" class="image-count">+{{ detail.chiTietSanPhamAnhs.length - 1 }}</span>
-                   </div>
-                   <span v-else class="no-image">Không có ảnh</span>
-                 </td>
+                <td class="stt-col">
+                  {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                </td>
+                <td class="product-col">
+                  <div class="product-info">
+                    <strong>{{
+                      detail.tenSanPham || detail.sanPham?.tenSanPham || "N/A"
+                    }}</strong>
+                  </div>
+                </td>
+                <td class="color-col">
+                  <span
+                    class="color-badge"
+                    :style="{
+                      backgroundColor: getColorCode(
+                        detail.tenMauSac || detail.mauSac?.tenMauSac
+                      ),
+                    }"
+                  >
+                    {{ detail.tenMauSac || detail.mauSac?.tenMauSac || "N/A" }}
+                  </span>
+                </td>
+                <td class="size-col">
+                  <span class="size-badge">{{
+                    detail.tenKichThuoc ||
+                    detail.kichThuoc?.tenKichThuoc ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="sole-col">
+                  <span class="attribute-text">{{
+                    detail.tenDeGiay || detail.deGiay?.tenDeGiay || "N/A"
+                  }}</span>
+                </td>
+                <td class="material-col">
+                  <span class="attribute-text">{{
+                    detail.tenChatLieu || detail.chatLieu?.tenChatLieu || "N/A"
+                  }}</span>
+                </td>
+                <td class="insole-col">
+                  <span class="attribute-text">{{
+                    detail.tenDemGiay || detail.demGiay?.tenDemGiay || "N/A"
+                  }}</span>
+                </td>
+                <td class="weight-col">
+                  <span class="attribute-text">{{
+                    detail.tenTrongLuong ||
+                    detail.trongLuong?.tenTrongLuong ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="sport-col">
+                  <span class="attribute-text">{{
+                    detail.tenMonTheThao ||
+                    detail.monTheThao?.tenMonTheThao ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="season-col">
+                  <span class="attribute-text">{{
+                    detail.tenLoaiMua || detail.loaiMua?.tenLoaiMua || "N/A"
+                  }}</span>
+                </td>
+                <td class="durability-col">
+                  <span class="attribute-text">{{
+                    detail.tenDoBen || detail.doBen?.tenDoBen || "N/A"
+                  }}</span>
+                </td>
+                <td class="waterproof-col">
+                  <span class="attribute-text">{{
+                    detail.tenChongNuoc ||
+                    detail.chongNuoc?.tenChongNuoc ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="image-col">
+                  <div
+                    v-if="detail.anhSanPham && detail.anhSanPham.length > 0"
+                    class="image-preview"
+                  >
+                    <img
+                      :src="detail.anhSanPham[0]"
+                      :alt="detail.tenSanPham"
+                      class="product-image"
+                    />
+                    <span
+                      v-if="detail.anhSanPham.length > 1"
+                      class="image-count"
+                      >+{{ detail.anhSanPham.length - 1 }}</span
+                    >
+                  </div>
+                  <div
+                    v-else-if="
+                      detail.chiTietSanPhamAnhs &&
+                      detail.chiTietSanPhamAnhs.length > 0
+                    "
+                    class="image-preview"
+                  >
+                    <img
+                      :src="
+                        detail.chiTietSanPhamAnhs[0].idAnhSanPham?.duongDanAnh
+                      "
+                      :alt="detail.tenSanPham"
+                      class="product-image"
+                    />
+                    <span
+                      v-if="detail.chiTietSanPhamAnhs.length > 1"
+                      class="image-count"
+                      >+{{ detail.chiTietSanPhamAnhs.length - 1 }}</span
+                    >
+                  </div>
+                  <span v-else class="no-image">Không có ảnh</span>
+                </td>
                 <td class="quantity-col">
-                  <span :class="['stock-badge', { 'low-stock': detail.soLuong < 10 }]">
+                  <span
+                    :class="[
+                      'stock-badge',
+                      { 'low-stock': detail.soLuong < 10 },
+                    ]"
+                  >
                     {{ detail.soLuong }}
                   </span>
                 </td>
                 <td class="price-col">
-                  <span class="price-text">{{ formatCurrency(detail.giaBan) }}</span>
+                  <span class="price-text">{{
+                    formatCurrency(detail.giaBan)
+                  }}</span>
                 </td>
                 <td class="status-col">
-                  <span class="status-badge" :class="detail.trangThai ? 'status-active' : 'status-inactive'">
-                    {{ detail.trangThai ? 'Hoạt động' : 'Ngừng hoạt động' }}
+                  <span
+                    class="status-badge"
+                    :class="
+                      detail.trangThai ? 'status-active' : 'status-inactive'
+                    "
+                  >
+                    {{ detail.trangThai ? "Hoạt động" : "Ngừng hoạt động" }}
                   </span>
                 </td>
                 <td class="action-col">
                   <div class="action-buttons">
-                    <button class="btn-edit" @click="editDetail(detail)" title="Sửa">
+                    <button
+                      class="btn-edit"
+                      @click="editDetail(detail)"
+                      title="Sửa"
+                    >
                       <span class="btn-icon">✏️</span>
                     </button>
-                    <button class="btn-delete" @click="deleteDetail(detail.id)" title="Xóa">
+                    <button
+                      class="btn-delete"
+                      @click="deleteDetail(detail.id)"
+                      title="Xóa"
+                    >
                       <span class="btn-icon">🗑️</span>
                     </button>
                   </div>
@@ -235,24 +337,25 @@
             </tbody>
           </table>
         </div>
-        
+
         <!-- Pagination -->
         <div class="pagination-wrapper">
           <div class="pagination-info">
-            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ filteredDetails.length }} chi tiết sản phẩm
+            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+            {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
           <div class="pagination">
-            <button 
-              class="btn-export" 
-              @click="previousPage" 
+            <button
+              class="btn-export"
+              @click="previousPage"
               :disabled="currentPage === 1"
             >
               <span class="btn-icon">❮</span>
             </button>
             <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button 
-              class="btn-export" 
-              @click="nextPage" 
+            <button
+              class="btn-export"
+              @click="nextPage"
               :disabled="currentPage === totalPages"
             >
               <span class="btn-icon">❯</span>
@@ -263,10 +366,20 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay" @click="closeModals">
+    <div
+      v-if="showAddModal || showEditModal"
+      class="modal-overlay"
+      @click="closeModals"
+    >
       <div class="modal-content large" @click.stop>
         <div class="modal-header">
-          <h3>{{ showAddModal ? 'Thêm chi tiết sản phẩm' : 'Cập nhật chi tiết sản phẩm' }}</h3>
+          <h3>
+            {{
+              showAddModal
+                ? "Thêm chi tiết sản phẩm"
+                : "Cập nhật chi tiết sản phẩm"
+            }}
+          </h3>
           <button class="modal-close" @click="closeModals">×</button>
         </div>
         <div class="modal-body">
@@ -279,9 +392,13 @@
                 required
               >
                 <option value="">Chọn sản phẩm</option>
-                                 <option v-for="product in products" :key="product.id" :value="product.id">
-                   {{ product.tenSanPham }} ({{ product.maSanPham }})
-                 </option>
+                <option
+                  v-for="product in products"
+                  :key="product.id"
+                  :value="product.id"
+                >
+                  {{ product.tenSanPham }} ({{ product.maSanPham }})
+                </option>
               </select>
             </div>
 
@@ -293,9 +410,13 @@
                 required
               >
                 <option value="">Chọn màu sắc</option>
-                                 <option v-for="color in colors" :key="color.id" :value="color.id">
-                   {{ color.tenMauSac }}
-                 </option>
+                <option
+                  v-for="color in colors"
+                  :key="color.id"
+                  :value="color.id"
+                >
+                  {{ color.tenMauSac }}
+                </option>
               </select>
             </div>
 
@@ -307,9 +428,9 @@
                 required
               >
                 <option value="">Chọn kích thước</option>
-                                 <option v-for="size in sizes" :key="size.id" :value="size.id">
-                   {{ size.tenKichThuoc }}
-                 </option>
+                <option v-for="size in sizes" :key="size.id" :value="size.id">
+                  {{ size.tenKichThuoc }}
+                </option>
               </select>
             </div>
 
@@ -321,9 +442,13 @@
                 required
               >
                 <option value="">Chọn chất liệu</option>
-                                 <option v-for="material in materials" :key="material.id" :value="material.id">
-                   {{ material.tenChatLieu }}
-                 </option>
+                <option
+                  v-for="material in materials"
+                  :key="material.id"
+                  :value="material.id"
+                >
+                  {{ material.tenChatLieu }}
+                </option>
               </select>
             </div>
 
@@ -341,7 +466,11 @@
               <label class="form-label">Đệm giày</label>
               <select v-model="formData.id_dem_giay" class="form-control">
                 <option value="">Chọn đệm giày</option>
-                <option v-for="insole in insoles" :key="insole.id" :value="insole.id">
+                <option
+                  v-for="insole in insoles"
+                  :key="insole.id"
+                  :value="insole.id"
+                >
                   {{ insole.tenDemGiay }}
                 </option>
               </select>
@@ -351,7 +480,11 @@
               <label class="form-label">Trọng lượng</label>
               <select v-model="formData.id_trong_luong" class="form-control">
                 <option value="">Chọn trọng lượng</option>
-                <option v-for="weight in weights" :key="weight.id" :value="weight.id">
+                <option
+                  v-for="weight in weights"
+                  :key="weight.id"
+                  :value="weight.id"
+                >
                   {{ weight.tenTrongLuong }}
                 </option>
               </select>
@@ -361,7 +494,11 @@
               <label class="form-label">Môn thể thao</label>
               <select v-model="formData.id_mon_the_thao" class="form-control">
                 <option value="">Chọn môn thể thao</option>
-                <option v-for="sport in sports" :key="sport.id" :value="sport.id">
+                <option
+                  v-for="sport in sports"
+                  :key="sport.id"
+                  :value="sport.id"
+                >
                   {{ sport.tenMonTheThao }}
                 </option>
               </select>
@@ -371,7 +508,11 @@
               <label class="form-label">Loại mùa</label>
               <select v-model="formData.id_loai_mua" class="form-control">
                 <option value="">Chọn loại mùa</option>
-                <option v-for="season in seasons" :key="season.id" :value="season.id">
+                <option
+                  v-for="season in seasons"
+                  :key="season.id"
+                  :value="season.id"
+                >
                   {{ season.tenLoaiMua }}
                 </option>
               </select>
@@ -381,7 +522,11 @@
               <label class="form-label">Độ bền</label>
               <select v-model="formData.id_do_ben" class="form-control">
                 <option value="">Chọn độ bền</option>
-                <option v-for="durability in durabilities" :key="durability.id" :value="durability.id">
+                <option
+                  v-for="durability in durabilities"
+                  :key="durability.id"
+                  :value="durability.id"
+                >
                   {{ durability.tenDoBen }}
                 </option>
               </select>
@@ -391,7 +536,11 @@
               <label class="form-label">Chống nước</label>
               <select v-model="formData.id_chong_nuoc" class="form-control">
                 <option value="">Chọn chống nước</option>
-                <option v-for="waterproof in waterprooves" :key="waterproof.id" :value="waterproof.id">
+                <option
+                  v-for="waterproof in waterprooves"
+                  :key="waterproof.id"
+                  :value="waterproof.id"
+                >
                   {{ waterproof.tenChongNuoc }}
                 </option>
               </select>
@@ -448,7 +597,7 @@
           </button>
           <button class="btn-export" @click="saveDetail">
             <span class="btn-icon">💾</span>
-            {{ showAddModal ? 'Thêm' : 'Cập nhật' }}
+            {{ showAddModal ? "Thêm" : "Cập nhật" }}
           </button>
         </div>
       </div>
@@ -457,252 +606,168 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import ButtonGroup from '@/components/ui/NhomNut.vue'
-import { productDetailsService } from '@/services/dichVuSanPham.js'
+import { ref, computed, onMounted } from "vue";
+import ButtonGroup from "@/components/ui/NhomNut.vue";
+import { fetchAllChiTietSanPham } from "../../services/SanPham/ChiTietSanPhamService";
+import { fetchAllSanPham } from "../../services/SanPham/SanPhamService";
+import { fetchAllMauSac } from "../../services/ThuocTinh/MauSacService";
+import { fetchAllKichThuoc } from "../../services/ThuocTinh/KichThuocService";
+import { fetchAllChatLieu } from "../../services/ThuocTinh/ChatLieuService";
+import { fetchAllDeGiay } from "../../services/ThuocTinh/DeGiayService";
+import { fetchAllDemGiay } from "../../services/ThuocTinh/DemGiayService";
+import { fetchAllTrongLuong } from "../../services/ThuocTinh/TrongLuongService";
+import { fetchAllMonTheThao } from "../../services/ThuocTinh/MonTheThaoService";
+import { fetchAllLoaiMua } from "../../services/ThuocTinh/LoaiMuaService";
+import { fetchAllDoBen } from "../../services/ThuocTinh/DoBenService";
+import { fetchAllChongNuoc } from "../../services/ThuocTinh/ChongNuocService";
 
 // Reactive data
-const searchQuery = ref('')
-const selectedProduct = ref('')
-const selectedColor = ref('')
-const selectedSize = ref('')
-const statusFilter = ref('')
-const showAddModal = ref(false)
-const showEditModal = ref(false)
-const editingDetail = ref(null)
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const searchQuery = ref("");
+const selectedProduct = ref("");
+const selectedColor = ref("");
+const selectedSize = ref("");
+const statusFilter = ref("");
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const editingDetail = ref(null);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 
-const formData = ref({})
-const productDetails = ref([])
-const newProductDetail = ref([])
-const selectedProductDetail = ref([])
+const formData = ref({});
+const productDetails = ref([]);
+const newProductDetail = ref({});
+const selectedProductDetail = ref({});
 
 // Data for dropdowns
-const products = ref([])
-const colors = ref([])
-const sizes = ref([])
-const materials = ref([])
-const soles = ref([])
-const insoles = ref([])
-const weights = ref([])
-const sports = ref([])
-const seasons = ref([])
-const durabilities = ref([])
-const waterprooves = ref([])
+const products = ref([]);
+const colors = ref([]);
+const sizes = ref([]);
+const materials = ref([]);
+const soles = ref([]);
+const insoles = ref([]);
+const weights = ref([]);
+const sports = ref([]);
+const seasons = ref([]);
+const durabilities = ref([]);
+const waterprooves = ref([]);
 // API call
 const fetchProductDetails = async () => {
   try {
-    const response = await productDetailsService.getAllWithRelations();
-    productDetails.value = response.data
+    const response = await fetchAllChiTietSanPham();
+    productDetails.value = response.data;
   } catch (error) {
-    console.error('Error fetching product details:', error)
-    // Load sample product details if API fails
-    loadSampleProductDetails()
+    console.error("Error fetching product details:", error);
+    loadSampleProductDetails();
   }
-}
-
-// Load sample product details for testing
-const loadSampleProductDetails = () => {
-  console.log('Loading sample product details...')
-  productDetails.value = [
-    {
-      id: 1,
-      tenSanPham: 'Nike Air Force 1',
-      tenMauSac: 'Trắng',
-      tenKichThuoc: '42',
-      tenDeGiay: 'Cao su',
-      tenChatLieu: 'Da thật',
-      tenDemGiay: 'Memory Foam',
-      tenTrongLuong: '300g',
-      tenMonTheThao: 'Chạy bộ',
-      tenLoaiMua: 'Mùa hè',
-      tenDoBen: 'Cao',
-      tenChongNuoc: 'Không',
-      soLuong: 50,
-      giaBan: 2500000,
-      trangThai: true,
-      anhSanPham: ['/uploads/images/sample1.jpg']
-    },
-    {
-      id: 2,
-      tenSanPham: 'Adidas Ultraboost 22',
-      tenMauSac: 'Đen',
-      tenKichThuoc: '41',
-      tenDeGiay: 'EVA',
-      tenChatLieu: 'Vải lưới',
-      tenDemGiay: 'Gel',
-      tenTrongLuong: '280g',
-      tenMonTheThao: 'Chạy bộ',
-      tenLoaiMua: 'Mùa hè',
-      tenDoBen: 'Cao',
-      tenChongNuoc: 'Có',
-      soLuong: 30,
-      giaBan: 3200000,
-      trangThai: true,
-      anhSanPham: ['/uploads/images/sample2.jpg']
-    }
-  ]
-}
+};
 
 // Load data for dropdowns
 const loadDropdownData = async () => {
   try {
-    // Load products
-    const productsResponse = await fetch('/api/san-pham-management/playlist')
-    if (productsResponse.ok) {
-      const productsData = await productsResponse.json()
-      products.value = productsData.data || []
-    } else {
-      console.warn('Failed to load products:', productsResponse.status)
-    }
-    
-    // Load colors
-    const colorsResponse = await fetch('/api/mau-sac-management/playlist')
-    if (colorsResponse.ok) {
-      const colorsData = await colorsResponse.json()
-      colors.value = colorsData.data || []
-    } else {
-      console.warn('Failed to load colors:', colorsResponse.status)
-    }
-    
-    // Load sizes
-    const sizesResponse = await fetch('/api/kich-thuoc-management/playlist')
-    if (sizesResponse.ok) {
-      const sizesData = await sizesResponse.json()
-      sizes.value = sizesData.data || []
-    } else {
-      console.warn('Failed to load sizes:', sizesResponse.status)
-    }
-    
-    // Load materials
-    const materialsResponse = await fetch('/api/chat-lieu-management/playlist')
-    if (materialsResponse.ok) {
-      const materialsData = await materialsResponse.json()
-      materials.value = materialsData.data || []
-    } else {
-      console.warn('Failed to load materials:', materialsResponse.status)
-    }
-    
-    // Load soles
-    const solesResponse = await fetch('/api/de-giay-management/playlist')
-    if (solesResponse.ok) {
-      const solesData = await solesResponse.json()
-      soles.value = solesData.data || []
-    } else {
-      console.warn('Failed to load soles:', solesResponse.status)
-    }
-    
-    // Load insoles
-    const insolesResponse = await fetch('/api/dem-giay-management/playlist')
-    if (insolesResponse.ok) {
-      const insolesData = await insolesResponse.json()
-      insoles.value = insolesData.data || []
-    } else {
-      console.warn('Failed to load insoles:', insolesResponse.status)
-    }
-    
-    // Load weights
-    const weightsResponse = await fetch('/api/trong-luong-management/playlist')
-    if (weightsResponse.ok) {
-      const weightsData = await weightsResponse.json()
-      weights.value = weightsData.data || []
-    } else {
-      console.warn('Failed to load weights:', weightsResponse.status)
-    }
-    
-    // Load sports
-    const sportsResponse = await fetch('/api/mon-the-thao-management/playlist')
-    if (sportsResponse.ok) {
-      const sportsData = await sportsResponse.json()
-      sports.value = sportsData.data || []
-    } else {
-      console.warn('Failed to load sports:', sportsResponse.status)
-    }
-    
-    // Load seasons
-    const seasonsResponse = await fetch('/api/loai-mua-management/playlist')
-    if (seasonsResponse.ok) {
-      const seasonsData = await seasonsResponse.json()
-      seasons.value = seasonsData.data || []
-    } else {
-      console.warn('Failed to load seasons:', seasonsResponse.status)
-    }
-    
-    // Load durabilities
-    const durabilitiesResponse = await fetch('/api/do-ben-management/playlist')
-    if (durabilitiesResponse.ok) {
-      const durabilitiesData = await durabilitiesResponse.json()
-      durabilities.value = durabilitiesData.data || []
-    } else {
-      console.warn('Failed to load durabilities:', durabilitiesResponse.status)
-    }
-    
-    // Load waterprooves
-    const waterproovesResponse = await fetch('/api/chong-nuoc-management/playlist')
-    if (waterproovesResponse.ok) {
-      const waterproovesData = await waterproovesResponse.json()
-      waterprooves.value = waterproovesData.data || []
-    } else {
-      console.warn('Failed to load waterprooves:', waterproovesResponse.status)
-    }
-    
+    let res1 = await fetchAllSanPham();
+    products.value = res1.data;
+    let res2 = await fetchAllMauSac();
+    colors.value = res2.data;
+    let res3 = await fetchAllKichThuoc();
+    sizes.value = res3.data;
+    let res4 = await fetchAllChatLieu();
+    materials.value = res4.data;
+    let res5 = await fetchAllDeGiay();
+    soles.value = res5.data;
+    let res6 = await fetchAllDemGiay();
+    insoles.value = res6.data;
+    let res7 = await fetchAllTrongLuong();
+    weights.value = res7.data;
+    let res8 = await fetchAllMonTheThao();
+    sports.value = res8.data;
+    let res9 = await fetchAllLoaiMua();
+    seasons.value = res9.data;
+    let res10 = await fetchAllDoBen();
+    durabilities.value = res10.data;
+    let res11 = await fetchAllChongNuoc();
+    waterprooves.value = res11.data;
   } catch (error) {
-    console.error('Error loading dropdown data:', error)
+    console.error("Error loading dropdown data:", error);
   }
-}
+};
 
 // Computed
 const filteredDetails = computed(() => {
-  return productDetails.value.filter(detail => {
-    const matchesSearch = !searchQuery.value || 
-      (detail.tenSanPham || detail.sanPham?.tenSanPham || '')?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (detail.tenMauSac || detail.mauSac?.tenMauSac || '')?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      (detail.tenKichThuoc || detail.kichThuoc?.tenKichThuoc || '')?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesProduct = !selectedProduct.value || detail.id_san_pham == selectedProduct.value
-    const matchesColor = !selectedColor.value || detail.id_mau_sac == selectedColor.value
-    const matchesSize = !selectedSize.value || detail.id_kich_thuoc == selectedSize.value
-    const matchesStatus = statusFilter.value === '' || detail.trangThai == statusFilter.value
-    
-    return matchesSearch && matchesProduct && matchesColor && matchesSize && matchesStatus
-  })
-})
+  return productDetails.value.filter((detail) => {
+    const matchesSearch =
+      !searchQuery.value ||
+      (detail.tenSanPham || detail.sanPham?.tenSanPham || "")
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (detail.tenMauSac || detail.mauSac?.tenMauSac || "")
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (detail.tenKichThuoc || detail.kichThuoc?.tenKichThuoc || "")
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase());
 
-const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value))
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
-const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length))
+    const matchesProduct =
+      !selectedProduct.value || detail.idSanPham == selectedProduct.value;
+    const matchesColor =
+      !selectedColor.value || detail.idMauSac == selectedColor.value;
+    const matchesSize =
+      !selectedSize.value || detail.idKichThuoc == selectedSize.value;
+    const matchesStatus =
+      statusFilter.value === "" || detail.trangThai == statusFilter.value;
+
+    return (
+      matchesSearch &&
+      matchesProduct &&
+      matchesColor &&
+      matchesSize &&
+      matchesStatus
+    );
+  });
+});
+
+const totalPages = computed(() =>
+  Math.ceil(filteredDetails.value.length / itemsPerPage.value)
+);
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endIndex = computed(() =>
+  Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length)
+);
 
 const paginatedDetails = computed(() => {
-  return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
-})
+  return filteredDetails.value.slice(
+    startIndex.value,
+    startIndex.value + itemsPerPage.value
+  );
+});
 
 // Methods
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(amount).replace('₫', ' VND')
-}
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    minimumFractionDigits: 0,
+  })
+    .format(amount)
+    .replace("₫", " VND");
+};
 
 const getColorCode = (colorName) => {
   const colorMap = {
-    'Đen': '#000000',
-    'Trắng': '#FFFFFF',
-    'Đỏ': '#FF0000',
-    'Xanh': '#0000FF',
-    'Vàng': '#FFFF00',
-    'Xám': '#808080',
-    'Nâu': '#8B4513',
-    'Hồng': '#FFC0CB'
-  }
-  return colorMap[colorName] || '#E5E7EB'
-}
+    Đen: "#000000",
+    Trắng: "#FFFFFF",
+    Đỏ: "#FF0000",
+    Xanh: "#0000FF",
+    Vàng: "#FFFF00",
+    Xám: "#808080",
+    Nâu: "#8B4513",
+    Hồng: "#FFC0CB",
+  };
+  return colorMap[colorName] || "#E5E7EB";
+};
 
 const editDetail = (detail) => {
-  editingDetail.value = detail
-  formData.value = { 
+  editingDetail.value = detail;
+  formData.value = {
     ...detail,
     id_san_pham: detail.id_san_pham,
     id_mau_sac: detail.id_mau_sac,
@@ -714,260 +779,142 @@ const editDetail = (detail) => {
     id_mon_the_thao: detail.id_mon_the_thao,
     id_loai_mua: detail.id_loai_mua,
     id_do_ben: detail.id_do_ben,
-    id_chong_nuoc: detail.id_chong_nuoc
-  }
-  showEditModal.value = true
-}
+    id_chong_nuoc: detail.id_chong_nuoc,
+  };
+  showEditModal.value = true;
+};
 
 const deleteDetail = (id) => {
-  if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
-    const index = productDetails.value.findIndex(d => d.id === id)
+  if (confirm("Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?")) {
+    const index = productDetails.value.findIndex((d) => d.id === id);
     if (index > -1) {
-      productDetails.value.splice(index, 1)
+      productDetails.value.splice(index, 1);
     }
   }
-}
+};
 
 const saveDetail = () => {
-  if (!formData.value.id_san_pham || !formData.value.id_mau_sac || !formData.value.id_kich_thuoc) {
-    alert('Vui lòng nhập đầy đủ thông tin bắt buộc')
-    return
+  if (
+    !formData.value.id_san_pham ||
+    !formData.value.id_mau_sac ||
+    !formData.value.id_kich_thuoc
+  ) {
+    alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+    return;
   }
 
   if (showAddModal.value) {
     const newDetail = {
       ...formData.value,
       id: Date.now(),
-      tenSanPham: products.value.find(p => p.id == formData.value.id_san_pham)?.tenSanPham,
-      tenMauSac: colors.value.find(c => c.id == formData.value.id_mau_sac)?.tenMauSac,
-      tenKichThuoc: sizes.value.find(s => s.id == formData.value.id_kich_thuoc)?.tenKichThuoc,
-      tenChatLieu: materials.value.find(m => m.id == formData.value.id_chat_lieu)?.tenChatLieu
-    }
-    productDetails.value.unshift(newDetail)
+      tenSanPham: products.value.find((p) => p.id == formData.value.id_san_pham)
+        ?.tenSanPham,
+      tenMauSac: colors.value.find((c) => c.id == formData.value.id_mau_sac)
+        ?.tenMauSac,
+      tenKichThuoc: sizes.value.find(
+        (s) => s.id == formData.value.id_kich_thuoc
+      )?.tenKichThuoc,
+      tenChatLieu: materials.value.find(
+        (m) => m.id == formData.value.id_chat_lieu
+      )?.tenChatLieu,
+    };
+    productDetails.value.unshift(newDetail);
   } else if (showEditModal.value && editingDetail.value) {
-    const index = productDetails.value.findIndex(d => d.id === editingDetail.value.id)
+    const index = productDetails.value.findIndex(
+      (d) => d.id === editingDetail.value.id
+    );
     if (index > -1) {
       productDetails.value[index] = {
         ...editingDetail.value,
         ...formData.value,
-        tenSanPham: products.value.find(p => p.id == formData.value.id_san_pham)?.tenSanPham,
-        tenMauSac: colors.value.find(c => c.id == formData.value.id_mau_sac)?.tenMauSac,
-        tenKichThuoc: sizes.value.find(s => s.id == formData.value.id_kich_thuoc)?.tenKichThuoc,
-        tenChatLieu: materials.value.find(m => m.id == formData.value.id_chat_lieu)?.tenChatLieu
-      }
+        tenSanPham: products.value.find(
+          (p) => p.id == formData.value.id_san_pham
+        )?.tenSanPham,
+        tenMauSac: colors.value.find((c) => c.id == formData.value.id_mau_sac)
+          ?.tenMauSac,
+        tenKichThuoc: sizes.value.find(
+          (s) => s.id == formData.value.id_kich_thuoc
+        )?.tenKichThuoc,
+        tenChatLieu: materials.value.find(
+          (m) => m.id == formData.value.id_chat_lieu
+        )?.tenChatLieu,
+      };
     }
   }
 
-  closeModals()
-}
+  closeModals();
+};
 
 const closeModals = () => {
-  showAddModal.value = false
-  showEditModal.value = false
-  editingDetail.value = null
+  showAddModal.value = false;
+  showEditModal.value = false;
+  editingDetail.value = null;
   formData.value = {
-    id_san_pham: '',
-    id_mau_sac: '',
-    id_kich_thuoc: '',
-    id_chat_lieu: '',
-    id_de_giay: '',
-    id_dem_giay: '',
-    id_trong_luong: '',
-    id_mon_the_thao: '',
-    id_loai_mua: '',
-    id_do_ben: '',
-    id_chong_nuoc: '',
+    id_san_pham: "",
+    id_mau_sac: "",
+    id_kich_thuoc: "",
+    id_chat_lieu: "",
+    id_de_giay: "",
+    id_dem_giay: "",
+    id_trong_luong: "",
+    id_mon_the_thao: "",
+    id_loai_mua: "",
+    id_do_ben: "",
+    id_chong_nuoc: "",
     so_luong: 0,
     gia_ban: 0,
     trang_thai: 1,
-    ghi_chu: ''
-  }
-}
+    ghi_chu: "",
+  };
+};
 
 const clearFilters = () => {
-  searchQuery.value = ''
-  selectedProduct.value = ''
-  selectedColor.value = ''
-  selectedSize.value = ''
-  statusFilter.value = ''
-  currentPage.value = 1
-}
+  searchQuery.value = "";
+  selectedProduct.value = "";
+  selectedColor.value = "";
+  selectedSize.value = "";
+  statusFilter.value = "";
+  currentPage.value = 1;
+};
 
 const applyFilters = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const previousPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
+    currentPage.value--;
   }
-}
+};
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
+    currentPage.value++;
   }
-}
+};
 
 const refreshData = () => {
-  console.log('Refreshing product details data...')
-  fetchProductDetails()
-}
+  console.log("Refreshing product details data...");
+  fetchProductDetails();
+};
 
 const exportData = () => {
-  console.log('Exporting product details report...')
-  alert('Xuất báo cáo thành công! (Chức năng đang được phát triển)')
-}
+  console.log("Exporting product details report...");
+  alert("Xuất báo cáo thành công! (Chức năng đang được phát triển)");
+};
 
 const exportDetailsToExcel = () => {
-  console.log('Exporting product details to Excel...')
-  alert('Xuất Excel thành công! (Chức năng đang được phát triển)')
-}
+  console.log("Exporting product details to Excel...");
+  alert("Xuất Excel thành công! (Chức năng đang được phát triển)");
+};
 
 onMounted(() => {
-  // Load initial data
-  fetchProductDetails()
-  loadDropdownData()
-  
-  // Load sample data if APIs fail
+  fetchProductDetails();
+  loadDropdownData();
   setTimeout(() => {
-    if (products.value.length === 0) loadSampleData()
-  }, 2000)
-})
-
-// Load sample data for testing
-// const loadSampleData = () => {
-//   console.log('Loading sample data...')
-//   alert('Đang load dữ liệu mẫu...')
-  
-//   // Sample products
-//   products.value = [
-//     { id: 1, tenSanPham: 'Nike Air Force 1', maSanPham: 'NAF001' },
-//     { id: 2, tenSanPham: 'Adidas Ultraboost 22', maSanPham: 'AUB022' },
-//     { id: 3, tenSanPham: 'Converse Chuck Taylor', maSanPham: 'CCT001' }
-//   ]
-  
-//   // Sample colors
-//   colors.value = [
-//     { id: 1, tenMauSac: 'Đen' },
-//     { id: 2, tenMauSac: 'Trắng' },
-//     { id: 3, tenMauSac: 'Đỏ' },
-//     { id: 4, tenMauSac: 'Xanh' }
-//   ]
-  
-//   // Sample sizes
-//   sizes.value = [
-//     { id: 1, tenKichThuoc: '39' },
-//     { id: 2, tenKichThuoc: '40' },
-//     { id: 3, tenKichThuoc: '41' },
-//     { id: 4, tenKichThuoc: '42' },
-//     { id: 5, tenKichThuoc: '43' }
-//   ]
-  
-//   // Sample materials
-//   materials.value = [
-//     { id: 1, tenChatLieu: 'Da thật' },
-//     { id: 2, tenChatLieu: 'Da tổng hợp' },
-//     { id: 3, tenChatLieu: 'Vải canvas' },
-//     { id: 4, tenChatLieu: 'Vải lưới' }
-//   ]
-  
-//   // Sample soles
-//   soles.value = [
-//     { id: 1, tenDeGiay: 'Cao su' },
-//     { id: 2, tenDeGiay: 'EVA' },
-//     { id: 3, tenDeGiay: 'TPU' }
-//   ]
-  
-//   // Sample insoles
-//   insoles.value = [
-//     { id: 1, tenDemGiay: 'Memory Foam' },
-//     { id: 2, tenDemGiay: 'Gel' },
-//     { id: 3, tenDemGiay: 'Air' }
-//   ]
-  
-//   // Sample weights
-//   weights.value = [
-//     { id: 1, tenTrongLuong: '250g' },
-//     { id: 2, tenTrongLuong: '300g' },
-//     { id: 3, tenTrongLuong: '350g' }
-//   ]
-  
-//   // Sample sports
-//   sports.value = [
-//     { id: 1, tenMonTheThao: 'Chạy bộ' },
-//     { id: 2, tenMonTheThao: 'Bóng đá' },
-//     { id: 3, tenMonTheThao: 'Tennis' }
-//   ]
-  
-//   // Sample seasons
-//   seasons.value = [
-//     { id: 1, tenLoaiMua: 'Mùa hè' },
-//     { id: 2, tenLoaiMua: 'Mùa đông' },
-//     { id: 3, tenLoaiMua: 'Mùa mưa' }
-//   ]
-  
-//   // Sample durabilities
-//   durabilities.value = [
-//     { id: 1, tenDoBen: 'Cao' },
-//     { id: 2, tenDoBen: 'Trung bình' },
-//     { id: 3, tenDoBen: 'Thấp' }
-//   ]
-  
-//   // Sample waterprooves
-//   waterprooves.value = [
-//     { id: 1, tenChongNuoc: 'Có' },
-//     { id: 2, tenChongNuoc: 'Không' },
-//     { id: 3, tenChongNuoc: 'Một phần' }
-//   ]
-// }
-
-// const loadMockData = () => {
-//   // Mock products
-//   products.value = [
-//     { id: 1, ten_san_pham: 'Nike Air Force 1', ma_san_pham: 'NAF001' },
-//     { id: 2, ten_san_pham: 'Adidas Ultraboost 22', ma_san_pham: 'AUB022' },
-//     { id: 3, ten_san_pham: 'Converse Chuck Taylor', ma_san_pham: 'CCT001' }
-//   ]
-
-//   // Mock colors
-//   colors.value = [
-//     { id: 1, ten_mau_sac: 'Đen' },
-//     { id: 2, ten_mau_sac: 'Trắng' },
-//     { id: 3, ten_mau_sac: 'Đỏ' },
-//     { id: 4, ten_mau_sac: 'Xanh' }
-//   ]
-
-//   // Mock sizes
-//   sizes.value = [
-//     { id: 1, ten_kich_thuoc: '39' },
-//     { id: 2, ten_kich_thuoc: '40' },
-//     { id: 3, ten_kich_thuoc: '41' },
-//     { id: 4, ten_kich_thuoc: '42' },
-//     { id: 5, ten_kich_thuoc: '43' }
-//   ]
-
-//   // Mock materials
-//   materials.value = [
-//     { id: 1, ten_chat_lieu: 'Da thật' },
-//     { id: 2, ten_chat_lieu: 'Da tổng hợp' },
-//     { id: 3, ten_chat_lieu: 'Vải canvas' },
-//     { id: 4, ten_chat_lieu: 'Vải lưới' }
-//   ]
-
-//   // Mock soles and insoles
-//   soles.value = [
-//     { id: 1, ten_de_giay: 'Cao su' },
-//     { id: 2, ten_de_giay: 'EVA' },
-//     { id: 3, ten_de_giay: 'TPU' }
-//   ]
-
-//   insoles.value = [
-//     { id: 1, ten_dem_giay: 'Memory Foam' },
-//     { id: 2, ten_dem_giay: 'Gel' },
-//     { id: 3, ten_dem_giay: 'Air' }
-//   ]
-// }
+    if (products.value.length === 0) loadSampleData();
+  }, 2000);
+});
 </script>
 
 <style scoped>
@@ -1016,7 +963,8 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
-.btn-refresh, .btn-export {
+.btn-refresh,
+.btn-export {
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1031,7 +979,8 @@ onMounted(() => {
   backdrop-filter: blur(10px);
 }
 
-.btn-refresh:hover, .btn-export:hover {
+.btn-refresh:hover,
+.btn-export:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
@@ -1100,7 +1049,8 @@ onMounted(() => {
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .filter-header {
@@ -1262,23 +1212,74 @@ onMounted(() => {
 }
 
 /* Column Widths */
-.stt-col { width: 60px; min-width: 60px; }
-.product-col { width: 180px; min-width: 180px; }
-.color-col { width: 90px; min-width: 90px; }
-.size-col { width: 70px; min-width: 70px; }
-.sole-col { width: 100px; min-width: 100px; }
-.material-col { width: 100px; min-width: 100px; }
-.insole-col { width: 100px; min-width: 100px; }
-.weight-col { width: 90px; min-width: 90px; }
-.sport-col { width: 100px; min-width: 100px; }
-.season-col { width: 90px; min-width: 90px; }
-.durability-col { width: 90px; min-width: 90px; }
-.waterproof-col { width: 100px; min-width: 100px; }
-.image-col { width: 90px; min-width: 90px; }
-.quantity-col { width: 70px; min-width: 70px; }
-.price-col { width: 100px; min-width: 100px; }
-.status-col { width: 100px; min-width: 100px; }
-.action-col { width: 100px; min-width: 100px; }
+.stt-col {
+  width: 60px;
+  min-width: 60px;
+}
+.product-col {
+  width: 180px;
+  min-width: 180px;
+}
+.color-col {
+  width: 90px;
+  min-width: 90px;
+}
+.size-col {
+  width: 70px;
+  min-width: 70px;
+}
+.sole-col {
+  width: 100px;
+  min-width: 100px;
+}
+.material-col {
+  width: 100px;
+  min-width: 100px;
+}
+.insole-col {
+  width: 100px;
+  min-width: 100px;
+}
+.weight-col {
+  width: 90px;
+  min-width: 90px;
+}
+.sport-col {
+  width: 100px;
+  min-width: 100px;
+}
+.season-col {
+  width: 90px;
+  min-width: 90px;
+}
+.durability-col {
+  width: 90px;
+  min-width: 90px;
+}
+.waterproof-col {
+  width: 100px;
+  min-width: 100px;
+}
+.image-col {
+  width: 90px;
+  min-width: 90px;
+}
+.quantity-col {
+  width: 70px;
+  min-width: 70px;
+}
+.price-col {
+  width: 100px;
+  min-width: 100px;
+}
+.status-col {
+  width: 100px;
+  min-width: 100px;
+}
+.action-col {
+  width: 100px;
+  min-width: 100px;
+}
 
 /* Product Info */
 .product-col {
@@ -1299,8 +1300,8 @@ onMounted(() => {
   color: white;
   font-weight: 500;
   font-size: 0.7rem;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  border: 1px solid rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   display: inline-block;
   min-width: 60px;
 }
@@ -1418,7 +1419,8 @@ onMounted(() => {
   justify-content: center;
 }
 
-.btn-edit, .btn-delete {
+.btn-edit,
+.btn-delete {
   border: none;
   border-radius: 6px;
   padding: 0.5rem;
@@ -1581,131 +1583,234 @@ onMounted(() => {
   .product-details {
     padding: 0 1rem;
   }
-  
+
   .page-header {
     padding: 1.5rem;
   }
-  
+
   .page-title {
     font-size: 1.75rem;
   }
-  
+
   .header-actions {
     gap: 0.5rem;
   }
-  
-  .btn-refresh, .btn-export {
+
+  .btn-refresh,
+  .btn-export {
     padding: 0.6rem 0.8rem;
     font-size: 0.875rem;
   }
-  
+
   /* Responsive table cho tablet */
   .product-table {
     font-size: 0.75rem;
   }
-  
+
   .product-table th,
   .product-table td {
     padding: 0.6rem 0.4rem;
   }
-  
+
   /* Giảm width các cột trên tablet */
-  .stt-col { width: 50px; min-width: 50px; }
-  .product-col { width: 160px; min-width: 160px; }
-  .color-col { width: 80px; min-width: 80px; }
-  .size-col { width: 60px; min-width: 60px; }
-  .sole-col { width: 90px; min-width: 90px; }
-  .material-col { width: 90px; min-width: 90px; }
-  .insole-col { width: 90px; min-width: 90px; }
-  .weight-col { width: 80px; min-width: 80px; }
-  .sport-col { width: 90px; min-width: 90px; }
-  .season-col { width: 80px; min-width: 80px; }
-  .durability-col { width: 80px; min-width: 80px; }
-  .waterproof-col { width: 90px; min-width: 90px; }
-  .image-col { width: 80px; min-width: 80px; }
-  .quantity-col { width: 60px; min-width: 60px; }
-  .price-col { width: 90px; min-width: 90px; }
-  .status-col { width: 90px; min-width: 90px; }
-  .action-col { width: 90px; min-width: 90px; }
+  .stt-col {
+    width: 50px;
+    min-width: 50px;
+  }
+  .product-col {
+    width: 160px;
+    min-width: 160px;
+  }
+  .color-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .size-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .sole-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .material-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .insole-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .weight-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .sport-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .season-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .durability-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .waterproof-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .image-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .quantity-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .price-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .status-col {
+    width: 90px;
+    min-width: 90px;
+  }
+  .action-col {
+    width: 90px;
+    min-width: 90px;
+  }
 }
 
 @media (max-width: 768px) {
   .page-header {
     padding: 1rem;
   }
-  
+
   .header-content {
     flex-direction: column;
     align-items: stretch;
     text-align: center;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .header-actions {
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   .search-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filters-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .table-container {
     margin: 0 -1rem;
     border-radius: 0;
   }
-  
+
   /* Responsive table cho mobile */
   .product-table {
     font-size: 0.7rem;
   }
-  
+
   .product-table th,
   .product-table td {
     padding: 0.5rem 0.25rem;
   }
-  
+
   /* Giảm width các cột trên mobile */
-  .stt-col { width: 40px; min-width: 40px; }
-  .product-col { width: 120px; min-width: 120px; }
-  .color-col { width: 70px; min-width: 70px; }
-  .size-col { width: 50px; min-width: 50px; }
-  .sole-col { width: 80px; min-width: 80px; }
-  .material-col { width: 80px; min-width: 80px; }
-  .insole-col { width: 80px; min-width: 80px; }
-  .weight-col { width: 70px; min-width: 70px; }
-  .sport-col { width: 80px; min-width: 80px; }
-  .season-col { width: 70px; min-width: 70px; }
-  .durability-col { width: 70px; min-width: 70px; }
-  .waterproof-col { width: 80px; min-width: 80px; }
-  .image-col { width: 70px; min-width: 70px; }
-  .quantity-col { width: 50px; min-width: 50px; }
-  .price-col { width: 80px; min-width: 80px; }
-  .status-col { width: 80px; min-width: 80px; }
-  .action-col { width: 80px; min-width: 80px; }
-  
+  .stt-col {
+    width: 40px;
+    min-width: 40px;
+  }
+  .product-col {
+    width: 120px;
+    min-width: 120px;
+  }
+  .color-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .size-col {
+    width: 50px;
+    min-width: 50px;
+  }
+  .sole-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .material-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .insole-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .weight-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .sport-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .season-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .durability-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .waterproof-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .image-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .quantity-col {
+    width: 50px;
+    min-width: 50px;
+  }
+  .price-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .status-col {
+    width: 80px;
+    min-width: 80px;
+  }
+  .action-col {
+    width: 80px;
+    min-width: 80px;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .form-grid .form-group:nth-child(13),
   .form-grid .form-group:nth-child(14) {
     grid-column: span 1;
   }
-  
+
   .modal-overlay {
     padding: 1rem;
   }
-  
+
   .no-data {
     font-size: 0.875rem;
     color: var(--medium-gray);
@@ -1718,42 +1823,97 @@ onMounted(() => {
   .product-table {
     font-size: 0.65rem;
   }
-  
+
   .product-table th,
   .product-table td {
     padding: 0.4rem 0.2rem;
   }
-  
+
   /* Giảm width các cột trên mobile nhỏ */
-  .stt-col { width: 35px; min-width: 35px; }
-  .product-col { width: 100px; min-width: 100px; }
-  .color-col { width: 60px; min-width: 60px; }
-  .size-col { width: 45px; min-width: 45px; }
-  .sole-col { width: 70px; min-width: 70px; }
-  .material-col { width: 70px; min-width: 70px; }
-  .insole-col { width: 70px; min-width: 70px; }
-  .weight-col { width: 60px; min-width: 60px; }
-  .sport-col { width: 70px; min-width: 70px; }
-  .season-col { width: 60px; min-width: 60px; }
-  .durability-col { width: 60px; min-width: 60px; }
-  .waterproof-col { width: 70px; min-width: 70px; }
-  .image-col { width: 60px; min-width: 60px; }
-  .quantity-col { width: 45px; min-width: 45px; }
-  .price-col { width: 70px; min-width: 70px; }
-  .status-col { width: 70px; min-width: 70px; }
-  .action-col { width: 70px; min-width: 70px; }
-  
-  .color-badge, .size-badge, .stock-badge, .status-badge {
+  .stt-col {
+    width: 35px;
+    min-width: 35px;
+  }
+  .product-col {
+    width: 100px;
+    min-width: 100px;
+  }
+  .color-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .size-col {
+    width: 45px;
+    min-width: 45px;
+  }
+  .sole-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .material-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .insole-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .weight-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .sport-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .season-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .durability-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .waterproof-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .image-col {
+    width: 60px;
+    min-width: 60px;
+  }
+  .quantity-col {
+    width: 45px;
+    min-width: 45px;
+  }
+  .price-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .status-col {
+    width: 70px;
+    min-width: 70px;
+  }
+  .action-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .color-badge,
+  .size-badge,
+  .stock-badge,
+  .status-badge {
     padding: 0.2rem 0.4rem;
     font-size: 0.65rem;
   }
-  
+
   .product-image {
     width: 30px;
     height: 30px;
   }
-  
-  .btn-edit, .btn-delete {
+
+  .btn-edit,
+  .btn-delete {
     min-width: 28px;
     height: 28px;
   }

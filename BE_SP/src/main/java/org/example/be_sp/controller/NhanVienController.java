@@ -1,82 +1,48 @@
 package org.example.be_sp.controller;
 
-import org.example.be_sp.entity.NhanVien;
+import org.example.be_sp.model.request.NhanVienRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/nhanvien")
+@RequestMapping("/api/nhan-vien-management")
 @CrossOrigin(origins = "*")
 public class NhanVienController {
-
     @Autowired
     private NhanVienService nhanVienService;
 
-    // Lấy danh sách tất cả nhân viên
-    @GetMapping
-    public ResponseEntity<List<NhanVien>> getAllNhanVien() {
-        return ResponseEntity.ok(nhanVienService.getAllNhanVien());
+    @GetMapping("/playlist")
+    public ResponseObject<?> getAllNhanVien() {
+        return new ResponseObject<>(nhanVienService.getAllNhanVien());
     }
 
-    // Lấy nhân viên theo ID
-    @GetMapping("/{id}")
-    public ResponseEntity<NhanVien> getNhanVienById(@PathVariable Integer id) {
-        NhanVien nv = nhanVienService.getNhanVienById(id);
-        return (nv != null) ? ResponseEntity.ok(nv) : ResponseEntity.notFound().build();
+    @GetMapping("/detail/{id}")
+    public ResponseObject<?> getNhanVienById(@PathVariable Integer id) {
+        return new ResponseObject<>(nhanVienService.getNhanVienById(id));
     }
 
-    // Lấy nhân viên theo email
-    @GetMapping("/email/{email}")
-    public ResponseEntity<NhanVien> getNhanVienByEmail(@PathVariable String email) {
-        NhanVien nv = nhanVienService.getNhanVienByEmail(email);
-        return (nv != null) ? ResponseEntity.ok(nv) : ResponseEntity.notFound().build();
+    @GetMapping("/detail/email/{email}")
+    public ResponseObject<?> getNhanVienByEmail(@PathVariable String email) {
+        return new ResponseObject<>(nhanVienService.getNhanVienByEmail(email));
     }
 
-    // Lấy nhân viên theo tên tài khoản
-    @GetMapping("/taikhoan/{tenTaiKhoan}")
-    public ResponseEntity<NhanVien> getNhanVienByTenTaiKhoan(@PathVariable String tenTaiKhoan) {
-        NhanVien nv = nhanVienService.getNhanVienByTenTaiKhoan(tenTaiKhoan);
-        return (nv != null) ? ResponseEntity.ok(nv) : ResponseEntity.notFound().build();
+    @GetMapping("/detail/nickname/{tenTaiKhoan}")
+    public ResponseObject<?> getNhanVienByTenTaiKhoan(@PathVariable String tenTaiKhoan) {
+        return new ResponseObject<>(nhanVienService.getNhanVienByTenTaiKhoan(tenTaiKhoan));
     }
 
-    // Thêm nhân viên
-    @PostMapping
-    public ResponseEntity<NhanVien> createNhanVien(@RequestBody NhanVien nhanVien) {
-        if (nhanVienService.existsByEmail(nhanVien.getEmail())) {
-            return ResponseEntity.badRequest().body(null); // Email đã tồn tại
-        }
-        if (nhanVienService.existsByTenTaiKhoan(nhanVien.getTenTaiKhoan())) {
-            return ResponseEntity.badRequest().body(null); // Tài khoản đã tồn tại
-        }
-        return ResponseEntity.ok(nhanVienService.saveNhanVien(nhanVien));
+    @PostMapping("/add")
+    public ResponseObject<?> createNhanVien(@RequestBody NhanVienRequest request) {
+        nhanVienService.saveNhanVien(request);
+        return new ResponseObject<>(null, "Add success");
     }
 
-    // Cập nhật nhân viên
-    @PutMapping("/{id}")
-    public ResponseEntity<NhanVien> updateNhanVien(@PathVariable Integer id, @RequestBody NhanVien nhanVien) {
-        NhanVien existing = nhanVienService.getNhanVienById(id);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        nhanVien.setId(id); // Đảm bảo update đúng ID
-        return ResponseEntity.ok(nhanVienService.saveNhanVien(nhanVien));
-    }
-
-    // Xóa nhân viên
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNhanVien(@PathVariable Integer id) {
-        NhanVien existing = nhanVienService.getNhanVienById(id);
-        if (existing == null) {
-            return ResponseEntity.notFound().build();
-        }
-        nhanVienService.deleteNhanVien(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/update/{id}")
+    public ResponseObject<?> updateNhanVien(@PathVariable Integer id, @RequestBody NhanVienRequest request) {
+        nhanVienService.updateNhanVien(id, request);
+        return new ResponseObject<>(null, "Update success");
     }
 
     @PutMapping("/update/status/{id}")

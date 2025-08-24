@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllDoBen, fetchCreateDoBen, fetchUpdateDoBen, fetchUpdateStatusDoBen } from '../../services/DoBenService';
+import { fetchAllDoBen, fetchCreateDoBen, fetchUpdateDoBen, fetchUpdateStatusDoBen } from '../../services/ThuocTinh/DoBenService';
 const DoBens = ref([]);
 const newDoBen = ref({});
 const selectedDoBen = ref({});

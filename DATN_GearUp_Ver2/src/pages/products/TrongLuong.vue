@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllTrongLuong, fetchCreateTrongLuong, fetchUpdateStatusTrongLuong, fetchUpdateTrongLuong } from '../../services/TrongLuongService';
+import { fetchAllTrongLuong, fetchCreateTrongLuong, fetchUpdateStatusTrongLuong, fetchUpdateTrongLuong } from '../../services/ThuocTinh/TrongLuongService';
 
 const TrongLuongs = ref([]);
 const newTrongLuong = ref({});

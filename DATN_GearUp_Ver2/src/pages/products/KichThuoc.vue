@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllKichThuoc, fetchCreateKichThuoc, fetchUpdateKichThuoc, fetchUpdateStatusKichThuoc } from '../../services/KichThuocService';
+import { fetchAllKichThuoc, fetchCreateKichThuoc, fetchUpdateKichThuoc, fetchUpdateStatusKichThuoc } from '../../services/ThuocTinh/KichThuocService';
 
 const KichThuocs = ref([]);
 const newKichThuoc = ref({});

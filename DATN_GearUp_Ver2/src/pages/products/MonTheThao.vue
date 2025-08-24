@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllMonTheThao, fetchCreateMonTheThao, fetchUpdateMonTheThao, fetchUpdateStatusMonTheThao } from '../../services/MonTheThaoService';
+import { fetchAllMonTheThao, fetchCreateMonTheThao, fetchUpdateMonTheThao, fetchUpdateStatusMonTheThao } from '../../services/ThuocTinh/MonTheThaoService';
 const MonTheThaos = ref([]);
 const newMonTheThao = ref({});
 const selectedMonTheThao = ref({});

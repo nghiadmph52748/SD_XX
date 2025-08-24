@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllLoaiMua, fetchCreateLoaiMua, fetchUpdateLoaiMua, fetchUpdateStatusLoaiMua } from '../../services/LoaiMuaService';
+import { fetchAllLoaiMua, fetchCreateLoaiMua, fetchUpdateLoaiMua, fetchUpdateStatusLoaiMua } from '../../services/ThuocTinh/LoaiMuaService';
 const LoaiMuas = ref([]);
 const newLoaiMua = ref({});
 const selectedLoaiMua = ref({});

@@ -46,7 +46,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { fetchAllChongNuoc, fetchCreateChongNuoc, fetchUpdateChongNuoc, fetchUpdateStatusChongNuoc } from '../../services/ChongNuocService';
+import { fetchAllChongNuoc, fetchCreateChongNuoc, fetchUpdateChongNuoc, fetchUpdateStatusChongNuoc } from '../../services/ThuocTinh/ChongNuocService';
 const ChongNuocs = ref([]);
 const newChongNuoc = ref({});
 const selectedChongNuoc = ref({});
