@@ -10,7 +10,7 @@ export const fetchAllAnhSanPham = async () => {
 
 export const fetchOneAnhSanPham = async (id) => {
     // Use the existing images endpoint with filtering
-    const res = await fetch(`${API}/detail?id=${id}`);
+    const res = await fetch(`${API}/detail/${id}`);
     if (!res.ok) {
         throw new Error("Failed to fetch product image");
     }
@@ -38,25 +38,13 @@ export const fetchCreateAnhSanPham = async (formData) => {
     return res.json();
 }
 
-export const fetchUpdateAnhSanPham = async (id, data) => {
-    // Use the existing update endpoint in upload.js
-    let url = `${API}/update/${id}`;
-    let options = {
+export const fetchUpdateAnhSanPham = async (id, formData) => {
+    // The backend always expects FormData for updates
+    const res = await fetch(`${API}/update/${id}`, {
         method: "PUT",
-    };
+        body: formData, // Always send FormData
+    });
     
-    // Nếu data là FormData (có file), gửi FormData
-    if (data instanceof FormData) {
-        options.body = data;
-    } else {
-        // Nếu data là object thường, gửi JSON
-        options.headers = {
-            "Content-Type": "application/json",
-        };
-        options.body = JSON.stringify(data);
-    }
-    
-    const res = await fetch(url, options);
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to update product image");
@@ -66,7 +54,7 @@ export const fetchUpdateAnhSanPham = async (id, data) => {
 
 export const fetchUpdateStatusAnhSanPham = async (id) => {
     // Use the existing delete endpoint for status update
-    const res = await fetch(`${API}//update/status/${id}`, {
+    const res = await fetch(`${API}/update/status/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
