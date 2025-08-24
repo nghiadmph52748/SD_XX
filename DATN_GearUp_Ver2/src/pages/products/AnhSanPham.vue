@@ -3,7 +3,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <div class="management-header">
-    <h2><i class="fas fa-images"></i> Quản Lý Hình Ảnh</h2>
+    <div class="title-section">
+      <h2 class="main-title">Thuộc tính sản phẩm</h2>
+      <h3 class="sub-title">Quản lý ảnh</h3>
+    </div>
     <button @click="showAddForm = true" class="btn btn-primary">
       <i class="fas fa-plus"></i> Thêm Hình Ảnh Mới
     </button>
@@ -29,7 +32,6 @@
           <option value="true">Không hoạt động</option>
         </select>
       </div>
-      
     </div>
   </div>
 
@@ -798,28 +800,53 @@ const handleImageError = (event) => {
 onMounted(fetchAll);
 </script>
 
-<style scoped>
-/* Header quản lý */
-.management-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  padding: 20px;
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  border-radius: 12px;
-  color: white;
-}
+ <style scoped>
+ /* Import Google Fonts */
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-.management-header h2 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-}
+ /* Global font settings */
+ * {
+   font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+ }
 
-.management-header h2 i {
-  margin-right: 12px;
-}
+ /* Header quản lý */
+ .management-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 25px;
+   padding: 20px;
+   background: linear-gradient(135deg, #4ade80, #22c55e);
+   border-radius: 12px;
+   color: white;
+ }
+
+ .title-section {
+   display: flex;
+   flex-direction: column;
+   gap: 5px;
+ }
+
+ .main-title {
+   margin: 0;
+   font-size: 28px;
+   font-weight: 700;
+   color: white;
+   font-family: 'Arial', 'Helvetica', sans-serif;
+   letter-spacing: 0.5px;
+   text-transform: uppercase;
+   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+ }
+
+ .sub-title {
+   margin: 0;
+   font-size: 20px;
+   font-weight: 400;
+   color: white;
+   opacity: 0.9;
+   font-family: 'Inter', sans-serif;
+   letter-spacing: 0.2px;
+ }
 
 /* Search và Filter Section */
 .search-filter-section {
@@ -829,13 +856,16 @@ onMounted(fetchAll);
   margin-bottom: 25px;
   border: 2px solid #d4edda;
   box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-box {
   display: flex;
   gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .search-input-group,
@@ -843,24 +873,37 @@ onMounted(fetchAll);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 200px;
 }
 
-.search-input-group label,
-.filter-group label {
-  font-weight: 600;
-  color: #4ade80;
-  font-size: 14px;
+.search-input-group {
+  flex: 4;
+  min-width: 0;
 }
+
+.filter-group {
+  flex: 1;
+  min-width: 180px;
+}
+
+ .search-input-group label,
+ .filter-group label {
+   font-weight: 600;
+   color: #4ade80;
+   font-size: 14px;
+   font-family: 'Inter', sans-serif;
+   letter-spacing: 0.3px;
+ }
 
 .search-input-group input,
 .filter-group select {
-  padding: 10px 12px;
+  padding: 12px 16px;
   border: 2px solid #d4edda;
   border-radius: 8px;
   font-size: 14px;
   transition: all 0.3s ease;
   background-color: #f8fff9;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-input-group input:focus,
@@ -891,12 +934,14 @@ onMounted(fetchAll);
   border-bottom: 2px solid #d4edda;
 }
 
-.form-header h3 {
-  margin: 0;
-  color: #4ade80;
-  font-size: 24px;
-  font-weight: 600;
-}
+ .form-header h3 {
+   margin: 0;
+   color: #4ade80;
+   font-size: 24px;
+   font-weight: 600;
+   font-family: 'Poppins', sans-serif;
+   letter-spacing: -0.3px;
+ }
 
 .btn-close {
   background: none;
@@ -940,14 +985,16 @@ onMounted(fetchAll);
   margin-bottom: 20px;
 }
 
-.add-form label,
-.edit-form label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #4ade80;
-  font-size: 16px;
-}
+ .add-form label,
+ .edit-form label {
+   display: block;
+   margin-bottom: 8px;
+   font-weight: 600;
+   color: #4ade80;
+   font-size: 16px;
+   font-family: 'Inter', sans-serif;
+   letter-spacing: 0.2px;
+ }
 
 .add-form input[type="text"],
 .edit-form input[type="text"] {
@@ -986,17 +1033,19 @@ onMounted(fetchAll);
 
 /* CSS cho radio button đã được thay thế bằng CSS mới ở dưới */
 
-.btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  margin-right: 15px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+ .btn {
+   padding: 12px 24px;
+   border: none;
+   border-radius: 8px;
+   cursor: pointer;
+   font-size: 16px;
+   font-weight: 600;
+   margin-right: 15px;
+   transition: all 0.3s ease;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   font-family: 'Inter', sans-serif;
+   letter-spacing: 0.2px;
+ }
 
 .btn:hover {
   transform: translateY(-2px);
@@ -1079,14 +1128,15 @@ onMounted(fetchAll);
   text-align: left;
 }
 
-.table th {
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+ .table th {
+   background: linear-gradient(135deg, #4ade80, #22c55e);
+   color: white;
+   font-weight: 600;
+   font-size: 16px;
+   text-transform: uppercase;
+   letter-spacing: 0.5px;
+   font-family: 'Inter', sans-serif;
+ }
 
 .table tr:nth-child(even) {
   background-color: #f0fdf4;
@@ -1211,16 +1261,20 @@ p[style*="color: green"] {
 
   .search-filter-section {
     padding: 15px;
+    margin-bottom: 20px;
   }
 
   .search-box {
     flex-direction: column;
     align-items: stretch;
+    gap: 15px;
+    flex-wrap: wrap;
   }
 
   .search-input-group,
   .filter-group {
     min-width: auto;
+    flex: none;
   }
 
   .add-form,
