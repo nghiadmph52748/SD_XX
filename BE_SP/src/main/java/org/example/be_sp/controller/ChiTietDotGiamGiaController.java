@@ -4,6 +4,7 @@ import org.example.be_sp.model.request.ChiTietDotGiamGiaRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.ChiTietDotGiamGiaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,5 +40,11 @@ public class ChiTietDotGiamGiaController {
     public ResponseObject<?> update(@RequestBody ChiTietDotGiamGiaRequest request, @PathVariable Integer id) {
         service.update(id, request);
         return new ResponseObject<>(null, "Cập nhật chi tiết đợt giảm giá thành công");
+    }
+
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        service.updateStatus(id);
+        return new ResponseObject<>(null, "Xoá chi tiết đợt giảm giá thành công");
     }
 }

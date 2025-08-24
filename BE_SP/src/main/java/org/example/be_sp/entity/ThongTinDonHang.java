@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
@@ -27,6 +29,7 @@ public class ThongTinDonHang {
     @JoinColumn(name = "id_trang_thai_don_hang", nullable = false)
     private TrangThaiDonHang idTrangThaiDonHang;
 
+    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'TTDH'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Column(name = "ma_thong_tin_don_hang", length = 9, insertable = false, updatable = false)
     private String maThongTinDonHang;

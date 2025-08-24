@@ -24,7 +24,7 @@ public class ChiTietDotGiamGiaService {
     @Autowired
     ChiTietSanPhamRepository chiTietSanPhamRepository;
 
-    public List<ChiTietDotGiamGiaResponse> getAll(){
+    public List<ChiTietDotGiamGiaResponse> getAll() {
         return repository.findAll().stream().map(ChiTietDotGiamGiaResponse::new).toList();
     }
 
@@ -33,7 +33,7 @@ public class ChiTietDotGiamGiaService {
     }
 
     public ChiTietDotGiamGiaResponse getById(Integer id) {
-        return repository.findById(id).map(ChiTietDotGiamGiaResponse::new).orElseThrow(()-> new ApiException("Chi tiết đợt giảm giá không tồn tại","404"));
+        return repository.findById(id).map(ChiTietDotGiamGiaResponse::new).orElseThrow(() -> new ApiException("Chi tiết đợt giảm giá không tồn tại", "404"));
     }
 
     public void add(ChiTietDotGiamGiaRequest chiTietDotGiamGiaResponse) {
@@ -49,5 +49,11 @@ public class ChiTietDotGiamGiaService {
         e.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(chiTietDotGiamGiaResponse.getIdChiTietSanPham()));
         e.setIdDotGiamGia(dotGiamGiaRepository.findDotGiamGiaById(chiTietDotGiamGiaResponse.getIdDotGiamGia()));
         repository.save(e);
+    }
+
+    public void updateStatus(Integer id) {
+        ChiTietDotGiamGia c = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết đợt giảm giá không tồn tại", "404"));
+        c.setDeleted(true);
+        repository.save(c);
     }
 }

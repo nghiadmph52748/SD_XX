@@ -1,6 +1,7 @@
 package org.example.be_sp.controller;
 
 import org.example.be_sp.entity.NhanVien;
+import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -76,5 +77,11 @@ public class NhanVienController {
         }
         nhanVienService.deleteNhanVien(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> update(@PathVariable Integer id) {
+        nhanVienService.updateStatus(id);
+        return new ResponseObject<>(null, "Update status success");
     }
 }

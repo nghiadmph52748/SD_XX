@@ -21,7 +21,7 @@ public class KhachHangController {
         return ResponseEntity.ok(khachHangService.findAll());
     }
 
-    @GetMapping("detail/{id}")
+    @GetMapping("/detail/{id}")
     public ResponseEntity<KhachHang> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(khachHangService.findById(id));
     }
@@ -31,12 +31,12 @@ public class KhachHangController {
         return ResponseEntity.ok(khachHangService.save(khachHang));
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<KhachHang> update(@PathVariable Integer id, @RequestBody KhachHang khachHang) {
         return ResponseEntity.ok(khachHangService.update(id, khachHang));
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         khachHangService.delete(id);
         return ResponseEntity.noContent().build();

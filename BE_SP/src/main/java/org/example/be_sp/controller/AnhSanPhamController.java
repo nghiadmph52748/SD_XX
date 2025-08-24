@@ -51,11 +51,11 @@ public class AnhSanPhamController {
             request.setLoaiAnh(loaiAnh);
             request.setMoTa(moTa);
             request.setDeleted(deleted);
-            
+
             // Xử lý file upload và lưu đường dẫn
             String filePath = anhSanPhamService.uploadFile(file);
             request.setDuongDanAnh(filePath);
-            
+
             anhSanPhamService.add(request);
             return new ResponseObject<>(null, "Thêm ảnh sản phẩm thành công");
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class AnhSanPhamController {
             request.setLoaiAnh(loaiAnh);
             request.setMoTa(moTa);
             request.setDeleted(deleted);
-            
+
             // Nếu có file mới, upload file mới
             if (file != null && !file.isEmpty()) {
                 String filePath = anhSanPhamService.uploadFile(file);
@@ -85,7 +85,7 @@ public class AnhSanPhamController {
                 AnhSanPhamResponse existing = anhSanPhamService.getAnhSanPhamById(id);
                 request.setDuongDanAnh(existing.getDuongDanAnh());
             }
-            
+
             anhSanPhamService.update(id, request);
             return new ResponseObject<>(null, "Cập nhật ảnh sản phẩm thành công");
         } catch (Exception e) {

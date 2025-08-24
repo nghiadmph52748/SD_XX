@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDate;
@@ -22,6 +24,7 @@ public class KhachHang {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'KH'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Column(name = "ma_khach_hang", insertable = false, updatable = false)
     private String maKhachHang;
