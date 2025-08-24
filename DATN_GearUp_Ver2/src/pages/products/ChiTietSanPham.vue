@@ -553,19 +553,19 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/ChiTietSanPham'
-import { fetchAllAnhSanPham } from '../../services/AnhSanPhamService'
-import { fetchAllMauSac } from '../../services/MauSacService'
-import { fetchAllKichThuoc } from '../../services/KichThuocService'
-import { fetchAllDeGiay } from '../../services/DeGiayService'
-import { fetchAllChatLieu } from '../../services/ChatLieuService'
-import { fetchAllDemGiay } from '../../services/DemGiayService'
-import { fetchAllTrongLuong } from '../../services/TrongLuongService'
-import { fetchAllMonTheThao } from '../../services/MonTheThaoService'
-import { fetchAllLoaiMua } from '../../services/LoaiMuaService'
-import { fetchAllDoBen } from '../../services/DoBenService'
-import { fetchAllChongNuoc } from '../../services/ChongNuocService'
-import { fetchAllSanPham } from '../../services/SanPhamService'
+import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
+import { fetchAllAnhSanPham } from '../../services/ThuocTinh/AnhSanPhamService'
+import { fetchAllMauSac } from '../../services/ThuocTinh/MauSacService'
+import { fetchAllKichThuoc } from '../../services/ThuocTinh/KichThuocService'
+import { fetchAllDeGiay } from '../../services/ThuocTinh/DeGiayService'
+import { fetchAllChatLieu } from '../../services/ThuocTinh/ChatLieuService'
+import { fetchAllDemGiay } from '../../services/ThuocTinh/DemGiayService'
+import { fetchAllTrongLuong } from '../../services/ThuocTinh/TrongLuongService'
+import { fetchAllMonTheThao } from '../../services/ThuocTinh/MonTheThaoService'
+import { fetchAllLoaiMua } from '../../services/ThuocTinh/LoaiMuaService'
+import { fetchAllDoBen } from '../../services/ThuocTinh/DoBenService'
+import { fetchAllChongNuoc } from '../../services/ThuocTinh/ChongNuocService'
+import { fetchAllSanPham } from '../../services/SanPham/SanPhamService'
 // Reactive data
 const searchQuery = ref('')
 const selectedSanPham = ref('')

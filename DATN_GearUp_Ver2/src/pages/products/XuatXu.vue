@@ -141,7 +141,6 @@ import {
   fetchCreateXuatXu,
   fetchUpdateXuatXu,
   fetchUpdateStatusXuatXu,
-  fetchUpdateXuatXu,
 } from "../../services/ThuocTinh/XuatXuService";
 const XuatXus = ref([]);
 const newXuatXu = ref({

@@ -48,8 +48,8 @@ import ActivityLogsManagement from './pages/management/QuanLyNhatKyHoatDong.vue'
 import PriceHistoryManagement from './pages/management/QuanLyLichSuGia.vue'
 
 // 
-import ProductXuatXu from './pages/products/XuatXu.vue'
-import ProductNhaSanXuat from './pages/products/NhaSanXuat.vue'
+import XuatXu  from './pages/products/XuatXu.vue'
+import NhaSanXuat from './pages/products/NhaSanXuat.vue'
 import MauSac from './pages/products/MauSac.vue'
 import KichThuoc from './pages/products/KichThuoc.vue'
 import DeGiay from './pages/products/DeGiay.vue'
@@ -74,8 +74,8 @@ const routes = [
   // Product Management
   { path: '/products', component: ProductManagement },
   { path: '/products/details', component: ProductDetails },
-  { path: '/products/xuat-xu', component: ProductXuatXu },
-  { path: '/products/nha-san-xuat', component: ProductNhaSanXuat },
+  { path: '/products/xuat-xu', component: XuatXu },
+  { path: '/products/nha-san-xuat', component: NhaSanXuat },
   { path: '/products/mau-sac', component: MauSac },
   { path: '/products/kich-thuoc', component: KichThuoc },
   { path: '/products/de-giay', component: DeGiay },

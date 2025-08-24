@@ -141,7 +141,7 @@ import {
   fetchCreateTrongLuong,
   fetchUpdateTrongLuong,
   fetchUpdateStatusTrongLuong,
-} from "../../services/TrongLuongService";
+} from "../../services/ThuocTinh/TrongLuongService";
 
 const TrongLuongs = ref([]);
 const newTrongLuong = ref({
