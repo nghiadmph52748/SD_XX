@@ -37,7 +37,7 @@
             <h3>Tìm kiếm & Lọc sản phẩm</h3>
           </div>
           <div class="filter-stats">
-            {{ filteredProducts.length }} / {{ products.length }} sản phẩm
+            {{ totalProducts }} / {{ products.length }} sản phẩm
           </div>
         </div>
 
@@ -133,7 +133,7 @@
           </thead>
           <tbody>
             <tr v-for="(product, i) in filteredProducts" :key="i">
-              <td>{{ i + 1 }}</td>
+              <td>{{ startIndex + i + 1 }}</td>
               <td>{{ product.maSanPham }}</td>
               <td>{{ product.tenSanPham }}</td>
               <td>{{ product.tenNhaSanXuat }}</td>
@@ -395,9 +395,9 @@ import {
   fetchCreateSanPham,
   fetchUpdateSanPham,
   fetchUpdateStatusSanPham,
-} from "../../services/SanPhamService";
-import { fetchAllNhaSanXuat } from "../../services/NhaSanXuatService";
-import { fetchAllXuatXu } from "../../services/XuatXuService";
+} from "../../services/SanPham/SanPhamService";
+import { fetchAllNhaSanXuat } from "../../services/ThuocTinh/NhaSanXuatService";
+import { fetchAllXuatXu } from "../../services/ThuocTinh/XuatXuService";
 
 const searchQuery = ref("");
 const selectedCategory = ref("");
@@ -480,6 +480,7 @@ const getOneNSX = (ma) => {
 // Computed
 const filteredProducts = computed(() => {
   let filtered = products.value;
+
   if (searchQuery.value) {
     filtered = filtered.filter(
       (product) =>
@@ -498,16 +499,18 @@ const filteredProducts = computed(() => {
         product.tenNhaSanXuat.toLowerCase() === selectedCategory.value
     );
   }
+
   if (selectedBrand.value) {
     filtered = filtered.filter(
       (product) => product.tenXuatXu.toLowerCase() === selectedBrand.value
     );
   }
+
   if (selectedStatus.value) {
-    filtered = filtered.filter(
-      (product) => product.deleted === selectedStatus.value
-    );
+    const statusValue = selectedStatus.value === "active" ? false : true;
+    filtered = filtered.filter((product) => product.deleted === statusValue);
   }
+
   return filtered.slice(startIndex.value, endIndex.value);
 });
 
@@ -540,9 +543,8 @@ const totalProducts = computed(() => {
   }
 
   if (selectedStatus.value) {
-    filtered = filtered.filter(
-      (product) => product.deleted.toLowerCase() === selectedStatus.value
-    );
+    const statusValue = selectedStatus.value === "active" ? false : true;
+    filtered = filtered.filter((product) => product.deleted === statusValue);
   }
 
   return filtered.length;
@@ -551,6 +553,7 @@ const totalProducts = computed(() => {
 const totalPages = computed(() =>
   Math.ceil(totalProducts.value / itemsPerPage.value)
 );
+
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
 const endIndex = computed(() =>
   Math.min(startIndex.value + itemsPerPage.value, totalProducts.value)
@@ -631,53 +634,53 @@ const exportData = () => {
   alert("Xuất báo cáo sản phẩm");
 };
 
-// const exportProductsToExcel = () => {
-//   try {
-//     const headerMapping = {
-//       id: "ID",
-//       name: "Tên sản phẩm",
-//       brand: "Thương hiệu",
-//       category: "Danh mục",
-//       price: "Giá (VND)",
-//       stock: "Tồn kho",
-//       status: "Trạng thái",
-//       created_date: "Ngày tạo",
-//     };
+const exportProductsToExcel = () => {
+  try {
+    const headerMapping = {
+      id: "ID",
+      name: "Tên sản phẩm",
+      brand: "Thương hiệu",
+      category: "Danh mục",
+      price: "Giá (VND)",
+      stock: "Tồn kho",
+      status: "Trạng thái",
+      created_date: "Ngày tạo",
+    };
 
-//     const filteredData = filteredProducts.value.map((item) => ({
-//       id: item.id || "N/A",
-//       name: item.name || "N/A",
-//       brand: item.brand || "N/A",
-//       category: item.category || "N/A",
-//       price: item.price
-//         ? new Intl.NumberFormat("vi-VN").format(item.price)
-//         : "N/A",
-//       stock: item.stock || 0,
-//       status: item.status === "active" ? "Hoạt động" : "Tạm dừng",
-//       created_date: item.created_date
-//         ? new Date(item.created_date).toLocaleDateString("vi-VN")
-//         : "N/A",
-//     }));
+    const filteredData = filteredProducts.value.map((item) => ({
+      id: item.id || "N/A",
+      name: item.name || "N/A",
+      brand: item.brand || "N/A",
+      category: item.category || "N/A",
+      price: item.price
+        ? new Intl.NumberFormat("vi-VN").format(item.price)
+        : "N/A",
+      stock: item.stock || 0,
+      status: item.status === "active" ? "Hoạt động" : "Tạm dừng",
+      created_date: item.created_date
+        ? new Date(item.created_date).toLocaleDateString("vi-VN")
+        : "N/A",
+    }));
 
-//     const result = exportToExcel(
-//       filteredData,
-//       "Product_Management",
-//       "Danh sách sản phẩm",
-//       headerMapping
-//     );
+    const result = exportToExcel(
+      filteredData,
+      "Product_Management",
+      "Danh sách sản phẩm",
+      headerMapping
+    );
 
-//     if (result && result.success) {
-//       alert(`✅ ${result.message}`);
-//     } else {
-//       alert(
-//         `❌ ${result ? result.message : "Có lỗi xảy ra khi xuất file Excel"}`
-//       );
-//     }
-//   } catch (error) {
-//     console.error("Error exporting to Excel:", error);
-//     alert(`❌ Có lỗi xảy ra khi xuất file Excel: ${error.message}`);
-//   }
-// };
+    if (result && result.success) {
+      alert(`✅ ${result.message}`);
+    } else {
+      alert(
+        `❌ ${result ? result.message : "Có lỗi xảy ra khi xuất file Excel"}`
+      );
+    }
+  } catch (error) {
+    console.error("Error exporting to Excel:", error);
+    alert(`❌ Có lỗi xảy ra khi xuất file Excel: ${error.message}`);
+  }
+};
 
 onMounted(fetch);
 </script>

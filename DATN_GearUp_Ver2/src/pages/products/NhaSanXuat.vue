@@ -1,25 +1,39 @@
 <template>
   <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
 
   <div class="add-form">
     <h3>Thêm Nhà Sản Xuất Mới</h3>
     <form @submit.prevent="fetchCreate">
       <div>
         <label>Tên nhà sản xuất:</label>
-        <input v-model="newNhaSanXuat.tenNhaSanXuat" type="text" required />
+        <input v-model="newNSX.tenNhaSanXuat" type="text" required />
       </div>
       <div>
         <label>Mô tả:</label>
-        <input v-model="newNhaSanXuat.moTa" type="text" />
+        <input v-model="newNSX.moTa" type="text" />
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="Trạng thái" :value="false" v-model="newNhaSanXuat.deleted" />Hoạt động
-        <input type="radio" name="Trạng thái" :value="true" v-model="newNhaSanXuat.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="false"
+          v-model="newNSX.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="true"
+          v-model="newNSX.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        <i class="fas fa-plus"></i>
+        {{ uploading ? "Đang thêm..." : "Thêm Mới" }}
       </button>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
       <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
@@ -32,25 +46,42 @@
     <form @submit.prevent="fetchUpdate">
       <div>
         <label>Tên nhà sản xuất:</label>
-        <input v-model="selectedNhaSanXuat.tenNhaSanXuat" type="text" required />
+        <input
+          v-model="selectedNSX.tenNhaSanXuat"
+          type="text"
+          required
+        />
       </div>
       <div>
         <label>Mô tả:</label>
-        <input v-model="selectedNhaSanXuat.moTa" type="text" />
+        <input v-model="selectedNSX.moTa" type="text" />
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedNhaSanXuat.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedNhaSanXuat.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="false"
+          v-model="selectedNSX.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="true"
+          v-model="selectedNSX.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
+        <i class="fas fa-save"></i>
+        {{ uploading ? "Đang cập nhật..." : "Cập Nhật" }}
       </button>
       <button type="button" @click="closeEditForm" class="btn btn-secondary">
         <i class="fas fa-times"></i> Đóng
       </button>
       <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
+      <p v-if="editSuccessMessage" style="color: green">
+        {{ editSuccessMessage }}
+      </p>
     </form>
   </div>
 
@@ -71,11 +102,19 @@
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
-          <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
+          <button
+            v-on:click="fetchDetail(value)"
+            class="btn btn-detail btn-icon btn-sm"
+            title="Xem chi tiết"
+          >
             <i class="fas fa-eye"></i>
           </button>
-          <button v-on:click="fetchDelete(value.id)" class="btn btn-delete btn-icon btn-sm" :disabled="uploading"
-            title="Xóa">
+          <button
+            v-on:click="fetchDelete(value.id)"
+            class="btn btn-delete btn-icon btn-sm"
+            :disabled="uploading"
+            title="Xóa"
+          >
             <i class="fas fa-trash"></i>
           </button>
         </td>
@@ -111,31 +150,45 @@
       <div class="modal-body">
         <div class="detail-row">
           <div class="detail-label">ID:</div>
-          <div class="detail-value">{{ selectedNhaSanXuat.id }}</div>
+          <div class="detail-value">{{ selectedNSX.id }}</div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Tên nhà sản xuất:</div>
-          <div class="detail-value">{{ selectedNhaSanXuat.tenNhaSanXuat }}</div>
+          <div class="detail-value">{{ selectedNSX.tenNhaSanXuat }}</div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">{{ selectedNhaSanXuat.moTa || 'Không có mô tả' }}</div>
+          <div class="detail-value">
+            {{ selectedNSX.moTa || "Không có mô tả" }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Trạng thái:</div>
           <div class="detail-value">
-            <span :class="selectedNhaSanXuat.deleted ? 'status-inactive' : 'status-active'">
-              {{ selectedNhaSanXuat.deleted ? "Không hoạt động" : "Hoạt động" }}
+            <span
+              :class="
+                selectedNSX.deleted ? 'status-inactive' : 'status-active'
+              "
+            >
+              {{ selectedNSX.deleted ? "Không hoạt động" : "Hoạt động" }}
             </span>
           </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">{{ formatDate(selectedNhaSanXuat.createdAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{
+              formatDate(selectedNSX.createdAt) || "Không có thông tin"
+            }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">{{ formatDate(selectedNhaSanXuat.updatedAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{
+              formatDate(selectedNSX.updatedAt) || "Không có thông tin"
+            }}
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -157,16 +210,13 @@ import {
   fetchCreateNhaSanXuat,
   fetchUpdateNhaSanXuat,
   fetchUpdateStatusNhaSanXuat,
-} from "../../services/NhaSanXuatService";
+} from "../../services/ThuocTinh/NhaSanXuatService";
 
-const NhaSanXuats = ref([]);
-const newNhaSanXuat = ref({
-  tenNhaSanXuat: "",
-  moTa: "",
-  deleted: false
-});
-const selectedNhaSanXuat = ref({});
-const showEditForm = ref(false);
+const uploading = ref(false);
+const errorMessage = ref("");
+const successMessage = ref("");
+const editErrorMessage = ref("");
+const editSuccessMessage = ref("");
 const showDetailModal = ref(false);
 const uploading = ref(false);
 const updating = ref(false);
@@ -195,12 +245,12 @@ const fetchAll = async () => {
     totalItems.value = NhaSanXuats.value.length; // Set total items for pagination
     currentPage.value = 1; // Reset to first page when data changes
   } catch (error) {
-    console.error("Error fetching:", error);
+    console.error("Error fetching manufacturers:", error);
   }
 };
 
 const fetchCreate = async () => {
-  if (!newNhaSanXuat.value.tenNhaSanXuat) {
+  if (!newNSX.value.tenNhaSanXuat) {
     errorMessage.value = "Vui lòng nhập tên nhà sản xuất";
     return;
   }
@@ -209,33 +259,34 @@ const fetchCreate = async () => {
   errorMessage.value = null;
 
   try {
-    await fetchCreateNhaSanXuat(newNhaSanXuat.value);
+    await fetchCreateNhaSanXuat(newNSX.value);
 
     // Reset form
-    newNhaSanXuat.value = {
+    newNSX.value = {
       tenNhaSanXuat: "",
       moTa: "",
-      deleted: false
+      deleted: false,
     };
 
-    await fetchAll();
+    await fetchNSX();
     successMessage.value = "Nhà sản xuất đã được thêm thành công!";
     clearSuccessMessage();
   } catch (error) {
     console.error("Error creating:", error);
-    errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo nhà sản xuất");
+    errorMessage.value =
+      "Lỗi khi thêm: " + (error.message || "Không thể tạo nhà sản xuất");
   } finally {
     uploading.value = false;
   }
 };
 
 const fetchDetail = (value) => {
-  selectedNhaSanXuat.value = { ...value };
+  selectedNSX.value = { ...value };
   showDetailModal.value = true;
 };
 
 const openEditForm = (value) => {
-  selectedNhaSanXuat.value = { ...value };
+  selectedNSX.value = { ...value };
   showEditForm.value = true;
 };
 
@@ -244,33 +295,39 @@ const fetchUpdate = async () => {
   editErrorMessage.value = null;
 
   try {
-    await fetchUpdateNhaSanXuat(selectedNhaSanXuat.value.id, selectedNhaSanXuat.value);
+    await fetchUpdateNhaSanXuat(
+      selectedNSX.value.id,
+      selectedNSX.value
+    );
 
-    await fetchAll();
+    await fetchNSX();
     closeEditForm();
     editSuccessMessage.value = "Nhà sản xuất đã được cập nhật thành công!";
     clearEditSuccessMessage();
   } catch (error) {
     console.error("Error updating:", error);
-    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật nhà sản xuất");
+    editErrorMessage.value =
+      "Lỗi khi cập nhật: " +
+      (error.message || "Không thể cập nhật nhà sản xuất");
   } finally {
     uploading.value = false;
   }
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa nhà sản xuất này?')) {
+  if (!confirm("Bạn có chắc chắn muốn xóa nhà sản xuất này?")) {
     return;
   }
 
   try {
     await fetchUpdateStatusNhaSanXuat(id);
-    await fetchAll();
+    await fetchNSX();
     successMessage.value = "Nhà sản xuất đã được xóa thành công!";
     clearSuccessMessage();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
-    errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa nhà sản xuất");
+    errorMessage.value =
+      "Lỗi khi xóa: " + (error.message || "Không thể xóa nhà sản xuất");
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
@@ -281,12 +338,12 @@ const closeEditForm = () => {
   showEditForm.value = false;
   editErrorMessage.value = null;
   editSuccessMessage.value = null;
-  selectedNhaSanXuat.value = {};
+  selectedNSX.value = {};
 };
 
 const closeDetailModal = () => {
   showDetailModal.value = false;
-  selectedNhaSanXuat.value = {};
+  selectedNSX.value = {};
 };
 
 const editFromDetail = () => {
@@ -306,17 +363,29 @@ const goToNextPage = () => {
   }
 };
 
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToNextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
 // Format date function
 const formatDate = (dateString) => {
   if (!dateString) return null;
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   } catch (error) {
     return dateString;
@@ -336,7 +405,7 @@ const clearEditSuccessMessage = () => {
   }, 3000);
 };
 
-onMounted(fetchAll);
+onMounted(fetchNSX);
 </script>
 
 <style scoped>
@@ -573,8 +642,8 @@ p[style*="color: green"] {
 }
 
 /* Form enhancements */
-.add-form input[type="radio"]+label,
-.edit-form input[type="radio"]+label {
+.add-form input[type="radio"] + label,
+.edit-form input[type="radio"] + label {
   display: inline;
   margin-left: 5px;
   font-weight: 500;

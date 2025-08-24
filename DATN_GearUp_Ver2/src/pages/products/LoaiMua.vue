@@ -1,6 +1,9 @@
 <template>
   <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
 
   <div class="add-form">
     <h3>Thêm Loại Mua Mới</h3>
@@ -15,11 +18,22 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="Trạng thái" :value="false" v-model="newLoaiMua.deleted" />Hoạt động
-        <input type="radio" name="Trạng thái" :value="true" v-model="newLoaiMua.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="false"
+          v-model="newLoaiMua.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="true"
+          v-model="newLoaiMua.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        <i class="fas fa-plus"></i>
+        {{ uploading ? "Đang thêm..." : "Thêm Mới" }}
       </button>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
       <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
@@ -40,17 +54,30 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedLoaiMua.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedLoaiMua.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="false"
+          v-model="selectedLoaiMua.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="true"
+          v-model="selectedLoaiMua.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
+        <i class="fas fa-save"></i>
+        {{ uploading ? "Đang cập nhật..." : "Cập Nhật" }}
       </button>
       <button type="button" @click="closeEditForm" class="btn btn-secondary">
         <i class="fas fa-times"></i> Đóng
       </button>
       <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
+      <p v-if="editSuccessMessage" style="color: green">
+        {{ editSuccessMessage }}
+      </p>
     </form>
   </div>
 
@@ -71,11 +98,19 @@
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
-          <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
+          <button
+            v-on:click="fetchDetail(value)"
+            class="btn btn-detail btn-icon btn-sm"
+            title="Xem chi tiết"
+          >
             <i class="fas fa-eye"></i>
           </button>
-          <button v-on:click="fetchDelete(value.id)" class="btn btn-delete btn-icon btn-sm" :disabled="uploading"
-            title="Xóa">
+          <button
+            v-on:click="fetchDelete(value.id)"
+            class="btn btn-delete btn-icon btn-sm"
+            :disabled="uploading"
+            title="Xóa"
+          >
             <i class="fas fa-trash"></i>
           </button>
         </td>
@@ -119,23 +154,33 @@
         </div>
         <div class="detail-row">
           <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">{{ selectedLoaiMua.moTa || 'Không có mô tả' }}</div>
+          <div class="detail-value">
+            {{ selectedLoaiMua.moTa || "Không có mô tả" }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Trạng thái:</div>
           <div class="detail-value">
-            <span :class="selectedLoaiMua.deleted ? 'status-inactive' : 'status-active'">
+            <span
+              :class="
+                selectedLoaiMua.deleted ? 'status-inactive' : 'status-active'
+              "
+            >
               {{ selectedLoaiMua.deleted ? "Không hoạt động" : "Hoạt động" }}
             </span>
           </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">{{ formatDate(selectedLoaiMua.createdAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{ formatDate(selectedLoaiMua.createdAt) || "Không có thông tin" }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">{{ formatDate(selectedLoaiMua.updatedAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{ formatDate(selectedLoaiMua.updatedAt) || "Không có thông tin" }}
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -157,13 +202,12 @@ import {
   fetchCreateLoaiMua,
   fetchUpdateLoaiMua,
   fetchUpdateStatusLoaiMua,
-} from "../../services/LoaiMuaService";
-
+} from "../../services/ThuocTinh/LoaiMuaService";
 const LoaiMuas = ref([]);
 const newLoaiMua = ref({
   tenLoaiMua: "",
   moTa: "",
-  deleted: false
+  deleted: false,
 });
 const selectedLoaiMua = ref({});
 const showEditForm = ref(false);
@@ -213,7 +257,7 @@ const fetchCreate = async () => {
     newLoaiMua.value = {
       tenLoaiMua: "",
       moTa: "",
-      deleted: false
+      deleted: false,
     };
 
     await fetchAll();
@@ -221,7 +265,8 @@ const fetchCreate = async () => {
     clearSuccessMessage();
   } catch (error) {
     console.error("Error creating:", error);
-    errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo loại mua");
+    errorMessage.value =
+      "Lỗi khi thêm: " + (error.message || "Không thể tạo loại mua");
   } finally {
     uploading.value = false;
   }
@@ -250,14 +295,15 @@ const fetchUpdate = async () => {
     clearEditSuccessMessage();
   } catch (error) {
     console.error("Error updating:", error);
-    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật loại mua");
+    editErrorMessage.value =
+      "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật loại mua");
   } finally {
     uploading.value = false;
   }
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa loại mua này?')) {
+  if (!confirm("Bạn có chắc chắn muốn xóa loại mua này?")) {
     return;
   }
 
@@ -268,7 +314,8 @@ const fetchDelete = async (id) => {
     clearSuccessMessage();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
-    errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa loại mua");
+    errorMessage.value =
+      "Lỗi khi xóa: " + (error.message || "Không thể xóa loại mua");
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
@@ -297,12 +344,12 @@ const formatDate = (dateString) => {
   if (!dateString) return null;
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   } catch (error) {
     return dateString;
@@ -562,8 +609,8 @@ p[style*="color: green"] {
 }
 
 /* Form enhancements */
-.add-form input[type="radio"]+label,
-.edit-form input[type="radio"]+label {
+.add-form input[type="radio"] + label,
+.edit-form input[type="radio"] + label {
   display: inline;
   margin-left: 5px;
   font-weight: 500;
@@ -602,7 +649,6 @@ p[style*="color: green"] {
 
 /* Responsive design */
 @media (max-width: 768px) {
-
   .add-form,
   .edit-form {
     padding: 20px;

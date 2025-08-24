@@ -1,6 +1,9 @@
 <template>
   <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
 
   <div class="add-form">
     <h3>Thêm Môn Thể Thao Mới</h3>
@@ -15,11 +18,22 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="Trạng thái" :value="false" v-model="newMonTheThao.deleted" />Hoạt động
-        <input type="radio" name="Trạng thái" :value="true" v-model="newMonTheThao.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="false"
+          v-model="newMonTheThao.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="true"
+          v-model="newMonTheThao.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        <i class="fas fa-plus"></i>
+        {{ uploading ? "Đang thêm..." : "Thêm Mới" }}
       </button>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
       <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
@@ -32,7 +46,11 @@
     <form @submit.prevent="fetchUpdate">
       <div>
         <label>Tên môn thể thao:</label>
-        <input v-model="selectedMonTheThao.tenMonTheThao" type="text" required />
+        <input
+          v-model="selectedMonTheThao.tenMonTheThao"
+          type="text"
+          required
+        />
       </div>
       <div>
         <label>Mô tả:</label>
@@ -40,17 +58,30 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedMonTheThao.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedMonTheThao.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="false"
+          v-model="selectedMonTheThao.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="true"
+          v-model="selectedMonTheThao.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
+        <i class="fas fa-save"></i>
+        {{ uploading ? "Đang cập nhật..." : "Cập Nhật" }}
       </button>
       <button type="button" @click="closeEditForm" class="btn btn-secondary">
         <i class="fas fa-times"></i> Đóng
       </button>
       <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
+      <p v-if="editSuccessMessage" style="color: green">
+        {{ editSuccessMessage }}
+      </p>
     </form>
   </div>
 
@@ -71,11 +102,19 @@
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
-          <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
+          <button
+            v-on:click="fetchDetail(value)"
+            class="btn btn-detail btn-icon btn-sm"
+            title="Xem chi tiết"
+          >
             <i class="fas fa-eye"></i>
           </button>
-          <button v-on:click="fetchDelete(value.id)" class="btn btn-delete btn-icon btn-sm" :disabled="uploading"
-            title="Xóa">
+          <button
+            v-on:click="fetchDelete(value.id)"
+            class="btn btn-delete btn-icon btn-sm"
+            :disabled="uploading"
+            title="Xóa"
+          >
             <i class="fas fa-trash"></i>
           </button>
         </td>
@@ -119,23 +158,37 @@
         </div>
         <div class="detail-row">
           <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">{{ selectedMonTheThao.moTa || 'Không có mô tả' }}</div>
+          <div class="detail-value">
+            {{ selectedMonTheThao.moTa || "Không có mô tả" }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Trạng thái:</div>
           <div class="detail-value">
-            <span :class="selectedMonTheThao.deleted ? 'status-inactive' : 'status-active'">
+            <span
+              :class="
+                selectedMonTheThao.deleted ? 'status-inactive' : 'status-active'
+              "
+            >
               {{ selectedMonTheThao.deleted ? "Không hoạt động" : "Hoạt động" }}
             </span>
           </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">{{ formatDate(selectedMonTheThao.createdAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{
+              formatDate(selectedMonTheThao.createdAt) || "Không có thông tin"
+            }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">{{ formatDate(selectedMonTheThao.updatedAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{
+              formatDate(selectedMonTheThao.updatedAt) || "Không có thông tin"
+            }}
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -157,13 +210,12 @@ import {
   fetchCreateMonTheThao,
   fetchUpdateMonTheThao,
   fetchUpdateStatusMonTheThao,
-} from "../../services/MonTheThaoService";
-
+} from "../../services/ThuocTinh/MonTheThaoService";
 const MonTheThaos = ref([]);
 const newMonTheThao = ref({
   tenMonTheThao: "",
   moTa: "",
-  deleted: false
+  deleted: false,
 });
 const selectedMonTheThao = ref({});
 const showEditForm = ref(false);
@@ -213,7 +265,7 @@ const fetchCreate = async () => {
     newMonTheThao.value = {
       tenMonTheThao: "",
       moTa: "",
-      deleted: false
+      deleted: false,
     };
 
     await fetchAll();
@@ -221,7 +273,8 @@ const fetchCreate = async () => {
     clearSuccessMessage();
   } catch (error) {
     console.error("Error creating:", error);
-    errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo môn thể thao");
+    errorMessage.value =
+      "Lỗi khi thêm: " + (error.message || "Không thể tạo môn thể thao");
   } finally {
     uploading.value = false;
   }
@@ -242,7 +295,10 @@ const fetchUpdate = async () => {
   editErrorMessage.value = null;
 
   try {
-    await fetchUpdateMonTheThao(selectedMonTheThao.value.id, selectedMonTheThao.value);
+    await fetchUpdateMonTheThao(
+      selectedMonTheThao.value.id,
+      selectedMonTheThao.value
+    );
 
     await fetchAll();
     closeEditForm();
@@ -250,14 +306,16 @@ const fetchUpdate = async () => {
     clearEditSuccessMessage();
   } catch (error) {
     console.error("Error updating:", error);
-    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật môn thể thao");
+    editErrorMessage.value =
+      "Lỗi khi cập nhật: " +
+      (error.message || "Không thể cập nhật môn thể thao");
   } finally {
     uploading.value = false;
   }
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa môn thể thao này?')) {
+  if (!confirm("Bạn có chắc chắn muốn xóa môn thể thao này?")) {
     return;
   }
 
@@ -268,7 +326,8 @@ const fetchDelete = async (id) => {
     clearSuccessMessage();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
-    errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa môn thể thao");
+    errorMessage.value =
+      "Lỗi khi xóa: " + (error.message || "Không thể xóa môn thể thao");
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
@@ -297,12 +356,12 @@ const formatDate = (dateString) => {
   if (!dateString) return null;
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   } catch (error) {
     return dateString;
@@ -562,8 +621,8 @@ p[style*="color: green"] {
 }
 
 /* Form enhancements */
-.add-form input[type="radio"]+label,
-.edit-form input[type="radio"]+label {
+.add-form input[type="radio"] + label,
+.edit-form input[type="radio"] + label {
   display: inline;
   margin-left: 5px;
   font-weight: 500;
@@ -602,7 +661,6 @@ p[style*="color: green"] {
 
 /* Responsive design */
 @media (max-width: 768px) {
-
   .add-form,
   .edit-form {
     padding: 20px;

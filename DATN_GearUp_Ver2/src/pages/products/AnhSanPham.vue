@@ -1,15 +1,22 @@
 <template>
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <div class="add-form">
     <h3>Thêm Hình Ảnh Sản Phẩm Mới</h3>
     <form @submit.prevent="fetchCreate">
       <div>
         <label>Chọn ảnh từ máy:</label>
-        <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" required />
-        <img v-if="previewUrl" :src="previewUrl" alt="Preview ảnh"
-          style="width: 100px; height: auto; margin-top: 10px" />
+        <input
+          type="file"
+          ref="fileInput"
+          @change="handleFileChange"
+          accept="image/*"
+          required
+        />
+        <img
+          v-if="previewUrl"
+          :src="previewUrl"
+          alt="Preview ảnh"
+          style="width: 100px; height: auto; margin-top: 10px"
+        />
       </div>
       <div>
         <label>Loại ảnh:</label>
@@ -21,14 +28,21 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="Trạng thái" :value="false" v-model="newAnhSanPham.deleted" />Hoạt động
-        <input type="radio" name="Trạng thái" :value="true" v-model="newAnhSanPham.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          value="false"
+          v-model="newAnhSanPham.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          value="true"
+          v-model="newAnhSanPham.deleted"
+        />Không hoạt động
       </div>
-      <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
-      </button>
+      <button type="submit" :disabled="uploading">Thêm Mới</button>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
-      <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
     </form>
   </div>
   <!-- Form chỉnh sửa (mới thêm) -->
@@ -37,14 +51,28 @@
     <form @submit.prevent="fetchUpdate">
       <div>
         <label>Ảnh hiện tại:</label>
-        <img v-if="selectedAnhSanPham.duongDanAnh" :src="getImageUrl(selectedAnhSanPham.duongDanAnh)" alt="Ảnh hiện tại"
-          style="width: 100px; height: auto" @error="handleImageError" />
+        <img
+          v-if="selectedAnhSanPham.duongDanAnh"
+          :src="getImageUrl(selectedAnhSanPham.duongDanAnh)"
+          alt="Ảnh hiện tại"
+          style="width: 100px; height: auto"
+          @error="handleImageError"
+        />
       </div>
       <div>
         <label>Chọn ảnh mới (nếu muốn thay đổi):</label>
-        <input type="file" ref="editFileInput" @change="handleEditFileChange" accept="image/*" />
-        <img v-if="editPreviewUrl" :src="editPreviewUrl" alt="Preview mới"
-          style="width: 100px; height: auto; margin-top: 10px" />
+        <input
+          type="file"
+          ref="editFileInput"
+          @change="handleEditFileChange"
+          accept="image/*"
+        />
+        <img
+          v-if="editPreviewUrl"
+          :src="editPreviewUrl"
+          alt="Preview mới"
+          style="width: 100px; height: auto; margin-top: 10px"
+        />
       </div>
       <div>
         <label>Loại ảnh:</label>
@@ -54,19 +82,9 @@
         <label>Mô tả:</label>
         <input v-model="selectedAnhSanPham.moTa" type="text" />
       </div>
-      <div>
-        <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedAnhSanPham.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedAnhSanPham.deleted" />Không hoạt động
-      </div>
-      <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
-      </button>
-      <button type="button" @click="closeEditForm" class="btn btn-secondary">
-        <i class="fas fa-times"></i> Đóng
-      </button>
+      <button type="submit" :disabled="uploading">Cập Nhật</button>
+      <button type="button" @click="closeEditForm">Đóng</button>
       <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
     </form>
   </div>
   <table class="table table-bordered">
@@ -84,20 +102,19 @@
       <tr v-for="(value, i) in paginatedAnhSanPhams" :key="value.id">
         <td>{{ startIndex + i + 1 }}</td>
         <td>
-          <img :src="getImageUrl(value.duongDanAnh)" alt="Ảnh sản phẩm" style="width: 100px; height: auto"
-            @error="handleImageError" />
+          <img
+            :src="getImageUrl(value.duongDanAnh)"
+            alt="Ảnh sản phẩm"
+            style="width: 100px; height: auto"
+            @error="handleImageError"
+          />
         </td>
         <td>{{ value.loaiAnh }}</td>
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
-          <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button v-on:click="fetchDelete(value.id)" class="btn btn-delete btn-icon btn-sm" :disabled="uploading"
-            title="Xóa">
-            <i class="fas fa-trash"></i>
-          </button>
+          <button v-on:click="fetchDetail(value)">Detail</button> |
+          <button v-on:click="fetchDelete(value.id)">Delete</button>
         </td>
       </tr>
     </tbody>
@@ -188,7 +205,7 @@ import {
   fetchCreateAnhSanPham,
   fetchUpdateAnhSanPham,
   fetchUpdateStatusAnhSanPham,
-} from "../../services/AnhSanPhamService";
+} from "../../services/ThuocTinh/AnhSanPhamService";
 
 const AnhSanPhams = ref([]);
 const newAnhSanPham = ref({
@@ -202,7 +219,6 @@ const previewUrl = ref(null);
 const editFile = ref(null);
 const editPreviewUrl = ref(null);
 const showEditForm = ref(false);
-const showDetailModal = ref(false);
 const uploading = ref(false);
 const errorMessage = ref(null);
 const editErrorMessage = ref(null);
@@ -276,7 +292,7 @@ const fetchCreate = async () => {
     errorMessage.value = "Vui lòng chọn file ảnh";
     return;
   }
-
+  
   if (!newAnhSanPham.value.loaiAnh) {
     errorMessage.value = "Vui lòng nhập loại ảnh";
     return;
@@ -284,7 +300,7 @@ const fetchCreate = async () => {
 
   uploading.value = true;
   errorMessage.value = null;
-
+  
   try {
     // Tạo FormData để gửi file
     const formData = new FormData();
@@ -292,9 +308,9 @@ const fetchCreate = async () => {
     formData.append('loaiAnh', newAnhSanPham.value.loaiAnh);
     formData.append('moTa', newAnhSanPham.value.moTa || '');
     formData.append('deleted', newAnhSanPham.value.deleted || false);
-
+    
     await fetchCreateAnhSanPham(formData);
-
+    
     // Reset form
     newAnhSanPham.value = {
       loaiAnh: "",
@@ -303,15 +319,13 @@ const fetchCreate = async () => {
     };
     file.value = null;
     previewUrl.value = null;
-
+    
     // Reset file input
     if (fileInput.value) {
       fileInput.value.value = '';
     }
-
+    
     await fetchAll();
-    successMessage.value = "Ảnh sản phẩm đã được thêm thành công!";
-    clearSuccessMessage();
   } catch (error) {
     console.error("Error creating:", error);
     errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo ảnh sản phẩm");
@@ -322,11 +336,6 @@ const fetchCreate = async () => {
 
 const fetchDetail = (value) => {
   selectedAnhSanPham.value = { ...value };
-  showDetailModal.value = true;
-};
-
-const openEditForm = (value) => {
-  selectedAnhSanPham.value = { ...value };
   editPreviewUrl.value = value.duongDanAnh;
   showEditForm.value = true;
 };
@@ -334,26 +343,30 @@ const openEditForm = (value) => {
 const fetchUpdate = async () => {
   uploading.value = true;
   editErrorMessage.value = null;
-
+  
   try {
-    // Tạo FormData để gửi dữ liệu
-    const formData = new FormData();
-
     // Nếu có file mới được chọn
     if (editFile.value) {
+      const formData = new FormData();
       formData.append('file', editFile.value);
+      formData.append('loaiAnh', selectedAnhSanPham.value.loaiAnh);
+      formData.append('moTa', selectedAnhSanPham.value.moTa || '');
+      formData.append('deleted', selectedAnhSanPham.value.deleted || false);
+      
+      await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, formData);
+    } else {
+      // Nếu không có file mới, chỉ cập nhật thông tin
+      const updateData = {
+        loaiAnh: selectedAnhSanPham.value.loaiAnh,
+        moTa: selectedAnhSanPham.value.moTa || '',
+        deleted: selectedAnhSanPham.value.deleted || false
+      };
+      
+      await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, updateData);
     }
-
-    formData.append('loaiAnh', selectedAnhSanPham.value.loaiAnh);
-    formData.append('moTa', selectedAnhSanPham.value.moTa || '');
-    formData.append('deleted', selectedAnhSanPham.value.deleted || false);
-
-    await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, formData);
-
+    
     await fetchAll();
     closeEditForm();
-    editSuccessMessage.value = "Ảnh sản phẩm đã được cập nhật thành công!";
-    clearEditSuccessMessage();
   } catch (error) {
     console.error("Error updating:", error);
     editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật ảnh sản phẩm");
@@ -363,21 +376,11 @@ const fetchUpdate = async () => {
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa ảnh sản phẩm này?')) {
-    return;
-  }
-
   try {
     await fetchUpdateStatusAnhSanPham(id);
     await fetchAll();
-    successMessage.value = "Ảnh sản phẩm đã được xóa thành công!";
-    clearSuccessMessage();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
-    errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa ảnh sản phẩm");
-    setTimeout(() => {
-      errorMessage.value = null;
-    }, 3000);
   }
 };
 
@@ -386,9 +389,8 @@ const closeEditForm = () => {
   editFile.value = null;
   editPreviewUrl.value = null;
   editErrorMessage.value = null;
-  editSuccessMessage.value = null;
   selectedAnhSanPham.value = {};
-
+  
   // Reset edit file input
   if (editFileInput.value) {
     editFileInput.value.value = '';
@@ -451,22 +453,22 @@ const goToNextPage = () => {
 // Method để tạo URL đầy đủ cho ảnh
 const getImageUrl = (imagePath) => {
   if (!imagePath) return '';
-
+  
   // Nếu đã là URL đầy đủ thì trả về nguyên
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
-
+  
   // Nếu là đường dẫn tương đối, thêm base URL của backend
   if (imagePath.startsWith('uploads/')) {
     return `http://localhost:8080/${imagePath}`;
   }
-
+  
   // Nếu bắt đầu bằng / thì thêm base URL
   if (imagePath.startsWith('/')) {
     return `http://localhost:8080${imagePath}`;
   }
-
+  
   return imagePath;
 };
 

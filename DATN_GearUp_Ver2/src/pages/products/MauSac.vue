@@ -178,7 +178,7 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { fetchAllMauSac, fetchCreateMauSac, fetchUpdateMauSac, fetchUpdateStatusMauSac } from '../../services/MauSacService';
+import { fetchAllMauSac, fetchCreateMauSac, fetchUpdateMauSac, fetchUpdateStatusMauSac } from '../../services/ThuocTinh/MauSacService';
 
 const MauSacs = ref([]);
 const newMauSac = ref({

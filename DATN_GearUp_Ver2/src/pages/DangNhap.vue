@@ -31,7 +31,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { useAuth } from '../services/khoXacThuc.js'
+import { useAuth } from '../services/response/khoXacThuc.js'
 import GearUpLogo from '../components/ui/LogoGearUp.vue'
 import StandaloneLogin from '../components/common/DangNhapDoc.vue'
 
@@ -43,7 +43,7 @@ const handleLogin = async ({ username, password, remember, setLoading, setError,
     setLoading(true)
     
     // Import authService dynamically to avoid circular dependency
-    const { authService } = await import('../services/api.js')
+    const { authService } = await import('../services/response/api.js')
     
     // Call the Spring Boot backend
     const response = await authService.login(username, password)

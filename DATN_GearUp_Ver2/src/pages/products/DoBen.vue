@@ -1,6 +1,9 @@
 <template>
   <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
 
   <div class="add-form">
     <h3>Thêm Độ Bền Mới</h3>
@@ -15,11 +18,22 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="Trạng thái" :value="false" v-model="newDoBen.deleted" />Hoạt động
-        <input type="radio" name="Trạng thái" :value="true" v-model="newDoBen.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="false"
+          v-model="newDoBen.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="Trạng thái"
+          :value="true"
+          v-model="newDoBen.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        <i class="fas fa-plus"></i>
+        {{ uploading ? "Đang thêm..." : "Thêm Mới" }}
       </button>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
       <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
@@ -40,17 +54,30 @@
       </div>
       <div>
         <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedDoBen.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedDoBen.deleted" />Không hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="false"
+          v-model="selectedDoBen.deleted"
+        />Hoạt động
+        <input
+          type="radio"
+          name="editTrạng thái"
+          :value="true"
+          v-model="selectedDoBen.deleted"
+        />Không hoạt động
       </div>
       <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
+        <i class="fas fa-save"></i>
+        {{ uploading ? "Đang cập nhật..." : "Cập Nhật" }}
       </button>
       <button type="button" @click="closeEditForm" class="btn btn-secondary">
         <i class="fas fa-times"></i> Đóng
       </button>
       <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
+      <p v-if="editSuccessMessage" style="color: green">
+        {{ editSuccessMessage }}
+      </p>
     </form>
   </div>
 
@@ -71,11 +98,19 @@
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
-          <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
+          <button
+            v-on:click="fetchDetail(value)"
+            class="btn btn-detail btn-icon btn-sm"
+            title="Xem chi tiết"
+          >
             <i class="fas fa-eye"></i>
           </button>
-          <button v-on:click="fetchDelete(value.id)" class="btn btn-delete btn-icon btn-sm" :disabled="uploading"
-            title="Xóa">
+          <button
+            v-on:click="fetchDelete(value.id)"
+            class="btn btn-delete btn-icon btn-sm"
+            :disabled="uploading"
+            title="Xóa"
+          >
             <i class="fas fa-trash"></i>
           </button>
         </td>
@@ -119,23 +154,33 @@
         </div>
         <div class="detail-row">
           <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">{{ selectedDoBen.moTa || 'Không có mô tả' }}</div>
+          <div class="detail-value">
+            {{ selectedDoBen.moTa || "Không có mô tả" }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Trạng thái:</div>
           <div class="detail-value">
-            <span :class="selectedDoBen.deleted ? 'status-inactive' : 'status-active'">
+            <span
+              :class="
+                selectedDoBen.deleted ? 'status-inactive' : 'status-active'
+              "
+            >
               {{ selectedDoBen.deleted ? "Không hoạt động" : "Hoạt động" }}
             </span>
           </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">{{ formatDate(selectedDoBen.createdAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{ formatDate(selectedDoBen.createdAt) || "Không có thông tin" }}
+          </div>
         </div>
         <div class="detail-row">
           <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">{{ formatDate(selectedDoBen.updatedAt) || 'Không có thông tin' }}</div>
+          <div class="detail-value">
+            {{ formatDate(selectedDoBen.updatedAt) || "Không có thông tin" }}
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -157,13 +202,12 @@ import {
   fetchCreateDoBen,
   fetchUpdateDoBen,
   fetchUpdateStatusDoBen,
-} from "../../services/DoBenService";
-
+} from "../../services/ThuocTinh/DoBenService";
 const DoBens = ref([]);
 const newDoBen = ref({
   tenDoBen: "",
   moTa: "",
-  deleted: false
+  deleted: false,
 });
 const selectedDoBen = ref({});
 const showEditForm = ref(false);
@@ -213,7 +257,7 @@ const fetchCreate = async () => {
     newDoBen.value = {
       tenDoBen: "",
       moTa: "",
-      deleted: false
+      deleted: false,
     };
 
     await fetchAll();
@@ -221,7 +265,8 @@ const fetchCreate = async () => {
     clearSuccessMessage();
   } catch (error) {
     console.error("Error creating:", error);
-    errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo độ bền");
+    errorMessage.value =
+      "Lỗi khi thêm: " + (error.message || "Không thể tạo độ bền");
   } finally {
     uploading.value = false;
   }
@@ -250,14 +295,15 @@ const fetchUpdate = async () => {
     clearEditSuccessMessage();
   } catch (error) {
     console.error("Error updating:", error);
-    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật độ bền");
+    editErrorMessage.value =
+      "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật độ bền");
   } finally {
     uploading.value = false;
   }
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa độ bền này?')) {
+  if (!confirm("Bạn có chắc chắn muốn xóa độ bền này?")) {
     return;
   }
 
@@ -268,7 +314,8 @@ const fetchDelete = async (id) => {
     clearSuccessMessage();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
-    errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa độ bền");
+    errorMessage.value =
+      "Lỗi khi xóa: " + (error.message || "Không thể xóa độ bền");
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
@@ -297,12 +344,12 @@ const formatDate = (dateString) => {
   if (!dateString) return null;
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   } catch (error) {
     return dateString;
@@ -562,8 +609,8 @@ p[style*="color: green"] {
 }
 
 /* Form enhancements */
-.add-form input[type="radio"]+label,
-.edit-form input[type="radio"]+label {
+.add-form input[type="radio"] + label,
+.edit-form input[type="radio"] + label {
   display: inline;
   margin-left: 5px;
   font-weight: 500;
@@ -602,7 +649,6 @@ p[style*="color: green"] {
 
 /* Responsive design */
 @media (max-width: 768px) {
-
   .add-form,
   .edit-form {
     padding: 20px;
@@ -728,7 +774,7 @@ p[style*="color: green"] {
   align-items: center;
   padding: 20px 25px;
   border-bottom: 2px solid #d4edda;
-  background: linear-gradient(135deg, #32CD32, #28a745);
+  background: linear-gradient(135deg, #32cd32, #28a745);
   color: white;
   border-radius: 12px 12px 0 0;
 }
@@ -780,7 +826,7 @@ p[style*="color: green"] {
 .detail-label {
   width: 150px;
   font-weight: 600;
-  color: #32CD32;
+  color: #32cd32;
   font-size: 16px;
   flex-shrink: 0;
 }

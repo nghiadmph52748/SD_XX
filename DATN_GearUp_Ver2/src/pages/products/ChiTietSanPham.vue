@@ -5,7 +5,9 @@
       <div class="header-content">
         <div class="header-text">
           <h1 class="page-title">Quản lý Chi tiết sản phẩm</h1>
-          <p class="page-subtitle">Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho</p>
+          <p class="page-subtitle">
+            Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho
+          </p>
         </div>
         <div class="header-actions">
           <button class="btn-refresh" @click="refreshData">
@@ -310,24 +312,44 @@
                   <span v-else class="no-image">Không có ảnh</span>
                 </td>
                 <td class="quantity-col">
-                  <span :class="['stock-badge', { 'low-stock': detail.soLuong < 10 }]">
+                  <span
+                    :class="[
+                      'stock-badge',
+                      { 'low-stock': detail.soLuong < 10 },
+                    ]"
+                  >
                     {{ detail.soLuong }}
                   </span>
                 </td>
                 <td class="price-col">
-                  <span class="price-text">{{ formatCurrency(detail.giaBan) }}</span>
+                  <span class="price-text">{{
+                    formatCurrency(detail.giaBan)
+                  }}</span>
                 </td>
                 <td class="status-col">
-                  <span class="status-badge" :class="detail.trangThai ? 'status-active' : 'status-inactive'">
-                    {{ detail.trangThai ? 'Hoạt động' : 'Ngừng hoạt động' }}
+                  <span
+                    class="status-badge"
+                    :class="
+                      detail.trangThai ? 'status-active' : 'status-inactive'
+                    "
+                  >
+                    {{ detail.trangThai ? "Hoạt động" : "Ngừng hoạt động" }}
                   </span>
                 </td>
                 <td class="action-col">
                   <div class="action-buttons">
-                    <button class="btn-edit" @click="editDetail(detail)" title="Sửa">
+                    <button
+                      class="btn-edit"
+                      @click="editDetail(detail)"
+                      title="Sửa"
+                    >
                       <span class="btn-icon">✏️</span>
                     </button>
-                    <button class="btn-delete" @click="deleteDetail(detail.id)" title="Xóa">
+                    <button
+                      class="btn-delete"
+                      @click="deleteDetail(detail.id)"
+                      title="Xóa"
+                    >
                       <span class="btn-icon">🗑️</span>
                     </button>
                   </div>
@@ -343,7 +365,8 @@
         <!-- Pagination -->
         <div class="pagination-wrapper">
           <div class="pagination-info">
-            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ filteredDetails.length }} chi tiết sản phẩm
+            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+            {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
           <div class="pagination">
             <button class="btn-export" @click="previousPage" :disabled="currentPage === 1">
@@ -359,10 +382,20 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay" @click="closeModals">
+    <div
+      v-if="showAddModal || showEditModal"
+      class="modal-overlay"
+      @click="closeModals"
+    >
       <div class="modal-content large" @click.stop>
         <div class="modal-header">
-          <h3>{{ showAddModal ? 'Thêm chi tiết sản phẩm' : 'Cập nhật chi tiết sản phẩm' }}</h3>
+          <h3>
+            {{
+              showAddModal
+                ? "Thêm chi tiết sản phẩm"
+                : "Cập nhật chi tiết sản phẩm"
+            }}
+          </h3>
           <button class="modal-close" @click="closeModals">×</button>
         </div>
         <div class="modal-body">
@@ -510,7 +543,7 @@
           </button>
           <button class="btn-export" @click="saveDetail">
             <span class="btn-icon">💾</span>
-            {{ showAddModal ? 'Thêm' : 'Cập nhật' }}
+            {{ showAddModal ? "Thêm" : "Cập nhật" }}
           </button>
         </div>
       </div>
@@ -520,19 +553,19 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/ChiTietSanPham'
-import { fetchAllAnhSanPham } from '../../services/AnhSanPhamService'
-import { fetchAllMauSac } from '../../services/MauSacService'
-import { fetchAllKichThuoc } from '../../services/KichThuocService'
-import { fetchAllDeGiay } from '../../services/DeGiayService'
-import { fetchAllChatLieu } from '../../services/ChatLieuService'
-import { fetchAllDemGiay } from '../../services/DemGiayService'
-import { fetchAllTrongLuong } from '../../services/TrongLuongService'
-import { fetchAllMonTheThao } from '../../services/MonTheThaoService'
-import { fetchAllLoaiMua } from '../../services/LoaiMuaService'
-import { fetchAllDoBen } from '../../services/DoBenService'
-import { fetchAllChongNuoc } from '../../services/ChongNuocService'
-import { fetchAllSanPham } from '../../services/SanPhamService'
+import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
+import { fetchAllAnhSanPham } from '../../services/ThuocTinh/AnhSanPhamService'
+import { fetchAllMauSac } from '../../services/ThuocTinh/MauSacService'
+import { fetchAllKichThuoc } from '../../services/ThuocTinh/KichThuocService'
+import { fetchAllDeGiay } from '../../services/ThuocTinh/DeGiayService'
+import { fetchAllChatLieu } from '../../services/ThuocTinh/ChatLieuService'
+import { fetchAllDemGiay } from '../../services/ThuocTinh/DemGiayService'
+import { fetchAllTrongLuong } from '../../services/ThuocTinh/TrongLuongService'
+import { fetchAllMonTheThao } from '../../services/ThuocTinh/MonTheThaoService'
+import { fetchAllLoaiMua } from '../../services/ThuocTinh/LoaiMuaService'
+import { fetchAllDoBen } from '../../services/ThuocTinh/DoBenService'
+import { fetchAllChongNuoc } from '../../services/ThuocTinh/ChongNuocService'
+import { fetchAllSanPham } from '../../services/SanPham/SanPhamService'
 // Reactive data
 const searchQuery = ref('')
 const selectedSanPham = ref('')
@@ -688,9 +721,13 @@ const filteredDetails = computed(() => {
   })
 })
 
-const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value))
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
-const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length))
+const totalPages = computed(() =>
+  Math.ceil(filteredDetails.value.length / itemsPerPage.value)
+);
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endIndex = computed(() =>
+  Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length)
+);
 
 const paginatedDetails = computed(() => {
   return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
@@ -705,12 +742,14 @@ const statusCounts = computed(() => {
 
 // Methods
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(amount).replace('₫', ' VND')
-}
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    minimumFractionDigits: 0,
+  })
+    .format(amount)
+    .replace("₫", " VND");
+};
 
 const getColorCode = (colorName) => {
   if (!colorName) return '#E5E7EB'
@@ -814,7 +853,7 @@ const deleteDetail = async (id) => {
       alert('Có lỗi xảy ra khi xóa!')
     }
   }
-}
+};
 
 const saveDetail = async () => {
   try {
@@ -896,18 +935,18 @@ const clearFilters = () => {
 }
 
 const applyFilters = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const previousPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
+    currentPage.value--;
   }
-}
+};
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
+    currentPage.value++;
   }
 }
 

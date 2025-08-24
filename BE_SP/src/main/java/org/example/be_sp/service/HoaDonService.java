@@ -6,8 +6,10 @@ import org.example.be_sp.entity.PhieuGiamGia;
 import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.HoaDonRequest;
 import org.example.be_sp.model.response.HoaDonResponse;
+import org.example.be_sp.model.response.NhanVienResponse;
 import org.example.be_sp.model.response.PagingResponse;
 import org.example.be_sp.repository.HoaDonRepository;
+import org.example.be_sp.repository.NhanVienRepository;
 import org.example.be_sp.util.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +25,7 @@ public class HoaDonService {
     @Autowired
     KhachHangService khachHangService;
     @Autowired
-    NhanVienService nhanVienService;
+    NhanVienRepository nhanVienRepository;
     @Autowired
     PhieuGiamGiaService phieuGiamGiaService;
 
@@ -44,7 +46,7 @@ public class HoaDonService {
         HoaDon hd = MapperUtils.map(request, HoaDon.class);
         hd.setIdKhachHang(khachHangService.findById(request.getIdKhachHang()));
         hd.setIdPhieuGiamGia(phieuGiamGiaService.getById(request.getIdPhieuGiamGia()));
-        hd.setIdNhanVien(nhanVienService.getNhanVienById(request.getIdNhanVien()));
+        hd.setIdNhanVien(nhanVienRepository.getById(request.getIdNhanVien()));
         hoaDonRepository.save(hd);
     }
     public void update(Integer id, HoaDonRequest request) {
@@ -52,7 +54,7 @@ public class HoaDonService {
         MapperUtils.mapToExisting(request, hd);
         hd.setIdKhachHang(khachHangService.findById(request.getIdKhachHang()));
         hd.setIdPhieuGiamGia(phieuGiamGiaService.getById(request.getIdPhieuGiamGia()));
-        hd.setIdNhanVien(nhanVienService.getNhanVienById(request.getIdNhanVien()));
+        hd.setIdNhanVien(nhanVienRepository.getById(request.getIdNhanVien()));
         hoaDonRepository.save(hd);
     }
     public void delete(Integer id) {
