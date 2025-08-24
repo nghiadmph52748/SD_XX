@@ -1,84 +1,102 @@
 <template>
   <!-- Font Awesome for icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <div class="add-form">
-    <h3>Thêm Loại Mua Mới</h3>
-    <form @submit.prevent="fetchCreate">
-      <div>
-        <label>Tên loại mua:</label>
-        <input v-model="newLoaiMua.tenLoaiMua" type="text" required />
-      </div>
-      <div>
-        <label>Mô tả:</label>
-        <input v-model="newLoaiMua.moTa" type="text" />
-      </div>
-      <div>
-        <label for="">Trạng thái</label>
-        <input
-          type="radio"
-          name="Trạng thái"
-          :value="false"
-          v-model="newLoaiMua.deleted"
-        />Hoạt động
-        <input
-          type="radio"
-          name="Trạng thái"
-          :value="true"
-          v-model="newLoaiMua.deleted"
-        />Không hoạt động
-      </div>
-      <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i>
-        {{ uploading ? "Đang thêm..." : "Thêm Mới" }}
-      </button>
-      <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
-      <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
-    </form>
+  <div class="management-header">
+    <div class="title-section">
+      <h2 class="main-title">Thuộc tính sản phẩm</h2>
+      <h3 class="sub-title">Quản lý loại mùa</h3>
+    </div>
+    <button @click="showAddForm = true" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Thêm Loại Mùa Mới
+    </button>
   </div>
 
-  <!-- Form chỉnh sửa -->
-  <div class="edit-form" v-if="showEditForm">
-    <h3>Chỉnh Sửa Loại Mua</h3>
-    <form @submit.prevent="fetchUpdate">
-      <div>
-        <label>Tên loại mua:</label>
-        <input v-model="selectedLoaiMua.tenLoaiMua" type="text" required />
+  <!-- Search và Filter -->
+  <div class="search-filter-section">
+    <div class="search-box">
+      <div class="search-input-group">
+        <label><i class="fas fa-search"></i> Tìm kiếm:</label>
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Tìm theo tên loại mùa..."
+          @input="handleSearch"
+        />
       </div>
-      <div>
-        <label>Mô tả:</label>
-        <input v-model="selectedLoaiMua.moTa" type="text" />
+      <div class="filter-group">
+        <label><i class="fas fa-filter"></i> Lọc theo trạng thái:</label>
+        <select v-model="statusFilter" @change="handleFilter">
+          <option value="">Tất cả</option>
+          <option value="false">Hoạt động</option>
+          <option value="true">Không hoạt động</option>
+        </select>
       </div>
-      <div>
-        <label for="">Trạng thái</label>
-        <input
-          type="radio"
-          name="editTrạng thái"
-          :value="false"
-          v-model="selectedLoaiMua.deleted"
-        />Hoạt động
-        <input
-          type="radio"
-          name="editTrạng thái"
-          :value="true"
-          v-model="selectedLoaiMua.deleted"
-        />Không hoạt động
+    </div>
+  </div>
+
+  <!-- Modal thêm mới -->
+  <div v-if="showAddForm" class="modal-overlay" @click="closeAddForm">
+    <div class="modal-content add-modal" @click.stop>
+      <div class="modal-header add-header">
+        <h3><i class="fas fa-plus"></i> Thêm Loại Mùa Mới</h3>
+        <button @click="closeAddForm" class="modal-close">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i>
-        {{ uploading ? "Đang cập nhật..." : "Cập Nhật" }}
-      </button>
-      <button type="button" @click="closeEditForm" class="btn btn-secondary">
-        <i class="fas fa-times"></i> Đóng
-      </button>
-      <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">
-        {{ editSuccessMessage }}
-      </p>
-    </form>
+      <div class="modal-body">
+        <form @submit.prevent="fetchCreate">
+          <div class="detail-row">
+            <div class="detail-label">Tên loại mua:</div>
+            <div class="detail-value">
+              <input v-model="newLoaiMua.tenLoaiMua" type="text" required class="detail-input" />
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Trạng thái:</div>
+            <div class="detail-value">
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input
+                    type="radio"
+                    name="Trạng thái"
+                    :value="false"
+                    v-model="newLoaiMua.deleted"
+                  />
+                  <span>Hoạt động</span>
+                </label>
+                <label class="radio-label">
+                  <input
+                    type="radio"
+                    name="Trạng thái"
+                    :value="true"
+                    v-model="newLoaiMua.deleted"
+                  />
+                  <span>Không hoạt động</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Error và Success Message -->
+          <div v-if="errorMessage" class="detail-error">
+            <p>{{ errorMessage }}</p>
+          </div>
+          <div v-if="successMessage" class="detail-success">
+            <p>{{ successMessage }}</p>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer add-footer">
+        <button type="button" @click="closeAddForm" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Hủy bỏ
+        </button>
+        <button @click="fetchCreate" :disabled="uploading" class="btn btn-primary">
+          <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        </button>
+      </div>
+    </div>
   </div>
 
   <table class="table table-bordered">
@@ -86,7 +104,6 @@
       <tr>
         <th>STT</th>
         <th>Tên loại mua</th>
-        <th>Mô tả</th>
         <th>Trạng thái</th>
         <th>Thao tác</th>
       </tr>
@@ -95,7 +112,6 @@
       <tr v-for="(value, i) in paginatedLoaiMuas" :key="value.id">
         <td>{{ startIndex + i + 1 }}</td>
         <td>{{ value.tenLoaiMua }}</td>
-        <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
           <button
@@ -138,57 +154,82 @@
   <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <h3>Chi Tiết Loại Mua</h3>
+        <h3>Chỉnh Sửa Loại Mùa</h3>
         <button class="modal-close" @click="closeDetailModal">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <div class="modal-body">
-        <div class="detail-row">
-          <div class="detail-label">ID:</div>
-          <div class="detail-value">{{ selectedLoaiMua.id }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Tên loại mua:</div>
-          <div class="detail-value">{{ selectedLoaiMua.tenLoaiMua }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">
-            {{ selectedLoaiMua.moTa || "Không có mô tả" }}
+        <!-- Edit Mode -->
+        <div>
+          <div class="detail-row">
+            <div class="detail-label">Tên loại mua:</div>
+            <div class="detail-value">
+              <input 
+                v-model="selectedLoaiMua.tenLoaiMua" 
+                type="text" 
+                required 
+                class="detail-input"
+              />
+            </div>
           </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Trạng thái:</div>
-          <div class="detail-value">
-            <span
-              :class="
-                selectedLoaiMua.deleted ? 'status-inactive' : 'status-active'
-              "
-            >
-              {{ selectedLoaiMua.deleted ? "Không hoạt động" : "Hoạt động" }}
-            </span>
+
+          <div class="detail-row">
+            <div class="detail-label">Trạng thái:</div>
+            <div class="detail-value">
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="detailTrạng thái" :value="false" v-model="selectedLoaiMua.deleted" />
+                  <span>Hoạt động</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="detailTrạng thái" :value="true" v-model="selectedLoaiMua.deleted" />
+                  <span>Không hoạt động</span>
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">
-            {{ formatDate(selectedLoaiMua.createdAt) || "Không có thông tin" }}
-          </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">
-            {{ formatDate(selectedLoaiMua.updatedAt) || "Không có thông tin" }}
+          
+          <!-- Error Message -->
+          <div v-if="editErrorMessage" class="detail-error">
+            <p style="color: red">{{ editErrorMessage }}</p>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-success" @click="editFromDetail">
-          <i class="fas fa-edit"></i> Chỉnh sửa
+        <button class="btn btn-success" @click="saveChanges" :disabled="uploading">
+          <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Lưu thay đổi' }}
         </button>
-        <button class="btn btn-secondary" @click="closeDetailModal">
-          <i class="fas fa-times"></i> Đóng
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xác nhận Xóa -->
+  <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+    <div class="modal-content delete-modal" @click.stop>
+      <div class="modal-header delete-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Xác nhận xóa</h3>
+        <button class="modal-close" @click="closeDeleteModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="delete-content">
+          <div class="delete-icon">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <h4>Bạn có chắc chắn muốn xóa?</h4>
+          <p class="delete-message">
+            Bạn sắp xóa <strong>"{{ deleteItemName }}"</strong>. Hành động này không thể hoàn tác.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer delete-footer">
+        <button class="btn btn-secondary" @click="closeDeleteModal" :disabled="uploading">
+          <i class="fas fa-times"></i> Hủy bỏ
+        </button>
+        <button class="btn btn-delete" @click="confirmDelete" :disabled="uploading">
+          <i class="fas fa-trash"></i> {{ uploading ? 'Đang xóa...' : 'Xóa' }}
         </button>
       </div>
     </div>
@@ -203,10 +244,10 @@ import {
   fetchUpdateLoaiMua,
   fetchUpdateStatusLoaiMua,
 } from "../../services/ThuocTinh/LoaiMuaService";
+
 const LoaiMuas = ref([]);
 const newLoaiMua = ref({
   tenLoaiMua: "",
-  moTa: "",
   deleted: false,
 });
 const selectedLoaiMua = ref({});
@@ -218,24 +259,56 @@ const editErrorMessage = ref(null);
 const successMessage = ref(null);
 const editSuccessMessage = ref(null);
 
+// Biến cho modal xóa
+const showDeleteModal = ref(false);
+const deleteItemId = ref(null);
+const deleteItemName = ref('');
+
+// Biến cho form thêm mới
+const showAddForm = ref(false);
+
+// Biến cho tìm kiếm và lọc
+const searchQuery = ref('');
+const statusFilter = ref('');
+
 // Pagination variables
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalItems = ref(0);
 
-// Pagination computed properties
+// Computed properties cho tìm kiếm, lọc và phân trang
+const filteredLoaiMuas = computed(() => {
+  let filtered = [...LoaiMuas.value];
+  
+  // Tìm kiếm theo tên loại mua
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(item => 
+      item.tenLoaiMua?.toLowerCase().includes(query)
+    );
+  }
+  
+  // Lọc theo trạng thái
+  if (statusFilter.value !== '') {
+    filtered = filtered.filter(item => 
+      item.deleted === (statusFilter.value === 'true')
+    );
+  }
+  
+  return filtered;
+});
+
+const totalItems = computed(() => filteredLoaiMuas.value.length);
 const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value));
 const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
 const endIndex = computed(() => startIndex.value + pageSize.value);
 const paginatedLoaiMuas = computed(() => {
-  return LoaiMuas.value.slice(startIndex.value, endIndex.value);
+  return filteredLoaiMuas.value.slice(startIndex.value, endIndex.value);
 });
 
 const fetchAll = async () => {
   try {
     const response = await fetchAllLoaiMua();
     LoaiMuas.value = response.data;
-    totalItems.value = LoaiMuas.value.length; // Update total items for pagination
   } catch (error) {
     console.error("Error fetching:", error);
   }
@@ -256,13 +329,13 @@ const fetchCreate = async () => {
     // Reset form
     newLoaiMua.value = {
       tenLoaiMua: "",
-      moTa: "",
       deleted: false,
     };
 
     await fetchAll();
     successMessage.value = "Loại mua đã được thêm thành công!";
     clearSuccessMessage();
+    closeAddForm(); // Đóng form sau khi thêm thành công
   } catch (error) {
     console.error("Error creating:", error);
     errorMessage.value =
@@ -303,15 +376,27 @@ const fetchUpdate = async () => {
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm("Bạn có chắc chắn muốn xóa loại mua này?")) {
-    return;
+  // Hiển thị modal xác nhận xóa
+  showDeleteModal.value = true;
+  deleteItemId.value = id;
+  
+  // Lấy tên loại mua để hiển thị trong thông báo
+  const item = LoaiMuas.value.find(item => item.id === id);
+  if (item) {
+    deleteItemName.value = item.tenLoaiMua || 'Loại mua';
   }
+};
 
+const confirmDelete = async () => {
+  if (!deleteItemId.value) return;
+  
   try {
-    await fetchUpdateStatusLoaiMua(id);
+    uploading.value = true;
+    await fetchUpdateStatusLoaiMua(deleteItemId.value);
     await fetchAll();
     successMessage.value = "Loại mua đã được xóa thành công!";
     clearSuccessMessage();
+    closeDeleteModal();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
     errorMessage.value =
@@ -319,7 +404,20 @@ const fetchDelete = async (id) => {
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
+  } finally {
+    uploading.value = false;
   }
+};
+
+const closeAddForm = () => {
+  showAddForm.value = false;
+  // Reset form
+  newLoaiMua.value = {
+    tenLoaiMua: "",
+    deleted: false,
+  };
+  errorMessage.value = null;
+  successMessage.value = null;
 };
 
 const closeEditForm = () => {
@@ -334,9 +432,44 @@ const closeDetailModal = () => {
   selectedLoaiMua.value = {};
 };
 
+// Hàm xử lý tìm kiếm
+const handleSearch = () => {
+  currentPage.value = 1; // Reset về trang đầu tiên
+};
+
+// Hàm xử lý lọc
+const handleFilter = () => {
+  currentPage.value = 1; // Reset về trang đầu tiên
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteItemId.value = null;
+  deleteItemName.value = '';
+};
+
+const saveChanges = async () => {
+  uploading.value = true;
+  editErrorMessage.value = null;
+  
+  try {
+    await fetchUpdateLoaiMua(selectedLoaiMua.value.id, selectedLoaiMua.value);
+    
+    await fetchAll();
+    closeDetailModal();
+    editSuccessMessage.value = "Loại mua đã được cập nhật thành công!";
+    clearEditSuccessMessage();
+  } catch (error) {
+    console.error("Error updating:", error);
+    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật loại mua");
+  } finally {
+    uploading.value = false;
+  }
+};
+
 const editFromDetail = () => {
-  showDetailModal.value = false;
-  openEditForm(selectedLoaiMua.value);
+  showDetailModal.value = false; // Đóng popup detail
+  openEditForm(selectedLoaiMua.value); // Mở form edit
 };
 
 // Format date function
@@ -385,6 +518,119 @@ onMounted(fetchAll);
 </script>
 
 <style scoped>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Global font settings */
+* {
+  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header quản lý */
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-radius: 12px;
+  color: white;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.main-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sub-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  color: white;
+  opacity: 0.9;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
+}
+
+/* Search và Filter Section */
+.search-filter-section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border: 2px solid #d4edda;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-box {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.search-input-group,
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-input-group {
+  flex: 4;
+  min-width: 0;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 180px;
+}
+
+.search-input-group label,
+.filter-group label {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.search-input-group input,
+.filter-group select {
+  padding: 12px 16px;
+  border: 2px solid #d4edda;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8fff9;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-input-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
 .add-form,
 .edit-form {
   background: #ffffff;
@@ -500,6 +746,15 @@ onMounted(fetchAll);
   background: linear-gradient(135deg, #5a6268, #495057);
 }
 
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e0a800, #c69500);
+}
+
 .btn-sm {
   padding: 8px 12px;
   font-size: 14px;
@@ -524,7 +779,7 @@ onMounted(fetchAll);
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(50, 205, 50, 0.1);
+  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.1);
 }
 
 .table th,
@@ -535,7 +790,7 @@ onMounted(fetchAll);
 }
 
 .table th {
-  background: linear-gradient(135deg, #4ade80 0%, #22c55e);
+  background: linear-gradient(135deg, #4ade80, #22c55e);
   color: white;
   font-weight: 600;
   font-size: 16px;
@@ -544,11 +799,11 @@ onMounted(fetchAll);
 }
 
 .table tr:nth-child(even) {
-  background-color: #f8fff9;
+  background-color: #f0fdf4;
 }
 
 .table tr:hover {
-  background-color: #d4edda;
+  background-color: #dcfce7;
   transition: background-color 0.3s ease;
 }
 
@@ -567,8 +822,8 @@ p[style*="color: green"] {
   font-size: 16px;
   font-weight: 500;
   padding: 12px;
-  background-color: #f0fff4;
-  border: 1px solid #c6f6d5;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-radius: 8px;
 }
 
@@ -608,6 +863,121 @@ p[style*="color: green"] {
   box-shadow: none;
 }
 
+/* Detail Edit Mode Styles */
+.detail-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #d4edda;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8fff9;
+}
+
+.detail-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+/* CSS cho radio button trong detail modal */
+.detail-value .radio-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.detail-value .radio-label {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+/* CSS cho radio button trong form */
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+input[type="radio"]:checked {
+  border-color: #4ade80;
+  background-color: #4ade80;
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+input[type="radio"]:hover {
+  border-color: #4ade80;
+}
+
+/* Style cho label của radio button */
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.detail-error {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+}
+
+.detail-error p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detail-success {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+}
+
+.detail-success p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #22c55e;
+}
+
 /* Form enhancements */
 .add-form input[type="radio"] + label,
 .edit-form input[type="radio"] + label {
@@ -619,7 +989,7 @@ p[style*="color: green"] {
 
 /* Table enhancements */
 .table tbody tr:hover {
-  background-color: #d4edda;
+  background-color: #dcfce7;
   transition: background-color 0.3s ease;
   cursor: pointer;
 }
@@ -642,13 +1012,41 @@ p[style*="color: red"] {
 }
 
 p[style*="color: green"] {
-  background-color: #f0fff4;
-  border-color: #28a745;
-  color: #28a745;
+  background-color: #f0fdf4;
+  border-color: #22c55e;
+  color: #22c55e;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .management-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .management-header h2 {
+    font-size: 24px;
+  }
+
+  .search-filter-section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .search-input-group,
+  .filter-group {
+    min-width: auto;
+    flex: none;
+  }
+
   .add-form,
   .edit-form {
     padding: 20px;
@@ -774,7 +1172,7 @@ p[style*="color: green"] {
   align-items: center;
   padding: 20px 25px;
   border-bottom: 2px solid #d4edda;
-  background: linear-gradient(135deg, #4ade80 0%, #22c55e);
+  background: linear-gradient(135deg, #32cd32, #28a745);
   color: white;
   border-radius: 12px 12px 0 0;
 }
@@ -826,7 +1224,7 @@ p[style*="color: green"] {
 .detail-label {
   width: 150px;
   font-weight: 600;
-  color: #4ade80;
+  color: #32cd32;
   font-size: 16px;
   flex-shrink: 0;
 }
@@ -839,7 +1237,7 @@ p[style*="color: green"] {
 }
 
 .status-active {
-  color: #22c55e;
+  color: #28a745;
   font-weight: 600;
   padding: 4px 12px;
   background-color: #d4edda;
@@ -886,6 +1284,81 @@ p[style*="color: green"] {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* CSS cho Modal Thêm Mới */
+.add-modal {
+  max-width: 600px;
+}
+
+.add-header {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+}
+
+.add-footer {
+  justify-content: space-between;
+  padding: 20px 25px;
+}
+
+.add-footer .btn {
+  min-width: 120px;
+}
+
+/* CSS cho Modal Xóa */
+.delete-modal {
+  max-width: 500px;
+}
+
+.delete-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.delete-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.delete-icon {
+  font-size: 60px;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.delete-content h4 {
+  color: #dc3545;
+  font-size: 20px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.delete-message {
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.delete-footer {
+  justify-content: space-between;
+  padding: 20px 25px;
+}
+
+.delete-footer .btn {
+  min-width: 120px;
+}
+
+.delete-footer .btn-delete {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.delete-footer .btn-delete:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a);
+}
+
+.delete-footer .btn-delete:disabled {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  opacity: 0.6;
 }
 
 /* Responsive Modal */

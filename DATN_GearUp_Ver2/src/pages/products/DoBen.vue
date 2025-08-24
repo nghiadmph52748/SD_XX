@@ -20,7 +20,7 @@
         <input 
           v-model="searchQuery" 
           type="text" 
-          placeholder="Tìm theo tên độ bền hoặc mô tả..."
+          placeholder="Tìm theo tên độ bền..."
           @input="handleSearch"
         />
       </div>
@@ -52,12 +52,7 @@
               <input v-model="newDoBen.tenDoBen" type="text" required class="detail-input" />
             </div>
           </div>
-          <div class="detail-row">
-            <div class="detail-label">Mô tả:</div>
-            <div class="detail-value">
-              <input v-model="newDoBen.moTa" type="text" class="detail-input" />
-            </div>
-          </div>
+
           <div class="detail-row">
             <div class="detail-label">Trạng thái:</div>
             <div class="detail-value">
@@ -111,7 +106,7 @@
       <tr>
         <th>STT</th>
         <th>Tên độ bền</th>
-        <th>Mô tả</th>
+
         <th>Trạng thái</th>
         <th>Thao tác</th>
       </tr>
@@ -120,7 +115,7 @@
       <tr v-for="(value, i) in paginatedDoBens" :key="value.id">
         <td>{{ startIndex + i + 1 }}</td>
         <td>{{ value.tenDoBen }}</td>
-        <td>{{ value.moTa }}</td>
+
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
           <button
@@ -182,16 +177,7 @@
               />
             </div>
           </div>
-          <div class="detail-row">
-            <div class="detail-label">Mô tả:</div>
-            <div class="detail-value">
-              <input 
-                v-model="selectedDoBen.moTa" 
-                type="text" 
-                class="detail-input"
-              />
-            </div>
-          </div>
+
           <div class="detail-row">
             <div class="detail-label">Trạng thái:</div>
             <div class="detail-value">
@@ -265,7 +251,6 @@ import {
 const DoBens = ref([]);
 const newDoBen = ref({
   tenDoBen: "",
-  moTa: "",
   deleted: false,
 });
 const selectedDoBen = ref({});
@@ -297,12 +282,11 @@ const pageSize = ref(10);
 const filteredDoBens = computed(() => {
   let filtered = [...DoBens.value];
   
-  // Tìm kiếm theo tên độ bền hoặc mô tả
+  // Tìm kiếm theo tên độ bền
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(item => 
-      item.tenDoBen?.toLowerCase().includes(query) ||
-      item.moTa?.toLowerCase().includes(query)
+      item.tenDoBen?.toLowerCase().includes(query)
     );
   }
   
@@ -348,7 +332,6 @@ const fetchCreate = async () => {
     // Reset form
     newDoBen.value = {
       tenDoBen: "",
-      moTa: "",
       deleted: false,
     };
 
@@ -434,7 +417,6 @@ const closeAddForm = () => {
   // Reset form
   newDoBen.value = {
     tenDoBen: "",
-    moTa: "",
     deleted: false,
   };
   errorMessage.value = null;
