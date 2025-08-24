@@ -81,8 +81,8 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(value, i) in AnhSanPhams" :key="i">
-        <td>{{ i + 1 }}</td>
+      <tr v-for="(value, i) in paginatedAnhSanPhams" :key="value.id">
+        <td>{{ startIndex + i + 1 }}</td>
         <td>
           <img :src="getImageUrl(value.duongDanAnh)" alt="Ảnh sản phẩm" style="width: 100px; height: auto"
             @error="handleImageError" />
@@ -102,6 +102,22 @@
       </tr>
     </tbody>
   </table>
+
+  <!-- Pagination -->
+  <div v-if="totalPages > 1" class="pagination-wrapper">
+    <div class="pagination-info">
+      Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ totalItems }} ảnh sản phẩm
+    </div>
+    <div class="pagination">
+      <button @click="goToPreviousPage" :disabled="currentPage === 1" class="btn btn-outline btn-sm">
+        ❮ Trước
+      </button>
+      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+      <button @click="goToNextPage" :disabled="currentPage === totalPages" class="btn btn-outline btn-sm">
+        Sau ❯
+      </button>
+    </div>
+  </div>
 
   <!-- Popup Detail Modal -->
   <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
@@ -166,7 +182,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import {
   fetchAllAnhSanPham,
   fetchCreateAnhSanPham,
@@ -193,9 +209,22 @@ const editErrorMessage = ref(null);
 const successMessage = ref(null);
 const editSuccessMessage = ref(null);
 
+// Pagination variables
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalItems = ref(0);
+
 // Refs cho file input
 const fileInput = ref(null);
 const editFileInput = ref(null);
+
+// Pagination computed properties
+const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value));
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
+const endIndex = computed(() => startIndex.value + pageSize.value);
+const paginatedAnhSanPhams = computed(() => {
+  return AnhSanPhams.value.slice(startIndex.value, endIndex.value);
+});
 
 const handleFileChange = (event) => {
   const selectedFile = event.target.files[0];
@@ -236,6 +265,7 @@ const fetchAll = async () => {
   try {
     const response = await fetchAllAnhSanPham();
     AnhSanPhams.value = response.data;
+    totalItems.value = AnhSanPhams.value.length; // Update total items for pagination
   } catch (error) {
     console.error("Error fetching:", error);
   }
@@ -403,6 +433,19 @@ const clearEditSuccessMessage = () => {
   setTimeout(() => {
     editSuccessMessage.value = null;
   }, 3000);
+};
+
+// Pagination methods
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToNextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
 };
 
 // Method để tạo URL đầy đủ cho ảnh
@@ -596,6 +639,46 @@ onMounted(fetchAll);
   background: linear-gradient(135deg, #5a6268, #495057);
 }
 
+.btn-outline {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  margin: 0;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.btn-outline:focus {
+  outline: none;
+  border: 1px solid #dee2e6;
+  box-shadow: none;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
+
 .btn-sm {
   padding: 8px 12px;
   font-size: 14px;
@@ -768,26 +851,78 @@ p[style*="color: green"] {
   color: #22c55e;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+/* Pagination enhancements */
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 20px;
+}
 
-  .add-form,
-  .edit-form {
-    padding: 20px;
-    margin-bottom: 20px;
-  }
+.pagination-info {
+  display: none;
+}
 
-  .btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
-  .table th,
-  .table td {
-    padding: 12px 8px;
-    font-size: 14px;
-  }
+.page-info {
+  font-weight: 600;
+  color: #495057;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-outline {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  margin: 0;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.btn-outline:focus {
+  outline: none;
+  border: 1px solid #dee2e6;
+  box-shadow: none;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #9ca3af;
+  color: #9ca3af;
 }
 
 /* Modal Popup Styles */

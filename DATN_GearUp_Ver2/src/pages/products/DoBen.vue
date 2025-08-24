@@ -65,8 +65,8 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(value, i) in DoBens" :key="i">
-        <td>{{ i + 1 }}</td>
+      <tr v-for="(value, i) in paginatedDoBens" :key="value.id">
+        <td>{{ startIndex + i + 1 }}</td>
         <td>{{ value.tenDoBen }}</td>
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
@@ -82,6 +82,22 @@
       </tr>
     </tbody>
   </table>
+
+  <!-- Pagination -->
+  <div v-if="totalPages > 1" class="pagination-wrapper">
+    <div class="pagination-info">
+      Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ totalItems }} độ bền
+    </div>
+    <div class="pagination">
+      <button @click="goToPreviousPage" :disabled="currentPage === 1" class="btn btn-outline btn-sm">
+        ❮ Trước
+      </button>
+      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+      <button @click="goToNextPage" :disabled="currentPage === totalPages" class="btn btn-outline btn-sm">
+        Sau ❯
+      </button>
+    </div>
+  </div>
 
   <!-- Popup Detail Modal -->
   <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
@@ -135,7 +151,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import {
   fetchAllDoBen,
   fetchCreateDoBen,
@@ -158,10 +174,24 @@ const editErrorMessage = ref(null);
 const successMessage = ref(null);
 const editSuccessMessage = ref(null);
 
+// Pagination variables
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalItems = ref(0);
+
+// Pagination computed properties
+const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value));
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
+const endIndex = computed(() => startIndex.value + pageSize.value);
+const paginatedDoBens = computed(() => {
+  return DoBens.value.slice(startIndex.value, endIndex.value);
+});
+
 const fetchAll = async () => {
   try {
     const response = await fetchAllDoBen();
     DoBens.value = response.data;
+    totalItems.value = DoBens.value.length; // Update total items for pagination
   } catch (error) {
     console.error("Error fetching:", error);
   }
@@ -290,6 +320,18 @@ const clearEditSuccessMessage = () => {
   setTimeout(() => {
     editSuccessMessage.value = null;
   }, 3000);
+};
+
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToNextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
 };
 
 onMounted(fetchAll);
@@ -578,6 +620,80 @@ p[style*="color: green"] {
     padding: 12px 8px;
     font-size: 14px;
   }
+}
+
+/* Pagination enhancements */
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 20px;
+}
+
+.pagination-info {
+  display: none;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.page-info {
+  font-weight: 600;
+  color: #495057;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-outline {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  margin: 0;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.btn-outline:focus {
+  outline: none;
+  border: 1px solid #dee2e6;
+  box-shadow: none;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #9ca3af;
+  color: #9ca3af;
 }
 
 /* Modal Popup Styles */
