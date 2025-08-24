@@ -210,13 +210,13 @@ import {
   fetchCreateNhaSanXuat,
   fetchUpdateNhaSanXuat,
   fetchUpdateStatusNhaSanXuat,
+  
 } from "../../services/ThuocTinh/NhaSanXuatService";
 
-const uploading = ref(false);
-const errorMessage = ref("");
-const successMessage = ref("");
-const editErrorMessage = ref("");
-const editSuccessMessage = ref("");
+const showEditForm = ref(false);
+const newNSX = ref({});
+const NhaSanXuats = ref([]);
+const selectedNSX = ref({});
 const showDetailModal = ref(false);
 const uploading = ref(false);
 const updating = ref(false);
@@ -268,7 +268,7 @@ const fetchCreate = async () => {
       deleted: false,
     };
 
-    await fetchNSX();
+    await fetchAll();
     successMessage.value = "Nhà sản xuất đã được thêm thành công!";
     clearSuccessMessage();
   } catch (error) {
@@ -300,7 +300,7 @@ const fetchUpdate = async () => {
       selectedNSX.value
     );
 
-    await fetchNSX();
+    await fetchAll();
     closeEditForm();
     editSuccessMessage.value = "Nhà sản xuất đã được cập nhật thành công!";
     clearEditSuccessMessage();
@@ -321,7 +321,7 @@ const fetchDelete = async (id) => {
 
   try {
     await fetchUpdateStatusNhaSanXuat(id);
-    await fetchNSX();
+    await fetchAll();
     successMessage.value = "Nhà sản xuất đã được xóa thành công!";
     clearSuccessMessage();
   } catch (error) {
@@ -348,7 +348,7 @@ const closeDetailModal = () => {
 
 const editFromDetail = () => {
   showDetailModal.value = false; // Đóng popup detail
-  openEditForm(selectedNhaSanXuat.value); // Mở form edit
+  openEditForm(selectedNSX.value); // Mở form edit
 };
 
 const goToPreviousPage = () => {
@@ -357,17 +357,9 @@ const goToPreviousPage = () => {
   }
 };
 
-const goToNextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
 
-const goToPreviousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
+
+
 
 const goToNextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -405,7 +397,7 @@ const clearEditSuccessMessage = () => {
   }, 3000);
 };
 
-onMounted(fetchNSX);
+onMounted(fetchAll);
 </script>
 
 <style scoped>

@@ -157,7 +157,7 @@ import {
   fetchCreateChongNuoc,
   fetchUpdateChongNuoc,
   fetchUpdateStatusChongNuoc,
-} from "../../services/ChongNuocService";
+} from "../../services/ThuocTinh/ChongNuocService";
 
 const ChongNuocs = ref([]);
 const newChongNuoc = ref({

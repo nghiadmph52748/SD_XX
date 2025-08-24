@@ -213,6 +213,7 @@ const newAnhSanPham = ref({
   moTa: "",
   deleted: false
 });
+const showDetailModal = ref(false);
 const selectedAnhSanPham = ref({});
 const file = ref(null);
 const previewUrl = ref(null);

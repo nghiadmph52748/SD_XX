@@ -157,7 +157,7 @@ import {
   fetchCreateDemGiay,
   fetchUpdateDemGiay,
   fetchUpdateStatusDemGiay,
-} from "../../services/DemGiayService";
+} from "../../services/ThuocTinh/DemGiayService";
 
 const DemGiays = ref([]);
 const newDemGiay = ref({

@@ -160,7 +160,7 @@ import {
     fetchCreateKichThuoc,
     fetchUpdateKichThuoc,
     fetchUpdateStatusKichThuoc,
-} from "../../services/KichThuocService";
+} from "../../services/ThuocTinh/KichThuocService";
 
 const KichThuocs = ref([]);
 const newKichThuoc = ref({
