@@ -293,17 +293,9 @@
                   }}</span>
                 </td>
                 <td class="image-col">
-                  <div v-if="detail.anhSanPham && detail.anhSanPham.length > 0" class="image-preview">
-                    <img :src="detail.anhSanPham[0]" :alt="detail.tenSanPham" class="product-image" />
-                    <span v-if="detail.anhSanPham.length > 1" class="image-count">+{{ detail.anhSanPham.length - 1
-                    }}</span>
-                  </div>
-                  <div v-else-if="detail.chiTietSanPhamAnhs && detail.chiTietSanPhamAnhs.length > 0"
-                    class="image-preview">
-                    <img :src="detail.chiTietSanPhamAnhs[0].idAnhSanPham?.duongDanAnh" :alt="detail.tenSanPham"
-                      class="product-image" />
-                    <span v-if="detail.chiTietSanPhamAnhs.length > 1" class="image-count">+{{
-                      detail.chiTietSanPhamAnhs.length - 1 }}</span>
+                  <div v-if="getImagesForChiTietSanPham(detail.id).length > 0" class="image-preview">
+                    <img :src="getImageUrl(getImagesForChiTietSanPham(detail.id)[0].duongDanAnh)" :alt="detail.tenSanPham || detail.sanPham?.tenSanPham" class="product-image" />
+                    <span v-if="getImagesForChiTietSanPham(detail.id).length > 1" class="image-count">+{{ getImagesForChiTietSanPham(detail.id).length - 1 }}</span>
                   </div>
                   <span v-else class="no-image">Không có ảnh</span>
                 </td>
@@ -568,14 +560,34 @@
                </select>
              </div>
 
-             <div class="form-group span-2">
-               <label class="form-label">
-                 <span class="label-icon">📝</span>
-                 Ghi chú
-               </label>
-               <textarea v-model="newChiTietSanPham.ghiChu" class="form-control" rows="3"
-                 placeholder="Nhập ghi chú..."></textarea>
-             </div>
+                           <div class="form-group span-2">
+                <label class="form-label">
+                  <span class="label-icon">🖼️</span>
+                  Ảnh sản phẩm
+                </label>
+                <div class="image-upload-section">
+                  <div class="image-preview-grid">
+                    <div v-for="(image, index) in selectedImages" :key="index" class="image-preview-item">
+                      <img :src="getImageUrl(image)" :alt="`Ảnh ${index + 1}`" class="preview-image" />
+                      <button type="button" @click="removeImage(index)" class="remove-image-btn">×</button>
+                    </div>
+                    <div v-if="selectedImages.length < 5" class="image-upload-btn" @click="openImageSelector">
+                      <span class="upload-icon">📷</span>
+                      <span class="upload-text">Thêm ảnh</span>
+                    </div>
+                  </div>
+                  <p class="image-help-text">Chọn tối đa 5 ảnh cho sản phẩm</p>
+                </div>
+              </div>
+
+              <div class="form-group span-2">
+                <label class="form-label">
+                  <span class="label-icon">📝</span>
+                  Ghi chú
+                </label>
+                <textarea v-model="newChiTietSanPham.ghiChu" class="form-control" rows="3"
+                  placeholder="Nhập ghi chú..."></textarea>
+              </div>
            </div>
          </div>
         <div class="modal-footer">
@@ -583,16 +595,49 @@
             <span class="btn-icon">{{ showAddModal ? "➕" : "💾" }}</span>
             {{ showAddModal ? "Thêm" : "Cập nhật" }}
           </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+                 </div>
+       </div>
+     </div>
+
+     <!-- Image Selector Modal -->
+     <div v-if="showImageSelector" class="modal-overlay" @click="closeImageSelector">
+       <div class="modal-content image-selector" @click.stop>
+         <div class="modal-header">
+           <h3>Chọn ảnh sản phẩm</h3>
+           <button class="modal-close" @click="closeImageSelector">×</button>
+         </div>
+         <div class="modal-body">
+           <div class="image-grid">
+             <div v-for="image in availableImages" :key="image.id" 
+                  class="image-item" 
+                  :class="{ 'selected': selectedImageIds.includes(image.id) }"
+                  @click="toggleImageSelection(image.id)">
+               <img :src="getImageUrl(image.duongDanAnh)" :alt="image.loaiAnh || 'Ảnh sản phẩm'" class="grid-image" />
+               <div class="image-overlay">
+                 <span class="check-icon">✓</span>
+               </div>
+               <div class="image-info">
+                 <span class="image-type">{{ image.loaiAnh || 'N/A' }}</span>
+               </div>
+             </div>
+           </div>
+         </div>
+         <div class="modal-footer">
+           <button class="btn-save" @click="confirmImageSelection">
+             <span class="btn-icon">✅</span>
+             Xác nhận
+           </button>
+         </div>
+       </div>
+     </div>
+   </div>
+ </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
 import { fetchAllAnhSanPham } from '../../services/ThuocTinh/AnhSanPhamService'
+import { fetchAllChiTietSanPhamAnh, fetchCreateChiTietSanPhamAnh, fetchUpdateChiTietSanPhamAnh, fetchDeleteChiTietSanPhamAnh } from '../../services/ThuocTinh/ChiTietSanPhamAnhService'
 import { fetchAllMauSac } from '../../services/ThuocTinh/MauSacService'
 import { fetchAllKichThuoc } from '../../services/ThuocTinh/KichThuocService'
 import { fetchAllDeGiay } from '../../services/ThuocTinh/DeGiayService'
@@ -620,8 +665,12 @@ const selectedChongNuoc = ref('')
 const statusFilter = ref('')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showImageSelector = ref(false)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+const selectedImages = ref([])
+const selectedImageIds = ref([])
+const availableImages = ref([])
 // ... existing code ...
 const newChiTietSanPham = ref({
   id: '',
@@ -646,6 +695,7 @@ const newChiTietSanPham = ref({
 const sanPhams = ref([])
 const anhSanPhams = ref([])
 const chiTietSanPhams = ref([])
+const chiTietSanPhamAnhs = ref([])
 const mauSacs = ref([])
 const kichThuocs = ref([])
 const chatLieus = ref([])
@@ -693,6 +743,8 @@ const fetchAllThuocTinh = async () => {
     chongNuocs.value = res11.data
     let res12 = await fetchAllSanPham();
     sanPhams.value = res12.data
+    let res13 = await fetchAllChiTietSanPhamAnh();
+    chiTietSanPhamAnhs.value = res13.data
   } catch (error) {
     console.error('Error fetching product details:', error)
   }
@@ -865,12 +917,22 @@ const editDetail = async (data) => {
       trangThai: data.trangThai === 1 || data.trangThai === true,
       ghiChu: data.ghiChu || ''
     }
-    showEditModal.value = true
-  } catch (error) {
-    console.error('Error in editDetail:', error)
-    alert('Có lỗi xảy ra khi mở form chỉnh sửa!')
-  }
-}
+                  // Load ảnh sản phẩm từ AnhSanPham
+     const images = getImagesForChiTietSanPham(data.id)
+     if (images.length > 0) {
+       selectedImages.value = images.map(img => img.duongDanAnh)
+       selectedImageIds.value = images.map(img => img.id)
+     } else {
+       selectedImages.value = []
+       selectedImageIds.value = []
+     }
+     
+     showEditModal.value = true
+   } catch (error) {
+     console.error('Error in editDetail:', error)
+     alert('Có lỗi xảy ra khi mở form chỉnh sửa!')
+   }
+ }
 
 const deleteDetail = async (id) => {
   if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
@@ -912,18 +974,52 @@ const saveDetail = async () => {
       trangThai: newChiTietSanPham.value.trangThai ? 1 : 0
     }
 
+    let chiTietSanPhamId = null
+
     if (showAddModal.value) {
       // Create new
       const response = await fetchCreateChiTietSanPham(dataToSend)
       alert('Thêm chi tiết sản phẩm thành công!')
+      // Lấy ID của chi tiết sản phẩm vừa tạo
+      chiTietSanPhamId = response?.data?.id || newChiTietSanPham.value.id
     } else if (showEditModal.value) {
       // Update existing
       await fetchUpdateChiTietSanPham(dataToSend.id, dataToSend)
       alert('Cập nhật chi tiết sản phẩm thành công!')
+      chiTietSanPhamId = dataToSend.id
+    }
+
+    // Xử lý ảnh sản phẩm
+    if (chiTietSanPhamId && selectedImageIds.value.length > 0) {
+      try {
+        // Xóa tất cả liên kết ảnh cũ
+        const existingImages = chiTietSanPhamAnhs.value.filter(item => 
+          item.idChiTietSanPham === chiTietSanPhamId
+        )
+        
+        for (const existingImage of existingImages) {
+          await fetchDeleteChiTietSanPhamAnh(existingImage.id)
+        }
+
+        // Tạo liên kết ảnh mới
+        for (const imageId of selectedImageIds.value) {
+          await fetchCreateChiTietSanPhamAnh({
+            idChiTietSanPham: chiTietSanPhamId,
+            idAnhSanPham: imageId,
+            deleted: false
+          })
+        }
+      } catch (imageError) {
+        console.error('Error handling images:', imageError)
+        alert('Lưu thông tin thành công nhưng có lỗi khi xử lý ảnh!')
+      }
     }
 
     // Refresh data từ server để đảm bảo đồng bộ
-    await fetchChiTietSanPham()
+    await Promise.all([
+      fetchChiTietSanPham(),
+      fetchAllThuocTinh()
+    ])
     closeModals()
   } catch (error) {
     console.error('Error saving product details:', error)
@@ -953,6 +1049,9 @@ const closeModals = () => {
     trangThai: true,
     ghiChu: ''
   }
+  selectedImages.value = []
+  selectedImageIds.value = []
+  console.log('Đã đóng modal và reset form')
 }
 
 const clearFilters = () => {
@@ -1011,6 +1110,7 @@ const refreshData = async () => {
     clearFilters()
 
     alert('Làm mới dữ liệu thành công!')
+    console.log('Đã refresh dữ liệu thành công')
   } catch (error) {
     console.error('Error refreshing data:', error)
     alert('Có lỗi xảy ra khi làm mới dữ liệu!')
@@ -1037,8 +1137,106 @@ const openAddModal = () => {
     trangThai: true,
     ghiChu: ''
   }
+  selectedImages.value = []
+  selectedImageIds.value = []
   showAddModal.value = true
+  console.log('Đã mở modal thêm mới')
 }
+
+const openImageSelector = () => {
+  try {
+    // Chỉ hiển thị những ảnh chưa bị xóa
+    availableImages.value = anhSanPhams.value.filter(img => !img.deleted)
+    showImageSelector.value = true
+    console.log('Đã mở image selector với', availableImages.value.length, 'ảnh')
+  } catch (error) {
+    console.error('Error opening image selector:', error)
+    alert('Có lỗi khi mở image selector!')
+  }
+}
+
+const closeImageSelector = () => {
+  showImageSelector.value = false
+}
+
+const toggleImageSelection = (imageId) => {
+  const index = selectedImageIds.value.indexOf(imageId)
+  if (index > -1) {
+    // Bỏ chọn ảnh
+    selectedImageIds.value.splice(index, 1)
+    selectedImages.value.splice(index, 1)
+  } else {
+    // Chọn ảnh mới
+    if (selectedImageIds.value.length < 5) {
+      const image = anhSanPhams.value.find(img => img.id === imageId)
+      if (image) {
+        selectedImageIds.value.push(imageId)
+        selectedImages.value.push(image.duongDanAnh)
+      }
+    } else {
+      alert('Chỉ được chọn tối đa 5 ảnh!')
+    }
+  }
+}
+
+const removeImage = (index) => {
+  selectedImages.value.splice(index, 1)
+  selectedImageIds.value.splice(index, 1)
+  console.log('Đã xóa ảnh tại vị trí:', index)
+}
+
+const confirmImageSelection = () => {
+  showImageSelector.value = false
+}
+
+// Method để lấy ảnh cho một chi tiết sản phẩm
+const getImagesForChiTietSanPham = (chiTietSanPhamId) => {
+  try {
+    const images = chiTietSanPhamAnhs.value.filter(item => 
+      item.idChiTietSanPham === chiTietSanPhamId && !item.deleted
+    );
+    
+    return images.map(item => {
+      const anhSanPham = anhSanPhams.value.find(anh => anh.id === item.idAnhSanPham);
+      return anhSanPham ? {
+        id: anhSanPham.id,
+        duongDanAnh: anhSanPham.duongDanAnh,
+        loaiAnh: anhSanPham.loaiAnh,
+        moTa: anhSanPham.moTa
+      } : null;
+    }).filter(img => img !== null);
+  } catch (error) {
+    console.error('Error getting images for chi tiet san pham:', error)
+    return []
+  }
+};
+
+// Method để tạo URL đầy đủ cho ảnh
+const getImageUrl = (imagePath) => {
+  try {
+    if (!imagePath) return '';
+    
+    // Nếu đã là URL đầy đủ thì trả về nguyên
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // Nếu là đường dẫn tương đối, thêm base URL của backend
+    if (imagePath.startsWith('uploads/')) {
+      return `http://localhost:8080/${imagePath}`;
+    }
+    
+    // Nếu bắt đầu bằng / thì thêm base URL
+    if (imagePath.startsWith('/')) {
+      return `http://localhost:8080${imagePath}`;
+    }
+    
+    return imagePath;
+  } catch (error) {
+    console.error('Error getting image URL:', error)
+    return ''
+  }
+};
 
 onMounted(async () => {
   try {
@@ -2609,11 +2807,183 @@ onMounted(async () => {
     height: 24px;
   }
 
-  /* Ensure horizontal scrollbar is visible on very small screens */
-  .table-container {
-    -webkit-overflow-scrolling: touch;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
+     /* Ensure horizontal scrollbar is visible on very small screens */
+   .table-container {
+     -webkit-overflow-scrolling: touch;
+     overflow-x: auto;
+     overflow-y: hidden;
+   }
+ }
+
+/* Image Upload Styles */
+.image-upload-section {
+  margin-top: 0.5rem;
+}
+
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.remove-image-btn:hover {
+  background: #ef4444;
+  transform: scale(1.1);
+}
+
+.image-upload-btn {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f9fafb;
+}
+
+.image-upload-btn:hover {
+  border-color: #4ade80;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  color: #6b7280;
+}
+
+.upload-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.image-help-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+  text-align: center;
+}
+
+/* Image Selector Modal */
+.modal-content.image-selector {
+  max-width: 800px;
+  max-height: 80vh;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.image-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-item:hover {
+  border-color: #4ade80;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-item.selected {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.3);
+}
+
+.grid-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-item.selected .image-overlay {
+  opacity: 1;
+}
+
+.check-icon {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.image-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.image-type {
+  font-weight: 500;
 }
 </style>
