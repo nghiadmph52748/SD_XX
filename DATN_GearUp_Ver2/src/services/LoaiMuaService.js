@@ -1,7 +1,7 @@
-const API = "http://localhost:8080/api/categories";
+const API = "http://localhost:8080/api/loai-mua-management";
 
 export const fetchAllLoaiMua = async () => {
-    const res = await fetch(`${API}/seasons`);
+    const res = await fetch(`${API}/playlist`);
     if (!res.ok) {
         throw new Error("Failed to fetch seasons");
     }
@@ -9,7 +9,7 @@ export const fetchAllLoaiMua = async () => {
 }
 
 export const fetchOneLoaiMua = async (id) => {
-    const res = await fetch(`${API}/seasons`);
+    const res = await fetch(`${API}/detail/{id}`);
     if (!res.ok) {
         throw new Error("Failed to fetch season");
     }
@@ -18,7 +18,7 @@ export const fetchOneLoaiMua = async (id) => {
 }
 
 export const fetchPagingLoaiMua = async (page, size) => {
-    const res = await fetch(`${API}/seasons`);
+    const res = await fetch(`${API}/paging`);
     if (!res.ok) {
         throw new Error("Failed to fetch paginated seasons");
     }
@@ -34,7 +34,7 @@ export const fetchPagingLoaiMua = async (page, size) => {
 }
 
 export const fetchCreateLoaiMua = async (data) => {
-    const res = await fetch(`${API}/seasons`, {
+    const res = await fetch(`${API}/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const fetchCreateLoaiMua = async (data) => {
 }
 
 export const fetchUpdateLoaiMua = async (id, data) => {
-    const res = await fetch(`${API}/seasons/${id}`, {
+    const res = await fetch(`${API}/update/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -64,8 +64,8 @@ export const fetchUpdateLoaiMua = async (id, data) => {
 }
 
 export const fetchUpdateStatusLoaiMua = async (id) => {
-    const res = await fetch(`${API}/seasons/${id}`, {
-        method: "DELETE",
+    const res = await fetch(`${API}/update/status/${id}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json"
         }

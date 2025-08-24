@@ -1,7 +1,7 @@
-const API = "http://localhost:8080/api/categories";
+const API = "http://localhost:8080/api/chong-nuoc-management";
 
 export const fetchAllChongNuoc = async () => {
-    const res = await fetch(`${API}/waterproof`);
+    const res = await fetch(`${API}/playlist`);
     if (!res.ok) {
         throw new Error("Failed to fetch waterproof");
     }
@@ -9,7 +9,7 @@ export const fetchAllChongNuoc = async () => {
 }
 
 export const fetchOneChongNuoc = async (id) => {
-    const res = await fetch(`${API}/waterproof`);
+    const res = await fetch(`${API}/detail/{id}`);
     if (!res.ok) {
         throw new Error("Failed to fetch waterproof");
     }
@@ -18,7 +18,7 @@ export const fetchOneChongNuoc = async (id) => {
 }
 
 export const fetchPagingChongNuoc = async (page, size) => {
-    const res = await fetch(`${API}/waterproof`);
+    const res = await fetch(`${API}/paging`);
     if (!res.ok) {
         throw new Error("Failed to fetch paginated waterproof");
     }
@@ -34,7 +34,7 @@ export const fetchPagingChongNuoc = async (page, size) => {
 }
 
 export const fetchCreateChongNuoc = async (data) => {
-    const res = await fetch(`${API}/waterproof`, {
+    const res = await fetch(`${API}/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const fetchCreateChongNuoc = async (data) => {
 }
 
 export const fetchUpdateChongNuoc = async (id, data) => {
-    const res = await fetch(`${API}/waterproof/${id}`, {
+    const res = await fetch(`${API}/update/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -64,8 +64,8 @@ export const fetchUpdateChongNuoc = async (id, data) => {
 }
 
 export const fetchUpdateStatusChongNuoc = async (id) => {
-    const res = await fetch(`${API}/waterproof/${id}`, {
-        method: "DELETE",
+    const res = await fetch(`${API}/update/status/${id}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json"
         }

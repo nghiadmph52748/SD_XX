@@ -72,7 +72,7 @@ const fetchDetail = (value) => {
 };
 const fetchEdit = async () => {
   try {
-    await fetchUpdateDoBen(selectedDoBen.value);
+    await fetchUpdateDoBen(selectedDoBen.value.id,selectedDoBen.value);
     await fetchAll();
   } catch (error) {
     console.error("Error updating purchase type:", error);    

@@ -1,7 +1,7 @@
-const API = "http://localhost:8080/api/upload";
+const API = "http://localhost:8080/api/anh-san-pham-management";
 
 export const fetchAllAnhSanPham = async () => {
-    const res = await fetch(`${API}/images`);
+    const res = await fetch(`${API}/playlist`);
     if (!res.ok) {
         throw new Error("Failed to fetch product images");
     }
@@ -10,7 +10,7 @@ export const fetchAllAnhSanPham = async () => {
 
 export const fetchOneAnhSanPham = async (id) => {
     // Use the existing images endpoint with filtering
-    const res = await fetch(`${API}/images?id=${id}`);
+    const res = await fetch(`${API}/detail?id=${id}`);
     if (!res.ok) {
         throw new Error("Failed to fetch product image");
     }
@@ -18,7 +18,7 @@ export const fetchOneAnhSanPham = async (id) => {
 }
 
 export const fetchPagingAnhSanPham = async (page, size) => {
-    const res = await fetch(`${API}/images?page=${page}&limit=${size}`);
+    const res = await fetch(`${API}/paging?page=${page}&limit=${size}`);
     if (!res.ok) {
         throw new Error("Failed to fetch paginated product images");
     }
@@ -27,7 +27,7 @@ export const fetchPagingAnhSanPham = async (page, size) => {
 
 export const fetchCreateAnhSanPham = async (formData) => {
     // Use the existing upload endpoint for products
-    const res = await fetch(`${API}/product/1/variant/1`, {
+    const res = await fetch(`${API}/add`, {
         method: "POST",
         body: formData, // Không cần Content-Type header khi gửi FormData
     });
@@ -40,7 +40,7 @@ export const fetchCreateAnhSanPham = async (formData) => {
 
 export const fetchUpdateAnhSanPham = async (id, data) => {
     // Use the existing update endpoint in upload.js
-    let url = `${API}/images/${id}`;
+    let url = `${API}/update/${id}`;
     let options = {
         method: "PUT",
     };
@@ -66,8 +66,8 @@ export const fetchUpdateAnhSanPham = async (id, data) => {
 
 export const fetchUpdateStatusAnhSanPham = async (id) => {
     // Use the existing delete endpoint for status update
-    const res = await fetch(`${API}/image/${id}`, {
-        method: "DELETE",
+    const res = await fetch(`${API}//update/status/${id}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json"
         }

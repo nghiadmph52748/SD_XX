@@ -1,102 +1,108 @@
-# Thay đổi cấu trúc Quản lý Sản phẩm
+# Thay đổi trong Quản lý Chi tiết Sản phẩm
 
 ## Tổng quan
-Đã chỉnh sửa phần "QUẢN LÝ SẢN PHẨM" theo yêu cầu, chia thành 3 mục chính:
+Đã cập nhật bảng chi tiết sản phẩm để hiển thị đầy đủ thông tin theo yêu cầu mới.
 
-1. **Danh sách sản phẩm** (`/products`)
-2. **Chi tiết sản phẩm** (`/products/details`) 
-3. **Thuộc tính sản phẩm** (`/products/attributes`)
+## Các cột trong bảng mới
 
-## Chi tiết thay đổi
+### Cột hiển thị:
+1. **STT** - Số thứ tự
+2. **Tên Sản Phẩm** - Tên của sản phẩm
+3. **Màu sắc** - Màu sắc của sản phẩm
+4. **Kích thước** - Kích thước giày
+5. **Đế giày** - Loại đế giày
+6. **Chất liệu** - Chất liệu chính
+7. **Đệm giày** - Loại đệm giày
+8. **Trọng lượng** - Trọng lượng sản phẩm
+9. **Môn thể thao** - Môn thể thao phù hợp
+10. **Loại mùa** - Mùa sử dụng
+11. **Độ bền** - Mức độ bền
+12. **Chống nước** - Khả năng chống nước
+13. **Ảnh sản phẩm** - Hình ảnh sản phẩm
+14. **Số lượng** - Số lượng tồn kho
+15. **Giá bán** - Giá bán hiện tại
+16. **Trạng thái** - Trạng thái hoạt động
+17. **Thao tác** - Các nút thao tác (Sửa, Xóa)
 
-### 1. Menu Navigation (App.vue)
-- Cập nhật menu "QUẢN LÝ SẢN PHẨM" chỉ hiển thị 3 mục chính
-- Các thuộc tính chi tiết được gom vào trang "Thuộc tính sản phẩm"
+## Thay đổi Backend
 
-### 2. Trang mới: Thuộc tính sản phẩm
-- **File**: `src/pages/products/ThuocTinhSanPham.vue`
-- **Route**: `/products/attributes`
-- **Chức năng**: Hiển thị tất cả 13 thuộc tính sản phẩm dưới dạng card grid
+### 1. Tạo Response Model mới
+- File: `BE_SP/src/main/java/org/example/be_sp/model/response/ChiTietSanPhamFullResponse.java`
+- Chứa đầy đủ thông tin chi tiết sản phẩm
 
-### 3. Các thuộc tính được gom nhóm
-Trang "Thuộc tính sản phẩm" bao gồm:
-- Xuất xứ
-- Nhà sản xuất  
-- Màu sắc
-- Kích thước
-- Đế giày
-- Chất liệu
-- Đệm giày
-- Trọng lượng
-- Môn thể thao
-- Loại mùa
-- Độ bền
-- Chống nước
-- Ảnh sản phẩm
+### 2. Cập nhật Service
+- File: `BE_SP/src/main/java/org/example/be_sp/service/ChiTietSanPhamService.java`
+- Thêm methods:
+  - `getAllWithFullInfo()`: Lấy tất cả chi tiết sản phẩm với thông tin đầy đủ
+  - `pagingWithFullInfo()`: Phân trang với thông tin đầy đủ
 
-### 4. Routing (main.js)
-- Thêm route mới: `/products/attributes` → `ThuocTinhSanPham.vue`
-- Giữ nguyên tất cả route hiện có cho các thuộc tính
+### 3. Cập nhật Controller
+- File: `BE_SP/src/main/java/org/example/be_sp/controller/ChiTietSanPhamController.java`
+- Thêm endpoints:
+  - `GET /api/chi-tiet-san-pham-management/full-info`: Lấy tất cả chi tiết sản phẩm
+  - `GET /api/chi-tiet-san-pham-management/full-info/paging`: Phân trang chi tiết sản phẩm
 
-### 5. Page Titles (App.vue)
-- Cập nhật mapping page title cho route mới
-- Sắp xếp lại thứ tự hiển thị
+## Thay đổi Frontend
 
-## Đặc điểm kỹ thuật
+### 1. Cập nhật Service
+- File: `DATN_GearUp_Ver2/src/services/dichVuSanPham.js`
+- Cập nhật các API endpoints để sử dụng backend mới
 
-### Giữ nguyên
-- ✅ Tất cả code CRUD đã có trong các thuộc tính
-- ✅ API endpoints hiện có
-- ✅ Cấu trúc database
-- ✅ Các component Vue đã tồn tại
+### 2. Cập nhật Component
+- File: `DATN_GearUp_Ver2/src/pages/products/ChiTietSanPham.vue`
+- Cập nhật bảng để hiển thị 17 cột mới
+- Cập nhật form modal để nhập đầy đủ thông tin
+- Cập nhật responsive design cho mobile
 
-### Mới thêm
-- ✅ Trang "Thuộc tính sản phẩm" với giao diện card grid
-- ✅ Navigation từ trang thuộc tính đến từng thuộc tính cụ thể
-- ✅ Responsive design cho mobile và desktop
+## Responsive Design
 
-## Cách sử dụng
+### Desktop
+- Hiển thị đầy đủ 17 cột
+- Form modal với layout 2 cột
 
-1. **Truy cập menu**: QUẢN LÝ SẢN PHẨM → Thuộc tính sản phẩm
-2. **Xem tổng quan**: Tất cả thuộc tính được hiển thị dưới dạng card
-3. **Quản lý chi tiết**: Click vào từng card để vào trang quản lý thuộc tính cụ thể
-4. **Quay lại**: Sử dụng breadcrumb hoặc menu để quay lại
+### Mobile
+- Ẩn các cột ít quan trọng (cột 5-13)
+- Chỉ hiển thị: STT, Tên Sản Phẩm, Màu sắc, Kích thước, Số lượng, Giá bán, Trạng thái, Thao tác
+- Form modal với layout 1 cột
 
-## Lợi ích
+## Tính năng mới
 
-- **Giao diện gọn gàng**: Menu chính chỉ hiển thị 3 mục chính
-- **Dễ truy cập**: Tất cả thuộc tính được tập trung tại một nơi
-- **Không mất dữ liệu**: Giữ nguyên toàn bộ chức năng CRUD
-- **Responsive**: Hoạt động tốt trên mọi thiết bị
-- **UX tốt hơn**: Người dùng dễ dàng tìm và quản lý thuộc tính
+### 1. Hiển thị ảnh sản phẩm
+- Hiển thị ảnh đầu tiên
+- Hiển thị số lượng ảnh còn lại (nếu có)
 
-## Cấu trúc file
+### 2. Filter nâng cao
+- Tìm kiếm theo tên sản phẩm, màu sắc, kích thước
+- Lọc theo sản phẩm, màu sắc, kích thước, trạng thái
 
-```
-src/
-├── pages/
-│   └── products/
-│       ├── ThuocTinhSanPham.vue (MỚI)
-│       ├── XuatXu.vue
-│       ├── NhaSanXuat.vue
-│       ├── MauSac.vue
-│       ├── KichThuoc.vue
-│       ├── DeGiay.vue
-│       ├── ChatLieu.vue
-│       ├── DemGiay.vue
-│       ├── TrongLuong.vue
-│       ├── MonTheThao.vue
-│       ├── LoaiMua.vue
-│       ├── DoBen.vue
-│       ├── ChongNuoc.vue
-│       └── AnhSanPham.vue
-├── App.vue (ĐÃ CẬP NHẬT)
-└── main.js (ĐÃ CẬP NHẬT)
-```
+### 3. CRUD operations
+- Thêm mới chi tiết sản phẩm
+- Chỉnh sửa thông tin
+- Xóa chi tiết sản phẩm
+- Cập nhật trạng thái
 
 ## Lưu ý
 
-- Tất cả API calls vẫn sử dụng endpoints hiện có
-- Không có thay đổi về database schema
-- Không có thay đổi về business logic
-- Chỉ thay đổi giao diện và navigation
+1. **Không thay đổi API cũ**: Các API hiện tại vẫn hoạt động bình thường
+2. **Giữ nguyên CRUD**: Tất cả chức năng CRUD được giữ nguyên
+3. **Sử dụng backend BE_SP**: Frontend sử dụng backend từ thư mục BE_SP
+4. **Không viết SQL**: Không có thay đổi database, chỉ cập nhật code
+
+## Cách sử dụng
+
+1. Khởi động backend từ thư mục `BE_SP`
+2. Khởi động frontend từ thư mục `DATN_GearUp_Ver2`
+3. Truy cập trang "Quản lý Chi tiết Sản phẩm"
+4. Sử dụng các chức năng CRUD và filter như bình thường
+
+## Troubleshooting
+
+### Lỗi thường gặp:
+1. **API không kết nối**: Kiểm tra backend có chạy không
+2. **Dữ liệu không hiển thị**: Kiểm tra database có dữ liệu không
+3. **Form không submit**: Kiểm tra validation và required fields
+
+### Giải pháp:
+1. Restart backend service
+2. Kiểm tra console log
+3. Kiểm tra network tab trong DevTools

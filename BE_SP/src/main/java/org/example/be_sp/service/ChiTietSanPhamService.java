@@ -1,17 +1,29 @@
 package org.example.be_sp.service;
 
+import java.util.List;
+
 import org.example.be_sp.entity.ChiTietSanPham;
 import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.ChiTietSanPhamRequest;
+import org.example.be_sp.model.response.ChiTietSanPhamFullResponse;
 import org.example.be_sp.model.response.ChiTietSanPhamResponse;
 import org.example.be_sp.model.response.PagingResponse;
-import org.example.be_sp.repository.*;
+import org.example.be_sp.repository.ChatLieuRepository;
+import org.example.be_sp.repository.ChiTietSanPhamRepository;
+import org.example.be_sp.repository.ChongNuocRepository;
+import org.example.be_sp.repository.DeGiayRepository;
+import org.example.be_sp.repository.DemGiayRepository;
+import org.example.be_sp.repository.DoBenRepository;
+import org.example.be_sp.repository.KichThuocRepository;
+import org.example.be_sp.repository.LoaiMuaRepository;
+import org.example.be_sp.repository.MauSacRepository;
+import org.example.be_sp.repository.MonTheThaoRepository;
+import org.example.be_sp.repository.SanPhamRepository;
+import org.example.be_sp.repository.TrongLuongRepository;
 import org.example.be_sp.util.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ChiTietSanPhamService {
@@ -89,5 +101,20 @@ public class ChiTietSanPhamService {
         ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
         chiTietSanPham.setDeleted(true);
         repository.save(chiTietSanPham);
+    }
+
+    public List<ChiTietSanPhamFullResponse> getAllWithFullInfo() {
+        return repository.findAll().stream()
+                .filter(ctsp -> !ctsp.getDeleted())
+                .map(ChiTietSanPhamFullResponse::new)
+                .toList();
+    }
+
+    public PagingResponse<ChiTietSanPhamFullResponse> pagingWithFullInfo(Integer page, Integer size) {
+        return new PagingResponse<>(
+                repository.findAll(PageRequest.of(page, size))
+                        .map(ChiTietSanPhamFullResponse::new), 
+                page
+        );
     }
 }

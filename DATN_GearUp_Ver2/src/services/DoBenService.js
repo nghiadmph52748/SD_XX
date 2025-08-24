@@ -1,7 +1,7 @@
-const API = "http://localhost:8080/api/categories";
+const API = "http://localhost:8080/api/do-ben-management";
 
 export const fetchAllDoBen = async () => {
-    const res = await fetch(`${API}/durability`);
+    const res = await fetch(`${API}/playlist`);
     if (!res.ok) {
         throw new Error("Failed to fetch durability");
     }
@@ -9,7 +9,7 @@ export const fetchAllDoBen = async () => {
 }
 
 export const fetchOneDoBen = async (id) => {
-    const res = await fetch(`${API}/durability`);
+    const res = await fetch(`${API}/detail/{id}`);
     if (!res.ok) {
         throw new Error("Failed to fetch durability");
     }
@@ -18,7 +18,7 @@ export const fetchOneDoBen = async (id) => {
 }
 
 export const fetchPagingDoBen = async (page, size) => {
-    const res = await fetch(`${API}/durability`);
+    const res = await fetch(`${API}/paging`);
     if (!res.ok) {
         throw new Error("Failed to fetch paginated durability");
     }
@@ -34,7 +34,7 @@ export const fetchPagingDoBen = async (page, size) => {
 }
 
 export const fetchCreateDoBen = async (data) => {
-    const res = await fetch(`${API}/durability`, {
+    const res = await fetch(`${API}/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const fetchCreateDoBen = async (data) => {
 }
 
 export const fetchUpdateDoBen = async (id, data) => {
-    const res = await fetch(`${API}/durability/${id}`, {
+    const res = await fetch(`${API}/update/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -64,8 +64,8 @@ export const fetchUpdateDoBen = async (id, data) => {
 }
 
 export const fetchUpdateStatusDoBen = async (id) => {
-    const res = await fetch(`${API}/durability/${id}`, {
-        method: "DELETE",
+    const res = await fetch(`${API}/update/status/${id}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json"
         }

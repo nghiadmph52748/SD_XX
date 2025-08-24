@@ -98,7 +98,7 @@ export const productService = {
 export const productDetailsService = {
   // Get all product details with full information
   getAll: (params = {}) => {
-    return api.get('/product-details', { params })
+    return api.get('/chi-tiet-san-pham-management/playlist', { params })
   },
 
   // Get product detail by ID
@@ -108,22 +108,22 @@ export const productDetailsService = {
 
   // Get product details with joined data (product, color, size, material, etc.)
   getAllWithRelations: (params = {}) => {
-    return api.get('/product-details/full', { params })
+    return api.get('/chi-tiet-san-pham-management/full-info', { params })
   },
 
   // Get details for a specific product
   getByProduct: (id_san_pham, params = {}) => {
-    return api.get(`/products/${id_san_pham}/details`, { params })
+    return api.get(`/chi-tiet-san-pham-management/playlist`, { params })
   },
 
   // Create new product detail
   create: (detailData) => {
-    return api.post('/product-details', detailData)
+    return api.post('/chi-tiet-san-pham-management/add', detailData)
   },
 
   // Update product detail
   update: (id, detailData) => {
-    return api.put(`/product-details/${id}`, detailData)
+    return api.put(`/chi-tiet-san-pham-management/update/${id}`, detailData)
   },
 
   // Delete product detail
