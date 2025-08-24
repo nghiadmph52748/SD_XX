@@ -1,11 +1,14 @@
 const API = "http://localhost:8080/api/chi-tiet-san-pham-anh-management";
 
 export const fetchAllChiTietSanPhamAnh = async () => {
+    console.log('Fetching all ChiTietSanPhamAnh...');
     const res = await fetch(`${API}/playlist`);
     if (!res.ok) {
         throw new Error("Failed to fetch product detail images");
     }
-    return res.json();
+    const result = await res.json();
+    console.log('Fetched ChiTietSanPhamAnh result:', result);
+    return result;
 }
 
 export const fetchChiTietSanPhamAnhByChiTietSanPham = async (idChiTietSanPham) => {
@@ -24,6 +27,7 @@ export const fetchChiTietSanPhamAnhByChiTietSanPham = async (idChiTietSanPham) =
 }
 
 export const fetchCreateChiTietSanPhamAnh = async (data) => {
+    console.log('Creating ChiTietSanPhamAnh with data:', data);
     const res = await fetch(`${API}/add`, {
         method: "POST",
         headers: {
@@ -34,7 +38,9 @@ export const fetchCreateChiTietSanPhamAnh = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create product detail image");
     }
-    return res.json();
+    const result = await res.json();
+    console.log('Created ChiTietSanPhamAnh result:', result);
+    return result;
 }
 
 export const fetchUpdateChiTietSanPhamAnh = async (id, data) => {
@@ -52,6 +58,7 @@ export const fetchUpdateChiTietSanPhamAnh = async (id, data) => {
 }
 
 export const fetchDeleteChiTietSanPhamAnh = async (id) => {
+    console.log('Deleting ChiTietSanPhamAnh with ID:', id);
     const res = await fetch(`${API}/update/status/${id}`, {
         method: "PUT",
         headers: {
@@ -61,5 +68,7 @@ export const fetchDeleteChiTietSanPhamAnh = async (id) => {
     if (!res.ok) {
         throw new Error("Failed to delete product detail image");
     }
-    return res.json();
+    const result = await res.json();
+    console.log('Deleted ChiTietSanPhamAnh result:', result);
+    return result;
 }

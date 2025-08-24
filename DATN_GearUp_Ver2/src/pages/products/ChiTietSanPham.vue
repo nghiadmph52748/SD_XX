@@ -14,6 +14,10 @@
             <span class="btn-icon">🔄</span>
             Làm mới
           </button>
+          <button class="btn-export" @click="forceRefreshImageData" title="Làm mới dữ liệu ảnh">
+            <span class="btn-icon">🖼️</span>
+            Làm mới ảnh
+          </button>
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
@@ -292,7 +296,7 @@
                   <span class="attribute-text">{{ detail.tenChongNuoc || detail.chongNuoc?.tenChongNuoc || 'N/A'
                   }}</span>
                 </td>
-                <td class="image-col">
+                <td class="image-col" :key="`image-${detail.id}-${imageDataKey.timestamp}`">
                   <div v-if="getImagesForChiTietSanPham(detail.id).length > 0" class="image-preview">
                     <img :src="getImageUrl(getImagesForChiTietSanPham(detail.id)[0].duongDanAnh)" :alt="detail.tenSanPham || detail.sanPham?.tenSanPham" class="product-image" />
                     <span v-if="getImagesForChiTietSanPham(detail.id).length > 1" class="image-count">+{{ getImagesForChiTietSanPham(detail.id).length - 1 }}</span>
@@ -745,6 +749,13 @@ const fetchAllThuocTinh = async () => {
     sanPhams.value = res12.data
     let res13 = await fetchAllChiTietSanPhamAnh();
     chiTietSanPhamAnhs.value = res13.data
+    
+    // Cập nhật imageDataKey để đảm bảo table re-render
+    imageDataKey.value = {
+      chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+      anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      timestamp: Date.now()
+    }
   } catch (error) {
     console.error('Error fetching product details:', error)
   }
@@ -828,6 +839,13 @@ const statusCounts = computed(() => {
   const active = chiTietSanPhams.value.filter(detail => detail.trangThai === 1).length
   const inactive = chiTietSanPhams.value.filter(detail => detail.trangThai === 0).length
   return { active, inactive, total: chiTietSanPhams.value.length }
+})
+
+// Ref để theo dõi thay đổi dữ liệu ảnh và đảm bảo table re-render
+const imageDataKey = ref({
+  chiTietSanPhamAnhsLength: 0,
+  anhSanPhamsLength: 0,
+  timestamp: Date.now()
 })
 
 // Methods
@@ -997,12 +1015,20 @@ const saveDetail = async () => {
           item.idChiTietSanPham === chiTietSanPhamId
         )
         
+        console.log('Existing images to delete:', existingImages)
+        
         for (const existingImage of existingImages) {
-          await fetchDeleteChiTietSanPhamAnh(existingImage.id)
+          if (existingImage.id) {
+            console.log('Deleting image link with ID:', existingImage.id)
+            await fetchDeleteChiTietSanPhamAnh(existingImage.id)
+          } else {
+            console.warn('Skipping image with undefined ID:', existingImage)
+          }
         }
 
         // Tạo liên kết ảnh mới
         for (const imageId of selectedImageIds.value) {
+          console.log('Creating new image link for image ID:', imageId)
           await fetchCreateChiTietSanPhamAnh({
             idChiTietSanPham: chiTietSanPhamId,
             idAnhSanPham: imageId,
@@ -1016,10 +1042,16 @@ const saveDetail = async () => {
     }
 
     // Refresh data từ server để đảm bảo đồng bộ
-    await Promise.all([
-      fetchChiTietSanPham(),
-      fetchAllThuocTinh()
-    ])
+    console.log('Bắt đầu refresh dữ liệu...')
+    
+    // Đảm bảo thứ tự refresh để dữ liệu ảnh được cập nhật đúng
+    await fetchChiTietSanPham()
+    console.log('Đã refresh chiTietSanPham, số lượng:', chiTietSanPhams.value.length)
+    
+    // Force refresh dữ liệu ảnh để đảm bảo table được cập nhật
+    await forceRefreshImageData()
+    
+    console.log('Hoàn thành refresh dữ liệu')
     closeModals()
   } catch (error) {
     console.error('Error saving product details:', error)
@@ -1192,19 +1224,37 @@ const confirmImageSelection = () => {
 // Method để lấy ảnh cho một chi tiết sản phẩm
 const getImagesForChiTietSanPham = (chiTietSanPhamId) => {
   try {
-    const images = chiTietSanPhamAnhs.value.filter(item => 
+    // Đảm bảo dữ liệu đã được load
+    if (!chiTietSanPhamAnhs.value || !anhSanPhams.value) {
+      console.log('Dữ liệu chưa sẵn sàng, đang chờ...')
+      return []
+    }
+    
+    // Lọc các liên kết ảnh cho chi tiết sản phẩm này
+    const imageLinks = chiTietSanPhamAnhs.value.filter(item => 
       item.idChiTietSanPham === chiTietSanPhamId && !item.deleted
     );
     
-    return images.map(item => {
+    console.log(`Tìm thấy ${imageLinks.length} liên kết ảnh cho chi tiết sản phẩm ${chiTietSanPhamId}`)
+    
+    // Map để lấy thông tin ảnh đầy đủ
+    const images = imageLinks.map(item => {
       const anhSanPham = anhSanPhams.value.find(anh => anh.id === item.idAnhSanPham);
-      return anhSanPham ? {
-        id: anhSanPham.id,
-        duongDanAnh: anhSanPham.duongDanAnh,
-        loaiAnh: anhSanPham.loaiAnh,
-        moTa: anhSanPham.moTa
-      } : null;
+      if (anhSanPham) {
+        return {
+          id: anhSanPham.id,
+          duongDanAnh: anhSanPham.duongDanAnh,
+          loaiAnh: anhSanPham.loaiAnh,
+          moTa: anhSanPham.moTa
+        }
+      } else {
+        console.log(`Không tìm thấy ảnh với ID: ${item.idAnhSanPham}`)
+        return null
+      }
     }).filter(img => img !== null);
+    
+    console.log(`Trả về ${images.length} ảnh cho chi tiết sản phẩm ${chiTietSanPhamId}`)
+    return images
   } catch (error) {
     console.error('Error getting images for chi tiet san pham:', error)
     return []
@@ -1237,6 +1287,27 @@ const getImageUrl = (imagePath) => {
     return ''
   }
 };
+
+// Method để force refresh dữ liệu ảnh
+const forceRefreshImageData = async () => {
+  try {
+    console.log('Force refresh dữ liệu ảnh...')
+    
+    // Refresh dữ liệu ảnh
+    await fetchAllThuocTinh()
+    
+    // Force Vue re-render bằng cách thay đổi timestamp
+    imageDataKey.value = {
+      chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+      anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      timestamp: Date.now()
+    }
+    
+    console.log('Đã force refresh dữ liệu ảnh thành công')
+  } catch (error) {
+    console.error('Error force refreshing image data:', error)
+  }
+}
 
 onMounted(async () => {
   try {
