@@ -1,4 +1,7 @@
 <template>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <div class="add-form">
     <h3>Thêm Hình Ảnh Sản Phẩm Mới</h3>
     <form @submit.prevent="fetchCreate">
@@ -31,18 +34,21 @@
         <input
           type="radio"
           name="Trạng thái"
-          value="false"
+          :value="false"
           v-model="newAnhSanPham.deleted"
         />Hoạt động
         <input
           type="radio"
           name="Trạng thái"
-          value="true"
+          :value="true"
           v-model="newAnhSanPham.deleted"
         />Không hoạt động
       </div>
-      <button type="submit" :disabled="uploading">Thêm Mới</button>
+      <button type="submit" :disabled="uploading" class="btn btn-primary">
+        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+      </button>
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
+      <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
     </form>
   </div>
   <!-- Form chỉnh sửa (mới thêm) -->
@@ -82,9 +88,19 @@
         <label>Mô tả:</label>
         <input v-model="selectedAnhSanPham.moTa" type="text" />
       </div>
-      <button type="submit" :disabled="uploading">Cập Nhật</button>
-      <button type="button" @click="closeEditForm">Đóng</button>
+      <div>
+        <label for="">Trạng thái</label>
+        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedAnhSanPham.deleted" />Hoạt động
+        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedAnhSanPham.deleted" />Không hoạt động
+      </div>
+      <button type="submit" :disabled="uploading" class="btn btn-success">
+        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
+      </button>
+      <button type="button" @click="closeEditForm" class="btn btn-secondary">
+        <i class="fas fa-times"></i> Đóng
+      </button>
       <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
+      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
     </form>
   </div>
   <table class="table table-bordered">
@@ -113,8 +129,13 @@
         <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
-          <button v-on:click="fetchDetail(value)">Detail</button> |
-          <button v-on:click="fetchDelete(value.id)">Delete</button>
+          <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button v-on:click="fetchDelete(value.id)" class="btn btn-delete btn-icon btn-sm" :disabled="uploading"
+            title="Xóa">
+            <i class="fas fa-trash"></i>
+          </button>
         </td>
       </tr>
     </tbody>
@@ -139,61 +160,86 @@
   <!-- Popup Detail Modal -->
   <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
     <div class="modal-content" @click.stop>
-      <div class="modal-header">
-        <h3>Chi Tiết Hình Ảnh Sản Phẩm</h3>
-        <button class="modal-close" @click="closeDetailModal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="detail-row">
-          <div class="detail-label">Ảnh sản phẩm:</div>
-          <div class="detail-value">
-            <img :src="getImageUrl(selectedAnhSanPham.duongDanAnh)" alt="Ảnh sản phẩm" class="detail-image"
-              @error="handleImageError" />
+             <div class="modal-header">
+         <h3>Chỉnh Sửa Hình Ảnh Sản Phẩm</h3>
+         <button class="modal-close" @click="closeDetailModal">
+           <i class="fas fa-times"></i>
+         </button>
+       </div>
+             <div class="modal-body">
+         <!-- Edit Mode -->
+         <div>
+          <div class="detail-row">
+            <div class="detail-label">Ảnh hiện tại:</div>
+            <div class="detail-value">
+              <img :src="getImageUrl(selectedAnhSanPham.duongDanAnh)" alt="Ảnh hiện tại" class="detail-image"
+                @error="handleImageError" />
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Chọn ảnh mới:</div>
+            <div class="detail-value">
+              <input
+                type="file"
+                ref="editFileInput"
+                @change="handleEditFileChange"
+                accept="image/*"
+                class="detail-file-input"
+              />
+              <img
+                v-if="editPreviewUrl"
+                :src="editPreviewUrl"
+                alt="Preview mới"
+                class="detail-preview-image"
+              />
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Loại ảnh:</div>
+            <div class="detail-value">
+              <input 
+                v-model="selectedAnhSanPham.loaiAnh" 
+                type="text" 
+                required 
+                class="detail-input"
+              />
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Mô tả:</div>
+            <div class="detail-value">
+              <input 
+                v-model="selectedAnhSanPham.moTa" 
+                type="text" 
+                class="detail-input"
+              />
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Trạng thái:</div>
+            <div class="detail-value">
+              <label class="detail-radio">
+                <input type="radio" name="detailTrạng thái" :value="false" v-model="selectedAnhSanPham.deleted" />
+                Hoạt động
+              </label>
+              <label class="detail-radio">
+                <input type="radio" name="detailTrạng thái" :value="true" v-model="selectedAnhSanPham.deleted" />
+                Không hoạt động
+              </label>
+            </div>
+          </div>
+          
+          <!-- Error Message -->
+          <div v-if="editErrorMessage" class="detail-error">
+            <p style="color: red">{{ editErrorMessage }}</p>
           </div>
         </div>
-        <div class="detail-row">
-          <div class="detail-label">ID:</div>
-          <div class="detail-value">{{ selectedAnhSanPham.id }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Loại ảnh:</div>
-          <div class="detail-value">{{ selectedAnhSanPham.loaiAnh }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">{{ selectedAnhSanPham.moTa || 'Không có mô tả' }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Đường dẫn ảnh:</div>
-          <div class="detail-value">{{ selectedAnhSanPham.duongDanAnh }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Trạng thái:</div>
-          <div class="detail-value">
-            <span :class="selectedAnhSanPham.deleted ? 'status-inactive' : 'status-active'">
-              {{ selectedAnhSanPham.deleted ? "Không hoạt động" : "Hoạt động" }}
-            </span>
-          </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">{{ formatDate(selectedAnhSanPham.createdAt) || 'Không có thông tin' }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">{{ formatDate(selectedAnhSanPham.updatedAt) || 'Không có thông tin' }}</div>
-        </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-success" @click="editFromDetail">
-          <i class="fas fa-edit"></i> Chỉnh sửa
-        </button>
-        <button class="btn btn-secondary" @click="closeDetailModal">
-          <i class="fas fa-times"></i> Đóng
-        </button>
-      </div>
+             <div class="modal-footer">
+         <button class="btn btn-success" @click="saveChanges" :disabled="uploading">
+           <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Lưu thay đổi' }}
+         </button>
+       </div>
     </div>
   </div>
 </template>
@@ -225,6 +271,8 @@ const errorMessage = ref(null);
 const editErrorMessage = ref(null);
 const successMessage = ref(null);
 const editSuccessMessage = ref(null);
+const isEditing = ref(false);
+const originalData = ref({});
 
 // Pagination variables
 const currentPage = ref(1);
@@ -327,6 +375,8 @@ const fetchCreate = async () => {
     }
     
     await fetchAll();
+    successMessage.value = "Ảnh sản phẩm đã được thêm thành công!";
+    clearSuccessMessage();
   } catch (error) {
     console.error("Error creating:", error);
     errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo ảnh sản phẩm");
@@ -337,16 +387,37 @@ const fetchCreate = async () => {
 
 const fetchDetail = (value) => {
   selectedAnhSanPham.value = { ...value };
-  editPreviewUrl.value = value.duongDanAnh;
+  originalData.value = { ...value };
+  isEditing.value = true; // Mặc định hiển thị form edit luôn
+  editFile.value = null;
+  editPreviewUrl.value = null;
+  showDetailModal.value = true;
+};
+
+const openEditForm = (value) => {
+  selectedAnhSanPham.value = { ...value };
   showEditForm.value = true;
 };
 
-const fetchUpdate = async () => {
+const startEditing = () => {
+  isEditing.value = true;
+  editFile.value = null;
+  editPreviewUrl.value = null;
+};
+
+const cancelEditing = () => {
+  selectedAnhSanPham.value = { ...originalData.value };
+  editFile.value = null;
+  editPreviewUrl.value = null;
+  editErrorMessage.value = null;
+};
+
+const saveChanges = async () => {
   uploading.value = true;
   editErrorMessage.value = null;
   
   try {
-    // Nếu có file mới được chọn
+    // Nếu có file mới được chọn thì gửi FormData
     if (editFile.value) {
       const formData = new FormData();
       formData.append('file', editFile.value);
@@ -357,17 +428,60 @@ const fetchUpdate = async () => {
       await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, formData);
     } else {
       // Nếu không có file mới, chỉ cập nhật thông tin
-      const updateData = {
-        loaiAnh: selectedAnhSanPham.value.loaiAnh,
-        moTa: selectedAnhSanPham.value.moTa || '',
-        deleted: selectedAnhSanPham.value.deleted || false
-      };
+      // Tạo một file rỗng để backend không báo lỗi
+      const emptyFile = new Blob([''], { type: 'image/png' });
+      const formData = new FormData();
+      formData.append('file', emptyFile, 'empty.png');
+      formData.append('loaiAnh', selectedAnhSanPham.value.loaiAnh);
+      formData.append('moTa', selectedAnhSanPham.value.moTa || '');
+      formData.append('deleted', selectedAnhSanPham.value.deleted || false);
       
-      await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, updateData);
+      await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, formData);
+    }
+    
+         await fetchAll();
+     closeDetailModal();
+     editSuccessMessage.value = "Ảnh sản phẩm đã được cập nhật thành công!";
+     clearEditSuccessMessage();
+  } catch (error) {
+    console.error("Error updating:", error);
+    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật ảnh sản phẩm");
+  } finally {
+    uploading.value = false;
+  }
+};
+
+const fetchUpdate = async () => {
+  uploading.value = true;
+  editErrorMessage.value = null;
+  
+  try {
+    // Nếu có file mới được chọn thì gửi FormData
+    if (editFile.value) {
+      const formData = new FormData();
+      formData.append('file', editFile.value);
+      formData.append('loaiAnh', selectedAnhSanPham.value.loaiAnh);
+      formData.append('moTa', selectedAnhSanPham.value.moTa || '');
+      formData.append('deleted', selectedAnhSanPham.value.deleted || false);
+      
+      await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, formData);
+    } else {
+      // Nếu không có file mới, chỉ cập nhật thông tin
+      // Tạo một file rỗng để backend không báo lỗi
+      const emptyFile = new Blob([''], { type: 'image/png' });
+      const formData = new FormData();
+      formData.append('file', emptyFile, 'empty.png');
+      formData.append('loaiAnh', selectedAnhSanPham.value.loaiAnh);
+      formData.append('moTa', selectedAnhSanPham.value.moTa || '');
+      formData.append('deleted', selectedAnhSanPham.value.deleted || false);
+      
+      await fetchUpdateAnhSanPham(selectedAnhSanPham.value.id, formData);
     }
     
     await fetchAll();
     closeEditForm();
+    editSuccessMessage.value = "Ảnh sản phẩm đã được cập nhật thành công!";
+    clearEditSuccessMessage();
   } catch (error) {
     console.error("Error updating:", error);
     editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật ảnh sản phẩm");
@@ -377,11 +491,21 @@ const fetchUpdate = async () => {
 };
 
 const fetchDelete = async (id) => {
+  if (!confirm('Bạn có chắc chắn muốn xóa ảnh sản phẩm này?')) {
+    return;
+  }
+
   try {
     await fetchUpdateStatusAnhSanPham(id);
     await fetchAll();
+    successMessage.value = "Ảnh sản phẩm đã được xóa thành công!";
+    clearSuccessMessage();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
+    errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa ảnh sản phẩm");
+    setTimeout(() => {
+      errorMessage.value = null;
+    }, 3000);
   }
 };
 
@@ -400,7 +524,12 @@ const closeEditForm = () => {
 
 const closeDetailModal = () => {
   showDetailModal.value = false;
+  isEditing.value = false;
   selectedAnhSanPham.value = {};
+  originalData.value = {};
+  editFile.value = null;
+  editPreviewUrl.value = null;
+  editErrorMessage.value = null;
 };
 
 const editFromDetail = () => {
@@ -521,11 +650,11 @@ onMounted(fetchAll);
 .edit-form input[type="text"] {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #dcfce7;
+  border: 2px solid #d4edda;
   border-radius: 8px;
   font-size: 16px;
   transition: all 0.3s ease;
-  background-color: #f0fdf4;
+  background-color: #f8fff9;
 }
 
 .add-form input[type="text"]:focus,
@@ -541,14 +670,14 @@ onMounted(fetchAll);
   padding: 10px 0;
   border: 2px dashed #4ade80;
   border-radius: 8px;
-  background-color: #f0fdf4;
+  background-color: #f8fff9;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .add-form input[type="file"]:hover,
 .edit-form input[type="file"]:hover {
-  background-color: #dcfce7;
+  background-color: #d4edda;
   border-color: #22c55e;
 }
 
@@ -606,33 +735,6 @@ onMounted(fetchAll);
   background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
-.btn-warning {
-  background: linear-gradient(135deg, #ffc107, #e0a800);
-  color: #212529;
-}
-
-.btn-warning:hover {
-  background: linear-gradient(135deg, #e0a800, #c69500);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: linear-gradient(135deg, #c82333, #a71e2a);
-}
-
-.btn-info {
-  background: linear-gradient(135deg, #17a2b8, #138496);
-  color: white;
-}
-
-.btn-info:hover {
-  background: linear-gradient(135deg, #138496, #117a8b);
-}
-
 .btn-secondary {
   background: linear-gradient(135deg, #6c757d, #5a6268);
   color: white;
@@ -642,44 +744,13 @@ onMounted(fetchAll);
   background: linear-gradient(135deg, #5a6268, #495057);
 }
 
-.btn-outline {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  color: #495057;
-  border-radius: 8px;
-  min-width: 80px;
-  height: 40px;
-  padding: 8px 16px;
-  font-weight: 600;
-  font-size: 14px;
-  transition: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  margin: 0;
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
 }
 
-.btn-outline:hover:not(:disabled) {
-  background-color: #f8f9fa;
-  color: #495057;
-  transform: none;
-  box-shadow: none;
-  border: 1px solid #dee2e6;
-}
-
-.btn-outline:focus {
-  outline: none;
-  border: 1px solid #dee2e6;
-  box-shadow: none;
-}
-
-.btn-outline:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  border-color: #9ca3af;
-  color: #9ca3af;
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e0a800, #c69500);
 }
 
 .btn-sm {
@@ -711,7 +782,7 @@ onMounted(fetchAll);
 
 .table th,
 .table td {
-  border: 1px solid #dcfce7;
+  border: 1px solid #d4edda;
   padding: 16px;
   text-align: left;
 }
@@ -736,7 +807,7 @@ onMounted(fetchAll);
 
 .table img {
   border-radius: 8px;
-  border: 2px solid #dcfce7;
+  border: 2px solid #d4edda;
   transition: all 0.3s ease;
 }
 
@@ -812,23 +883,9 @@ p[style*="color: green"] {
 
 /* Table enhancements */
 .table tbody tr:hover {
-  background-color: #dcfce7;
+  background-color: #d4edda;
   transition: background-color 0.3s ease;
   cursor: pointer;
-}
-
-/* Image preview enhancements */
-.add-form img,
-.edit-form img {
-  border: 2px solid #dcfce7;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.add-form img:hover,
-.edit-form img:hover {
-  border-color: #4ade80;
-  transform: scale(1.05);
 }
 
 /* Success and error message enhancements */
@@ -852,6 +909,28 @@ p[style*="color: green"] {
   background-color: #f0fdf4;
   border-color: #22c55e;
   color: #22c55e;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+
+  .add-form,
+  .edit-form {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
 }
 
 /* Pagination enhancements */
@@ -959,8 +1038,8 @@ p[style*="color: green"] {
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
-  border-bottom: 2px solid #dcfce7;
-  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-bottom: 2px solid #d4edda;
+  background: linear-gradient(135deg, #32CD32, #28a745);
   color: white;
   border-radius: 12px 12px 0 0;
 }
@@ -1012,7 +1091,7 @@ p[style*="color: green"] {
 .detail-label {
   width: 150px;
   font-weight: 600;
-  color: #4ade80;
+  color: #32CD32;
   font-size: 16px;
   flex-shrink: 0;
 }
@@ -1028,7 +1107,7 @@ p[style*="color: green"] {
   width: 200px;
   height: auto;
   border-radius: 8px;
-  border: 2px solid #dcfce7;
+  border: 2px solid #d4edda;
   transition: all 0.3s ease;
 }
 
@@ -1037,11 +1116,86 @@ p[style*="color: green"] {
   transform: scale(1.05);
 }
 
+/* Detail Edit Mode Styles */
+.detail-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #d4edda;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8fff9;
+}
+
+.detail-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.detail-file-input {
+  padding: 8px 0;
+  border: 2px dashed #4ade80;
+  border-radius: 6px;
+  background-color: #f8fff9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.detail-file-input:hover {
+  background-color: #d4edda;
+  border-color: #22c55e;
+}
+
+.detail-preview-image {
+  width: 100px;
+  height: auto;
+  border-radius: 6px;
+  border: 2px solid #d4edda;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+}
+
+.detail-preview-image:hover {
+  border-color: #4ade80;
+  transform: scale(1.05);
+}
+
+.detail-radio {
+  display: inline-block;
+  margin-right: 20px;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+}
+
+.detail-radio input[type="radio"] {
+  margin-right: 8px;
+  accent-color: #4ade80;
+  transform: scale(1.1);
+}
+
+.detail-error {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+}
+
+.detail-error p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .status-active {
-  color: #22c55e;
+  color: #28a745;
   font-weight: 600;
   padding: 4px 12px;
-  background-color: #dcfce7;
+  background-color: #d4edda;
   border-radius: 20px;
   font-size: 14px;
 }
@@ -1057,10 +1211,10 @@ p[style*="color: green"] {
 
 .modal-footer {
   padding: 20px 25px;
-  border-top: 2px solid #dcfce7;
+  border-top: 2px solid #d4edda;
   display: flex;
-  justify-content: space-between;
-  background-color: #f0fdf4;
+  justify-content: center;
+  background-color: #f8fff9;
   border-radius: 0 0 12px 12px;
 }
 
