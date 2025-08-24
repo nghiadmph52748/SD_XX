@@ -4,7 +4,7 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý Chi tiết sản phẩm</h1>
+          <h1 class="page-title">QUẢN LÝ CHI TIẾT SẢN PHẨM</h1>
           <p class="page-subtitle">
             Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho
           </p>
@@ -22,7 +22,7 @@
             <span class="btn-icon">📗</span>
             Xuất Excel
           </button>
-          <button class="btn-export" @click="openAddModal">
+          <button class="btn-add" @click="openAddModal">
             <span class="btn-icon">➕</span>
             Thêm chi tiết SP
           </button>
@@ -398,144 +398,190 @@
           </h3>
           <button class="modal-close" @click="closeModals">×</button>
         </div>
-        <div class="modal-body">
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Sản phẩm *</label>
-              <select v-model="newChiTietSanPham.idSanPham" class="form-control" required>
-                <option value="">Chọn sản phẩm</option>
-                <option v-for="product in sanPhams" :key="product.id" :value="product.id">
-                  {{ product.tenSanPham }} ({{ product.maSanPham }})
-                </option>
-              </select>
-            </div>
+                 <div class="modal-body">
+           <div class="form-grid">
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">📦</span>
+                 Sản phẩm *
+               </label>
+               <select v-model="newChiTietSanPham.idSanPham" class="form-control" required>
+                 <option value="">Chọn sản phẩm</option>
+                 <option v-for="product in sanPhams" :key="product.id" :value="product.id">
+                   {{ product.tenSanPham }} ({{ product.maSanPham }})
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Màu sắc *</label>
-              <select v-model="newChiTietSanPham.idMauSac" class="form-control" required>
-                <option value="">Chọn màu sắc</option>
-                <option v-for="color in mauSacs" :key="color.id" :value="color.id">
-                  {{ color.tenMauSac }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🎨</span>
+                 Màu sắc *
+               </label>
+               <select v-model="newChiTietSanPham.idMauSac" class="form-control" required>
+                 <option value="">Chọn màu sắc</option>
+                 <option v-for="color in mauSacs" :key="color.id" :value="color.id">
+                   {{ color.tenMauSac }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Kích thước *</label>
-              <select v-model="newChiTietSanPham.idKichThuoc" class="form-control" required>
-                <option value="">Chọn kích thước</option>
-                <option v-for="size in kichThuocs" :key="size.id" :value="size.id">
-                  {{ size.tenKichThuoc }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">📏</span>
+                 Kích thước *
+               </label>
+               <select v-model="newChiTietSanPham.idKichThuoc" class="form-control" required>
+                 <option value="">Chọn kích thước</option>
+                 <option v-for="size in kichThuocs" :key="size.id" :value="size.id">
+                   {{ size.tenKichThuoc }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Chất liệu *</label>
-              <select v-model="newChiTietSanPham.idChatLieu" class="form-control" required>
-                <option value="">Chọn chất liệu</option>
-                <option v-for="material in chatLieus" :key="material.id" :value="material.id">
-                  {{ material.tenChatLieu }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🧵</span>
+                 Chất liệu *
+               </label>
+               <select v-model="newChiTietSanPham.idChatLieu" class="form-control" required>
+                 <option value="">Chọn chất liệu</option>
+                 <option v-for="material in chatLieus" :key="material.id" :value="material.id">
+                   {{ material.tenChatLieu }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Đế giày</label>
-              <select v-model="newChiTietSanPham.idDeGiay" class="form-control">
-                <option value="">Chọn đế giày</option>
-                <option v-for="sole in deGiays" :key="sole.id" :value="sole.id">
-                  {{ sole.tenDeGiay }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">👟</span>
+                 Đế giày
+               </label>
+               <select v-model="newChiTietSanPham.idDeGiay" class="form-control">
+                 <option value="">Chọn đế giày</option>
+                 <option v-for="sole in deGiays" :key="sole.id" :value="sole.id">
+                   {{ sole.tenDeGiay }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Đệm giày</label>
-              <select v-model="newChiTietSanPham.idDemGiay" class="form-control">
-                <option value="">Chọn đệm giày</option>
-                <option v-for="insole in demGiays" :key="insole.id" :value="insole.id">
-                  {{ insole.tenDemGiay }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🦶</span>
+                 Đệm giày
+               </label>
+               <select v-model="newChiTietSanPham.idDemGiay" class="form-control">
+                 <option value="">Chọn đệm giày</option>
+                 <option v-for="insole in demGiays" :key="insole.id" :value="insole.id">
+                   {{ insole.tenDemGiay }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Trọng lượng</label>
-              <select v-model="newChiTietSanPham.idTrongLuong" class="form-control">
-                <option value="">Chọn trọng lượng</option>
-                <option v-for="weight in trongLuongs" :key="weight.id" :value="weight.id">
-                  {{ weight.tenTrongLuong }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">⚖️</span>
+                 Trọng lượng
+               </label>
+               <select v-model="newChiTietSanPham.idTrongLuong" class="form-control">
+                 <option value="">Chọn trọng lượng</option>
+                 <option v-for="weight in trongLuongs" :key="weight.id" :value="weight.id">
+                   {{ weight.tenTrongLuong }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Môn thể thao</label>
-              <select v-model="newChiTietSanPham.idMonTheThao" class="form-control">
-                <option value="">Chọn môn thể thao</option>
-                <option v-for="sport in monTheThaos" :key="sport.id" :value="sport.id">
-                  {{ sport.tenMonTheThao }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🏃</span>
+                 Môn thể thao
+               </label>
+               <select v-model="newChiTietSanPham.idMonTheThao" class="form-control">
+                 <option value="">Chọn môn thể thao</option>
+                 <option v-for="sport in monTheThaos" :key="sport.id" :value="sport.id">
+                   {{ sport.tenMonTheThao }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Loại mùa</label>
-              <select v-model="newChiTietSanPham.idLoaiMua" class="form-control">
-                <option value="">Chọn loại mùa</option>
-                <option v-for="season in loaiMuas" :key="season.id" :value="season.id">
-                  {{ season.tenLoaiMua }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🌤️</span>
+                 Loại mùa
+               </label>
+               <select v-model="newChiTietSanPham.idLoaiMua" class="form-control">
+                 <option value="">Chọn loại mùa</option>
+                 <option v-for="season in loaiMuas" :key="season.id" :value="season.id">
+                   {{ season.tenLoaiMua }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Độ bền</label>
-              <select v-model="newChiTietSanPham.idDoBen" class="form-control">
-                <option value="">Chọn độ bền</option>
-                <option v-for="durability in doBens" :key="durability.id" :value="durability.id">
-                  {{ durability.tenDoBen }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🛡️</span>
+                 Độ bền
+               </label>
+               <select v-model="newChiTietSanPham.idDoBen" class="form-control">
+                 <option value="">Chọn độ bền</option>
+                 <option v-for="durability in doBens" :key="durability.id" :value="durability.id">
+                   {{ durability.tenDoBen }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Chống nước</label>
-              <select v-model="newChiTietSanPham.idChongNuoc" class="form-control">
-                <option value="">Chọn chống nước</option>
-                <option v-for="waterproof in chongNuocs" :key="waterproof.id" :value="waterproof.id">
-                  {{ waterproof.tenChongNuoc }}
-                </option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Giá bán *</label>
-              <input v-model="newChiTietSanPham.giaBan" type="number" class="form-control" placeholder="Nhập giá bán"
-                min="0" step="1000" required />
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">💧</span>
+                 Chống nước
+               </label>
+               <select v-model="newChiTietSanPham.idChongNuoc" class="form-control">
+                 <option value="">Chọn chống nước</option>
+                 <option v-for="waterproof in chongNuocs" :key="waterproof.id" :value="waterproof.id">
+                   {{ waterproof.tenChongNuoc }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Số lượng *</label>
-              <input v-model="newChiTietSanPham.soLuong" type="number" class="form-control" placeholder="Nhập số lượng"
-                min="0" required />
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">💰</span>
+                 Giá bán *
+               </label>
+               <input v-model="newChiTietSanPham.giaBan" type="number" class="form-control" placeholder="Nhập giá bán"
+                 min="0" step="1000" required />
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Trạng thái</label>
-              <select v-model="newChiTietSanPham.trangThai" class="form-control">
-                <option :value="true">Hoạt động</option>
-                <option :value="false">Ngừng hoạt động</option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">📦</span>
+                 Số lượng *
+               </label>
+               <input v-model="newChiTietSanPham.soLuong" type="number" class="form-control" placeholder="Nhập số lượng"
+                 min="0" required />
+             </div>
 
-            <div class="form-group span-2">
-              <label class="form-label">Ghi chú</label>
-              <textarea v-model="newChiTietSanPham.ghiChu" class="form-control" rows="3"
-                placeholder="Nhập ghi chú..."></textarea>
-            </div>
-          </div>
-        </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">⚡</span>
+                 Trạng thái
+               </label>
+               <select v-model="newChiTietSanPham.trangThai" class="form-control">
+                 <option :value="true">✅ Hoạt động</option>
+                 <option :value="false">❌ Ngừng hoạt động</option>
+               </select>
+             </div>
+
+             <div class="form-group span-2">
+               <label class="form-label">
+                 <span class="label-icon">📝</span>
+                 Ghi chú
+               </label>
+               <textarea v-model="newChiTietSanPham.ghiChu" class="form-control" rows="3"
+                 placeholder="Nhập ghi chú..."></textarea>
+             </div>
+           </div>
+         </div>
         <div class="modal-footer">
           <button class="btn-export" @click="closeModals">
             <span class="btn-icon">❌</span>
@@ -1019,6 +1065,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Global font settings */
+* {
+  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 /* CSS Custom Properties */
 :root {
   --border-color: #e5e7eb;
@@ -1079,7 +1133,9 @@ onMounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -1088,11 +1144,38 @@ onMounted(async () => {
   backdrop-filter: blur(10px);
 }
 
+.btn-add {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
 .btn-refresh:hover,
 .btn-export:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .btn-icon {
@@ -1749,22 +1832,36 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-content.large {
@@ -1775,50 +1872,62 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 2rem 2rem 1.5rem 2rem;
+  border-bottom: 2px solid #f3f4f6;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px 16px 0 0;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--secondary-color);
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
 }
 
 .modal-close {
-  background: none;
+  background: rgba(239, 68, 68, 0.1);
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
+  color: #ef4444;
 }
 
 .modal-close:hover {
-  background-color: var(--light-gray);
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
+  background: white;
 }
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 2rem 2rem 2rem;
+  border-top: 2px solid #f3f4f6;
+  background: #f8fafc;
+  border-radius: 0 0 16px 16px;
 }
 
 /* Form styles */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 1rem 0;
 }
 
 .form-grid .form-group:nth-child(13),
@@ -1829,6 +1938,7 @@ onMounted(async () => {
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .form-group.span-2 {
@@ -1836,22 +1946,30 @@ onMounted(async () => {
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
   color: #374151;
   font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.label-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
 }
 
 .form-control {
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.875rem;
   background: white;
   transition: all 0.2s ease;
   font-weight: 500;
   color: #374151;
+  min-height: 48px;
 }
 
 .form-control:focus {
@@ -1869,6 +1987,22 @@ onMounted(async () => {
 .form-control::placeholder {
   color: #9ca3af;
   font-weight: 400;
+}
+
+/* Enhanced form controls */
+.form-control select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.form-control textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
 }
 
 /* Responsive Design - Optimized for 100% screen */
