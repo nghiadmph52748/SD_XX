@@ -35,74 +35,93 @@
     </div>
   </div>
 
-  <!-- Form thêm mới (ẩn mặc định) -->
-  <div class="add-form" v-if="showAddForm">
-    <div class="form-header">
-      <h3>Thêm Hình Ảnh Sản Phẩm Mới</h3>
-      <button @click="closeAddForm" class="btn-close">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <form @submit.prevent="fetchCreate">
-      <div>
-        <label>Chọn ảnh từ máy:</label>
-        <input
-          type="file"
-          ref="fileInput"
-          @change="handleFileChange"
-          accept="image/*"
-          required
-        />
-        <img
-          v-if="previewUrl"
-          :src="previewUrl"
-          alt="Preview ảnh"
-          style="width: 100px; height: auto; margin-top: 10px"
-        />
-      </div>
-      <div>
-        <label>Loại ảnh:</label>
-        <input v-model="newAnhSanPham.loaiAnh" type="text" required />
-      </div>
-      <div>
-        <label>Mô tả:</label>
-        <input v-model="newAnhSanPham.moTa" type="text" />
-      </div>
-      <div>
-        <label for="">Trạng thái</label>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input
-              type="radio"
-              name="Trạng thái"
-              :value="false"
-              v-model="newAnhSanPham.deleted"
-            />
-            <span>Hoạt động</span>
-          </label>
-          <label class="radio-label">
-            <input
-              type="radio"
-              name="Trạng thái"
-              :value="true"
-              v-model="newAnhSanPham.deleted"
-            />
-            <span>Không hoạt động</span>
-          </label>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="submit" :disabled="uploading" class="btn btn-primary">
-          <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
-        </button>
-        <button type="button" @click="closeAddForm" class="btn btn-secondary">
-          <i class="fas fa-times"></i> Hủy bỏ
-        </button>
-      </div>
-      <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
-      <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
-    </form>
-  </div>
+     <!-- Modal thêm mới -->
+   <div v-if="showAddForm" class="modal-overlay" @click="closeAddForm">
+     <div class="modal-content add-modal" @click.stop>
+       <div class="modal-header add-header">
+         <h3><i class="fas fa-plus"></i> Thêm Hình Ảnh Sản Phẩm Mới</h3>
+         <button @click="closeAddForm" class="modal-close">
+           <i class="fas fa-times"></i>
+         </button>
+       </div>
+       <div class="modal-body">
+         <form @submit.prevent="fetchCreate">
+           <div class="detail-row">
+             <div class="detail-label">Chọn ảnh từ máy:</div>
+             <div class="detail-value">
+               <input
+                 type="file"
+                 ref="fileInput"
+                 @change="handleFileChange"
+                 accept="image/*"
+                 required
+                 class="detail-file-input"
+               />
+               <img
+                 v-if="previewUrl"
+                 :src="previewUrl"
+                 alt="Preview ảnh"
+                 class="detail-preview-image"
+               />
+             </div>
+           </div>
+           <div class="detail-row">
+             <div class="detail-label">Loại ảnh:</div>
+             <div class="detail-value">
+               <input v-model="newAnhSanPham.loaiAnh" type="text" required class="detail-input" />
+             </div>
+           </div>
+           <div class="detail-row">
+             <div class="detail-label">Mô tả:</div>
+             <div class="detail-value">
+               <input v-model="newAnhSanPham.moTa" type="text" class="detail-input" />
+             </div>
+           </div>
+           <div class="detail-row">
+             <div class="detail-label">Trạng thái:</div>
+             <div class="detail-value">
+               <div class="radio-group">
+                 <label class="radio-label">
+                   <input
+                     type="radio"
+                     name="Trạng thái"
+                     :value="false"
+                     v-model="newAnhSanPham.deleted"
+                   />
+                   <span>Hoạt động</span>
+                 </label>
+                 <label class="radio-label">
+                   <input
+                     type="radio"
+                     name="Trạng thái"
+                     :value="true"
+                     v-model="newAnhSanPham.deleted"
+                   />
+                   <span>Không hoạt động</span>
+                 </label>
+               </div>
+             </div>
+           </div>
+           
+           <!-- Error và Success Message -->
+           <div v-if="errorMessage" class="detail-error">
+             <p>{{ errorMessage }}</p>
+           </div>
+           <div v-if="successMessage" class="detail-success">
+             <p>{{ successMessage }}</p>
+           </div>
+         </form>
+       </div>
+       <div class="modal-footer add-footer">
+         <button type="button" @click="closeAddForm" class="btn btn-secondary">
+           <i class="fas fa-times"></i> Hủy bỏ
+         </button>
+         <button @click="fetchCreate" :disabled="uploading" class="btn btn-primary">
+           <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+         </button>
+       </div>
+     </div>
+   </div>
   <!-- Form chỉnh sửa (mới thêm) -->
   <div class="edit-form" v-if="showEditForm">
     <h3>Chỉnh Sửa Hình Ảnh Sản Phẩm</h3>
@@ -1620,6 +1639,21 @@ input[type="radio"]:hover {
   font-weight: 500;
 }
 
+.detail-success {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+}
+
+.detail-success p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #22c55e;
+}
+
 .status-active {
   color: #28a745;
   font-weight: 600;
@@ -1699,10 +1733,122 @@ input[type="radio"]:hover {
   }
 }
 
-/* CSS cho Modal Xóa */
-.delete-modal {
-  max-width: 500px;
-}
+ /* CSS cho Modal Thêm Mới */
+ .add-modal {
+   max-width: 600px;
+ }
+ 
+ .add-header {
+   background: linear-gradient(135deg, #4ade80, #22c55e);
+ }
+ 
+ .add-footer {
+   justify-content: space-between;
+   padding: 20px 25px;
+ }
+ 
+ .add-footer .btn {
+   min-width: 120px;
+ }
+ 
+ /* Form groups trong modal */
+ .form-group {
+   margin-bottom: 20px;
+ }
+ 
+ .form-group label {
+   display: block;
+   margin-bottom: 8px;
+   font-weight: 600;
+   color: #4ade80;
+   font-size: 16px;
+   font-family: 'Inter', sans-serif;
+   letter-spacing: 0.2px;
+ }
+ 
+ .modal-input {
+   width: 100%;
+   padding: 12px 16px;
+   border: 2px solid #d4edda;
+   border-radius: 8px;
+   font-size: 16px;
+   transition: all 0.3s ease;
+   background-color: #f8fff9;
+   box-sizing: border-box;
+ }
+ 
+ .modal-input:focus {
+   outline: none;
+   border-color: #4ade80;
+   background-color: #ffffff;
+   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+ }
+ 
+ .modal-file-input {
+   padding: 10px 0;
+   border: 2px dashed #4ade80;
+   border-radius: 8px;
+   background-color: #f8fff9;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   width: 100%;
+   box-sizing: border-box;
+ }
+ 
+ .modal-file-input:hover {
+   background-color: #d4edda;
+   border-color: #22c55e;
+ }
+ 
+ .modal-preview-image {
+   width: 100px;
+   height: auto;
+   border-radius: 8px;
+   border: 2px solid #d4edda;
+   margin-top: 10px;
+   transition: all 0.3s ease;
+ }
+ 
+ .modal-preview-image:hover {
+   border-color: #4ade80;
+   transform: scale(1.05);
+ }
+ 
+ /* Error và Success message trong modal */
+ .modal-error {
+   margin-top: 15px;
+   padding: 12px;
+   background-color: #fff5f5;
+   border: 1px solid #fed7d7;
+   border-radius: 8px;
+ }
+ 
+ .modal-error p {
+   margin: 0;
+   font-size: 14px;
+   font-weight: 500;
+   color: #dc3545;
+ }
+ 
+ .modal-success {
+   margin-top: 15px;
+   padding: 12px;
+   background-color: #f0fdf4;
+   border: 1px solid #bbf7d0;
+   border-radius: 8px;
+ }
+ 
+ .modal-success p {
+   margin: 0;
+   font-size: 14px;
+   font-weight: 500;
+   color: #22c55e;
+ }
+ 
+ /* CSS cho Modal Xóa */
+ .delete-modal {
+   max-width: 500px;
+ }
 
 .delete-header {
   background: linear-gradient(135deg, #dc3545, #c82333);
