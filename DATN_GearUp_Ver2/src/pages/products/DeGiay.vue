@@ -59,7 +59,6 @@
       <tr>
         <th>STT</th>
         <th>Tên đế giày</th>
-        <th>Mô tả</th>
         <th>Trạng thái</th>
         <th>Thao tác</th>
       </tr>
@@ -68,7 +67,6 @@
       <tr v-for="(value, i) in paginatedDeGiays" :key="value.id">
         <td>{{ startIndex + i + 1 }}</td>
         <td>{{ value.tenDeGiay }}</td>
-        <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
           <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
