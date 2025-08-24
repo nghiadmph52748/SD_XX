@@ -23,11 +23,11 @@ public class ChiTietSanPhamAnhService {
     @Autowired
     AnhSanPhamRepository anhSanPhamRepository;
 
-    public List<ChiTietSanPhamAnhResponse> getAll(){
+    public List<ChiTietSanPhamAnhResponse> getAll() {
         return repository.findAll().stream().map(ChiTietSanPhamAnhResponse::new).toList();
     }
 
-    public ChiTietSanPhamAnhResponse getById(Integer id){
+    public ChiTietSanPhamAnhResponse getById(Integer id) {
         return repository.findById(id)
                 .map(ChiTietSanPhamAnhResponse::new)
                 .orElseThrow(() -> new RuntimeException("ChiTietSanPhamAnh not found with id: " + id));
@@ -49,6 +49,12 @@ public class ChiTietSanPhamAnhService {
         existing.setId(id);
         existing.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(chiTietSanPhamAnhResponse.getIdChiTietSanPham()));
         existing.setIdAnhSanPham(anhSanPhamRepository.findAnhSanPhamById(chiTietSanPhamAnhResponse.getIdAnhSanPham()));
+        repository.save(existing);
+    }
+
+    public void updateStatus(Integer id){
+        ChiTietSanPhamAnh existing = repository.findById(id).orElseThrow(() -> new RuntimeException("ChiTietSanPhamAnh not found with id: " + id));
+        existing.setDeleted(true);
         repository.save(existing);
     }
 }

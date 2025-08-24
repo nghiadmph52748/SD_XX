@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDate;
@@ -26,6 +28,7 @@ public class PhieuGiamGiaCaNhan {
     @JoinColumn(name = "id_phieu_giam_gia", nullable = false)
     private PhieuGiamGia idPhieuGiamGia;
 
+    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'PGGCN'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Column(name = "ma_phieu_giam_gia_ca_nhan", length = 10)
     private String maPhieuGiamGiaCaNhan;

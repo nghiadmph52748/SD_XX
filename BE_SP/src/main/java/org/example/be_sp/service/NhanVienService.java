@@ -1,6 +1,7 @@
 package org.example.be_sp.service;
 
 import org.example.be_sp.entity.NhanVien;
+import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.repository.NhanVienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,12 @@ public class NhanVienService {
     // Kiểm tra tồn tại theo tên tài khoản
     public boolean existsByTenTaiKhoan(String tenTaiKhoan) {
         return nhanVienRepository.existsByTenTaiKhoan(tenTaiKhoan);
+    }
+
+    public void updateStatus(Integer id){
+        NhanVien c = nhanVienRepository.findById(id).orElseThrow(() -> new ApiException("NhanVien not found", "404"));
+        c.setDeleted(true);
+        nhanVienRepository.save(c);
     }
 
 }

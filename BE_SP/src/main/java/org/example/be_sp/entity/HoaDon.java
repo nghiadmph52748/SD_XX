@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
@@ -33,6 +35,7 @@ public class HoaDon {
     @JoinColumn(name = "id_nhan_vien")
     private NhanVien idNhanVien;
 
+    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'HD'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Column(name = "ma_hoa_don", length = 7,insertable = false, updatable = false)
     private String maHoaDon;

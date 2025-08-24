@@ -17,4 +17,9 @@ public class QuyenHanService extends GenericCrudService<QuyenHan, Integer, Quyen
         super(entity, quyenHanResponseClass, quyenHanRequestClass, quyenHangrepository);
     }
 
+    public void updateStatus(Integer id){
+        QuyenHan e = quyenHangrepository.findById(id).orElseThrow(()-> new RuntimeException("Khong tim thay quyen han"));
+        e.setDeleted(true);
+        quyenHangrepository.save(e);
+    }
 }

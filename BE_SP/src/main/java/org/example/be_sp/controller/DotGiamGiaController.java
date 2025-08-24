@@ -4,6 +4,7 @@ import org.example.be_sp.model.request.DotGiamGiaRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.DotGiamGiaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,5 +39,11 @@ public class DotGiamGiaController {
     public ResponseObject<?> update(@RequestBody DotGiamGiaRequest request, @PathVariable Integer id) {
         dotGiamGiaService.update(id, request);
         return new ResponseObject<>(null, "Cập nhật đợt giảm giá thành công");
+    }
+
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        dotGiamGiaService.updateStatus(id);
+        return new ResponseObject<>(null, "Xoá đợt giảm giá thành công");
     }
 }
