@@ -24,6 +24,10 @@ const expandedMenus = ref({
   "NGƯỜI DÙNG": true,
 });
 
+const expandedSubMenus = ref({
+  "Thuộc tính sản phẩm": false
+});
+
 // Notifications
 const {
   notifications,
@@ -111,9 +115,8 @@ const pageTitle = computed(() => {
     "/users/customers": "Quản lý Khách hàng",
 
     // Product Management
-    "/products": "Quản lý Sản phẩm",
+    "/products": "Danh sách Sản phẩm",
     "/products/details": "Chi tiết Sản phẩm",
-    "/products/categories": "Danh mục Sản phẩm",
     "/products/xuat-xu": "Xuất xứ",
     "/products/nha-san-xuat": "Nhà sản xuất",
     "/products/mau-sac": "Màu sắc",
@@ -195,21 +198,26 @@ const menuItems = [
     hasSubmenu: true,
     submenu: [
       { path: "/products", name: "Danh sách sản phẩm" },
-      { path: "/products/categories", name: "Danh mục sản phẩm" },
       { path: "/products/details", name: "Chi tiết sản phẩm" },
-      { path: "/products/xuat-xu", name: "Xuất xứ" },
-      { path: "/products/nha-san-xuat", name: "Nhà sản xuất" },
-      { path: "/products/mau-sac", name: "Màu sắc" },
-      { path: "/products/kich-thuoc", name: "Kích thước" },
-      { path: "/products/de-giay", name: "Đế giày" },
-      { path: "/products/chat-lieu", name: "Chất liệu" },
-      { path: "/products/dem-giay", name: "Đệm giày" },
-      { path: "/products/trong-luong", name: "Trọng lượng" },
-      { path: "/products/mon-the-thao", name: "Môn thể thao" },
-      { path: "/products/loai-mua", name: "Loại mùa" },
-      { path: "/products/do-ben", name: "Độ bền" },
-      { path: "/products/chong-nuoc", name: "Chống nước" },
-      { path: "/products/anh-san-pham", name: "Ảnh sản phẩm" },
+      { 
+        name: "Thuộc tính sản phẩm", 
+        hasSubSubmenu: true,
+        subSubmenu: [
+          { path: "/products/xuat-xu", name: "Xuất xứ" },
+          { path: "/products/nha-san-xuat", name: "Nhà sản xuất" },
+          { path: "/products/mau-sac", name: "Màu sắc" },
+          { path: "/products/kich-thuoc", name: "Kích thước" },
+          { path: "/products/de-giay", name: "Đế giày" },
+          { path: "/products/chat-lieu", name: "Chất liệu" },
+          { path: "/products/dem-giay", name: "Đệm giày" },
+          { path: "/products/trong-luong", name: "Trọng lượng" },
+          { path: "/products/mon-the-thao", name: "Môn thể thao" },
+          { path: "/products/loai-mua", name: "Loại mùa" },
+          { path: "/products/do-ben", name: "Độ bền" },
+          { path: "/products/chong-nuoc", name: "Chống nước" },
+          { path: "/products/anh-san-pham", name: "Ảnh sản phẩm" },
+        ]
+      },
     ],
   },
 
@@ -404,12 +412,28 @@ const toggleSubmenu = (menuName) => {
   expandedMenus.value[menuName] = !expandedMenus.value[menuName];
 };
 
+const toggleSubSubmenu = (submenuName) => {
+  expandedSubMenus.value[submenuName] = !expandedSubMenus.value[submenuName];
+};
+
 const isSubmenuExpanded = (menuName) => {
   return expandedMenus.value[menuName] || false;
 };
 
+const isSubSubmenuExpanded = (submenuName) => {
+  return expandedSubMenus.value[submenuName] || false;
+};
+
 const isSubmenuItemActive = (submenu) => {
-  return submenu.some((item) => route.path === item.path);
+  return submenu.some((item) => {
+    if (item.path) {
+      return route.path === item.path;
+    }
+    if (item.hasSubSubmenu) {
+      return item.subSubmenu.some((subSubitem) => route.path === subSubitem.path);
+    }
+    return false;
+  });
 };
 
 // Watch for unread count changes to trigger animation
@@ -426,6 +450,8 @@ watch(
   },
   { immediate: false }
 );
+
+
 
 // Close dropdown when clicking outside
 const closeDropdowns = (event) => {
@@ -538,17 +564,59 @@ onUnmounted(() => {
               class="submenu"
               :class="{ 'submenu-expanded': isSubmenuExpanded(item.name) }"
             >
-              <router-link
+              <!-- Regular submenu items -->
+              <div
                 v-for="subitem in item.submenu"
-                :key="subitem.path"
-                :to="subitem.path"
+                :key="subitem.path || subitem.name"
                 class="submenu-item"
-                :class="{ active: route.path === subitem.path }"
-                @click="closeMobileMenu"
+                :class="{ 
+                  active: subitem.path ? route.path === subitem.path : false,
+                  'has-sub-submenu': subitem.hasSubSubmenu,
+                  'expanded': subitem.hasSubSubmenu && isSubSubmenuExpanded(subitem.name)
+                }"
+                @click="subitem.hasSubSubmenu ? toggleSubSubmenu(subitem.name) : (subitem.path ? router.push(subitem.path) : null)"
               >
                 <span class="submenu-bullet">•</span>
                 <span class="submenu-text">{{ subitem.name }}</span>
-              </router-link>
+                <span v-if="subitem.hasSubSubmenu" class="submenu-arrow-sub">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z" />
+                  </svg>
+                </span>
+              </div>
+
+              <!-- Sub-submenu for Thuộc tính sản phẩm -->
+              <div
+                v-if="item.name === 'QUẢN LÝ SẢN PHẨM'"
+                class="sub-submenu"
+                :class="{ 'sub-submenu-expanded': isSubSubmenuExpanded('Thuộc tính sản phẩm') }"
+                style="margin-left: 1rem;"
+              >
+                <div
+                  v-for="subSubitem in [
+                    { path: '/products/xuat-xu', name: 'Xuất xứ' },
+                    { path: '/products/nha-san-xuat', name: 'Nhà sản xuất' },
+                    { path: '/products/mau-sac', name: 'Màu sắc' },
+                    { path: '/products/kich-thuoc', name: 'Kích thước' },
+                    { path: '/products/de-giay', name: 'Đế giày' },
+                    { path: '/products/chat-lieu', name: 'Chất liệu' },
+                    { path: '/products/dem-giay', name: 'Đệm giày' },
+                    { path: '/products/trong-luong', name: 'Trọng lượng' },
+                    { path: '/products/mon-the-thao', name: 'Môn thể thao' },
+                    { path: '/products/loai-mua', name: 'Loại mùa' },
+                    { path: '/products/do-ben', name: 'Độ bền' },
+                    { path: '/products/chong-nuoc', name: 'Chống nước' },
+                    { path: '/products/anh-san-pham', name: 'Ảnh sản phẩm' }
+                  ]"
+                  :key="subSubitem.path"
+                  class="sub-submenu-item"
+                  :class="{ active: route.path === subSubitem.path }"
+                  @click="router.push(subSubitem.path)"
+                >
+                  <span class="sub-submenu-bullet">◦</span>
+                  <span class="sub-submenu-text">{{ subSubitem.name }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </template>
@@ -972,6 +1040,11 @@ onUnmounted(() => {
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 400;
+  position: relative;
+}
+
+.submenu-item.has-sub-submenu {
+  justify-content: space-between;
 }
 
 .submenu-item:hover {
@@ -997,6 +1070,75 @@ onUnmounted(() => {
 }
 
 .submenu-text {
+  flex: 1;
+}
+
+.submenu-arrow-sub {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+  opacity: 0.6;
+  color: #9ca3af;
+}
+
+.submenu-item.has-sub-submenu.expanded .submenu-arrow-sub {
+  transform: rotate(180deg);
+}
+
+/* Sub-submenu styles */
+.sub-submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background-color: #f8fafc;
+  border-left: 2px solid #e5e7eb;
+  margin-left: 1rem;
+}
+
+.sub-submenu-expanded {
+  max-height: 800px !important;
+  padding: 0.5rem 0;
+}
+
+.sub-submenu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 1.5rem;
+  padding-left: 4.5rem;
+  color: #6b7280;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 400;
+  border-left: 1px solid #e5e7eb;
+  margin-left: 1rem;
+}
+
+.sub-submenu-item:hover {
+  background-color: #f1f5f9;
+  color: #374151;
+}
+
+.sub-submenu-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 500;
+  border-left-color: #2563eb;
+}
+
+.sub-submenu-bullet {
+  margin-right: 0.75rem;
+  color: #d1d5db;
+  font-size: 0.7rem;
+  width: 3px;
+  height: 3px;
+  background-color: #d1d5db;
+  border-radius: 50%;
+}
+
+.sub-submenu-text {
   flex: 1;
 }
 

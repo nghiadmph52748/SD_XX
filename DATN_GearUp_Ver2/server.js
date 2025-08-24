@@ -6,9 +6,16 @@ const sql = require('mssql')
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8080
 
-app.use(cors())
+// CORS configuration
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -46,6 +53,9 @@ const employeeRoutes = require('./routes/employees')
 const orderRoutes = require('./routes/orders')
 const couponRoutes = require('./routes/coupons')
 const uploadRoutes = require('./routes/upload')
+const anhSanPhamRoutes = require('./routes/anh-san-pham')
+const xuatXuRoutes = require('./routes/xuat-xu')
+const nhaSanXuatRoutes = require('./routes/nha-san-xuat')
 
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productRoutes)
@@ -56,6 +66,9 @@ app.use('/api/employees', employeeRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/coupons', couponRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/anh-san-pham-management', anhSanPhamRoutes)
+app.use('/api/xuat-xu-management', xuatXuRoutes)
+app.use('/api/nha-san-xuat-management', nhaSanXuatRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'GearUp API is running' })

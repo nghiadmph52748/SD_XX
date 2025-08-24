@@ -173,6 +173,42 @@ router.delete('/image/:id', async (req, res) => {
   }
 })
 
+// PUT route to update product image
+router.put('/images/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { duong_dan_anh, loai_anh, mo_ta } = req.body
+    
+    const request = pool.request()
+    request.input('id', sql.Int, id)
+    request.input('duong_dan_anh', sql.NVarChar, duong_dan_anh)
+    request.input('loai_anh', sql.NVarChar, loai_anh)
+    request.input('mo_ta', sql.NVarChar, mo_ta)
+
+    const result = await request.query(`
+      UPDATE anh_san_pham 
+      SET 
+        duong_dan_anh = @duong_dan_anh,
+        loai_anh = @loai_anh,
+        mo_ta = @mo_ta,
+        updated_at = GETDATE()
+      WHERE id = @id AND deleted = 0;
+      
+      SELECT @@ROWCOUNT as affectedRows;
+    `)
+
+    if (result.recordset[0].affectedRows === 0) {
+      return res.status(404).json({ message: 'Ảnh không tồn tại' })
+    }
+
+    res.json({ message: 'Cập nhật ảnh thành công' })
+
+  } catch (error) {
+    console.error('Update image error:', error)
+    res.status(500).json({ message: 'Lỗi server' })
+  }
+})
+
 router.get('/images', async (req, res) => {
   try {
     const { page = 1, limit = 20, folder } = req.query

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/dot-giam-gia-management")
+@CrossOrigin(origins = "*")
 public class DotGiamGiaController {
     @Autowired
     DotGiamGiaService dotGiamGiaService;

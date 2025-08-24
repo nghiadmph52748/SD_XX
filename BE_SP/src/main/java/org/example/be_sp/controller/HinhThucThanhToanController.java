@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/hinh-thuc-thanh-toan-management")
+@CrossOrigin(origins = "*")
 public class HinhThucThanhToanController {
     @Autowired
     private HinhThucChuyenKhoanService hinhThucChuyenKhoanService;

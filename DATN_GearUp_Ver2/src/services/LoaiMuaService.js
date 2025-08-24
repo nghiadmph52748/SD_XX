@@ -1,28 +1,40 @@
-const API = "http://localhost:8080/api/loai-mua-management";
+const API = "http://localhost:8080/api/categories";
 
 export const fetchAllLoaiMua = async () => {
-    const res = await fetch(`${API}/playlist`);
+    const res = await fetch(`${API}/seasons`);
     if (!res.ok) {
-        throw new Error("Failed to fetch purchase types");
+        throw new Error("Failed to fetch seasons");
     }
     return res.json();
 }
+
 export const fetchOneLoaiMua = async (id) => {
-    const res = await fetch(`${API}/detail/${id}`);
+    const res = await fetch(`${API}/seasons`);
     if (!res.ok) {
-        throw new Error("Failed to fetch purchase type details");
+        throw new Error("Failed to fetch season");
     }
-    return res.json();
+    const data = await res.json();
+    return data.find(item => item.id === parseInt(id));
 }
+
 export const fetchPagingLoaiMua = async (page, size) => {
-    const res = await fetch(`${API}/paging?page=${page}&size=${size}`);
+    const res = await fetch(`${API}/seasons`);
     if (!res.ok) {
-        throw new Error("Failed to fetch paginated purchase types");
+        throw new Error("Failed to fetch paginated seasons");
     }
-    return res.json();
+    const data = await res.json();
+    const start = (page - 1) * size;
+    const end = start + size;
+    return {
+        data: data.slice(start, end),
+        total: data.length,
+        page: page,
+        size: size
+    };
 }
+
 export const fetchCreateLoaiMua = async (data) => {
-    const res = await fetch(`${API}/add`, {
+    const res = await fetch(`${API}/seasons`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -30,11 +42,14 @@ export const fetchCreateLoaiMua = async (data) => {
         body: JSON.stringify(data),
     });
     if (!res.ok) {
-        throw new Error("Failed to create purchase type");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to create season");
     }
+    return res.json();
 }
+
 export const fetchUpdateLoaiMua = async (id, data) => {
-    const res = await fetch(`${API}/update/${id}`, {
+    const res = await fetch(`${API}/seasons/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -42,17 +57,22 @@ export const fetchUpdateLoaiMua = async (id, data) => {
         body: JSON.stringify(data),
     });
     if (!res.ok) {
-        throw new Error("Failed to update purchase type");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update season");
     }
+    return res.json();
 }
+
 export const fetchUpdateStatusLoaiMua = async (id) => {
-    const res = await fetch(`${API}/update/status/${id}`, {
-        method: "PUT",
+    const res = await fetch(`${API}/seasons/${id}`, {
+        method: "DELETE",
         headers: {
             "Content-Type": "application/json"
         }
     });
     if (!res.ok) {
-        throw new Error("Failed to update purchase type status");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update season status");
     }
+    return res.json();
 }
