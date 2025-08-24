@@ -2,56 +2,100 @@
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <div class="add-form">
-    <h3>Thêm Chống Nước Mới</h3>
-    <form @submit.prevent="fetchCreate">
-      <div>
-        <label>Tên chống nước:</label>
-        <input v-model="newChongNuoc.tenChongNuoc" type="text" required />
-      </div>
-      <div>
-        <label>Mô tả:</label>
-        <input v-model="newChongNuoc.moTa" type="text" />
-      </div>
-      <div>
-        <label for="">Trạng thái</label>
-        <input type="radio" name="Trạng thái" :value="false" v-model="newChongNuoc.deleted" />Hoạt động
-        <input type="radio" name="Trạng thái" :value="true" v-model="newChongNuoc.deleted" />Không hoạt động
-      </div>
-      <button type="submit" :disabled="uploading" class="btn btn-primary">
-        <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
-      </button>
-      <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
-      <p v-if="successMessage" style="color: green">{{ successMessage }}</p>
-    </form>
+  <div class="management-header">
+    <div class="title-section">
+      <h2 class="main-title">Thuộc tính sản phẩm</h2>
+      <h3 class="sub-title">Quản lý chống nước</h3>
+    </div>
+    <button @click="showAddForm = true" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Thêm Chống Nước Mới
+    </button>
   </div>
 
-  <!-- Form chỉnh sửa -->
-  <div class="edit-form" v-if="showEditForm">
-    <h3>Chỉnh Sửa Chống Nước</h3>
-    <form @submit.prevent="fetchUpdate">
-      <div>
-        <label>Tên chống nước:</label>
-        <input v-model="selectedChongNuoc.tenChongNuoc" type="text" required />
+  <!-- Search và Filter -->
+  <div class="search-filter-section">
+    <div class="search-box">
+      <div class="search-input-group">
+        <label><i class="fas fa-search"></i> Tìm kiếm:</label>
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Tìm theo tên chống nước..."
+          @input="handleSearch"
+        />
       </div>
-      <div>
-        <label>Mô tả:</label>
-        <input v-model="selectedChongNuoc.moTa" type="text" />
+      <div class="filter-group">
+        <label><i class="fas fa-filter"></i> Lọc theo trạng thái:</label>
+        <select v-model="statusFilter" @change="handleFilter">
+          <option value="">Tất cả</option>
+          <option value="false">Hoạt động</option>
+          <option value="true">Không hoạt động</option>
+        </select>
       </div>
-      <div>
-        <label for="">Trạng thái</label>
-        <input type="radio" name="editTrạng thái" :value="false" v-model="selectedChongNuoc.deleted" />Hoạt động
-        <input type="radio" name="editTrạng thái" :value="true" v-model="selectedChongNuoc.deleted" />Không hoạt động
+    </div>
+  </div>
+
+  <!-- Modal thêm mới -->
+  <div v-if="showAddForm" class="modal-overlay" @click="closeAddForm">
+    <div class="modal-content add-modal" @click.stop>
+      <div class="modal-header add-header">
+        <h3><i class="fas fa-plus"></i> Thêm Chống Nước Mới</h3>
+        <button @click="closeAddForm" class="modal-close">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      <button type="submit" :disabled="uploading" class="btn btn-success">
-        <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Cập Nhật' }}
-      </button>
-      <button type="button" @click="closeEditForm" class="btn btn-secondary">
-        <i class="fas fa-times"></i> Đóng
-      </button>
-      <p v-if="editErrorMessage" style="color: red">{{ editErrorMessage }}</p>
-      <p v-if="editSuccessMessage" style="color: green">{{ editSuccessMessage }}</p>
-    </form>
+      <div class="modal-body">
+        <form @submit.prevent="fetchCreate">
+          <div class="detail-row">
+            <div class="detail-label">Tên chống nước:</div>
+            <div class="detail-value">
+              <input v-model="newChongNuoc.tenChongNuoc" type="text" required class="detail-input" />
+            </div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Trạng thái:</div>
+            <div class="detail-value">
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input
+                    type="radio"
+                    name="Trạng thái"
+                    :value="false"
+                    v-model="newChongNuoc.deleted"
+                  />
+                  <span>Hoạt động</span>
+                </label>
+                <label class="radio-label">
+                  <input
+                    type="radio"
+                    name="Trạng thái"
+                    :value="true"
+                    v-model="newChongNuoc.deleted"
+                  />
+                  <span>Không hoạt động</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Error và Success Message -->
+          <div v-if="errorMessage" class="detail-error">
+            <p>{{ errorMessage }}</p>
+          </div>
+          <div v-if="successMessage" class="detail-success">
+            <p>{{ successMessage }}</p>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer add-footer">
+        <button type="button" @click="closeAddForm" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Hủy bỏ
+        </button>
+        <button @click="fetchCreate" :disabled="uploading" class="btn btn-primary">
+          <i class="fas fa-plus"></i> {{ uploading ? 'Đang thêm...' : 'Thêm Mới' }}
+        </button>
+      </div>
+    </div>
   </div>
 
   <table class="table table-bordered">
@@ -59,7 +103,6 @@
       <tr>
         <th>STT</th>
         <th>Tên chống nước</th>
-        <th>Mô tả</th>
         <th>Trạng thái</th>
         <th>Thao tác</th>
       </tr>
@@ -68,7 +111,6 @@
       <tr v-for="(value, i) in paginatedChongNuocs" :key="value.id">
         <td>{{ startIndex + i + 1 }}</td>
         <td>{{ value.tenChongNuoc }}</td>
-        <td>{{ value.moTa }}</td>
         <td>{{ value.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
         <td>
           <button v-on:click="fetchDetail(value)" class="btn btn-detail btn-icon btn-sm" title="Xem chi tiết">
@@ -103,47 +145,81 @@
   <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <h3>Chi Tiết Chống Nước</h3>
+        <h3>Chỉnh Sửa Chống Nước</h3>
         <button class="modal-close" @click="closeDetailModal">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <div class="modal-body">
-        <div class="detail-row">
-          <div class="detail-label">ID:</div>
-          <div class="detail-value">{{ selectedChongNuoc.id }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Tên chống nước:</div>
-          <div class="detail-value">{{ selectedChongNuoc.tenChongNuoc }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Mô tả:</div>
-          <div class="detail-value">{{ selectedChongNuoc.moTa || 'Không có mô tả' }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Trạng thái:</div>
-          <div class="detail-value">
-            <span :class="selectedChongNuoc.deleted ? 'status-inactive' : 'status-active'">
-              {{ selectedChongNuoc.deleted ? "Không hoạt động" : "Hoạt động" }}
-            </span>
+        <!-- Edit Mode -->
+        <div>
+          <div class="detail-row">
+            <div class="detail-label">Tên chống nước:</div>
+            <div class="detail-value">
+              <input 
+                v-model="selectedChongNuoc.tenChongNuoc" 
+                type="text" 
+                required 
+                class="detail-input"
+              />
+            </div>
           </div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Ngày tạo:</div>
-          <div class="detail-value">{{ formatDate(selectedChongNuoc.createdAt) || 'Không có thông tin' }}</div>
-        </div>
-        <div class="detail-row">
-          <div class="detail-label">Ngày cập nhật:</div>
-          <div class="detail-value">{{ formatDate(selectedChongNuoc.updatedAt) || 'Không có thông tin' }}</div>
+          <div class="detail-row">
+            <div class="detail-label">Trạng thái:</div>
+            <div class="detail-value">
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="detailTrạng thái" :value="false" v-model="selectedChongNuoc.deleted" />
+                  <span>Hoạt động</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="detailTrạng thái" :value="true" v-model="selectedChongNuoc.deleted" />
+                  <span>Không hoạt động</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Error Message -->
+          <div v-if="editErrorMessage" class="detail-error">
+            <p style="color: red">{{ editErrorMessage }}</p>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-success" @click="editFromDetail">
-          <i class="fas fa-edit"></i> Chỉnh sửa
+        <button class="btn btn-success" @click="saveChanges" :disabled="uploading">
+          <i class="fas fa-save"></i> {{ uploading ? 'Đang cập nhật...' : 'Lưu thay đổi' }}
         </button>
-        <button class="btn btn-secondary" @click="closeDetailModal">
-          <i class="fas fa-times"></i> Đóng
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xác nhận Xóa -->
+  <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+    <div class="modal-content delete-modal" @click.stop>
+      <div class="modal-header delete-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Xác nhận xóa</h3>
+        <button class="modal-close" @click="closeDeleteModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="delete-content">
+          <div class="delete-icon">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <h4>Bạn có chắc chắn muốn xóa?</h4>
+          <p class="delete-message">
+            Bạn sắp xóa <strong>"{{ deleteItemName }}"</strong>. Hành động này không thể hoàn tác.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer delete-footer">
+        <button class="btn btn-secondary" @click="closeDeleteModal" :disabled="uploading">
+          <i class="fas fa-times"></i> Hủy bỏ
+        </button>
+        <button class="btn btn-delete" @click="confirmDelete" :disabled="uploading">
+          <i class="fas fa-trash"></i> {{ uploading ? 'Đang xóa...' : 'Xóa' }}
         </button>
       </div>
     </div>
@@ -162,7 +238,6 @@ import {
 const ChongNuocs = ref([]);
 const newChongNuoc = ref({
   tenChongNuoc: "",
-  moTa: "",
   deleted: false
 });
 const selectedChongNuoc = ref({});
@@ -174,24 +249,56 @@ const editErrorMessage = ref(null);
 const successMessage = ref(null);
 const editSuccessMessage = ref(null);
 
+// Biến cho modal xóa
+const showDeleteModal = ref(false);
+const deleteItemId = ref(null);
+const deleteItemName = ref('');
+
+// Biến cho form thêm mới
+const showAddForm = ref(false);
+
+// Biến cho tìm kiếm và lọc
+const searchQuery = ref('');
+const statusFilter = ref('');
+
 // Pagination variables
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalItems = ref(0);
 
-// Pagination computed properties
+// Computed properties cho tìm kiếm, lọc và phân trang
+const filteredChongNuocs = computed(() => {
+  let filtered = [...ChongNuocs.value];
+  
+  // Tìm kiếm theo tên chống nước
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(item => 
+      item.tenChongNuoc?.toLowerCase().includes(query)
+    );
+  }
+  
+  // Lọc theo trạng thái
+  if (statusFilter.value !== '') {
+    filtered = filtered.filter(item => 
+      item.deleted === (statusFilter.value === 'true')
+    );
+  }
+  
+  return filtered;
+});
+
+const totalItems = computed(() => filteredChongNuocs.value.length);
 const totalPages = computed(() => Math.ceil(totalItems.value / pageSize.value));
 const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
 const endIndex = computed(() => startIndex.value + pageSize.value);
 const paginatedChongNuocs = computed(() => {
-  return ChongNuocs.value.slice(startIndex.value, endIndex.value);
+  return filteredChongNuocs.value.slice(startIndex.value, endIndex.value);
 });
 
 const fetchAll = async () => {
   try {
     const response = await fetchAllChongNuoc();
     ChongNuocs.value = response.data;
-    totalItems.value = ChongNuocs.value.length; // Update total items for pagination
   } catch (error) {
     console.error("Error fetching:", error);
   }
@@ -212,13 +319,13 @@ const fetchCreate = async () => {
     // Reset form
     newChongNuoc.value = {
       tenChongNuoc: "",
-      moTa: "",
       deleted: false
     };
 
     await fetchAll();
     successMessage.value = "Chống nước đã được thêm thành công!";
     clearSuccessMessage();
+    closeAddForm(); // Đóng form sau khi thêm thành công
   } catch (error) {
     console.error("Error creating:", error);
     errorMessage.value = "Lỗi khi thêm: " + (error.message || "Không thể tạo chống nước");
@@ -235,6 +342,25 @@ const fetchDetail = (value) => {
 const openEditForm = (value) => {
   selectedChongNuoc.value = { ...value };
   showEditForm.value = true;
+};
+
+const saveChanges = async () => {
+  uploading.value = true;
+  editErrorMessage.value = null;
+  
+  try {
+    await fetchUpdateChongNuoc(selectedChongNuoc.value.id, selectedChongNuoc.value);
+    
+    await fetchAll();
+    closeDetailModal();
+    editSuccessMessage.value = "Chống nước đã được cập nhật thành công!";
+    clearEditSuccessMessage();
+  } catch (error) {
+    console.error("Error updating:", error);
+    editErrorMessage.value = "Lỗi khi cập nhật: " + (error.message || "Không thể cập nhật chống nước");
+  } finally {
+    uploading.value = false;
+  }
 };
 
 const fetchUpdate = async () => {
@@ -257,22 +383,63 @@ const fetchUpdate = async () => {
 };
 
 const fetchDelete = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa chống nước này?')) {
-    return;
+  // Hiển thị modal xác nhận xóa
+  showDeleteModal.value = true;
+  deleteItemId.value = id;
+  
+  // Lấy tên chống nước để hiển thị trong thông báo
+  const item = ChongNuocs.value.find(item => item.id === id);
+  if (item) {
+    deleteItemName.value = item.tenChongNuoc || 'Chống nước';
   }
+};
 
+const confirmDelete = async () => {
+  if (!deleteItemId.value) return;
+  
   try {
-    await fetchUpdateStatusChongNuoc(id);
+    uploading.value = true;
+    await fetchUpdateStatusChongNuoc(deleteItemId.value);
     await fetchAll();
     successMessage.value = "Chống nước đã được xóa thành công!";
     clearSuccessMessage();
+    closeDeleteModal();
   } catch (error) {
     console.error("There has been a problem with your fetch operation:", error);
     errorMessage.value = "Lỗi khi xóa: " + (error.message || "Không thể xóa chống nước");
     setTimeout(() => {
       errorMessage.value = null;
     }, 3000);
+  } finally {
+    uploading.value = false;
   }
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteItemId.value = null;
+  deleteItemName.value = '';
+};
+
+const closeAddForm = () => {
+  showAddForm.value = false;
+  // Reset form
+  newChongNuoc.value = {
+    tenChongNuoc: "",
+    deleted: false
+  };
+  errorMessage.value = null;
+  successMessage.value = null;
+};
+
+// Hàm xử lý tìm kiếm
+const handleSearch = () => {
+  currentPage.value = 1; // Reset về trang đầu tiên
+};
+
+// Hàm xử lý lọc
+const handleFilter = () => {
+  currentPage.value = 1; // Reset về trang đầu tiên
 };
 
 const closeEditForm = () => {
@@ -338,69 +505,117 @@ onMounted(fetchAll);
 </script>
 
 <style scoped>
-.add-form,
-.edit-form {
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Global font settings */
+* {
+  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header quản lý */
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-radius: 12px;
+  color: white;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.main-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sub-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  color: white;
+  opacity: 0.9;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
+}
+
+/* Search và Filter Section */
+.search-filter-section {
   background: #ffffff;
-  padding: 25px;
+  padding: 20px;
   border-radius: 12px;
   margin-bottom: 25px;
-  border: 2px solid #4ade80;
-  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.1);
-}
-
-.add-form h3,
-.edit-form h3 {
-  color: #4ade80;
-  margin-bottom: 25px;
-  font-size: 24px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.add-form div,
-.edit-form div {
-  margin-bottom: 20px;
-}
-
-.add-form label,
-.edit-form label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #4ade80;
-  font-size: 16px;
-}
-
-.add-form input[type="text"],
-.edit-form input[type="text"] {
+  border: 2px solid #d4edda;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
   width: 100%;
+  box-sizing: border-box;
+}
+
+.search-box {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.search-input-group,
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-input-group {
+  flex: 4;
+  min-width: 0;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 180px;
+}
+
+.search-input-group label,
+.filter-group label {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.search-input-group input,
+.filter-group select {
   padding: 12px 16px;
   border: 2px solid #d4edda;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px;
   transition: all 0.3s ease;
   background-color: #f8fff9;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.add-form input[type="text"]:focus,
-.edit-form input[type="text"]:focus {
+.search-input-group input:focus,
+.filter-group select:focus {
   outline: none;
   border-color: #4ade80;
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
-}
-
-.add-form input[type="radio"],
-.edit-form input[type="radio"] {
-  margin-right: 8px;
-  margin-left: 20px;
-  accent-color: #4ade80;
-  transform: scale(1.2);
-}
-
-.add-form input[type="radio"]:first-of-type,
-.edit-form input[type="radio"]:first-of-type {
-  margin-left: 0;
 }
 
 .btn {
@@ -413,6 +628,8 @@ onMounted(fetchAll);
   margin-right: 15px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
 }
 
 .btn:hover {
@@ -494,6 +711,7 @@ onMounted(fetchAll);
   font-size: 16px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-family: 'Inter', sans-serif;
 }
 
 .table tr:nth-child(even) {
@@ -503,26 +721,6 @@ onMounted(fetchAll);
 .table tr:hover {
   background-color: #dcfce7;
   transition: background-color 0.3s ease;
-}
-
-p[style*="color: red"] {
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px;
-  background-color: #fff5f5;
-  border: 1px solid #fed7d7;
-  border-radius: 8px;
-}
-
-p[style*="color: green"] {
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 12px;
-  background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 8px;
 }
 
 /* Icon button styles */
@@ -561,65 +759,11 @@ p[style*="color: green"] {
   box-shadow: none;
 }
 
-/* Form enhancements */
-.add-form input[type="radio"]+label,
-.edit-form input[type="radio"]+label {
-  display: inline;
-  margin-left: 5px;
-  font-weight: 500;
-  color: #495057;
-}
-
 /* Table enhancements */
 .table tbody tr:hover {
   background-color: #d4edda;
   transition: background-color 0.3s ease;
   cursor: pointer;
-}
-
-/* Success and error message enhancements */
-p[style*="color: red"],
-p[style*="color: green"] {
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 15px;
-  border-radius: 8px;
-  border-left: 4px solid;
-}
-
-p[style*="color: red"] {
-  background-color: #fff5f5;
-  border-color: #dc3545;
-  color: #dc3545;
-}
-
-p[style*="color: green"] {
-  background-color: #f0fdf4;
-  border-color: #22c55e;
-  color: #22c55e;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-
-  .add-form,
-  .edit-form {
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-
-  .table th,
-  .table td {
-    padding: 12px 8px;
-    font-size: 14px;
-  }
 }
 
 /* Pagination enhancements */
@@ -792,29 +936,126 @@ p[style*="color: green"] {
   word-break: break-word;
 }
 
-.status-active {
-  color: #28a745;
-  font-weight: 600;
-  padding: 4px 12px;
-  background-color: #d4edda;
-  border-radius: 20px;
+/* Detail Edit Mode Styles */
+.detail-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #d4edda;
+  border-radius: 6px;
   font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8fff9;
 }
 
-.status-inactive {
-  color: #dc3545;
-  font-weight: 600;
-  padding: 4px 12px;
-  background-color: #f8d7da;
-  border-radius: 20px;
+.detail-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+/* CSS cho radio button trong detail modal */
+.detail-value .radio-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.detail-value .radio-label {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
   font-size: 14px;
+  color: #333;
+}
+
+/* CSS cho radio button trong form */
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+input[type="radio"]:checked {
+  border-color: #4ade80;
+  background-color: #4ade80;
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+input[type="radio"]:hover {
+  border-color: #4ade80;
+}
+
+/* Style cho label của radio button */
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.detail-error {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+}
+
+.detail-error p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detail-success {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+}
+
+.detail-success p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #22c55e;
 }
 
 .modal-footer {
   padding: 20px 25px;
   border-top: 2px solid #d4edda;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   background-color: #f8fff9;
   border-radius: 0 0 12px 12px;
 }
@@ -842,8 +1083,123 @@ p[style*="color: green"] {
   }
 }
 
-/* Responsive Modal */
+/* CSS cho Modal Thêm Mới */
+.add-modal {
+  max-width: 600px;
+}
+
+.add-header {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+}
+
+.add-footer {
+  justify-content: space-between;
+  padding: 20px 25px;
+}
+
+.add-footer .btn {
+  min-width: 120px;
+}
+
+/* CSS cho Modal Xóa */
+.delete-modal {
+  max-width: 500px;
+}
+
+.delete-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.delete-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.delete-icon {
+  font-size: 60px;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.delete-content h4 {
+  color: #dc3545;
+  font-size: 20px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.delete-message {
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.delete-footer {
+  justify-content: space-between;
+  padding: 20px 25px;
+}
+
+.delete-footer .btn {
+  min-width: 120px;
+}
+
+.delete-footer .btn-delete {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.delete-footer .btn-delete:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a);
+}
+
+.delete-footer .btn-delete:disabled {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  opacity: 0.6;
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
+  .management-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .management-header h2 {
+    font-size: 24px;
+  }
+
+  .search-filter-section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .search-input-group,
+  .filter-group {
+    min-width: auto;
+    flex: none;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
   .modal-content {
     width: 95%;
     margin: 20px;
