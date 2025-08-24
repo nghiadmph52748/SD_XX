@@ -64,7 +64,7 @@ public class ChiTietSanPhamService {
         return new PagingResponse<>(repository.findAll(PageRequest.of(page, size)).map(ChiTietSanPhamResponse::new), page);
     }
 
-    public void add(ChiTietSanPhamRequest request) {
+    public Integer add(ChiTietSanPhamRequest request) {
         ChiTietSanPham c = MapperUtils.map(request, ChiTietSanPham.class);
         c.setIdSanPham(sanPham.findSanPhamById(request.getIdSanPham()));
         c.setIdMauSac(mauSac.findMauSacById(request.getIdMauSac()));
@@ -77,7 +77,8 @@ public class ChiTietSanPhamService {
         c.setIdLoaiMua(loaiMua.findLoaiMuaById(request.getIdLoaiMua()));
         c.setIdDoBen(doBen.findDoBenById(request.getIdDoBen()));
         c.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
-        repository.save(c);
+        ChiTietSanPham saved = repository.save(c);
+        return saved.getId();
     }
 
     public void update(ChiTietSanPhamRequest request, Integer id) {

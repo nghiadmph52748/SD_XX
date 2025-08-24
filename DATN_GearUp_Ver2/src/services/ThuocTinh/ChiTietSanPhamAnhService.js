@@ -43,6 +43,23 @@ export const fetchCreateChiTietSanPhamAnh = async (data) => {
     return result;
 }
 
+export const fetchCreateMultipleChiTietSanPhamAnh = async (data) => {
+    console.log('Creating multiple ChiTietSanPhamAnh with data:', data);
+    const res = await fetch(`${API}/add-multiple`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        throw new Error("Failed to create multiple product detail images");
+    }
+    const result = await res.json();
+    console.log('Created multiple ChiTietSanPhamAnh result:', result);
+    return result;
+}
+
 export const fetchUpdateChiTietSanPhamAnh = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {
         method: "PUT",

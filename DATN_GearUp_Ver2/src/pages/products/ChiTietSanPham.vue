@@ -641,7 +641,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
 import { fetchAllAnhSanPham } from '../../services/ThuocTinh/AnhSanPhamService'
-import { fetchAllChiTietSanPhamAnh, fetchCreateChiTietSanPhamAnh, fetchUpdateChiTietSanPhamAnh, fetchDeleteChiTietSanPhamAnh } from '../../services/ThuocTinh/ChiTietSanPhamAnhService'
+import { fetchAllChiTietSanPhamAnh, fetchCreateChiTietSanPhamAnh, fetchCreateMultipleChiTietSanPhamAnh, fetchUpdateChiTietSanPhamAnh, fetchDeleteChiTietSanPhamAnh } from '../../services/ThuocTinh/ChiTietSanPhamAnhService'
 import { fetchAllMauSac } from '../../services/ThuocTinh/MauSacService'
 import { fetchAllKichThuoc } from '../../services/ThuocTinh/KichThuocService'
 import { fetchAllDeGiay } from '../../services/ThuocTinh/DeGiayService'
@@ -998,13 +998,15 @@ const saveDetail = async () => {
       // Create new
       const response = await fetchCreateChiTietSanPham(dataToSend)
       alert('Thêm chi tiết sản phẩm thành công!')
-      // Lấy ID của chi tiết sản phẩm vừa tạo
-      chiTietSanPhamId = response?.data?.id || newChiTietSanPham.value.id
+      // Lấy ID của chi tiết sản phẩm vừa tạo từ response.data
+      chiTietSanPhamId = response?.data
+      console.log('Created chiTietSanPham with ID:', chiTietSanPhamId)
     } else if (showEditModal.value) {
       // Update existing
       await fetchUpdateChiTietSanPham(dataToSend.id, dataToSend)
       alert('Cập nhật chi tiết sản phẩm thành công!')
       chiTietSanPhamId = dataToSend.id
+      console.log('Updated chiTietSanPham with ID:', chiTietSanPhamId)
     }
 
     // Xử lý ảnh sản phẩm
@@ -1026,15 +1028,13 @@ const saveDetail = async () => {
           }
         }
 
-        // Tạo liên kết ảnh mới
-        for (const imageId of selectedImageIds.value) {
-          console.log('Creating new image link for image ID:', imageId)
-          await fetchCreateChiTietSanPhamAnh({
-            idChiTietSanPham: chiTietSanPhamId,
-            idAnhSanPham: imageId,
-            deleted: false
-          })
-        }
+        // Tạo liên kết ảnh mới - sử dụng method tạo nhiều ảnh cùng lúc
+        console.log('Creating multiple image links for image IDs:', selectedImageIds.value)
+        await fetchCreateMultipleChiTietSanPhamAnh({
+          idChiTietSanPham: chiTietSanPhamId,
+          idAnhSanPhamList: selectedImageIds.value,
+          deleted: false
+        })
       } catch (imageError) {
         console.error('Error handling images:', imageError)
         alert('Lưu thông tin thành công nhưng có lỗi khi xử lý ảnh!')
@@ -1235,7 +1235,7 @@ const getImagesForChiTietSanPham = (chiTietSanPhamId) => {
       item.idChiTietSanPham === chiTietSanPhamId && !item.deleted
     );
     
-    console.log(`Tìm thấy ${imageLinks.length} liên kết ảnh cho chi tiết sản phẩm ${chiTietSanPhamId}`)
+ 
     
     // Map để lấy thông tin ảnh đầy đủ
     const images = imageLinks.map(item => {
@@ -1253,7 +1253,7 @@ const getImagesForChiTietSanPham = (chiTietSanPhamId) => {
       }
     }).filter(img => img !== null);
     
-    console.log(`Trả về ${images.length} ảnh cho chi tiết sản phẩm ${chiTietSanPhamId}`)
+
     return images
   } catch (error) {
     console.error('Error getting images for chi tiet san pham:', error)

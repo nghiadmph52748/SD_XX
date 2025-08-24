@@ -39,8 +39,8 @@ public class ChiTietSanPhamController {
 
     @PostMapping("/add")
     public ResponseObject<?> add(@RequestBody ChiTietSanPhamRequest request) {
-        service.add(request);
-        return new ResponseObject<>(null, "Thêm chi tiết sản phẩm thành công");
+        Integer id = service.add(request);
+        return new ResponseObject<>(id, "Thêm chi tiết sản phẩm thành công");
     }
 
     @PutMapping("/update/{id}")
