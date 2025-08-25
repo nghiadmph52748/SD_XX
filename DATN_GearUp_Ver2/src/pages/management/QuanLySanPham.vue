@@ -38,76 +38,29 @@
         </div>
 
         <div class="filter-content">
-          <div class="search-section">
-            <div class="input-group">
-              <span class="input-icon">🔍</span>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Tìm kiếm tên sản phẩm, mã sản phẩm, mô tả..."
-                class="form-control search-input"
-              />
-              <button
-                v-if="searchQuery"
-                @click="searchQuery = ''"
-                class="clear-btn"
-              >
-                <span>✕</span>
-              </button>
-            </div>
-          </div>
+                     <div class="search-section">
+             <div class="input-group">
+               <span class="input-icon">🔍</span>
+               <input
+                 v-model="searchQuery"
+                 type="text"
+                 placeholder="Tìm kiếm theo mã SP, tên SP, nhà sản xuất, xuất xứ..."
+                 class="form-control search-input"
+               />
+               <button
+                 v-if="searchQuery"
+                 @click="searchQuery = ''"
+                 class="clear-btn"
+               >
+                 <span>✕</span>
+               </button>
+             </div>
+           </div>
 
-          <div class="filters-grid">
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">📦</span>
-                Danh mục
-              </label>
-              <select v-model="selectedCategory" class="form-select">
-                <option value="">Tất cả danh mục</option>
-                <option value="giay-the-thao">⚽ Giày thể thao</option>
-                <option value="giay-luoi">👞 Giày lười</option>
-                <option value="giay-cao-co">🥾 Giày cao cổ</option>
-              </select>
-            </div>
+                       
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">🏷️</span>
-                Thương hiệu
-              </label>
-              <select v-model="selectedBrand" class="form-select">
-                <option value="">Tất cả thương hiệu</option>
-                <option value="balenciaga">👑 Balenciaga</option>
-                <option value="converse">⭐ Converse</option>
-                <option value="nike">✓ Nike</option>
-                <option value="adidas">🔥 Adidas</option>
-              </select>
-            </div>
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">⚡</span>
-                Trạng thái
-              </label>
-              <select v-model="selectedStatus" class="form-select">
-                <option value="">Tất cả trạng thái</option>
-                <option value="active">✅ Hoạt động</option>
-                <option value="inactive">❌ Ngừng hoạt động</option>
-              </select>
-            </div>
-
-            <div class="filter-actions">
-              <button @click="clearFilters" class="btn btn-outline">
-                <span class="btn-icon">🔄</span>
-                Đặt lại
-              </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">🔍</span>
-                Áp dụng
-              </button>
-            </div>
-          </div>
+             </div>
         </div>
       </div>
     </div>
@@ -116,17 +69,32 @@
     <div class="card">
       <div class="card-body">
         <table class="table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Mã sản phẩm</th>
-              <th>Tên sản phẩm</th>
-              <th>Nhà sản xuất</th>
-              <th>Xuất xứ</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
+                     <thead>
+             <tr>
+               <th>STT</th>
+               <th>Mã sản phẩm</th>
+               <th>Tên sản phẩm</th>
+               <th class="sortable" @click="handleSort('NhaSanXuat')">
+                 Nhà sản xuất
+                 <span v-if="sortBy === 'NhaSanXuat'" class="sort-icon">
+                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                 </span>
+               </th>
+               <th class="sortable" @click="handleSort('XuatXu')">
+                 Xuất xứ
+                 <span v-if="sortBy === 'XuatXu'" class="sort-icon">
+                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                 </span>
+               </th>
+               <th class="sortable" @click="handleSort('TrangThai')">
+                 Trạng thái
+                 <span v-if="sortBy === 'TrangThai'" class="sort-icon">
+                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                 </span>
+               </th>
+               <th>Thao tác</th>
+             </tr>
+           </thead>
           <tbody>
             <tr v-for="(product, i) in filteredProducts" :key="i">
               <td>{{ startIndex + i + 1 }}</td>
@@ -398,7 +366,7 @@
         </div>
       </div>
     </div>
-  </div>
+
 </template>
 
 <script setup>
@@ -420,6 +388,9 @@ const selectedBrand = ref("");
 const selectedStatus = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const sortBy = ref(""); // NhaSanXuat, XuatXu, TrangThai
+const sortOrder = ref("asc"); // asc, desc
+const activeSortDropdown = ref(""); // Để kiểm soát dropdown nào đang mở
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const showDetailModal = ref(false);
@@ -499,14 +470,13 @@ const filteredProducts = computed(() => {
   let filtered = products.value;
 
   if (searchQuery.value) {
+    const searchTerm = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (product) =>
-        product.maSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase()) ||
-        product.tenSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase())
+        product.maSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenNhaSanXuat?.toLowerCase().includes(searchTerm) ||
+        product.tenXuatXu?.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -528,6 +498,33 @@ const filteredProducts = computed(() => {
     filtered = filtered.filter((product) => product.deleted === statusValue);
   }
 
+  // Sắp xếp dữ liệu
+  if (sortBy.value) {
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy.value) {
+        case "NhaSanXuat":
+          aValue = a.tenNhaSanXuat?.toLowerCase() || "";
+          bValue = b.tenNhaSanXuat?.toLowerCase() || "";
+          break;
+        case "XuatXu":
+          aValue = a.tenXuatXu?.toLowerCase() || "";
+          bValue = b.tenXuatXu?.toLowerCase() || "";
+          break;
+        
+        default:
+          return 0;
+      }
+      
+      if (sortOrder.value === "asc") {
+        return aValue.localeCompare(bValue, 'vi');
+      } else {
+        return bValue.localeCompare(aValue, 'vi');
+      }
+    });
+  }
+
   return filtered.slice(startIndex.value, endIndex.value);
 });
 
@@ -535,14 +532,13 @@ const totalProducts = computed(() => {
   let filtered = products.value;
 
   if (searchQuery.value) {
+    const searchTerm = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (product) =>
-        product.maSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase()) ||
-        product.tenSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase())
+        product.maSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenNhaSanXuat?.toLowerCase().includes(searchTerm) ||
+        product.tenXuatXu?.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -576,6 +572,8 @@ const endIndex = computed(() =>
   Math.min(startIndex.value + itemsPerPage.value, totalProducts.value)
 );
 
+
+
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -586,6 +584,54 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
   }
+};
+
+const handleSort = (field, order = null) => {
+  if (order) {
+    sortBy.value = field;
+    sortOrder.value = order;
+  } else {
+    if (sortBy.value === field) {
+      sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+    } else {
+      sortBy.value = field;
+      sortOrder.value = "asc";
+    }
+  }
+  currentPage.value = 1; // Reset về trang đầu khi sắp xếp
+  activeSortDropdown.value = ""; // Đóng dropdown sau khi chọn
+};
+
+const toggleSortDropdown = (field) => {
+  if (activeSortDropdown.value === field) {
+    activeSortDropdown.value = "";
+  } else {
+    activeSortDropdown.value = field;
+  }
+};
+
+const filterByNhaSanXuat = (nsx) => {
+  selectedCategory.value = nsx;
+  currentPage.value = 1;
+  activeSortDropdown.value = "";
+};
+
+const filterByXuatXu = (xx) => {
+  selectedBrand.value = xx;
+  currentPage.value = 1;
+  activeSortDropdown.value = "";
+};
+
+const filterByTrangThai = (status) => {
+  selectedStatus.value = status ? "inactive" : "active";
+  currentPage.value = 1;
+  activeSortDropdown.value = "";
+};
+
+const clearSort = () => {
+  sortBy.value = "";
+  sortOrder.value = "asc";
+  currentPage.value = 1;
 };
 
 const viewProduct = (product) => {
@@ -776,18 +822,34 @@ onMounted(fetch);
   background-color: white;
 }
 
-.table th {
-  background-color: #4ade80;
-  color: white;
-  font-weight: 600;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
+ .table th {
+   background-color: #4ade80;
+   color: white;
+   font-weight: 600;
+   padding: 1rem;
+   text-align: center;
+   font-size: 0.875rem;
+   white-space: nowrap;
+   position: sticky;
+   top: 0;
+   z-index: 10;
+ }
+
+ .table th.sortable {
+   cursor: pointer;
+   user-select: none;
+   transition: background-color 0.2s ease;
+ }
+
+ .table th.sortable:hover {
+   background-color: #22c55e;
+ }
+
+ .sort-icon {
+   margin-left: 0.5rem;
+   font-weight: bold;
+   font-size: 1rem;
+ }
 
 .table td {
   padding: 1rem;
@@ -1894,18 +1956,259 @@ onMounted(fetch);
    }
  }
 
- @media (max-width: 480px) {
-   .success-icon {
-     width: 60px;
-     height: 60px;
+   @media (max-width: 480px) {
+    .success-icon {
+      width: 60px;
+      height: 60px;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+    }
+
+    .success-message {
+      font-size: 0.95rem;
+    }
+  }
+
+     /* Search and Sort Section Styles */
+   .search-section {
+     margin-bottom: 1.5rem;
    }
 
-   .success-title {
-     font-size: 1.5rem;
+   .sort-section {
+     display: flex;
+     gap: 1rem;
+     margin-bottom: 1.5rem;
    }
 
-   .success-message {
-     font-size: 0.95rem;
+   .sort-item {
+     flex: 1;
+     position: relative;
+     background: white;
+     border: 2px solid #d4edda;
+     border-radius: 12px;
+     transition: all 0.3s ease;
+     min-height: 48px;
+     box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
    }
- }
- </style>
+
+   .sort-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 0.75rem 1rem;
+     cursor: pointer;
+     min-height: 48px;
+     background: linear-gradient(135deg, #f8fff9 0%, #d4edda 100%);
+     border-radius: 12px;
+   }
+
+   .sort-dropdown {
+     position: absolute;
+     top: 100%;
+     left: 0;
+     right: 0;
+     background: white;
+     border: 2px solid #d4edda;
+     border-top: none;
+     border-radius: 0 0 12px 12px;
+     box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+     z-index: 100;
+     max-height: 400px;
+     overflow-y: auto;
+     animation: slideIn 0.3s ease-out;
+   }
+
+   .sort-options {
+     padding: 1rem;
+     border-bottom: 1px solid #d4edda;
+     background: #f8fff9;
+   }
+
+   .sort-option {
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     padding: 0.75rem 1rem;
+     cursor: pointer;
+     border-radius: 8px;
+     transition: all 0.3s ease;
+     font-size: 0.875rem;
+     color: #333;
+     margin-bottom: 0.5rem;
+   }
+
+   .sort-option:hover {
+     background: #4ade80;
+     color: white;
+     transform: translateX(5px);
+     box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+   }
+
+   .sort-arrow {
+     font-weight: bold;
+     color: #4ade80;
+     font-size: 1rem;
+     transition: all 0.3s ease;
+   }
+
+   .sort-option:hover .sort-arrow {
+     color: white;
+   }
+
+   .sort-values {
+     padding: 1rem;
+     background: white;
+   }
+
+   .sort-values-title {
+     font-size: 0.75rem;
+     font-weight: 600;
+     color: #4ade80;
+     margin-bottom: 0.75rem;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     text-align: center;
+   }
+
+   .sort-values-list {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 0.5rem;
+     justify-content: center;
+   }
+
+   .sort-value-item {
+     padding: 0.5rem 1rem;
+     background: #f8fff9;
+     border: 2px solid #d4edda;
+     border-radius: 25px;
+     font-size: 0.875rem;
+     color: #4ade80;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     white-space: nowrap;
+     font-weight: 500;
+   }
+
+   .sort-value-item:hover {
+     background: #4ade80;
+     color: white;
+     border-color: #4ade80;
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+   }
+
+   .sort-item:hover {
+     border-color: #4ade80;
+     background: #f8fff9;
+     transform: translateY(-2px);
+     box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+   }
+
+   .sort-item:active {
+     transform: translateY(0);
+   }
+
+   .sort-label {
+     font-weight: 600;
+     color: #4ade80;
+     font-size: 0.875rem;
+     font-family: 'Inter', sans-serif;
+   }
+
+   .sort-indicator {
+     font-weight: bold;
+     font-size: 1.25rem;
+     color: #4ade80;
+     animation: sortPulse 0.3s ease-out;
+   }
+
+   .sort-placeholder {
+     font-size: 1.25rem;
+     color: #9ca3af;
+     opacity: 0.7;
+   }
+
+   @keyframes sortPulse {
+     0% { transform: scale(1); }
+     50% { transform: scale(1.2); }
+     100% { transform: scale(1); }
+   }
+
+   @keyframes slideIn {
+     from {
+       opacity: 0;
+       transform: translateY(-10px);
+     }
+     to {
+       opacity: 1;
+       transform: translateY(0);
+     }
+   }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .input-group:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.875rem;
+    background: transparent;
+  }
+
+  .clear-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    color: #6b7280;
+    transition: all 0.2s ease;
+  }
+
+  .clear-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  /* Responsive for sort section */
+  @media (max-width: 768px) {
+    .sort-section {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .sort-item {
+      min-height: 44px;
+    }
+
+    .sort-dropdown {
+      position: fixed;
+      top: auto;
+      left: 1rem;
+      right: 1rem;
+      max-height: 60vh;
+    }
+  }
+
+  /* Click outside to close dropdown */
+  .sort-item:focus-within .sort-dropdown {
+    display: block;
+  }
+  </style>
