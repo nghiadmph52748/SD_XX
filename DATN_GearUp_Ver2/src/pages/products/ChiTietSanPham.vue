@@ -300,7 +300,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(detail, index) in filteredDetails" :key="detail.id">
+              <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
                 <td class="stt-col">
                   {{ (currentPage - 1) * pageSize + index + 1 }}
                 </td>
@@ -468,11 +468,11 @@
                   <br />
                   <div class="action-buttons">
                     <button
-                      class="btn-delete"
+                      class="btn-hide"
                       @click="deleteDetail(detail.id)"
-                      title="Xóa"
+                      title="Ẩn sản phẩm"
                     >
-                      <span class="btn-icon">🗑️</span>
+                      <span class="btn-icon">👁️</span>
                     </button>
                   </div>
                 </td>
@@ -488,7 +488,7 @@
         <div v-if="totalPages > 1" class="pagination-wrapper">
           <div class="pagination-info">
             Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
-            {{ filteredDetails.length }} chi tiết sản phẩm
+            {{ filteredDetails.length }} chi tiết sản phẩm ({{ pageSize }} dòng/trang)
           </div>
           <div class="pagination">
             <button
@@ -506,6 +506,13 @@
             >
               Sau ❯
             </button>
+          </div>
+        </div>
+        
+        <!-- Pagination Info khi chỉ có 1 trang -->
+        <div v-else-if="filteredDetails.length > 0" class="pagination-wrapper">
+          <div class="pagination-info">
+            Hiển thị tất cả {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
         </div>
       </div>
@@ -1185,10 +1192,6 @@ const filteredDetails = computed(() => {
       matchesStatus
     );
   });
-  return filteredDetails.value.slice(
-    startIndex.value,
-    startIndex.value + pageSize.value
-  );
 });
 
 const totalPages = computed(() =>
@@ -1208,26 +1211,32 @@ const paginatedDetails = computed(() => {
 
 const deleteDetail = async (id) => {
   try {
-    // Hiển thị confirm trước khi xóa
+    console.log("Bắt đầu ẩn chi tiết sản phẩm với ID:", id);
+    
+    // Hiển thị confirm trước khi xóa mềm
     if (
       !confirm(
-        "Bạn có chắc chắn muốn xóa chi tiết sản phẩm này không? Hành động này không thể hoàn tác!"
+        "Bạn có chắc chắn muốn ẩn chi tiết sản phẩm này không? Sản phẩm sẽ không hiển thị nhưng vẫn được lưu trong hệ thống."
       )
     ) {
+      console.log("Người dùng hủy bỏ việc ẩn sản phẩm");
       return;
     }
 
-    // Gọi API xóa thực sự
+    console.log("Gọi API cập nhật trạng thái (xóa mềm) cho ID:", id);
+    // Gọi API cập nhật trạng thái (xóa mềm)
     await fetchUpdateStatusChiTietSanPham(id);
 
+    console.log("Cập nhật trạng thái thành công, đang refresh danh sách...");
     // Refresh lại danh sách
     await fetchChiTietSanPham();
 
+    console.log("Refresh danh sách thành công, hiển thị thông báo...");
     // Hiển thị thông báo thành công
-    showSuccessNotification("Xóa chi tiết sản phẩm thành công!");
+    showSuccessNotification("Ẩn chi tiết sản phẩm thành công!");
   } catch (error) {
-    console.error("Error deleting product detail:", error);
-    alert("Có lỗi xảy ra khi xóa chi tiết sản phẩm!");
+    console.error("Error hiding product detail:", error);
+    alert("Có lỗi xảy ra khi ẩn chi tiết sản phẩm!");
   }
 };
 
@@ -1759,8 +1768,10 @@ const forceRefreshImageData = async () => {
 
 onMounted(async () => {
   try {
+    console.log("Component mounted, bắt đầu load dữ liệu ban đầu...");
     // Load dữ liệu song song để tăng tốc độ
     await Promise.all([fetchChiTietSanPham(), fetchAllThuocTinh()]);
+    console.log("Đã load dữ liệu ban đầu thành công");
   } catch (error) {
     console.error("Error loading initial data:", error);
     alert("Có lỗi xảy ra khi tải dữ liệu ban đầu!");
@@ -2525,7 +2536,7 @@ onMounted(async () => {
 }
 
 .btn-edit,
-.btn-delete {
+.btn-hide {
   border: none;
   border-radius: 4px;
   padding: 0.2rem;
@@ -2548,13 +2559,13 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
-.btn-delete {
-  background: #ef4444;
+.btn-hide {
+  background: #6b7280;
   color: white;
 }
 
-.btn-delete:hover {
-  background: #dc2626;
+.btn-hide:hover {
+  background: #4b5563;
   transform: translateY(-1px);
 }
 
@@ -2572,7 +2583,14 @@ onMounted(async () => {
 }
 
 .pagination-info {
-  display: none;
+  display: block;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .pagination {
@@ -3123,6 +3141,17 @@ onMounted(async () => {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
   }
+  
+  .pagination-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .pagination-info {
+    text-align: center;
+    width: 100%;
+  }
 }
 
 @media (max-width: 1000px) {
@@ -3481,7 +3510,7 @@ onMounted(async () => {
   }
 
   .btn-edit,
-  .btn-delete {
+  .btn-hide {
     min-width: 24px;
     height: 24px;
   }

@@ -61,13 +61,35 @@ export const fetchUpdateChiTietSanPham = async (id, data) => {
     return res.json();
 }
 export const fetchUpdateStatusChiTietSanPham = async (id) => {
+    console.log("Đang gọi API cập nhật trạng thái chi tiết sản phẩm ID:", id);
     const res = await fetch(`${API}/update/status/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         }
     });
+    console.log("Response status:", res.status);
     if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API Error:", errorText);
         throw new Error("Failed to update product detail status");
     }
+    console.log("Cập nhật trạng thái thành công cho ID:", id);
+}
+
+export const fetchRestoreStatusChiTietSanPham = async (id) => {
+    console.log("Đang gọi API khôi phục trạng thái chi tiết sản phẩm ID:", id);
+    const res = await fetch(`${API}/restore/status/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    console.log("Response status:", res.status);
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error("API Error:", errorText);
+        throw new Error("Failed to restore product detail status");
+    }
+    console.log("Khôi phục trạng thái thành công cho ID:", id);
 }

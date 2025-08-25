@@ -145,3 +145,4 @@ Bảng `ChiTietSanPham` đã được cập nhật thành công với thanh cu�
 **Ngày cập nhật**: $(date)  
 **Phiên bản**: 1.0  
 **Trạng thái**: Hoàn thành ✅
+

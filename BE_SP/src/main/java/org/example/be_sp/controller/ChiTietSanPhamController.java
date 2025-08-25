@@ -60,8 +60,28 @@ public class ChiTietSanPhamController {
 
     @PutMapping("/update/status/{id}")
     public ResponseObject<?> updateStatus(@PathVariable Integer id) {
-        service.updateStatus(id);
-        return new ResponseObject<>(null, "Cập nhật trạng thái chi tiết sản phẩm thành công");
+        logger.info("Nhận request cập nhật trạng thái chi tiết sản phẩm với ID: {}", id);
+        try {
+            service.updateStatus(id);
+            logger.info("Cập nhật trạng thái chi tiết sản phẩm ID: {} thành công", id);
+            return new ResponseObject<>(null, "Cập nhật trạng thái chi tiết sản phẩm thành công");
+        } catch (Exception e) {
+            logger.error("Lỗi khi cập nhật trạng thái chi tiết sản phẩm ID: {}", id, e);
+            throw e;
+        }
+    }
+
+    @PutMapping("/restore/status/{id}")
+    public ResponseObject<?> restoreStatus(@PathVariable Integer id) {
+        logger.info("Nhận request khôi phục trạng thái chi tiết sản phẩm với ID: {}", id);
+        try {
+            service.restoreStatus(id);
+            logger.info("Khôi phục trạng thái chi tiết sản phẩm ID: {} thành công", id);
+            return new ResponseObject<>(null, "Khôi phục trạng thái chi tiết sản phẩm thành công");
+        } catch (Exception e) {
+            logger.error("Lỗi khi khôi phục trạng thái chi tiết sản phẩm ID: {}", id, e);
+            throw e;
+        }
     }
 
     @GetMapping("/full-info")

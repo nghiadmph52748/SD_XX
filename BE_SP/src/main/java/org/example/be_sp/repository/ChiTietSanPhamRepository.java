@@ -23,6 +23,7 @@ public interface ChiTietSanPhamRepository extends JpaRepository<ChiTietSanPham, 
            "JOIN FETCH ctsp.idLoaiMua lmu " +
            "JOIN FETCH ctsp.idDoBen db " +
            "JOIN FETCH ctsp.idChongNuoc cn " +
-           "WHERE ctsp.deleted = false OR ctsp.deleted IS NULL")
+           "WHERE (ctsp.deleted = false OR ctsp.deleted IS NULL) " +
+           "AND (ctsp.trangThai = true OR ctsp.trangThai IS NULL)")
     List<ChiTietSanPham> findAllWithValidData();
 }
