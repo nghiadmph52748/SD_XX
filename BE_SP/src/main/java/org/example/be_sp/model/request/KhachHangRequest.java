@@ -17,6 +17,8 @@ import java.util.Objects;
 @AllArgsConstructor
 public class KhachHangRequest {
     private String tenKhachHang;
+    private String tenTaiKhoan;
+    private String matKhau;
     private String email;
     private String soDienThoai;
     private Boolean gioiTinh;

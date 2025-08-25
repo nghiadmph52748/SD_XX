@@ -1070,6 +1070,7 @@ onUnmounted(() => {
 }
 
 .submenu-text {
+  color: #000000;
   flex: 1;
 }
 
@@ -1139,6 +1140,7 @@ onUnmounted(() => {
 }
 
 .sub-submenu-text {
+  color: #000000;
   flex: 1;
 }
 
@@ -1176,6 +1178,7 @@ onUnmounted(() => {
 }
 
 .menu-text {
+  color: #000000;
   margin-left: 0.75rem;
   flex: 1;
   font-size: 0.875rem;

@@ -313,7 +313,24 @@
                   />
                 </div>
               </div>
-
+              <div class="form-group">
+                <label class="form-label">*Tài khoản</label>
+                <input
+                  type="text"
+                  v-model="employeeForm.tenTaiKhoan"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">*Mật khẩu</label>
+                <input
+                  type="password"
+                  v-model="employeeForm.matKhau"
+                  class="form-control"
+                  required
+                />
+              </div>
               <div class="form-group">
                 <label class="form-label">*Quyền hạn</label>
                 <select
@@ -483,6 +500,24 @@
               </div>
 
               <div class="form-group">
+                <label class="form-label">*Tài khoản</label>
+                <input
+                  type="text"
+                  v-model="employeeForm.tenTaiKhoan"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">*Mật khẩu</label>
+                <input
+                  type="password"
+                  v-model="employeeForm.matKhau"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="form-group">
                 <label class="form-label">*Quyền hạn</label>
                 <select
                   v-model="employeeForm.idQuyenHan"
@@ -597,6 +632,14 @@
                   <span>{{ selectedEmployee.cccd }}</span>
                 </div>
                 <div class="info-item">
+                  <label>Tài khoản:</label>
+                  <span>{{ selectedEmployee.tenTaiKhoan }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Mật khẩu:</label>
+                  <span>{{ selectedEmployee.matKhau }}</span>
+                </div>
+                <div class="info-item">
                   <label>Chức vụ:</label>
                   <span>{{ selectedEmployee.tenQuyenHan }}</span>
                 </div>
@@ -655,6 +698,8 @@ const employeeForm = ref({
   idQuyenHan: "",
   trangThai: true,
   delete: false,
+  tenTaiKhoan: "",
+  matKhau: "",
 });
 
 // Mock data
@@ -664,16 +709,16 @@ const fetchAll = async () => {
   try {
     const res = await fetchAllNhanVien();
     nhanViens.value = res.data;
-  } catch (error) {
-    console.log(error);
+  } catch (res) {
+    console.log(res.message);
   }
 };
 const fetchQuyenHan = async () => {
   try {
     const res = await fetchAllQuyenHan();
     quyenHans.value = res.data;
-  } catch (error) {
-    console.log(error);
+  } catch (res) {
+    console.log(res.message);
   }
 };
 // Computed
@@ -788,9 +833,9 @@ const saveEmployee = async () => {
     showEditModal.value = false;
     await fetchAll();
     resetForm();
-  } catch (error) {
-    console.error("Lỗi khi lưu nhân viên:", error);
-    alert("Có lỗi xảy ra khi lưu thông tin nhân viên");
+  } catch (res) {
+    console.log(res.message);
+    alert(res.message);
   }
 };
 

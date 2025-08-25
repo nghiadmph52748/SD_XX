@@ -41,6 +41,14 @@ public class NhanVienService {
     public void saveNhanVien(NhanVienRequest request) {
         NhanVien nv = MapperUtils.map(request, NhanVien.class);
         nv.setIdQuyenHan(repository.findById(request.getIdQuyenHan()).orElseThrow(() -> new ApiException("QuyenHan not found", "404")));
+        if (request.getTenTaiKhoan() != null && request.getMatKhau() != null){
+            if (nhanVienRepository.existsByTenTaiKhoan(request.getTenTaiKhoan())){
+                throw new ApiException("TenTaiKhoan da ton tai", "400");
+            } else {
+                nv.setTenTaiKhoan(request.getTenTaiKhoan());
+                nv.setMatKhau(passwordEncoder.encode(request.getMatKhau()));
+            }
+        }
         nhanVienRepository.save(nv);
     }
 
@@ -48,6 +56,12 @@ public class NhanVienService {
         NhanVien e = MapperUtils.map(request, NhanVien.class);
         e.setId(id);
         e.setIdQuyenHan(repository.findById(request.getIdQuyenHan()).orElseThrow(() -> new ApiException("QuyenHan not found", "404")));
+        if (request.getTenTaiKhoan() != null){
+            e.setTenTaiKhoan(request.getTenTaiKhoan());
+        }
+        if (request.getMatKhau() != null){
+            e.setMatKhau(passwordEncoder.encode(request.getMatKhau()));
+        }
         nhanVienRepository.save(e);
     }
 

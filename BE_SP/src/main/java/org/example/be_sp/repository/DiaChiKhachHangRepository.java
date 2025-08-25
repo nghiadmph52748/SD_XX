@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface DiaChiKhachHangRepository extends JpaRepository<DiaChiKhachHang, Integer> {
-    List<DiaChiKhachHang> findAllById(Integer id);
+    // Find all addresses by customer id (id_khach_hang)
+    List<DiaChiKhachHang> findAllByIdKhachHang_Id(Integer idKhachHang);
 }

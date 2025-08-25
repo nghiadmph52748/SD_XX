@@ -203,6 +203,14 @@
                   <label>Giới tính:</label>
                   <span>{{ selectedCustomer.gioiTinh ? "Nam" : "Nữ" }}</span>
                 </div>
+                <div class="info-item">
+                  <label>Tài khoản:</label>
+                  <span>{{ selectedCustomer.tenTaiKhoan }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Mật khẩu:</label>
+                  <span>{{ selectedCustomer.matKhau }}</span>
+                </div>
                 <div class="info-item address-list-item">
                   <label>Địa chỉ:</label>
                   <div
@@ -328,271 +336,303 @@
             </div>
 
             <div class="form-section">
-              <div class="address-header">
-                <h4>Địa chỉ</h4>
+              <h4>Thông tin tài khoản</h4>
+            </div>
+            <div class="form-group">
+              <label class="form-label">*Tài khoản</label>
+              <input
+                type="text"
+                v-model="customerForm.tenTaiKhoan"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">*Mật khẩu</label>
+              <input
+                type="password"
+                v-model="customerForm.matKhau"
+                class="form-control"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="address-header">
+              <h4>Địa chỉ</h4>
+              <button
+                type="button"
+                class="btn-add-address"
+                @click="addAddress"
+                title="Thêm địa chỉ"
+              >
+                <span class="btn-icon">➕</span>
+                Thêm địa chỉ
+              </button>
+            </div>
+
+            <div
+              v-for="(address, index) in customerForm.listDiaChi"
+              :key="index"
+              class="address-item"
+            >
+              <div class="address-item-header">
+                <h5>Địa chỉ {{ index + 1 }}</h5>
                 <button
+                  v-if="customerForm.listDiaChi.length > 1"
                   type="button"
-                  class="btn-add-address"
-                  @click="addAddress"
-                  title="Thêm địa chỉ"
+                  class="btn-remove-address"
+                  @click="removeAddress(index)"
+                  title="Xóa địa chỉ"
                 >
-                  <span class="btn-icon">➕</span>
-                  Thêm địa chỉ
+                  <span class="btn-icon">❌</span>
                 </button>
               </div>
 
-              <div
-                v-for="(address, index) in customerForm.listDiaChi"
-                :key="index"
-                class="address-item"
-              >
-                <div class="address-item-header">
-                  <h5>Địa chỉ {{ index + 1 }}</h5>
-                  <button
-                    v-if="customerForm.listDiaChi.length > 1"
-                    type="button"
-                    class="btn-remove-address"
-                    @click="removeAddress(index)"
-                    title="Xóa địa chỉ"
-                  >
-                    <span class="btn-icon">❌</span>
-                  </button>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">*Tỉnh/thành phố</label>
+                  <input
+                    type="text"
+                    v-model="address.thanhPho"
+                    class="form-control"
+                    placeholder="Nhập tên tỉnh/thành phố"
+                    required
+                  />
                 </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">*Tỉnh/thành phố</label>
-                    <input
-                      type="text"
-                      v-model="address.thanhPho"
-                      class="form-control"
-                      placeholder="Nhập tên tỉnh/thành phố"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">*Quận/huyện</label>
-                    <input
-                      type="text"
-                      v-model="address.quan"
-                      class="form-control"
-                      placeholder="Nhập tên quận/huyện"
-                      required
-                    />
-                  </div>
+                <div class="form-group">
+                  <label class="form-label">*Quận/huyện</label>
+                  <input
+                    type="text"
+                    v-model="address.quan"
+                    class="form-control"
+                    placeholder="Nhập tên quận/huyện"
+                    required
+                  />
                 </div>
+              </div>
 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">*Xã/phường/thị trấn</label>
-                    <input
-                      type="text"
-                      v-model="address.phuong"
-                      class="form-control"
-                      placeholder="Nhập tên xã/phường/thị trấn"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">*Địa chỉ cụ thể</label>
-                    <input
-                      type="text"
-                      v-model="address.diaChiCuThe"
-                      class="form-control"
-                      required
-                    />
-                  </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">*Xã/phường/thị trấn</label>
+                  <input
+                    type="text"
+                    v-model="address.phuong"
+                    class="form-control"
+                    placeholder="Nhập tên xã/phường/thị trấn"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">*Địa chỉ cụ thể</label>
+                  <input
+                    type="text"
+                    v-model="address.diaChiCuThe"
+                    class="form-control"
+                    required
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            @click="showAddModal = false"
-          >
-            Hủy
-          </button>
-          <button type="submit" class="btn btn-primary" @click="saveCustomer">
-            Thêm khách hàng
-          </button>
-        </div>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          @click="showAddModal = false"
+        >
+          Hủy
+        </button>
+        <button type="submit" class="btn btn-primary" @click="saveCustomer">
+          Thêm khách hàng
+        </button>
+      </div>
       </div>
     </div>
+  </div>
 
-    <!-- Edit Customer Modal -->
-    <div
-      v-if="showEditModal"
-      class="modal-overlay"
-      @click="showEditModal = false"
-    >
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h3>Cập nhật thông tin khách hàng</h3>
-          <button class="modal-close" @click="showEditModal = false">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="form-sections">
-            <div class="form-section">
-              <h4>Thông tin cá nhân</h4>
-
+  <!-- Edit Customer Modal -->
+  <div
+    v-if="showEditModal"
+    class="modal-overlay"
+    @click="showEditModal = false"
+  >
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h3>Cập nhật thông tin khách hàng</h3>
+        <button class="modal-close" @click="showEditModal = false">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-sections">
+          <div class="form-section">
+            <h4>Thông tin cá nhân</h4>
+            <div class="form-group">
+              <label class="form-label">*Họ và tên</label>
+              <input
+                type="text"
+                v-model="customerForm.tenKhachHang"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-row">
               <div class="form-group">
-                <label class="form-label">*Họ và tên</label>
+                <label class="form-label">*Email</label>
                 <input
-                  type="text"
-                  v-model="customerForm.tenKhachHang"
+                  type="email"
+                  v-model="customerForm.email"
                   class="form-control"
                   required
                 />
               </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">*Email</label>
-                  <input
-                    type="email"
-                    v-model="customerForm.email"
-                    class="form-control"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">*Số điện thoại</label>
-                  <input
-                    type="tel"
-                    v-model="customerForm.soDienThoai"
-                    class="form-control"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">*Ngày sinh</label>
-                  <input
-                    type="date"
-                    v-model="customerForm.ngaySinh"
-                    class="form-control"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">*Giới tính</label>
-                  <select v-model="customerForm.gioiTinh" class="form-control">
-                    <option :value="true">Nam</option>
-                    <option :value="false">Nữ</option>
-                  </select>
-                </div>
-              </div>
-
               <div class="form-group">
-                <label class="form-label">*Trạng thái</label>
-                <select v-model="customerForm.deleted" class="form-control">
-                  <option :value="false">Hoạt động</option>
-                  <option :value="true">Ngừng hoạt động</option>
+                <label class="form-label">*Số điện thoại</label>
+                <input
+                  type="tel"
+                  v-model="customerForm.soDienThoai"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">*Ngày sinh</label>
+                <input
+                  type="date"
+                  v-model="customerForm.ngaySinh"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">*Giới tính</label>
+                <select v-model="customerForm.gioiTinh" class="form-control">
+                  <option :value="true">Nam</option>
+                  <option :value="false">Nữ</option>
                 </select>
               </div>
             </div>
+            <div class="form-group">
+              <label class="form-label">*Tài khoản</label>
+              <input
+                type="text"
+                v-model="customerForm.tenTaiKhoan"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group"></div>
+            <label class="form-label">*Mật khẩu</label>
+            <input
+              type="password"
+              v-model="customerForm.matKhau"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">*Trạng thái</label>
+            <select v-model="customerForm.deleted" class="form-control">
+              <option :value="false">Hoạt động</option>
+              <option :value="true">Ngừng hoạt động</option>
+            </select>
+          </div>
+        </div>
 
-            <div class="form-section">
-              <div class="address-header">
-                <h4>Địa chỉ</h4>
-                <button
-                  type="button"
-                  class="btn-add-address"
-                  @click="addAddress"
-                  title="Thêm địa chỉ"
-                >
-                  <span class="btn-icon">➕</span>
-                  Thêm địa chỉ
-                </button>
-              </div>
+        <div class="form-section">
+          <div class="address-header">
+            <h4>Địa chỉ</h4>
+            <button
+              type="button"
+              class="btn-add-address"
+              @click="addAddress"
+              title="Thêm địa chỉ"
+            >
+              <span class="btn-icon">➕</span>
+              Thêm địa chỉ
+            </button>
+          </div>
 
-              <div
-                v-for="(address, index) in customerForm.listDiaChi"
-                :key="index"
-                class="address-item"
+          <div
+            v-for="(address, index) in customerForm.listDiaChi"
+            :key="index"
+            class="address-item"
+          >
+            <div class="address-item-header">
+              <h5>Địa chỉ {{ index + 1 }}</h5>
+              <button
+                v-if="customerForm.listDiaChi.length > 1"
+                type="button"
+                class="btn-remove-address"
+                @click="removeAddress(index)"
+                title="Xóa địa chỉ"
               >
-                <div class="address-item-header">
-                  <h5>Địa chỉ {{ index + 1 }}</h5>
-                  <button
-                    v-if="customerForm.listDiaChi.length > 1"
-                    type="button"
-                    class="btn-remove-address"
-                    @click="removeAddress(index)"
-                    title="Xóa địa chỉ"
-                  >
-                    <span class="btn-icon">❌</span>
-                  </button>
-                </div>
+                <span class="btn-icon">❌</span>
+              </button>
+            </div>
 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">*Tỉnh/thành phố</label>
-                    <input
-                      type="text"
-                      v-model="address.thanhPho"
-                      class="form-control"
-                      placeholder="Nhập tên tỉnh/thành phố"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">*Quận/huyện</label>
-                    <input
-                      type="text"
-                      v-model="address.quan"
-                      class="form-control"
-                      placeholder="Nhập tên quận/huyện"
-                      required
-                    />
-                  </div>
-                </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">*Tỉnh/thành phố</label>
+                <input
+                  type="text"
+                  v-model="address.thanhPho"
+                  class="form-control"
+                  placeholder="Nhập tên tỉnh/thành phố"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">*Quận/huyện</label>
+                <input
+                  type="text"
+                  v-model="address.quan"
+                  class="form-control"
+                  placeholder="Nhập tên quận/huyện"
+                  required
+                />
+              </div>
+            </div>
 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">*Xã/phường/thị trấn</label>
-                    <input
-                      type="text"
-                      v-model="address.phuong"
-                      class="form-control"
-                      placeholder="Nhập tên xã/phường/thị trấn"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">*Địa chỉ cụ thể</label>
-                    <input
-                      type="text"
-                      v-model="address.diaChiCuThe"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">*Xã/phường/thị trấn</label>
+                <input
+                  type="text"
+                  v-model="address.phuong"
+                  class="form-control"
+                  placeholder="Nhập tên xã/phường/thị trấn"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">*Địa chỉ cụ thể</label>
+                <input
+                  type="text"
+                  v-model="address.diaChiCuThe"
+                  class="form-control"
+                  required
+                />
               </div>
             </div>
           </div>
         </div>
-
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            @click="showEditModal = false"
-          >
-            Hủy
-          </button>
-          <button type="submit" class="btn btn-primary" @click="saveCustomer">
-            Cập nhật khách hàng
-          </button>
-        </div>
       </div>
+      <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        @click="showEditModal = false"
+      >
+        Hủy
+      </button>
+      <button type="submit" class="btn btn-primary" @click="saveCustomer">
+        Cập nhật khách hàng
+      </button>
+    </div>
     </div>
   </div>
 </template>
@@ -628,6 +668,8 @@ const customerForm = ref({
   soDienThoai: "",
   gioiTinh: true,
   ngaySinh: "",
+  tenTaiKhoan: "",
+  matKhau: "",
   deleted: false,
   listDiaChi: [
     {
@@ -646,8 +688,8 @@ const fetchAll = async () => {
   try {
     const response = await fetchAllKhachHang();
     customers.value = response.data;
-  } catch (error) {
-    console.error("Error fetching customers:", error);
+  } catch (res) {
+    console.log(res.message);
   }
 };
 // Computed
@@ -774,15 +816,19 @@ const saveCustomer = async () => {
     showEditModal.value = false;
     await fetchAll();
     resetForm();
-  } catch (error) {
-    console.error("Lỗi khi lưu khách hàng:", error);
+  } catch (res) {
+    console.log(res.message);
     alert("Có lỗi xảy ra khi lưu thông tin khách hàng");
   }
 };
 
 const deleteCustomer = async (id) => {
-  await fetchUpdateStatusKhachHang(id);
-  await fetchAll();
+  try {
+    await fetchUpdateStatusKhachHang(id);
+    await fetchAll();
+  } catch (res) {
+    console.log(res.message);
+  }
 };
 
 const addAddress = () => {
@@ -805,6 +851,8 @@ const resetForm = () => {
     tenKhachHang: "",
     email: "",
     soDienThoai: "",
+    tenTaiKhoan: "",
+    matKhau: "",
     gioiTinh: true,
     ngaySinh: "",
     deleted: false,

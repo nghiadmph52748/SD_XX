@@ -8,7 +8,9 @@ import org.example.be_sp.entity.KhachHang;
 import org.example.be_sp.model.DiaChi;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -21,6 +23,8 @@ public class KhachHangResponse {
     private Integer id;
     private String maKhachHang;
     private String tenKhachHang;
+    private String tenTaiKhoan;
+    private String matKhau;
     private String email;
     private String soDienThoai;
     private Boolean gioiTinh;
@@ -33,15 +37,22 @@ public class KhachHangResponse {
         this.maKhachHang = e.getMaKhachHang();
         this.tenKhachHang = e.getTenKhachHang();
         this.email = e.getEmail();
+        this.tenTaiKhoan = e.getTenTaiKhoan();
+        this.matKhau = e.getMatKhau();
         this.soDienThoai = e.getSoDienThoai();
         this.gioiTinh = e.getGioiTinh();
         this.ngaySinh = e.getNgaySinh();
         this.deleted = e.getDeleted();
-        this.listDiaChi = e.getDiaChiKhachHangs().stream().map(diaChi -> {
-            if (!diaChi.getDeleted()) {
-                return new DiaChi(diaChi.getDiaChiCuThe(), diaChi.getThanhPho(), diaChi.getQuan(), diaChi.getPhuong());
-            }
-            return null;
-        }).toList();
+        this.listDiaChi = Optional.ofNullable(e.getDiaChiKhachHangs())
+                .orElseGet(Collections::emptySet)
+                .stream()
+                .filter(diaChi -> !Boolean.TRUE.equals(diaChi.getDeleted()))
+                .map(diaChi -> new DiaChi(
+                        diaChi.getDiaChiCuThe(),
+                        diaChi.getThanhPho(),
+                        diaChi.getQuan(),
+                        diaChi.getPhuong()
+                ))
+                .toList();
     }
 }

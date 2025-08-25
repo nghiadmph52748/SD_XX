@@ -8,7 +8,6 @@
           <p class="page-subtitle">Tạo và quản lý các phiếu giảm giá</p>
         </div>
         <div class="header-actions">
-
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
@@ -16,6 +15,10 @@
           <button class="btn-export" @click="exportToExcel">
             <span class="btn-icon">📗</span>
             Xuất Excel
+          </button>
+          <button class="btn-export" @click="validateAllCoupons">
+            <span class="btn-icon">🔄</span>
+            Validate trạng thái
           </button>
           <button class="btn-export" @click="openAddModal">
             <span class="btn-icon">➕</span>
@@ -31,7 +34,16 @@
         <div class="filter-header">
           <div class="filter-title">
             <span class="filter-icon">🎫</span>
-                         <h3 style="font-family: 'Arial', 'Helvetica', sans-serif; font-weight: 700; letter-spacing: 0.5px; color: #4ade80;">Tìm kiếm phiếu giảm giá</h3>
+            <h3
+              style="
+                font-family: 'Arial', 'Helvetica', sans-serif;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                color: #4ade80;
+              "
+            >
+              Tìm kiếm phiếu giảm giá
+            </h3>
           </div>
           <div class="filter-stats">
             {{ filteredCoupons.length }} / {{ coupons.length }} phiếu
@@ -185,12 +197,22 @@
               </td>
               <td>{{ coupon.soLuongDung }}</td>
               <td>{{ coupon.moTa }}</td>
-                             <td :class="['status-text', coupon.trangThai ? 'text-green' : 'text-red']">
-                 {{ coupon.trangThai ? "Đang hoạt động" : "Đã kết thúc" }}
-               </td>
-               <td :class="['status-text', !coupon.deleted ? 'text-green' : 'text-red']">
-                 {{ !coupon.deleted ? "Hoạt động" : "Không hoạt động" }}
-               </td>
+              <td
+                :class="[
+                  'status-text',
+                  coupon.trangThai ? 'text-green' : 'text-red',
+                ]"
+              >
+                {{ coupon.trangThai ? "Đang hoạt động" : "Đã kết thúc" }}
+              </td>
+              <td
+                :class="[
+                  'status-text',
+                  !coupon.deleted ? 'text-green' : 'text-red',
+                ]"
+              >
+                {{ !coupon.deleted ? "Hoạt động" : "Không hoạt động" }}
+              </td>
               <td>
                 <div class="action-buttons">
                   <button
@@ -258,12 +280,16 @@
           <div class="header-content">
             <div class="coupon-title">
               <span class="coupon-icon">🎫</span>
-              <h3>{{ showAddModal ? "Tạo phiếu giảm giá" : "Cập nhật phiếu giảm giá" }}</h3>
+              <h3>
+                {{
+                  showAddModal
+                    ? "Tạo phiếu giảm giá"
+                    : "Cập nhật phiếu giảm giá"
+                }}
+              </h3>
             </div>
             <div v-if="showEditModal" class="coupon-status">
-              <span class="status-badge badge-warning">
-                Chỉnh sửa
-              </span>
+              <span class="status-badge badge-warning"> Chỉnh sửa </span>
             </div>
           </div>
           <button class="modal-close" @click="closeModals">✕</button>
@@ -541,14 +567,20 @@
                 <div class="info-grid">
                   <div class="info-item">
                     <label>Trạng thái hoạt động *</label>
-                    <select v-model="couponForm.trangThai" class="form-control edit-select">
+                    <select
+                      v-model="couponForm.trangThai"
+                      class="form-control edit-select"
+                    >
                       <option :value="true">Đang hoạt động</option>
                       <option :value="false">Tạm dừng</option>
                     </select>
                   </div>
                   <div class="info-item">
                     <label>Hiện trạng *</label>
-                    <select v-model="couponForm.deleted" class="form-control edit-select">
+                    <select
+                      v-model="couponForm.deleted"
+                      class="form-control edit-select"
+                    >
                       <option :value="false">Hoạt động</option>
                       <option :value="true">Ngừng hoạt động</option>
                     </select>
@@ -607,11 +639,15 @@
               <div class="info-grid">
                 <div class="info-item" v-if="selectedCoupon.maPhieuGiamGia">
                   <label>Mã phiếu:</label>
-                  <span class="coupon-code">{{ selectedCoupon.maPhieuGiamGia }}</span>
+                  <span class="coupon-code">{{
+                    selectedCoupon.maPhieuGiamGia
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Mô tả:</label>
-                  <span class="description">{{ selectedCoupon.moTa || "Không có mô tả" }}</span>
+                  <span class="description">{{
+                    selectedCoupon.moTa || "Không có mô tả"
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Loại phiếu:</label>
@@ -621,7 +657,11 @@
                 </div>
                 <div class="info-item">
                   <label>Ngày tạo:</label>
-                  <span>{{ formatDateTime(selectedCoupon.ngayTao || selectedCoupon.ngayBatDau) }}</span>
+                  <span>{{
+                    formatDateTime(
+                      selectedCoupon.ngayTao || selectedCoupon.ngayBatDau
+                    )
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -636,22 +676,34 @@
                 <div class="info-item">
                   <label>Kiểu giảm giá:</label>
                   <span class="discount-type">
-                    {{ !selectedCoupon.loaiPhieuGiamGia ? "Phần trăm (%)" : "Số tiền cố định (VND)" }}
+                    {{
+                      !selectedCoupon.loaiPhieuGiamGia
+                        ? "Phần trăm (%)"
+                        : "Số tiền cố định (VND)"
+                    }}
                   </span>
                 </div>
                 <div class="info-item">
                   <label>Giá trị giảm:</label>
                   <span class="discount-value">
-                    {{ !selectedCoupon.loaiPhieuGiamGia ? selectedCoupon.giaTriGiamGia + "%" : formatCurrency(selectedCoupon.giaTriGiamGia) }}
+                    {{
+                      !selectedCoupon.loaiPhieuGiamGia
+                        ? selectedCoupon.giaTriGiamGia + "%"
+                        : formatCurrency(selectedCoupon.giaTriGiamGia)
+                    }}
                   </span>
                 </div>
                 <div class="info-item">
                   <label>Hóa đơn tối thiểu:</label>
-                  <span class="min-amount">{{ formatCurrency(selectedCoupon.hoaDonToiThieu || 0) }}</span>
+                  <span class="min-amount">{{
+                    formatCurrency(selectedCoupon.hoaDonToiThieu || 0)
+                  }}</span>
                 </div>
                 <div class="info-item" v-if="selectedCoupon.soTienToiDa">
                   <label>Giảm tối đa:</label>
-                  <span class="max-discount">{{ formatCurrency(selectedCoupon.soTienToiDa) }}</span>
+                  <span class="max-discount">{{
+                    formatCurrency(selectedCoupon.soTienToiDa)
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -665,20 +717,35 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Số lượng sử dụng:</label>
-                  <span class="usage-count">{{ selectedCoupon.soLuongDung }}</span>
+                  <span class="usage-count">{{
+                    selectedCoupon.soLuongDung
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Đã sử dụng:</label>
-                  <span class="used-count">{{ selectedCoupon.soLuongDaDung || 0 }}</span>
+                  <span class="used-count">{{
+                    selectedCoupon.soLuongDaDung || 0
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Còn lại:</label>
-                  <span class="remaining-count">{{ (selectedCoupon.soLuongDung || 0) - (selectedCoupon.soLuongDaDung || 0) }}</span>
+                  <span class="remaining-count">{{
+                    (selectedCoupon.soLuongDung || 0) -
+                    (selectedCoupon.soLuongDaDung || 0)
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Tỷ lệ sử dụng:</label>
                   <span class="usage-rate">
-                    {{ selectedCoupon.soLuongDung ? Math.round(((selectedCoupon.soLuongDaDung || 0) / selectedCoupon.soLuongDung) * 100) : 0 }}%
+                    {{
+                      selectedCoupon.soLuongDung
+                        ? Math.round(
+                            ((selectedCoupon.soLuongDaDung || 0) /
+                              selectedCoupon.soLuongDung) *
+                              100
+                          )
+                        : 0
+                    }}%
                   </span>
                 </div>
               </div>
@@ -693,11 +760,15 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>Ngày bắt đầu:</label>
-                  <span class="start-date">{{ formatDateTime(selectedCoupon.ngayBatDau) }}</span>
+                  <span class="start-date">{{
+                    formatDateTime(selectedCoupon.ngayBatDau)
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Ngày kết thúc:</label>
-                  <span class="end-date">{{ formatDateTime(selectedCoupon.ngayKetThuc) }}</span>
+                  <span class="end-date">{{
+                    formatDateTime(selectedCoupon.ngayKetThuc)
+                  }}</span>
                 </div>
                 <div class="info-item">
                   <label>Thời gian còn lại:</label>
@@ -707,8 +778,17 @@
                 </div>
                 <div class="info-item">
                   <label>Trạng thái hoạt động:</label>
-                  <span :class="['badge', selectedCoupon.trangThai ? 'badge-success' : 'badge-danger']">
-                    {{ selectedCoupon.trangThai ? "Đang hoạt động" : "Tạm dừng" }}
+                  <span
+                    :class="[
+                      'badge',
+                      selectedCoupon.trangThai
+                        ? 'badge-success'
+                        : 'badge-danger',
+                    ]"
+                  >
+                    {{
+                      selectedCoupon.trangThai ? "Đang hoạt động" : "Tạm dừng"
+                    }}
                   </span>
                 </div>
               </div>
@@ -726,7 +806,8 @@
               <div class="customers-info">
                 <div class="customers-summary">
                   <span class="customers-count">
-                    {{ getAppliedCustomers(selectedCoupon.id).length }} khách hàng
+                    {{ getAppliedCustomers(selectedCoupon.id).length }} khách
+                    hàng
                   </span>
                 </div>
                 <div class="customer-chips">
@@ -737,7 +818,9 @@
                   >
                     <span class="customer-avatar">👤</span>
                     {{ customer.tenKhachHang }}
-                    <span class="customer-email" v-if="customer.email">({{ customer.email }})</span>
+                    <span class="customer-email" v-if="customer.email"
+                      >({{ customer.email }})</span
+                    >
                   </span>
                 </div>
               </div>
@@ -751,20 +834,37 @@
               </div>
               <div class="stats-grid">
                 <div class="stat-item">
-                  <div class="stat-value">{{ selectedCoupon.soLuongDung || 0 }}</div>
+                  <div class="stat-value">
+                    {{ selectedCoupon.soLuongDung || 0 }}
+                  </div>
                   <div class="stat-label">Tổng số lượng</div>
                 </div>
                 <div class="stat-item">
-                  <div class="stat-value">{{ selectedCoupon.soLuongDaDung || 0 }}</div>
+                  <div class="stat-value">
+                    {{ selectedCoupon.soLuongDaDung || 0 }}
+                  </div>
                   <div class="stat-label">Đã sử dụng</div>
                 </div>
                 <div class="stat-item">
-                  <div class="stat-value">{{ (selectedCoupon.soLuongDung || 0) - (selectedCoupon.soLuongDaDung || 0) }}</div>
+                  <div class="stat-value">
+                    {{
+                      (selectedCoupon.soLuongDung || 0) -
+                      (selectedCoupon.soLuongDaDung || 0)
+                    }}
+                  </div>
                   <div class="stat-label">Còn lại</div>
                 </div>
                 <div class="stat-item">
                   <div class="stat-value">
-                    {{ selectedCoupon.soLuongDung ? Math.round(((selectedCoupon.soLuongDaDung || 0) / selectedCoupon.soLuongDung) * 100) : 0 }}%
+                    {{
+                      selectedCoupon.soLuongDung
+                        ? Math.round(
+                            ((selectedCoupon.soLuongDaDung || 0) /
+                              selectedCoupon.soLuongDung) *
+                              100
+                          )
+                        : 0
+                    }}%
                   </div>
                   <div class="stat-label">Tỷ lệ sử dụng</div>
                 </div>
@@ -774,7 +874,10 @@
         </div>
 
         <div class="modal-footer detail-footer">
-          <button class="btn btn-primary" @click="editFromDetail(selectedCoupon)">
+          <button
+            class="btn btn-primary"
+            @click="editFromDetail(selectedCoupon)"
+          >
             <span class="btn-icon">✏️</span>
             Chỉnh sửa
           </button>
@@ -798,40 +901,72 @@
             <h3>{{ notificationData.title }}</h3>
             <p>{{ notificationData.message }}</p>
           </div>
-          <button class="notification-close" @click="closeNotificationModal">✕</button>
+          <button class="notification-close" @click="closeNotificationModal">
+            ✕
+          </button>
         </div>
 
         <div class="notification-body" v-if="notificationData.details">
           <div class="notification-details">
             <h4>Chi tiết cập nhật:</h4>
             <div class="details-grid">
-              <div class="detail-item" v-if="notificationData.details.tenPhieuGiamGia">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.tenPhieuGiamGia"
+              >
                 <span class="detail-label">Tên phiếu:</span>
-                <span class="detail-value">{{ notificationData.details.tenPhieuGiamGia }}</span>
+                <span class="detail-value">{{
+                  notificationData.details.tenPhieuGiamGia
+                }}</span>
               </div>
-              <div class="detail-item" v-if="notificationData.details.loaiPhieuGiamGia">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.loaiPhieuGiamGia"
+              >
                 <span class="detail-label">Loại giảm giá:</span>
-                <span class="detail-value">{{ notificationData.details.loaiPhieuGiamGia }}</span>
+                <span class="detail-value">{{
+                  notificationData.details.loaiPhieuGiamGia
+                }}</span>
               </div>
-              <div class="detail-item" v-if="notificationData.details.giaTriGiamGia">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.giaTriGiamGia"
+              >
                 <span class="detail-label">Giá trị:</span>
                 <span class="detail-value">
-                  {{ notificationData.details.loaiPhieuGiamGia === 'Phần trăm' 
-                    ? notificationData.details.giaTriGiamGia + '%' 
-                    : formatCurrency(notificationData.details.giaTriGiamGia) }}
+                  {{
+                    notificationData.details.loaiPhieuGiamGia === "Phần trăm"
+                      ? notificationData.details.giaTriGiamGia + "%"
+                      : formatCurrency(notificationData.details.giaTriGiamGia)
+                  }}
                 </span>
               </div>
-              <div class="detail-item" v-if="notificationData.details.ngayBatDau">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.ngayBatDau"
+              >
                 <span class="detail-label">Ngày bắt đầu:</span>
-                <span class="detail-value">{{ formatDate(notificationData.details.ngayBatDau) }}</span>
+                <span class="detail-value">{{
+                  formatDate(notificationData.details.ngayBatDau)
+                }}</span>
               </div>
-              <div class="detail-item" v-if="notificationData.details.ngayKetThuc">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.ngayKetThuc"
+              >
                 <span class="detail-label">Ngày kết thúc:</span>
-                <span class="detail-value">{{ formatDate(notificationData.details.ngayKetThuc) }}</span>
+                <span class="detail-value">{{
+                  formatDate(notificationData.details.ngayKetThuc)
+                }}</span>
               </div>
-              <div class="detail-item" v-if="notificationData.details.trangThai">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.trangThai"
+              >
                 <span class="detail-label">Trạng thái:</span>
-                <span class="detail-value">{{ notificationData.details.trangThai }}</span>
+                <span class="detail-value">{{
+                  notificationData.details.trangThai
+                }}</span>
               </div>
             </div>
           </div>
@@ -862,36 +997,45 @@
           <div class="delete-warning">
             <div class="warning-icon">⚠️</div>
             <p class="warning-text">
-              Bạn có chắc chắn muốn xóa phiếu giảm giá 
+              Bạn có chắc chắn muốn xóa phiếu giảm giá
               <strong>"{{ deleteCouponData?.tenPhieuGiamGia }}"</strong>?
             </p>
           </div>
-          
+
           <div class="delete-details" v-if="deleteCouponData">
             <h4>Thông tin phiếu giảm giá:</h4>
             <div class="delete-info-grid">
               <div class="delete-info-item">
                 <span class="info-label">Mã phiếu:</span>
-                <span class="info-value">{{ deleteCouponData.maPhieuGiamGia || 'N/A' }}</span>
+                <span class="info-value">{{
+                  deleteCouponData.maPhieuGiamGia || "N/A"
+                }}</span>
               </div>
               <div class="delete-info-item">
                 <span class="info-label">Loại giảm giá:</span>
                 <span class="info-value">
-                  {{ !deleteCouponData.loaiPhieuGiamGia ? 'Phần trăm (%)' : 'Số tiền cố định (VND)' }}
+                  {{
+                    !deleteCouponData.loaiPhieuGiamGia
+                      ? "Phần trăm (%)"
+                      : "Số tiền cố định (VND)"
+                  }}
                 </span>
               </div>
               <div class="delete-info-item">
                 <span class="info-label">Giá trị giảm:</span>
                 <span class="info-value">
-                  {{ !deleteCouponData.loaiPhieuGiamGia 
-                    ? deleteCouponData.giaTriGiamGia + '%' 
-                    : formatCurrency(deleteCouponData.giaTriGiamGia) }}
+                  {{
+                    !deleteCouponData.loaiPhieuGiamGia
+                      ? deleteCouponData.giaTriGiamGia + "%"
+                      : formatCurrency(deleteCouponData.giaTriGiamGia)
+                  }}
                 </span>
               </div>
               <div class="delete-info-item">
                 <span class="info-label">Thời gian:</span>
                 <span class="info-value">
-                  {{ formatDate(deleteCouponData.ngayBatDau) }} - {{ formatDate(deleteCouponData.ngayKetThuc) }}
+                  {{ formatDate(deleteCouponData.ngayBatDau) }} -
+                  {{ formatDate(deleteCouponData.ngayKetThuc) }}
                 </span>
               </div>
             </div>
@@ -924,7 +1068,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import {
   fetchAllPhieuGiamGia,
   fetchCreatePhieuGiamGia,
@@ -950,10 +1094,10 @@ const selectedCoupon = ref(null);
 const editingCoupon = ref(null);
 const deleteCouponData = ref(null);
 const notificationData = ref({
-  type: 'success',
-  title: '',
-  message: '',
-  details: null
+  type: "success",
+  title: "",
+  message: "",
+  details: null,
 });
 // Pagination data
 const currentPage = ref(1);
@@ -987,6 +1131,8 @@ const fetchPGG = async () => {
   try {
     const res = await fetchAllPhieuGiamGia();
     coupons.value = res.data;
+    // Validate và cập nhật trạng thái sau khi fetch dữ liệu
+    await validateAllCoupons();
   } catch (error) {
     console.error("Error fetching phieu giam gia: ", error);
   }
@@ -1017,11 +1163,10 @@ const allFilteredCoupons = computed(() => {
   let filtered = coupons.value;
 
   if (searchQuery.value) {
-    filtered = filtered.filter(
-      (coupon) =>
-        coupon.tenPhieuGiamGia
-          ?.toLowerCase()
-          .includes(searchQuery.value.toLowerCase())
+    filtered = filtered.filter((coupon) =>
+      coupon.tenPhieuGiamGia
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
     );
   }
 
@@ -1134,23 +1279,116 @@ const getStatusText = (coupon) => {
 
 const getTimeRemaining = (endDate) => {
   if (!endDate) return "Không xác định";
-  
+
   const now = new Date();
   const end = new Date(endDate);
   const diff = end - now;
-  
+
   if (diff <= 0) return "Đã hết hạn";
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  
+
   if (days > 0) {
     return `${days} ngày ${hours} giờ`;
   } else if (hours > 0) {
     return `${hours} giờ ${minutes} phút`;
   } else {
     return `${minutes} phút`;
+  }
+};
+
+// Hàm validate ngày và cập nhật trạng thái
+// Kiểm tra nếu ngày hiện tại không nằm trong khoảng ngayBatDau và ngayKetThuc
+// thì sẽ cập nhật trangThai thành false
+const validateAndUpdateStatus = async (coupon) => {
+  const now = new Date();
+  const startDate = new Date(coupon.ngayBatDau);
+  const endDate = new Date(coupon.ngayKetThuc);
+
+  // Kiểm tra nếu ngày hiện tại không nằm trong khoảng ngayBatDau và ngayKetThuc
+  if (now < startDate || now > endDate) {
+    // Cập nhật trạng thái thành false nếu không còn trong thời gian hiệu lực
+    if (coupon.trangThai !== false) {
+      try {
+        // Gọi API cập nhật trạng thái
+        await fetchUpdateStatusPhieuGiamGia(coupon.id);
+        // Cập nhật trạng thái ở frontend sau khi API thành công
+        coupon.trangThai = false;
+        return true; // Trả về true nếu có cập nhật
+      } catch (error) {
+        console.error("Lỗi khi cập nhật trạng thái phiếu giảm giá:", error);
+        return false; // Trả về false nếu có lỗi
+      }
+    }
+  }
+  return false; // Trả về false nếu không có cập nhật
+};
+
+// Hàm validate tất cả phiếu giảm giá
+const validateAllCoupons = async () => {
+  let updatedCount = 0;
+
+  // Sử dụng Promise.all để xử lý song song tất cả các API calls
+  const updatePromises = coupons.value.map(async (coupon) => {
+    const beforeStatus = coupon.trangThai;
+    const wasUpdated = await validateAndUpdateStatus(coupon);
+    if (wasUpdated) {
+      updatedCount++;
+    }
+    return wasUpdated;
+  });
+
+  try {
+    await Promise.all(updatePromises);
+
+    // Hiển thị thông báo kết quả validate
+    if (updatedCount > 0) {
+      showSuccessNotification(
+        `Đã cập nhật trạng thái ${updatedCount} phiếu giảm giá!`,
+        {
+          message: `Hệ thống đã tự động cập nhật trạng thái của ${updatedCount} phiếu giảm giá dựa trên thời gian hiệu lực`,
+          updatedCount: updatedCount,
+          totalCoupons: coupons.value.length,
+        }
+      );
+    } else {
+      showSuccessNotification("Validate hoàn tất!", {
+        message: "Tất cả phiếu giảm giá đều có trạng thái chính xác",
+        updatedCount: 0,
+        totalCoupons: coupons.value.length,
+      });
+    }
+  } catch (error) {
+    console.error("Lỗi khi validate phiếu giảm giá:", error);
+    showErrorNotification(
+      "Có lỗi xảy ra khi validate phiếu giảm giá",
+      error.message
+    );
+  }
+};
+
+// Hàm validate một phiếu giảm giá cụ thể
+const validateSingleCoupon = async (couponId) => {
+  const coupon = coupons.value.find((c) => c.id === couponId);
+  if (coupon) {
+    try {
+      const wasUpdated = await validateAndUpdateStatus(coupon);
+      if (wasUpdated) {
+        showSuccessNotification("Cập nhật trạng thái thành công!", {
+          message: `Phiếu giảm giá "${coupon.tenPhieuGiamGia}" đã được cập nhật trạng thái`,
+          tenPhieuGiamGia: coupon.tenPhieuGiamGia,
+          trangThai: "Tạm dừng",
+        });
+      }
+    } catch (error) {
+      console.error("Lỗi khi validate phiếu giảm giá:", error);
+      showErrorNotification(
+        "Có lỗi xảy ra khi validate phiếu giảm giá",
+        error.message
+      );
+    }
   }
 };
 
@@ -1230,14 +1468,14 @@ const editCoupon = (coupon) => {
 const editFromDetail = (coupon) => {
   // Đóng popup xem chi tiết
   showDetailModal.value = false;
-  
+
   // Gọi function editCoupon để mở popup chỉnh sửa
   editCoupon(coupon);
 };
 
 const fetchUpdateStatusPGG = async (id) => {
   // Tìm thông tin phiếu giảm giá để hiển thị trong popup
-  const coupon = coupons.value.find(c => c.id === id);
+  const coupon = coupons.value.find((c) => c.id === id);
   if (coupon) {
     deleteCouponData.value = coupon;
     showDeleteModal.value = true;
@@ -1246,22 +1484,31 @@ const fetchUpdateStatusPGG = async (id) => {
 
 const confirmDelete = async () => {
   if (!deleteCouponData.value) return;
-  
+
   try {
     await fetchUpdateStatusPhieuGiamGia(deleteCouponData.value.id);
     await fetchPGG(); // Reload data after delete
     closeDeleteModal();
+
+    // Validate và cập nhật trạng thái sau khi xóa
+    await validateAllCoupons();
+
     showSuccessNotification("Xóa phiếu giảm giá thành công!", {
       message: "Phiếu giảm giá đã được xóa khỏi hệ thống",
       tenPhieuGiamGia: deleteCouponData.value.tenPhieuGiamGia,
-      loaiPhieuGiamGia: !deleteCouponData.value.loaiPhieuGiamGia ? "Phần trăm" : "Số tiền cố định",
+      loaiPhieuGiamGia: !deleteCouponData.value.loaiPhieuGiamGia
+        ? "Phần trăm"
+        : "Số tiền cố định",
       giaTriGiamGia: deleteCouponData.value.giaTriGiamGia,
       ngayBatDau: deleteCouponData.value.ngayBatDau,
-      ngayKetThuc: deleteCouponData.value.ngayKetThuc
+      ngayKetThuc: deleteCouponData.value.ngayKetThuc,
     });
   } catch (error) {
     console.error("Lỗi khi xóa phiếu giảm giá:", error);
-    showErrorNotification("Có lỗi xảy ra khi xóa phiếu giảm giá", error.message);
+    showErrorNotification(
+      "Có lỗi xảy ra khi xóa phiếu giảm giá",
+      error.message
+    );
   }
 };
 
@@ -1358,14 +1605,19 @@ const saveCoupon = async () => {
       // Close modals and reset form
       closeModals();
       await fetchAll(); // Refresh data
-      
+
+      // Validate và cập nhật trạng thái sau khi tạo mới
+      await validateAllCoupons();
+
       // Show success notification
       showSuccessNotification("Thêm phiếu giảm giá thành công!", {
         tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
-        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia ? "Phần trăm" : "Số tiền cố định",
+        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia
+          ? "Phần trăm"
+          : "Số tiền cố định",
         giaTriGiamGia: couponForm.value.giaTriGiamGia,
         ngayBatDau: couponForm.value.ngayBatDau,
-        ngayKetThuc: couponForm.value.ngayKetThuc
+        ngayKetThuc: couponForm.value.ngayKetThuc,
       });
     } else if (showEditModal.value && editingCoupon.value) {
       // Call update API
@@ -1373,20 +1625,28 @@ const saveCoupon = async () => {
       // Close modals and reset form
       closeModals();
       await fetchAll(); // Refresh data
-      
+
+      // Validate và cập nhật trạng thái sau khi cập nhật
+      await validateAllCoupons();
+
       // Show success notification
       showSuccessNotification("Cập nhật phiếu giảm giá thành công!", {
         tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
-        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia ? "Phần trăm" : "Số tiền cố định",
+        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia
+          ? "Phần trăm"
+          : "Số tiền cố định",
         giaTriGiamGia: couponForm.value.giaTriGiamGia,
         ngayBatDau: couponForm.value.ngayBatDau,
         ngayKetThuc: couponForm.value.ngayKetThuc,
-        trangThai: couponForm.value.trangThai ? "Đang hoạt động" : "Tạm dừng"
+        trangThai: couponForm.value.trangThai ? "Đang hoạt động" : "Tạm dừng",
       });
     }
   } catch (error) {
     console.error("Lỗi khi lưu phiếu giảm giá:", error);
-    showErrorNotification("Có lỗi xảy ra khi lưu thông tin phiếu giảm giá", error.message);
+    showErrorNotification(
+      "Có lỗi xảy ra khi lưu thông tin phiếu giảm giá",
+      error.message
+    );
   }
 };
 
@@ -1406,13 +1666,13 @@ const closeModals = () => {
 // Notification methods
 const showSuccessNotification = (message, details = null) => {
   notificationData.value = {
-    type: 'success',
-    title: 'Thành công! 🎉',
+    type: "success",
+    title: "Thành công! 🎉",
     message: message,
-    details: details
+    details: details,
   };
   showNotificationModal.value = true;
-  
+
   // Auto close after 5 seconds
   setTimeout(() => {
     showNotificationModal.value = false;
@@ -1421,13 +1681,13 @@ const showSuccessNotification = (message, details = null) => {
 
 const showErrorNotification = (message, errorDetails = null) => {
   notificationData.value = {
-    type: 'error',
-    title: 'Có lỗi xảy ra! ❌',
+    type: "error",
+    title: "Có lỗi xảy ra! ❌",
     message: message,
-    details: errorDetails
+    details: errorDetails,
   };
   showNotificationModal.value = true;
-  
+
   // Auto close after 8 seconds for errors
   setTimeout(() => {
     showNotificationModal.value = false;
@@ -1673,16 +1933,27 @@ onMounted(() => {
   fetchPGG();
   fetchPersonalPGG();
   fetchCustomers();
+
+  // Thiết lập interval để tự động validate trạng thái mỗi phút
+  const validateInterval = setInterval(async () => {
+    await validateAllCoupons();
+  }, 60000); // 60000ms = 1 phút
+
+  // Cleanup interval khi component unmount
+  onUnmounted(() => {
+    clearInterval(validateInterval);
+  });
 });
 </script>
 
 <style scoped>
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
 
 /* Global font settings */
 * {
-  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
 }
 
 .discount-coupons {
@@ -1707,12 +1978,12 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size:2rem;
+  font-size: 2rem;
   font-weight: 700;
   margin: 0;
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  font-family: 'Arial', 'Helvetica', sans-serif;
+  font-family: "Arial", "Helvetica", sans-serif;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -1721,7 +1992,7 @@ onMounted(() => {
   font-size: 1.125rem;
   margin: 0.5rem 0 0 0;
   opacity: 0.9;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   letter-spacing: 0.2px;
 }
 
@@ -1773,7 +2044,7 @@ onMounted(() => {
   color: #374151;
   font-size: 1.25rem;
   font-weight: 600;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   letter-spacing: -0.3px;
 }
 
@@ -1993,7 +2264,7 @@ onMounted(() => {
   position: relative;
   border-right: none;
   border-left: none;
-  font-family: 'Arial', 'Helvetica', sans-serif;
+  font-family: "Arial", "Helvetica", sans-serif;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -2004,8 +2275,6 @@ onMounted(() => {
 .table th:last-child {
   border-top-right-radius: 20px;
 }
-
-
 
 .table td {
   padding: 1.25rem 1rem;
@@ -2022,7 +2291,11 @@ onMounted(() => {
 }
 
 .table tbody tr:hover {
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.05) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(74, 222, 128, 0.15);
 }
@@ -2086,7 +2359,7 @@ onMounted(() => {
   .table {
     font-size: 0.8rem;
   }
-  
+
   .table th,
   .table td {
     padding: 1rem 0.75rem;
@@ -2110,20 +2383,24 @@ onMounted(() => {
 
 .card-body {
   padding: 2rem;
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.02) 0%, rgba(34, 197, 94, 0.02) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.02) 0%,
+    rgba(34, 197, 94, 0.02) 100%
+  );
 }
 
 @media (max-width: 768px) {
   .table {
     border-radius: 12px;
   }
-  
+
   .table th,
   .table td {
     padding: 0.75rem 0.5rem;
     font-size: 0.75rem;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 0.5rem;
@@ -2138,7 +2415,11 @@ onMounted(() => {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 2px solid rgba(74, 222, 128, 0.2);
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.05) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
   padding: 1.5rem 2rem;
   border-radius: 16px;
   margin-left: -2rem;
@@ -2171,7 +2452,11 @@ onMounted(() => {
 .page-info {
   font-weight: 700;
   color: #4ade80;
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.1) 0%,
+    rgba(34, 197, 94, 0.1) 100%
+  );
   padding: 0.5rem 1rem;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -2638,7 +2923,11 @@ onMounted(() => {
 
 .detail-body {
   padding: 2rem;
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.02) 0%, rgba(34, 197, 94, 0.02) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.02) 0%,
+    rgba(34, 197, 94, 0.02) 100%
+  );
 }
 
 .detail-section {
@@ -2682,7 +2971,7 @@ onMounted(() => {
   color: #374151;
   font-size: 1.25rem;
   font-weight: 600;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .info-grid {
@@ -2711,15 +3000,15 @@ onMounted(() => {
   font-weight: 500;
 }
 
-  .coupon-code {
-    font-weight: 700;
-    color: #666666;
-    font-size: 1.125rem;
-    background: none;
-    padding: 0;
-    border-radius: 0;
-    border: none;
-  }
+.coupon-code {
+  font-weight: 700;
+  color: #666666;
+  font-size: 1.125rem;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+}
 
 .description {
   font-style: italic;
@@ -2737,12 +3026,15 @@ onMounted(() => {
   font-size: 1.125rem;
 }
 
-.min-amount, .max-discount {
+.min-amount,
+.max-discount {
   font-weight: 600;
   color: #7c3aed;
 }
 
-.usage-count, .used-count, .remaining-count {
+.usage-count,
+.used-count,
+.remaining-count {
   font-weight: 700;
   font-size: 1.125rem;
 }
@@ -2765,7 +3057,8 @@ onMounted(() => {
   font-size: 1.125rem;
 }
 
-.start-date, .end-date {
+.start-date,
+.end-date {
   font-weight: 600;
   color: #059669;
 }
@@ -2869,7 +3162,11 @@ onMounted(() => {
 .stat-item {
   text-align: center;
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.05) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
   border-radius: 12px;
   border: 1px solid rgba(74, 222, 128, 0.1);
   transition: all 0.3s ease;
@@ -2897,7 +3194,11 @@ onMounted(() => {
 }
 
 .detail-footer {
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.05) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
   border-top: 1px solid rgba(74, 222, 128, 0.2);
   padding: 1.5rem;
 }
@@ -2945,7 +3246,7 @@ onMounted(() => {
   transition: all 0.3s ease;
   background: white;
   color: #374151;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .edit-input:focus,
@@ -2967,7 +3268,7 @@ onMounted(() => {
 .edit-textarea {
   resize: vertical;
   min-height: 80px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   line-height: 1.5;
 }
 
@@ -3000,30 +3301,30 @@ onMounted(() => {
     max-width: 95vw;
     margin: 1rem;
   }
-  
+
   .detail-header .header-content {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .coupon-status {
     margin-left: 0;
     align-self: flex-end;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .customer-chips {
     justify-content: center;
   }
-  
+
   .edit-input,
   .edit-select,
   .edit-textarea {
@@ -3217,23 +3518,23 @@ onMounted(() => {
     max-width: 95vw;
     margin: 1rem;
   }
-  
+
   .notification-header {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
   }
-  
+
   .notification-icon {
     width: 40px;
     height: 40px;
     font-size: 1.5rem;
   }
-  
+
   .details-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .detail-item {
     padding: 0.75rem;
   }
@@ -3468,44 +3769,44 @@ onMounted(() => {
     max-width: 95vw;
     margin: 1rem;
   }
-  
+
   .delete-header {
     padding: 1.5rem;
   }
-  
+
   .delete-icon {
     width: 60px;
     height: 60px;
     font-size: 2rem;
   }
-  
+
   .delete-header h3 {
     font-size: 1.25rem;
   }
-  
+
   .delete-body {
     padding: 1.5rem;
   }
-  
+
   .delete-warning {
     flex-direction: column;
     text-align: center;
     padding: 1rem;
   }
-  
+
   .warning-icon {
     margin: 0 auto 0.5rem auto;
   }
-  
+
   .delete-info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .delete-footer {
     flex-direction: column;
     padding: 1.5rem;
   }
-  
+
   .delete-footer .btn {
     min-width: 100%;
   }

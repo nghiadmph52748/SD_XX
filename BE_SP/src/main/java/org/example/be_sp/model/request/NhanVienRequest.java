@@ -11,6 +11,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class NhanVienRequest {
     private String tenNhanVien;
+    private String tenTaiKhoan;
+    private String matKhau;
     private String email;
     private String soDienThoai;
     private String anhNhanVien;
