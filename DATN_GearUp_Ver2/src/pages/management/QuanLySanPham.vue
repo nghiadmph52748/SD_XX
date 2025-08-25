@@ -4,27 +4,23 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý sản phẩm</h1>
+          <h1 class="page-title">Quản Lý Sản Phẩm</h1>
           <p class="page-subtitle">Quản lý thông tin và trạng thái sản phẩm</p>
         </div>
-        <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
-          <button class="btn-export" @click="exportData">
-            <span class="btn-icon">📊</span>
-            Xuất báo cáo
-          </button>
-          <button class="btn-export" @click="exportProductsToExcel">
-            <span class="btn-icon">📗</span>
-            Xuất Excel
-          </button>
-          <button class="btn-export" @click="showAddModal = true">
-            <span class="btn-icon">➕</span>
-            Thêm sản phẩm
-          </button>
-        </div>
+                 <div class="header-actions">
+           <button class="btn-export" @click="exportData">
+             <span class="btn-icon">📊</span>
+             Xuất báo cáo
+           </button>
+           <button class="btn-export" @click="exportProductsToExcel">
+             <span class="btn-icon">📗</span>
+             Xuất Excel
+           </button>
+           <button class="btn-export" @click="showAddModal = true">
+             <span class="btn-icon">➕</span>
+             Thêm sản phẩm
+           </button>
+         </div>
       </div>
     </div>
 
@@ -323,24 +319,43 @@
             </div>
           </div>
         </div>
-        <!-- Modal Footer -->
-        <div class="modern-modal-footer">
-          <button type="button" class="btn-secondary" @click="closeModals">
-            Hủy bỏ
-          </button>
-          <button type="button" class="btn-primary" @click="saveProduct">
-            {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
-          </button>
-        </div>
+                 <!-- Modal Footer -->
+         <div class="modern-modal-footer">
+           <button type="button" class="btn-primary" @click="saveProduct">
+             {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
+           </button>
+         </div>
       </div>
     </div>
 
-    <!-- Product Detail Modal -->
-    <div
-      v-if="showDetailModal"
-      class="modal-overlay"
-      @click="showDetailModal = false"
-    >
+         <!-- Success Notification Modal -->
+     <div
+       v-if="showSuccessModal"
+       class="success-modal-overlay"
+       @click="closeSuccessModal"
+     >
+       <div class="success-modal-content" @click.stop>
+         <div class="success-icon">
+           <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+           </svg>
+         </div>
+         <div class="success-content">
+           <h2 class="success-title">Thành công!</h2>
+           <p class="success-message">{{ successMessage }}</p>
+         </div>
+         <button class="success-close-btn" @click="closeSuccessModal">
+           Đóng
+         </button>
+       </div>
+     </div>
+
+     <!-- Product Detail Modal -->
+     <div
+       v-if="showDetailModal"
+       class="modal-overlay"
+       @click="showDetailModal = false"
+     >
       <div class="modal-content large" @click.stop>
         <div class="modal-header">
           <h3>Chi tiết sản phẩm</h3>
@@ -408,6 +423,8 @@ const itemsPerPage = ref(10);
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const showDetailModal = ref(false);
+const showSuccessModal = ref(false);
+const successMessage = ref("");
 const selectedProduct = ref(null);
 const activeVariantTab = ref("auto");
 const productForm = ref({});
@@ -599,6 +616,11 @@ const closeModals = () => {
   showEditModal.value = false;
   resetForm();
 };
+
+const closeSuccessModal = () => {
+  showSuccessModal.value = false;
+  successMessage.value = "";
+};
 const resetForm = () => {
   productForm.value = {
     tenSanPham: "",
@@ -609,26 +631,35 @@ const resetForm = () => {
   activeVariantTab.value = "auto";
 };
 const saveProduct = async () => {
-  if (showAddModal.value) {
-    const newProduct = {
-      tenSanPham: productForm.value.tenSanPham,
-      idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
-      idXuatXu: getOneXX(productForm.value.maXuatXu),
-      deleted: productForm.value.deleted,
-    };
-    await fetchCreate(newProduct);
-  } else if (showEditModal.value) {
-    const newProduct = {
-      tenSanPham: productForm.value.tenSanPham,
-      idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
-      idXuatXu: getOneXX(productForm.value.maXuatXu),
-      deleted: productForm.value.deleted,
-    };
-    console.log("Updating product:", newProduct);
-    await fetchUpdate(productForm.value.id, newProduct);
+  try {
+    if (showAddModal.value) {
+      const newProduct = {
+        tenSanPham: productForm.value.tenSanPham,
+        idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
+        idXuatXu: getOneXX(productForm.value.maXuatXu),
+        deleted: productForm.value.deleted,
+      };
+      await fetchCreate(newProduct);
+      successMessage.value = `Sản phẩm "${productForm.value.tenSanPham}" đã được tạo thành công!`;
+      showSuccessModal.value = true;
+    } else if (showEditModal.value) {
+      const newProduct = {
+        tenSanPham: productForm.value.tenSanPham,
+        idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
+        idXuatXu: getOneXX(productForm.value.maXuatXu),
+        deleted: productForm.value.deleted,
+      };
+      console.log("Updating product:", newProduct);
+      await fetchUpdate(productForm.value.id, newProduct);
+      successMessage.value = `Sản phẩm "${productForm.value.tenSanPham}" đã được cập nhật thành công!`;
+      showSuccessModal.value = true;
+    }
+    closeModals();
+    await fetch();
+  } catch (error) {
+    console.error("Error saving product:", error);
+    alert("Có lỗi xảy ra khi lưu sản phẩm!");
   }
-  closeModals();
-  await fetch();
 };
 const exportData = () => {
   alert("Xuất báo cáo sản phẩm");
@@ -1103,18 +1134,30 @@ onMounted(fetch);
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modern-modal-content {
-  background: #ffffff;
+  background: white;
   border-radius: 16px;
   width: 100%;
   max-width: 900px;
   max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modern-modal-header {
@@ -1122,8 +1165,9 @@ onMounted(fetch);
   align-items: center;
   justify-content: space-between;
   padding: 2rem 2rem 1.5rem 2rem;
-  border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 2px solid #f3f4f6;
+  background: #22c55e;
+  border-radius: 16px 16px 0 0;
 }
 
 .header-content {
@@ -1136,62 +1180,82 @@ onMounted(fetch);
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .header-text h2 {
   margin: 0;
+  color: white;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  font-family: 'Inter', sans-serif;
   line-height: 1.2;
 }
 
 .header-text p:not(.page-subtitle) {
   margin: 0.25rem 0 0 0;
   font-size: 0.875rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.4;
 }
 
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #e5e7eb;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .modern-close-btn {
-  width: 40px;
-  height: 40px;
+  background: rgba(239, 68, 68, 0.1);
   border: none;
-  background: #f1f5f9;
-  border-radius: 10px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  border-radius: 50%;
   transition: all 0.2s ease;
-  color: #64748b;
+  color: #ef4444;
 }
 
 .modern-close-btn:hover {
-  background: #e2e8f0;
-  color: #334155;
-  transform: scale(1.05);
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modern-modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 0 2rem 2rem 2rem;
+  padding: 2rem;
+  background: white;
 }
 
 .modern-modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   padding: 1.5rem 2rem 2rem 2rem;
-  border-top: 1px solid #f1f5f9;
-  background: #fafbfc;
+  border-top: 2px solid #f3f4f6;
+  background: #f9fafb;
 }
 
 /* Form Section Styles */
@@ -1582,13 +1646,51 @@ onMounted(fetch);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: #22c55e;
   color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  background: #059669;
+}
+
+.btn-primary:active {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 /* Responsive Design for Modern Modal */
@@ -1653,6 +1755,157 @@ onMounted(fetch);
   .btn-primary {
     width: 100%;
     justify-content: center;
-  }
-}
-</style>
+     }
+ }
+
+ /* Success Modal Styles */
+ .success-modal-overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: rgba(0, 0, 0, 0.6);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 2000;
+   padding: 2rem;
+   backdrop-filter: blur(4px);
+ }
+
+ .success-modal-content {
+   background: white;
+   border-radius: 20px;
+   width: 100%;
+   max-width: 500px;
+   padding: 3rem 2rem 2rem 2rem;
+   text-align: center;
+   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   animation: successSlideIn 0.4s ease-out;
+   position: relative;
+   overflow: hidden;
+ }
+
+ @keyframes successSlideIn {
+   from {
+     opacity: 0;
+     transform: translateY(-30px) scale(0.9);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0) scale(1);
+   }
+ }
+
+ .success-icon {
+   width: 80px;
+   height: 80px;
+   margin: 0 auto 1.5rem auto;
+   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: white;
+   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+   animation: iconBounce 0.6s ease-out 0.2s both;
+ }
+
+ @keyframes iconBounce {
+   0%, 20%, 50%, 80%, 100% {
+     transform: translateY(0);
+   }
+   40% {
+     transform: translateY(-10px);
+   }
+   60% {
+     transform: translateY(-5px);
+   }
+ }
+
+ .success-content {
+   margin-bottom: 2rem;
+ }
+
+ .success-title {
+   font-size: 2rem;
+   font-weight: 700;
+   color: #10b981;
+   margin: 0 0 1rem 0;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+
+ .success-message {
+   font-size: 1.1rem;
+   color: #6b7280;
+   margin: 0;
+   line-height: 1.6;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+
+ .success-close-btn {
+   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+   color: white;
+   border: none;
+   padding: 1rem 2.5rem;
+   border-radius: 12px;
+   font-size: 1rem;
+   font-weight: 600;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+ }
+
+ .success-close-btn:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+   background: linear-gradient(135deg, #059669 0%, #047857 100%);
+ }
+
+ .success-close-btn:active {
+   transform: translateY(0);
+ }
+
+ /* Responsive Design for Success Modal */
+ @media (max-width: 768px) {
+   .success-modal-overlay {
+     padding: 1rem;
+   }
+
+   .success-modal-content {
+     max-width: 100%;
+     padding: 2rem 1.5rem 1.5rem 1.5rem;
+   }
+
+   .success-title {
+     font-size: 1.75rem;
+   }
+
+   .success-message {
+     font-size: 1rem;
+   }
+
+   .success-close-btn {
+     width: 100%;
+     padding: 1rem;
+   }
+ }
+
+ @media (max-width: 480px) {
+   .success-icon {
+     width: 60px;
+     height: 60px;
+   }
+
+   .success-title {
+     font-size: 1.5rem;
+   }
+
+   .success-message {
+     font-size: 0.95rem;
+   }
+ }
+ </style>
