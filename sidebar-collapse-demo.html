@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Collapse Demo - GearUp Admin</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-title {
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li::before {
+            content: "✅";
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .keyboard-shortcut {
+            background: #1f2937;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        
+        .demo-note {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .demo-note h3 {
+            color: #92400e;
+            margin-top: 0;
+        }
+        
+        .demo-note p {
+            color: #78350f;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">🎉 Tính năng Thu gọn/Mở rộng Menu đã hoàn thành!</h1>
+        
+        <div class="demo-note">
+            <h3>📝 Ghi chú</h3>
+            <p>Đây là demo cho tính năng mới. Để test thực tế, hãy chạy ứng dụng Vue.js và sử dụng các tính năng bên dưới.</p>
+        </div>
+        
+        <h2>🚀 Các tính năng mới:</h2>
+        <ul class="feature-list">
+            <li>
+                <strong>Nút thu gọn/mở rộng menu</strong>
+                <span class="keyboard-shortcut">Click vào nút hamburger</span>
+            </li>
+            <li>
+                <strong>Phím tắt</strong>
+                <span class="keyboard-shortcut">Ctrl + B</span>
+            </li>
+            <li>
+                <strong>Lưu trạng thái</strong>
+                <span class="keyboard-shortcut">Tự động lưu vào localStorage</span>
+            </li>
+            <li>
+                <strong>Responsive</strong>
+                <span class="keyboard-shortcut">Tự động thu gọn trên mobile</span>
+            </li>
+            <li>
+                <strong>Tooltip khi thu gọn</strong>
+                <span class="keyboard-shortcut">Hover để xem tên menu</span>
+            </li>
+            <li>
+                <strong>Hiệu ứng mượt mà</strong>
+                <span class="keyboard-shortcut">Transition 0.3s</span>
+            </li>
+        </ul>
+        
+        <h2>🎯 Cách sử dụng:</h2>
+        <ol>
+            <li>Mở ứng dụng GearUp Admin</li>
+            <li>Nhìn vào thanh menu bên trái</li>
+            <li>Click vào nút hamburger (≡) ở góc phải logo</li>
+            <li>Menu sẽ thu gọn từ 280px xuống 80px</li>
+            <li>Click lại để mở rộng menu</li>
+            <li>Hoặc sử dụng phím tắt <strong>Ctrl + B</strong></li>
+        </ol>
+        
+        <h2>💡 Lợi ích:</h2>
+        <ul>
+            <li>Tiết kiệm không gian màn hình</li>
+            <li>Dễ dàng tập trung vào nội dung chính</li>
+            <li>Trải nghiệm người dùng tốt hơn</li>
+            <li>Hỗ trợ tốt cho màn hình nhỏ</li>
+            <li>Giao diện hiện đại và chuyên nghiệp</li>
+        </ul>
+    </div>
+</body>
+</html>

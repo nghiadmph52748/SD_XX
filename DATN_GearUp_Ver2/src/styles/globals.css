@@ -196,23 +196,24 @@
 }
 
 .page-title {
-  font-size: 1.9rem;
-  font-weight: 800;
   margin: 0;
+  font-size: 28px;
+  font-weight: 700;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
-  letter-spacing: -0.025em;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .page-subtitle {
-  font-size: 1.1rem;
-  margin: 0.5rem 0 0 0;
-  color: white !important;
-  opacity: 0.9;
+  margin: 0;
+  font-size: 20px;
   font-weight: 400;
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
-  line-height: 1.4;
+  color: white;
+  opacity: 0.9;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
 }
 
 /* Ensure page-subtitle in header-text is white */
@@ -240,11 +241,11 @@
   }
   
   .page-title {
-    font-size: 1.5rem;
+    font-size: 24px;
   }
   
   .page-subtitle {
-    font-size: 1rem;
+    font-size: 18px;
   }
 }
 

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Bảng ChiTietSanPham với Thanh Cuộn Ngang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .demo-header {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .demo-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .demo-content {
+            padding: 30px;
+        }
+
+        .demo-description {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .demo-description h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .demo-description p {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .scroll-info {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .scroll-info h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .scroll-info p {
+            color: #a16207;
+            font-weight: 500;
+        }
+
+        /* Table Container - With horizontal scrollbar */
+        .table-container {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: white;
+            overflow: hidden;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Product Table - With horizontal scrollbar */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.6rem;
+            /* Further reduced font size for compact display */
+            table-layout: auto;
+            /* Auto table layout to allow natural column sizing */
+            min-width: 1200px;
+            /* Minimum width to ensure all columns are visible */
+            overflow-x: visible;
+            /* Show horizontal scrollbar when needed */
+        }
+
+        .product-table th {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 0.55rem;
+        }
+
+        .product-table th:last-child {
+            border-right: none;
+        }
+
+        .product-table td {
+            padding: 0.5rem 0.3rem;
+            text-align: center;
+            vertical-align: middle;
+            border-bottom: 2px solid #e2e8f0;
+            border-right: 2px solid #e2e8f0;
+            background: white;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            font-size: 0.55rem;
+            font-weight: 500;
+            color: #374151;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .product-table td:last-child {
+            border-right: none;
+        }
+
+        .product-table tbody tr:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .product-table tbody tr:hover td {
+            border-color: #cbd5e1;
+            background: transparent;
+        }
+
+        /* Column Widths - With horizontal scrollbar */
+        .stt-col { width: 35px; min-width: 35px; max-width: 35px; }
+        .product-col { width: 60px; min-width: 60px; max-width: 60px; }
+        .ma-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .color-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .size-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .sole-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .material-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .insole-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .weight-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .sport-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .season-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .durability-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .waterproof-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .image-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .quantity-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .price-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .status-col { width: 50px; min-width: 50px; max-width: 50px; }
+        .action-col { width: 50px; min-width: 50px; max-width: 50px; }
+
+        .no-data {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-style: italic;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .demo-footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .demo-footer p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        @media (max-width: 768px) {
+            .demo-container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .demo-header {
+                padding: 20px;
+            }
+
+            .demo-header h1 {
+                font-size: 2rem;
+            }
+
+            .demo-content {
+                padding: 20px;
+            }
+
+            .table-container {
+                margin: 0 -1rem;
+                border-radius: 0;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .product-table {
+                font-size: 0.65rem;
+                min-width: 1200px;
+                table-layout: auto;
+            }
+
+            .product-table th,
+            .product-table td {
+                padding: 0.4rem 0.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-table {
+                font-size: 0.6rem;
+                min-width: 1100px;
+                table-layout: auto;
+            }
+
+            .product-table th,
+            .product-table td {
+                padding: 0.3rem 0.15rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🎯 Demo Bảng ChiTietSanPham</h1>
+            <p>Với Thanh Cuộn Ngang</p>
+        </div>
+
+        <div class="demo-content">
+            <div class="demo-description">
+                <h3>✨ Tính Năng Mới</h3>
+                <p>Bảng đã được cập nhật để hiển thị <span class="highlight">thanh cuộn ngang</span> khi cần thiết, cho phép xem tất cả 24 cột một cách dễ dàng.</p>
+            </div>
+
+            <div class="scroll-info">
+                <h4>🔄 Cách Sử Dụng Thanh Cuộn Ngang</h4>
+                <p>• Sử dụng chuột để cuộn ngang • Hoặc sử dụng thanh cuộn ở dưới bảng • Trên mobile, vuốt ngang để cuộn</p>
+            </div>
+
+            <div class="table-container">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th class="stt-col">STT</th>
+                            <th class="product-col">Sản phẩm</th>
+                            <th class="ma-col">Mã</th>
+                            <th class="color-col">Màu sắc</th>
+                            <th class="size-col">Kích thước</th>
+                            <th class="sole-col">Đế giày</th>
+                            <th class="material-col">Chất liệu</th>
+                            <th class="insole-col">Lót trong</th>
+                            <th class="weight-col">Trọng lượng</th>
+                            <th class="sport-col">Môn thể thao</th>
+                            <th class="season-col">Mùa</th>
+                            <th class="durability-col">Độ bền</th>
+                            <th class="waterproof-col">Chống nước</th>
+                            <th class="image-col">Hình ảnh</th>
+                            <th class="quantity-col">Số lượng</th>
+                            <th class="price-col">Giá bán</th>
+                            <th class="status-col">Trạng thái</th>
+                            <th class="action-col">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="stt-col">1</td>
+                            <td class="product-col">Giày Nike Air Max</td>
+                            <td class="ma-col">NK001</td>
+                            <td class="color-col">Đen</td>
+                            <td class="size-col">42</td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Vải</td>
+                            <td class="insole-col">Vải mềm</td>
+                            <td class="weight-col">300g</td>
+                            <td class="sport-col">Chạy bộ</td>
+                            <td class="season-col">Tất cả</td>
+                            <td class="durability-col">Cao</td>
+                            <td class="waterproof-col">Có</td>
+                            <td class="image-col">🖼️</td>
+                            <td class="quantity-col">50</td>
+                            <td class="price-col">2,500,000</td>
+                            <td class="status-col">Còn hàng</td>
+                            <td class="action-col">✏️</td>
+                        </tr>
+                        <tr>
+                            <td class="stt-col">2</td>
+                            <td class="product-col">Giày Adidas Ultraboost</td>
+                            <td class="ma-col">AD002</td>
+                            <td class="color-col">Trắng</td>
+                            <td class="size-col">41</td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Vải</td>
+                            <td class="insole-col">Vải mềm</td>
+                            <td class="weight-col">280g</td>
+                            <td class="sport-col">Chạy bộ</td>
+                            <td class="season-col">Tất cả</td>
+                            <td class="durability-col">Cao</td>
+                            <td class="waterproof-col">Không</td>
+                            <td class="image-col">🖼️</td>
+                            <td class="quantity-col">30</td>
+                            <td class="price-col">3,200,000</td>
+                            <td class="status-col">Còn hàng</td>
+                            <td class="action-col">✏️</td>
+                        </tr>
+                        <tr>
+                            <td class="stt-col">3</td>
+                            <td class="product-col">Giày Puma RS-X</td>
+                            <td class="ma-col">PM003</td>
+                            <td class="color-col">Xanh</td>
+                            <td class="size-col">43</td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Da</td>
+                            <td class="insole-col">Vải mềm</td>
+                            <td class="weight-col">320g</td>
+                            <td class="sport-col">Thể thao</td>
+                            <td class="season-col">Tất cả</td>
+                            <td class="durability-col">Trung bình</td>
+                            <td class="waterproof-col">Không</td>
+                            <td class="image-col">🖼️</td>
+                            <td class="quantity-col">25</td>
+                            <td class="price-col">1,800,000</td>
+                            <td class="status-col">Còn hàng</td>
+                            <td class="action-col">✏️</td>
+                        </tr>
+                        <tr>
+                            <td class="stt-col">4</td>
+                            <td class="product-col">Giày New Balance 574</td>
+                            <td class="ma-col">NB004</td>
+                            <td class="color-col">Xám</td>
+                            <td class="size-col">40</td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Vải</td>
+                            <td class="insole-col">Vải mềm</td>
+                            <td class="weight-col">290g</td>
+                            <td class="sport-col">Thể thao</td>
+                            <td class="season-col">Tất cả</td>
+                            <td class="durability-col">Cao</td>
+                            <td class="waterproof-col">Không</td>
+                            <td class="image-col">🖼️</td>
+                            <td class="quantity-col">40</td>
+                            <td class="price-col">2,100,000</td>
+                            <td class="status-col">Còn hàng</td>
+                            <td class="action-col">✏️</td>
+                        </tr>
+                        <tr>
+                            <td class="stt-col">5</td>
+                            <td class="product-col">Giày Converse Chuck Taylor</td>
+                            <td class="ma-col">CV005</td>
+                            <td class="color-col">Đen</td>
+                            <td class="size-col">39</td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Vải</td>
+                            <td class="insole-col">Vải mềm</td>
+                            <td class="weight-col">250g</td>
+                            <td class="sport-col">Thể thao</td>
+                            <td class="season-col">Tất cả</td>
+                            <td class="durability-col">Trung bình</td>
+                            <td class="waterproof-col">Không</td>
+                            <td class="image-col">🖼️</td>
+                            <td class="quantity-col">60</td>
+                            <td class="price-col">1,500,000</td>
+                            <td class="status-col">Còn hàng</td>
+                            <td class="action-col">✏️</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="demo-description" style="margin-top: 30px;">
+                <h3>🔧 Thay Đổi Kỹ Thuật</h3>
+                <p>• <span class="highlight">overflow-x: auto</span> - Cho phép thanh cuộn ngang</p>
+                <p>• <span class="highlight">table-layout: auto</span> - Tự động điều chỉnh kích thước cột</p>
+                <p>• <span class="highlight">min-width: 1200px</span> - Đảm bảo tất cả cột hiển thị</p>
+            </div>
+        </div>
+
+        <div class="demo-footer">
+            <p>🎉 Bảng ChiTietSanPham đã được cập nhật thành công với thanh cuộn ngang!</p>
+        </div>
+    </div>
+</body>
+</html>

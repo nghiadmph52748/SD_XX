@@ -21,6 +21,8 @@ import org.example.be_sp.repository.MonTheThaoRepository;
 import org.example.be_sp.repository.SanPhamRepository;
 import org.example.be_sp.repository.TrongLuongRepository;
 import org.example.be_sp.util.MapperUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChiTietSanPhamService {
+    private static final Logger logger = LoggerFactory.getLogger(ChiTietSanPhamService.class);
     @Autowired
     ChiTietSanPhamRepository repository;
     @Autowired
@@ -54,7 +57,27 @@ public class ChiTietSanPhamService {
     ChongNuocRepository chongNuoc;
 
     public List<ChiTietSanPhamResponse> getAll() {
-        return repository.findAll().stream().map(ChiTietSanPhamResponse::new).toList();
+        logger.info("Bắt đầu lấy tất cả chi tiết sản phẩm");
+        try {
+            List<ChiTietSanPham> allChiTietSanPham = repository.findAllWithValidData();
+            logger.info("Tìm thấy {} chi tiết sản phẩm hợp lệ từ database", allChiTietSanPham.size());
+            
+            // Log thêm thông tin về từng sản phẩm để debug
+            allChiTietSanPham.forEach(ctsp -> 
+                logger.debug("Sản phẩm ID: {}, deleted: {}, trangThai: {}", 
+                           ctsp.getId(), ctsp.getDeleted(), ctsp.getTrangThai())
+            );
+            
+            List<ChiTietSanPhamResponse> result = allChiTietSanPham.stream()
+                    .map(ChiTietSanPhamResponse::new)
+                    .toList();
+            
+            logger.info("Trả về {} chi tiết sản phẩm", result.size());
+            return result;
+        } catch (Exception e) {
+            logger.error("Lỗi khi lấy tất cả chi tiết sản phẩm: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public ChiTietSanPhamResponse getById(Integer id) {
@@ -99,9 +122,27 @@ public class ChiTietSanPhamService {
         repository.save(e);
     }
 
+    @Transactional
     public void updateStatus(Integer id) {
+        logger.info("Bắt đầu cập nhật trạng thái chi tiết sản phẩm với ID: {}", id);
         ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+        
+        logger.info("Trạng thái trước khi cập nhật - deleted: {}, trangThai: {}", 
+                   chiTietSanPham.getDeleted(), chiTietSanPham.getTrangThai());
+        
         chiTietSanPham.setDeleted(true);
+        chiTietSanPham.setTrangThai(false);
+        
+        ChiTietSanPham saved = repository.save(chiTietSanPham);
+        logger.info("Đã cập nhật thành công chi tiết sản phẩm ID: {}, deleted: {}, trangThai: {}", 
+                   saved.getId(), saved.getDeleted(), saved.getTrangThai());
+    }
+
+    @Transactional
+    public void restoreStatus(Integer id) {
+        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+        chiTietSanPham.setDeleted(false);
+        chiTietSanPham.setTrangThai(true);
         repository.save(chiTietSanPham);
     }
 
@@ -114,8 +155,7 @@ public class ChiTietSanPhamService {
     }
 
     public List<ChiTietSanPhamFullResponse> getAllWithFullInfo() {
-        return repository.findAll().stream()
-                .filter(ctsp -> !ctsp.getDeleted())
+        return repository.findAllWithValidData().stream()
                 .map(ChiTietSanPhamFullResponse::new)
                 .toList();
     }

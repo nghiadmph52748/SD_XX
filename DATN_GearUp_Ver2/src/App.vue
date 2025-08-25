@@ -10,7 +10,7 @@ const router = useRouter();
 const route = useRoute();
 const { authState, logout: authLogout, initializeAuth } = useAuth();
 
-const sidebarOpen = ref(true); // Always keep sidebar open
+const sidebarOpen = ref(localStorage.getItem('sidebarOpen') !== 'false'); // Remember sidebar state
 const showNotifications = ref(false);
 const showUserDropdown = ref(false);
 const showAllNotificationsModal = ref(false);
@@ -459,6 +459,7 @@ const closeDropdowns = (event) => {
 
 onMounted(() => {
   document.addEventListener("click", closeDropdowns);
+  document.addEventListener("keydown", handleKeydown);
   initializeAuth(); // Initialize auth state from localStorage
   startPolling(); // Start notification system
 
@@ -471,12 +472,44 @@ onMounted(() => {
     createSystemNotification,
   });
 
+  // Auto-collapse sidebar on mobile devices
+  const checkMobile = () => {
+    if (window.innerWidth <= 768) {
+      sidebarOpen.value = false;
+      localStorage.setItem('sidebarOpen', 'false');
+    }
+  };
+  
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+
   // No automatic notifications - only trigger on actual changes
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", closeDropdowns);
+  document.removeEventListener("keydown", handleKeydown);
+  window.removeEventListener('resize', checkMobile);
 });
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value;
+  localStorage.setItem('sidebarOpen', sidebarOpen.value.toString());
+};
+
+const handleKeydown = (event) => {
+  if (event.ctrlKey && event.key === 'b') {
+    event.preventDefault();
+    toggleSidebar();
+  }
+};
+
+const checkMobile = () => {
+  if (window.innerWidth <= 768) {
+    sidebarOpen.value = false;
+    localStorage.setItem('sidebarOpen', 'false');
+  }
+};
 </script>
 
 <template>
@@ -486,12 +519,18 @@ onUnmounted(() => {
   <!-- Admin Layout (with sidebar and header) -->
   <div v-else class="admin-layout">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" :class="{ 'sidebar-collapsed': !sidebarOpen }">
       <!-- Logo -->
       <div class="logo-section">
         <div class="logo" @click="navigateToDashboard">
           <img :src="logoUrl" alt="GearUp Logo" class="logo-icon" />
         </div>
+        <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarOpen ? 'Thu gọn menu' : 'Mở rộng menu'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path v-if="sidebarOpen" d="M19 13H5v-2h14v2z"/>
+            <path v-else d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </button>
       </div>
 
       <!-- Navigation Menu -->
@@ -504,6 +543,7 @@ onUnmounted(() => {
             class="menu-item"
             :class="{ active: route.path === item.path }"
             @click="closeMobileMenu"
+            :title="!sidebarOpen ? item.name : ''"
           >
             <div
               class="menu-icon"
@@ -566,6 +606,7 @@ onUnmounted(() => {
                     ? router.push(subitem.path)
                     : null
                 "
+                :title="!sidebarOpen ? subitem.name : ''"
               >
                 <span class="submenu-bullet">•</span>
                 <span class="submenu-text">{{ subitem.name }}</span>
@@ -612,6 +653,7 @@ onUnmounted(() => {
                   class="sub-submenu-item"
                   :class="{ active: route.path === subSubitem.path }"
                   @click="router.push(subSubitem.path)"
+                  :title="!sidebarOpen ? subSubitem.name : ''"
                 >
                   <span class="sub-submenu-bullet">◦</span>
                   <span class="sub-submenu-text">{{ subSubitem.name }}</span>
@@ -624,7 +666,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Main Content -->
-    <div class="main-content">
+    <div class="main-content" :class="{ 'main-content-expanded': !sidebarOpen }">
       <!-- Header -->
       <header class="header">
         <div class="header-left"></div>
@@ -925,6 +967,12 @@ onUnmounted(() => {
   position: relative;
   overflow-y: auto;
   z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.sidebar-collapsed {
+  width: 80px;
+  min-width: 80px;
 }
 
 .logo-section {
@@ -933,8 +981,23 @@ onUnmounted(() => {
   background: #ffffff;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
+}
+
+
+
+.sidebar-toggle:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.sidebar-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle:active svg {
+  transform: scale(0.95);
 }
 
 .logo {
@@ -942,6 +1005,23 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sidebar-collapsed .logo-section {
+  justify-content: center;
+}
+
+.sidebar-collapsed .sidebar-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sidebar-collapsed .logo-icon {
+  height: 32px;
+  width: auto;
 }
 
 .logo-icon {
@@ -974,6 +1054,21 @@ onUnmounted(() => {
   font-weight: 500;
   font-size: 0.875rem;
   border-bottom: 1px solid transparent;
+}
+
+.sidebar-collapsed .menu-item {
+  padding: 0.75rem 1rem;
+  justify-content: center;
+}
+
+.sidebar-collapsed .submenu-item {
+  padding: 0.5rem 1rem;
+  justify-content: center;
+}
+
+.sidebar-collapsed .sub-submenu-item {
+  padding: 0.4rem 1rem;
+  justify-content: center;
 }
 
 .menu-item:hover {
@@ -1142,6 +1237,7 @@ onUnmounted(() => {
 .sub-submenu-text {
   color: #000000;
   flex: 1;
+  color: #000000;     
 }
 
 .menu-icon {
@@ -1182,6 +1278,80 @@ onUnmounted(() => {
   margin-left: 0.75rem;
   flex: 1;
   font-size: 0.875rem;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-collapsed .menu-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-collapsed .menu-arrow {
+  opacity: 0;
+}
+
+.sidebar-collapsed .submenu-bullet {
+  opacity: 0;
+}
+
+.sidebar-collapsed .submenu-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-collapsed .sub-submenu-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-collapsed .submenu {
+  display: none;
+}
+
+.sidebar-collapsed .sub-submenu {
+  display: none;
+}
+
+.sidebar-collapsed .menu-icon {
+  margin: 0;
+  opacity: 1;
+}
+
+.sidebar-collapsed .menu-icon-placeholder {
+  margin: 0;
+}
+
+.sidebar-collapsed .menu-item:hover {
+  background-color: #f3f4f6;
+}
+
+.sidebar-collapsed .menu-item.active {
+  background-color: #eff6ff;
+  border-left: 3px solid #2563eb;
+}
+
+/* Add a subtle shadow to the collapsed sidebar */
+.sidebar-collapsed {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Improve the toggle button appearance */
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 /* Main Content */
@@ -1190,6 +1360,11 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.main-content-expanded {
+  margin-left: 0;
 }
 
 /* Header */

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bảng ChiTietSanPham</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .product-table th,
+        .product-table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .product-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        .product-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        .product-table tr:hover {
+            background: #f3f4f6;
+        }
+        
+        /* Column widths */
+        .stt-col { width: 50px; }
+        .id-col { width: 60px; }
+        .product-col { width: 150px; }
+        .ma-col { width: 100px; }
+        .nha-san-xuat-col { width: 120px; }
+        .xuat-xu-col { width: 100px; }
+        .color-col { width: 100px; }
+        .size-col { width: 100px; }
+        .sole-col { width: 100px; }
+        .material-col { width: 100px; }
+        .insole-col { width: 100px; }
+        .weight-col { width: 100px; }
+        .sport-col { width: 100px; }
+        .season-col { width: 100px; }
+        .durability-col { width: 100px; }
+        .waterproof-col { width: 100px; }
+        .image-col { width: 120px; }
+        .quantity-col { width: 80px; }
+        .price-col { width: 100px; }
+        .giam-gia-col { width: 120px; }
+        .gia-sau-giam-col { width: 120px; }
+        .ghi-chu-col { width: 120px; }
+        .status-col { width: 100px; }
+        .action-col { width: 100px; }
+        
+        /* Badge styles */
+        .id-badge {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .ma-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .color-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .size-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .stock-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .no-image {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+        .giam-gia-text {
+            font-size: 0.8rem;
+            color: #059669;
+            font-weight: 500;
+        }
+        .giam-gia-value {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .gia-sau-giam-text {
+            font-size: 0.8rem;
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .ghi-chu-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .btn-edit, .btn-delete {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin: 2px;
+        }
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Bảng ChiTietSanPham - Hiển thị 100% các trường</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-container">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th class="stt-col">STT</th>
+                            <th class="id-col">ID</th>
+                            <th class="product-col">Tên Sản Phẩm</th>
+                            <th class="ma-col">Mã SP</th>
+                            <th class="nha-san-xuat-col">Nhà SX</th>
+                            <th class="xuat-xu-col">Xuất xứ</th>
+                            <th class="color-col">Màu sắc</th>
+                            <th class="size-col">Kích thước</th>
+                            <th class="sole-col">Đế giày</th>
+                            <th class="material-col">Chất liệu</th>
+                            <th class="insole-col">Đệm giày</th>
+                            <th class="weight-col">Trọng lượng</th>
+                            <th class="sport-col">Môn thể thao</th>
+                            <th class="season-col">Loại mùa</th>
+                            <th class="durability-col">Độ bền</th>
+                            <th class="waterproof-col">Chống nước</th>
+                            <th class="image-col">Ảnh sản phẩm</th>
+                            <th class="quantity-col">Số lượng</th>
+                            <th class="price-col">Giá bán</th>
+                            <th class="giam-gia-col">Giảm giá</th>
+                            <th class="gia-sau-giam-col">Giá sau giảm</th>
+                            <th class="ghi-chu-col">Ghi chú</th>
+                            <th class="status-col">Trạng thái</th>
+                            <th class="action-col">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="stt-col">1</td>
+                            <td class="id-col"><span class="id-badge">1</span></td>
+                            <td class="product-col"><strong>Giày thể thao Nike Air Max</strong></td>
+                            <td class="ma-col"><span class="ma-badge">SP001</span></td>
+                            <td class="nha-san-xuat-col">Nike</td>
+                            <td class="xuat-xu-col">Mỹ</td>
+                            <td class="color-col"><span class="color-badge">Đen</span></td>
+                            <td class="size-col"><span class="size-badge">42</span></td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Vải</td>
+                            <td class="insole-col">Đệm êm</td>
+                            <td class="weight-col">350g</td>
+                            <td class="sport-col">Chạy bộ</td>
+                            <td class="season-col">Mùa hè</td>
+                            <td class="durability-col">Cao</td>
+                            <td class="waterproof-col">Có</td>
+                            <td class="image-col">
+                                <img src="https://via.placeholder.com/60x60/000000/FFFFFF?text=Nike" alt="Nike" class="product-image">
+                            </td>
+                            <td class="quantity-col"><span class="stock-badge">50</span></td>
+                            <td class="price-col">2,500,000 VND</td>
+                            <td class="giam-gia-col">
+                                <span class="giam-gia-text">Giảm giá mùa hè</span>
+                                <br>
+                                <small class="giam-gia-value">15%</small>
+                            </td>
+                            <td class="gia-sau-giam-col"><span class="gia-sau-giam-text">2,125,000 VND</span></td>
+                            <td class="ghi-chu-col"><span class="ghi-chu-text">Sản phẩm mới, chất lượng cao</span></td>
+                            <td class="status-col"><span class="status-badge status-active">Hoạt động</span></td>
+                            <td class="action-col">
+                                <button class="btn-edit">✏️</button>
+                                <br>
+                                <button class="btn-delete">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="stt-col">2</td>
+                            <td class="id-col"><span class="id-badge">2</span></td>
+                            <td class="product-col"><strong>Giày đá bóng Adidas Predator</strong></td>
+                            <td class="ma-col"><span class="ma-badge">SP002</span></td>
+                            <td class="nha-san-xuat-col">Adidas</td>
+                            <td class="xuat-xu-col">Đức</td>
+                            <td class="color-col"><span class="color-badge">Trắng</span></td>
+                            <td class="size-col"><span class="size-badge">41</span></td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Da</td>
+                            <td class="insole-col">Đệm thể thao</td>
+                            <td class="weight-col">320g</td>
+                            <td class="sport-col">Đá bóng</td>
+                            <td class="season-col">Mùa đông</td>
+                            <td class="durability-col">Trung bình</td>
+                            <td class="waterproof-col">Không</td>
+                            <td class="image-col">
+                                <img src="https://via.placeholder.com/60x60/FFFFFF/000000?text=Adidas" alt="Adidas" class="product-image">
+                            </td>
+                            <td class="quantity-col"><span class="stock-badge">30</span></td>
+                            <td class="price-col">3,200,000 VND</td>
+                            <td class="giam-gia-col">
+                                <span class="giam-gia-text">Không có đợt giảm giá</span>
+                            </td>
+                            <td class="gia-sau-giam-col"><span class="gia-sau-giam-text">3,200,000 VND</span></td>
+                            <td class="ghi-chu-col"><span class="ghi-chu-text">Giày chính thức của đội tuyển</span></td>
+                            <td class="status-col"><span class="status-badge status-active">Hoạt động</span></td>
+                            <td class="action-col">
+                                <button class="btn-edit">✏️</button>
+                                <br>
+                                <button class="btn-delete">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="stt-col">3</td>
+                            <td class="id-col"><span class="id-badge">3</span></td>
+                            <td class="product-col"><strong>Giày tennis Wilson Pro Staff</strong></td>
+                            <td class="ma-col"><span class="ma-badge">SP003</span></td>
+                            <td class="nha-san-xuat-col">Wilson</td>
+                            <td class="xuat-xu-col">Mỹ</td>
+                            <td class="color-col"><span class="color-badge">Xanh</span></td>
+                            <td class="size-col"><span class="size-badge">43</span></td>
+                            <td class="sole-col">Cao su</td>
+                            <td class="material-col">Vải lưới</td>
+                            <td class="insole-col">Đệm chống sốc</td>
+                            <td class="weight-col">380g</td>
+                            <td class="sport-col">Tennis</td>
+                            <td class="season-col">Mùa xuân</td>
+                            <td class="durability-col">Cao</td>
+                            <td class="waterproof-col">Có</td>
+                            <td class="image-col">
+                                <img src="https://via.placeholder.com/60x60/0000FF/FFFFFF?text=Wilson" alt="Wilson" class="product-image">
+                            </td>
+                            <td class="quantity-col"><span class="stock-badge">15</span></td>
+                            <td class="price-col">4,500,000 VND</td>
+                            <td class="giam-gia-col">
+                                <span class="giam-gia-text">Giảm giá cuối năm</span>
+                                <br>
+                                <small class="giam-gia-value">20%</small>
+                            </td>
+                            <td class="gia-sau-giam-col"><span class="gia-sau-giam-text">3,600,000 VND</span></td>
+                            <td class="ghi-chu-col"><span class="ghi-chu-text">Giày chuyên nghiệp cho vận động viên</span></td>
+                            <td class="status-col"><span class="status-badge status-inactive">Ngừng hoạt động</span></td>
+                            <td class="action-col">
+                                <button class="btn-edit">✏️</button>
+                                <br>
+                                <button class="btn-delete">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h3>Thông tin bảng:</h3>
+            <ul>
+                <li><strong>Tổng cộng:</strong> 25 cột</li>
+                <li><strong>STT:</strong> Số thứ tự</li>
+                <li><strong>ID:</strong> Mã định danh</li>
+                <li><strong>Tên Sản Phẩm:</strong> Tên đầy đủ sản phẩm</li>
+                <li><strong>Mã SP:</strong> Mã sản phẩm</li>
+                <li><strong>Nhà SX:</strong> Nhà sản xuất</li>
+                <li><strong>Xuất xứ:</strong> Nước xuất xứ</li>
+                <li><strong>Màu sắc:</strong> Màu của sản phẩm</li>
+                <li><strong>Kích thước:</strong> Size giày</li>
+                <li><strong>Đế giày:</strong> Chất liệu đế</li>
+                <li><strong>Chất liệu:</strong> Vật liệu chính</li>
+                <li><strong>Đệm giày:</strong> Loại đệm</li>
+                <li><strong>Trọng lượng:</strong> Cân nặng</li>
+                <li><strong>Môn thể thao:</strong> Loại thể thao</li>
+                <li><strong>Loại mùa:</strong> Mùa sử dụng</li>
+                <li><strong>Độ bền:</strong> Mức độ bền</li>
+                <li><strong>Chống nước:</strong> Khả năng chống nước</li>
+                <li><strong>Ảnh sản phẩm:</strong> Hình ảnh</li>
+                <li><strong>Số lượng:</strong> Tồn kho</li>
+                <li><strong>Giá bán:</strong> Giá gốc</li>
+                <li><strong>Giảm giá:</strong> Thông tin giảm giá</li>
+                <li><strong>Giá sau giảm:</strong> Giá cuối cùng</li>
+                <li><strong>Ghi chú:</strong> Thông tin bổ sung</li>
+                <li><strong>Trạng thái:</strong> Tình trạng hoạt động</li>
+                <li><strong>Thao tác:</strong> Nút sửa/xóa</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

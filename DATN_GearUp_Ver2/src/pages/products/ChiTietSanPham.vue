@@ -276,6 +276,9 @@
               <tr>
                 <th class="stt-col">STT</th>
                 <th class="product-col">Tên Sản Phẩm</th>
+                <th class="ma-col">Mã SP</th>
+                <th class="nha-san-xuat-col">Nhà SX</th>
+                <th class="xuat-xu-col">Xuất xứ</th>
                 <th class="color-col">Màu sắc</th>
                 <th class="size-col">Kích thước</th>
                 <th class="sole-col">Đế giày</th>
@@ -289,12 +292,15 @@
                 <th class="image-col">Ảnh sản phẩm</th>
                 <th class="quantity-col">Số lượng</th>
                 <th class="price-col">Giá bán</th>
+                <th class="giam-gia-col">Giảm giá</th>
+                <th class="gia-sau-giam-col">Giá sau giảm</th>
+                <th class="ghi-chu-col">Ghi chú</th>
                 <th class="status-col">Trạng thái</th>
                 <th class="action-col">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(detail, index) in filteredDetails" :key="detail.id">
+              <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
                 <td class="stt-col">
                   {{ (currentPage - 1) * pageSize + index + 1 }}
                 </td>
@@ -304,6 +310,21 @@
                       detail.tenSanPham || detail.sanPham?.tenSanPham || "N/A"
                     }}</strong>
                   </div>
+                </td>
+                <td class="ma-col">
+                  <span class="ma-badge">{{
+                    detail.maSanPham || "N/A"
+                  }}</span>
+                </td>
+                <td class="nha-san-xuat-col">
+                  <span class="nha-san-xuat-text">{{
+                    detail.tenNhaSanXuat || "N/A"
+                  }}</span>
+                </td>
+                <td class="xuat-xu-col">
+                  <span class="xuat-xu-text">{{
+                    detail.tenXuatXu || "N/A"
+                  }}</span>
                 </td>
                 <td class="color-col">
                   <span class="color-badge">
@@ -405,6 +426,25 @@
                     formatCurrency(detail.giaBan)
                   }}</span>
                 </td>
+                <td class="giam-gia-col">
+                  <span class="giam-gia-text">{{
+                    detail.tenDotGiamGia || "Không có"
+                  }}</span>
+                  <br>
+                  <small v-if="detail.giaTriGiamGia > 0" class="giam-gia-value">
+                    {{ detail.giaTriGiamGia }}%
+                  </small>
+                </td>
+                <td class="gia-sau-giam-col">
+                  <span class="gia-sau-giam-text">{{
+                    formatCurrency(detail.giaSauGiam || detail.giaBan)
+                  }}</span>
+                </td>
+                <td class="ghi-chu-col">
+                  <span class="ghi-chu-text">{{
+                    detail.ghiChu || "Không có"
+                  }}</span>
+                </td>
                 <td class="status-col">
                   <span
                     class="status-badge"
@@ -428,17 +468,17 @@
                   <br />
                   <div class="action-buttons">
                     <button
-                      class="btn-delete"
+                      class="btn-hide"
                       @click="deleteDetail(detail.id)"
-                      title="Xóa"
+                      title="Ẩn sản phẩm"
                     >
-                      <span class="btn-icon">🗑️</span>
+                      <span class="btn-icon">👁️</span>
                     </button>
                   </div>
                 </td>
               </tr>
               <tr v-if="paginatedDetails.length === 0">
-                <td colspan="17" class="no-data">Không có dữ liệu</td>
+                <td colspan="24" class="no-data">Không có dữ liệu</td>
               </tr>
             </tbody>
           </table>
@@ -448,7 +488,7 @@
         <div v-if="totalPages > 1" class="pagination-wrapper">
           <div class="pagination-info">
             Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
-            {{ filteredDetails.length }} chi tiết sản phẩm
+            {{ filteredDetails.length }} chi tiết sản phẩm ({{ pageSize }} dòng/trang)
           </div>
           <div class="pagination">
             <button
@@ -466,6 +506,13 @@
             >
               Sau ❯
             </button>
+          </div>
+        </div>
+        
+        <!-- Pagination Info khi chỉ có 1 trang -->
+        <div v-else-if="filteredDetails.length > 0" class="pagination-wrapper">
+          <div class="pagination-info">
+            Hiển thị tất cả {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
         </div>
       </div>
@@ -961,10 +1008,22 @@ const chongNuocs = ref([]);
 // Fetch all
 const fetchChiTietSanPham = async () => {
   try {
+    console.log("Bắt đầu fetch chi tiết sản phẩm");
     const response = await fetchAllChiTietSanPham();
-    chiTietSanPhams.value = response.data;
+    console.log("Response từ API:", response);
+    
+    if (response && response.data) {
+      chiTietSanPhams.value = response.data;
+      console.log("Đã cập nhật chiTietSanPhams:", chiTietSanPhams.value.length);
+    } else {
+      console.warn("Response không có data hoặc data rỗng");
+      chiTietSanPhams.value = [];
+    }
   } catch (error) {
     console.error("Error fetching product details:", error);
+    // Hiển thị thông báo lỗi cho user
+    alert("Có lỗi khi tải dữ liệu chi tiết sản phẩm: " + error.message);
+    chiTietSanPhams.value = [];
   }
 };
 
@@ -1133,10 +1192,6 @@ const filteredDetails = computed(() => {
       matchesStatus
     );
   });
-  return filteredDetails.value.slice(
-    startIndex.value,
-    startIndex.value + pageSize.value
-  );
 });
 
 const totalPages = computed(() =>
@@ -1156,26 +1211,32 @@ const paginatedDetails = computed(() => {
 
 const deleteDetail = async (id) => {
   try {
-    // Hiển thị confirm trước khi xóa
+    console.log("Bắt đầu ẩn chi tiết sản phẩm với ID:", id);
+    
+    // Hiển thị confirm trước khi xóa mềm
     if (
       !confirm(
-        "Bạn có chắc chắn muốn xóa chi tiết sản phẩm này không? Hành động này không thể hoàn tác!"
+        "Bạn có chắc chắn muốn ẩn chi tiết sản phẩm này không? Sản phẩm sẽ không hiển thị nhưng vẫn được lưu trong hệ thống."
       )
     ) {
+      console.log("Người dùng hủy bỏ việc ẩn sản phẩm");
       return;
     }
 
-    // Gọi API xóa thực sự
+    console.log("Gọi API cập nhật trạng thái (xóa mềm) cho ID:", id);
+    // Gọi API cập nhật trạng thái (xóa mềm)
     await fetchUpdateStatusChiTietSanPham(id);
 
+    console.log("Cập nhật trạng thái thành công, đang refresh danh sách...");
     // Refresh lại danh sách
     await fetchChiTietSanPham();
 
+    console.log("Refresh danh sách thành công, hiển thị thông báo...");
     // Hiển thị thông báo thành công
-    showSuccessNotification("Xóa chi tiết sản phẩm thành công!");
+    showSuccessNotification("Ẩn chi tiết sản phẩm thành công!");
   } catch (error) {
-    console.error("Error deleting product detail:", error);
-    alert("Có lỗi xảy ra khi xóa chi tiết sản phẩm!");
+    console.error("Error hiding product detail:", error);
+    alert("Có lỗi xảy ra khi ẩn chi tiết sản phẩm!");
   }
 };
 
@@ -1707,8 +1768,10 @@ const forceRefreshImageData = async () => {
 
 onMounted(async () => {
   try {
+    console.log("Component mounted, bắt đầu load dữ liệu ban đầu...");
     // Load dữ liệu song song để tăng tốc độ
     await Promise.all([fetchChiTietSanPham(), fetchAllThuocTinh()]);
+    console.log("Đã load dữ liệu ban đầu thành công");
   } catch (error) {
     console.error("Error loading initial data:", error);
     alert("Có lỗi xảy ra khi tải dữ liệu ban đầu!");
@@ -2070,28 +2133,31 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Table Container - Optimized for full width without horizontal scrollbar */
+/* Table Container - With horizontal scrollbar */
 .table-container {
   width: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   background: white;
   overflow: hidden;
+  overflow-x: auto;
   position: relative;
   border: 1px solid #e2e8f0;
 }
 
-/* Product Table - Optimized for full width without horizontal scrollbar */
+/* Product Table - With horizontal scrollbar */
 .product-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  font-size: 0.7rem;
-  /* Smaller font for better fit */
-  table-layout: fixed;
-  /* Fixed table layout for consistent column widths */
-  max-width: 100%;
-  /* Ensure table doesn't exceed container width */
+  font-size: 0.6rem;
+  /* Further reduced font size for compact display */
+  table-layout: auto;
+  /* Auto table layout to allow natural column sizing */
+  min-width: 1200px;
+  /* Minimum width to ensure all columns are visible */
+  overflow-x: visible;
+  /* Show horizontal scrollbar when needed */
 }
 
 .product-table th {
@@ -2099,7 +2165,7 @@ onMounted(async () => {
   color: white;
   font-weight: 600;
   padding: 0.5rem 0.3rem;
-  /* Minimal padding for better fit */
+  /* Reduced padding for compact display */
   text-align: center;
   white-space: nowrap;
   /* Prevent text wrapping in headers */
@@ -2107,8 +2173,8 @@ onMounted(async () => {
   position: sticky;
   top: 0;
   z-index: 10;
-  font-size: 0.65rem;
-  /* Smaller font for headers */
+  font-size: 0.55rem;
+  /* Further reduced font size for headers */
 }
 
 .product-table th:last-child {
@@ -2122,15 +2188,19 @@ onMounted(async () => {
   border-bottom: 2px solid #e2e8f0;
   border-right: 2px solid #e2e8f0;
   background: white;
-  white-space: nowrap;
-  /* Prevent text wrapping to save space */
-  overflow: hidden;
-  /* Hide overflow to prevent layout issues */
-  text-overflow: ellipsis;
-  /* Show ellipsis for long text */
-  font-size: 0.65rem;
+  white-space: normal;
+  /* Allow text wrapping for long content */
+  overflow: visible;
+  /* Show overflow to allow text wrapping */
+  text-overflow: clip;
+  /* Don't show ellipsis, allow full text */
+  font-size: 0.55rem;
   font-weight: 500;
   color: #374151;
+  word-wrap: break-word;
+  /* Break long words if necessary */
+  hyphens: auto;
+  /* Enable automatic hyphenation */
 }
 
 .product-table td:last-child {
@@ -2150,115 +2220,154 @@ onMounted(async () => {
 }
 
 .no-data {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #94a3b8;
   font-style: italic;
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 /* Column Widths - Optimized for 100% screen without horizontal scrollbar */
-/* Total width: 40+120+80+60+80+80+80+60+80+70+70+80+60+60+80+80+80 = 1200px */
+/* Total width: 35+60+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50 = 1165px */
+/* Reduced from 1200px to 1165px after removing ID column */
 .stt-col {
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
+  width: 35px;
+  min-width: 35px;
+  max-width: 35px;
 }
+  
+
 
 .product-col {
-  width: 120px;
-  min-width: 120px;
-  max-width: 120px;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
+}
+
+.ma-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .color-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .size-col {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .sole-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .material-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .insole-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .weight-col {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .sport-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .season-col {
-  width: 70px;
-  min-width: 70px;
-  max-width: 70px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .durability-col {
-  width: 70px;
-  min-width: 70px;
-  max-width: 70px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .waterproof-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .image-col {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .quantity-col {
-  width: 60px;
-  min-width: 60px;
-  max-width: 60px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .price-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.nha-san-xuat-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.xuat-xu-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.giam-gia-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.gia-sau-giam-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.ghi-chu-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .status-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 .action-col {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
 }
 
 /* Product Info - Optimized text size */
@@ -2269,8 +2378,8 @@ onMounted(async () => {
 .product-info strong {
   display: block;
   margin-bottom: 0.25rem;
-  font-size: 0.7rem;
-  /* Smaller font for better fit */
+  font-size: 0.6rem;
+  /* Further reduced font size for compact display */
   color: #1e293b;
   line-height: 1.2;
 }
@@ -2281,7 +2390,7 @@ onMounted(async () => {
   border-radius: 4px;
   color: black;
   font-weight: 500;
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 0, 0, 0.1);
   display: inline-block;
@@ -2306,8 +2415,8 @@ onMounted(async () => {
   padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 600;
-  font-size: 0.6rem;
-  /* Smaller font */
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
   display: inline-block;
   min-width: 30px;
   max-width: 100%;
@@ -2315,15 +2424,17 @@ onMounted(async () => {
 
 /* Attribute Text - Optimized for compact display */
 .attribute-text {
-  font-size: 0.6rem;
-  /* Smaller font for better fit */
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
   color: #475569;
   font-weight: 500;
   display: block;
   line-height: 1.2;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 /* Stock Badge - Optimized size */
@@ -2332,9 +2443,8 @@ onMounted(async () => {
   color: white;
   padding: 0.15rem 0.3rem;
   border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.6rem;
-  /* Smaller font */
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
   display: inline-block;
   min-width: 30px;
   max-width: 100%;
@@ -2348,8 +2458,8 @@ onMounted(async () => {
 .price-text {
   font-weight: 600;
   color: #059669;
-  font-size: 0.65rem;
-  /* Smaller font */
+  font-size: 0.55rem;
+  /* Further reduced font size for compact display */
   white-space: nowrap;
 }
 
@@ -2358,8 +2468,8 @@ onMounted(async () => {
   padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 500;
-  font-size: 0.6rem;
-  /* Smaller font */
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
   display: inline-block;
   min-width: 60px;
   max-width: 100%;
@@ -2387,7 +2497,7 @@ onMounted(async () => {
 
 .product-image {
   width: 25px;
-  /* Smaller image */
+  /* Reduced image size for compact display */
   height: 25px;
   object-fit: cover;
   border-radius: 4px;
@@ -2426,17 +2536,17 @@ onMounted(async () => {
 }
 
 .btn-edit,
-.btn-delete {
+.btn-hide {
   border: none;
   border-radius: 4px;
-  padding: 0.3rem;
+  padding: 0.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  height: 24px;
+  min-width: 20px;
+  height: 20px;
 }
 
 .btn-edit {
@@ -2449,13 +2559,13 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
-.btn-delete {
-  background: #ef4444;
+.btn-hide {
+  background: #6b7280;
   color: white;
 }
 
-.btn-delete:hover {
-  background: #dc2626;
+.btn-hide:hover {
+  background: #4b5563;
   transform: translateY(-1px);
 }
 
@@ -2473,7 +2583,14 @@ onMounted(async () => {
 }
 
 .pagination-info {
-  display: none;
+  display: block;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .pagination {
@@ -2761,7 +2878,7 @@ onMounted(async () => {
 /* Responsive Design - Optimized for 100% screen */
 @media (min-width: 1200px) and (max-width: 1600px) {
   .product-table {
-    font-size: 0.7rem;
+    font-size: 0.5rem;
   }
 
   .product-table th,
@@ -2771,18 +2888,25 @@ onMounted(async () => {
 
   /* Adjust column widths for medium screens */
   .stt-col {
-    width: 45px;
-    min-width: 45px;
+    width: 40px;
+    min-width: 40px;
   }
 
+
+
   .product-col {
-    width: 130px;
-    min-width: 130px;
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .ma-col {
+    width: 55px;
+    min-width: 55px;
   }
 
   .color-col {
-    width: 75px;
-    min-width: 75px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .size-col {
@@ -2791,48 +2915,48 @@ onMounted(async () => {
   }
 
   .sole-col {
-    width: 80px;
-    min-width: 80px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .material-col {
-    width: 80px;
-    min-width: 80px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .insole-col {
-    width: 80px;
-    min-width: 80px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .weight-col {
-    width: 70px;
-    min-width: 70px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .sport-col {
-    width: 80px;
-    min-width: 80px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .season-col {
-    width: 70px;
-    min-width: 70px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .durability-col {
-    width: 70px;
-    min-width: 70px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .waterproof-col {
-    width: 80px;
-    min-width: 80px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .image-col {
-    width: 65px;
-    min-width: 65px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .quantity-col {
@@ -2841,25 +2965,50 @@ onMounted(async () => {
   }
 
   .price-col {
-    width: 85px;
-    min-width: 85px;
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .nha-san-xuat-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .xuat-xu-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .giam-gia-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .gia-sau-giam-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .ghi-chu-col {
+    width: 55px;
+    min-width: 55px;
   }
 
   .status-col {
-    width: 85px;
-    min-width: 85px;
+    width: 55px;
+    min-width: 55px;
   }
 
   .action-col {
-    width: 75px;
-    min-width: 75px;
+    width: 55px;
+    min-width: 55px;
   }
 }
 
 @media (min-width: 1601px) {
   /* For very large screens, increase font size slightly */
   .product-table {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .product-table th,
@@ -2869,88 +3018,120 @@ onMounted(async () => {
 
   /* Slightly larger column widths for better readability */
   .stt-col {
-    width: 55px;
-    min-width: 55px;
+    width: 50px;
+    min-width: 50px;
   }
 
+
+
   .product-col {
-    width: 150px;
-    min-width: 150px;
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .ma-col {
+    width: 70px;
+    min-width: 70px;
   }
 
   .color-col {
-    width: 85px;
-    min-width: 85px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .size-col {
-    width: 65px;
-    min-width: 65px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .sole-col {
-    width: 90px;
-    min-width: 90px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .material-col {
-    width: 90px;
-    min-width: 90px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .insole-col {
-    width: 90px;
-    min-width: 90px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .weight-col {
-    width: 80px;
-    min-width: 80px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .sport-col {
-    width: 90px;
-    min-width: 90px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .season-col {
-    width: 80px;
-    min-width: 80px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .durability-col {
-    width: 80px;
-    min-width: 80px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .waterproof-col {
-    width: 90px;
-    min-width: 90px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .image-col {
-    width: 75px;
-    min-width: 75px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .quantity-col {
-    width: 65px;
-    min-width: 65px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .price-col {
-    width: 95px;
-    min-width: 95px;
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .nha-san-xuat-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .xuat-xu-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .giam-gia-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .gia-sau-giam-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .ghi-chu-col {
+    width: 70px;
+    min-width: 70px;
   }
 
   .status-col {
-    width: 95px;
-    min-width: 95px;
+    width: 70px;
+    min-width: 70px;
   }
 
   .action-col {
-    width: 85px;
-    min-width: 85px;
+    width: 70px;
+    min-width: 70px;
   }
 }
 
@@ -2959,6 +3140,17 @@ onMounted(async () => {
   .filters-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
+  }
+  
+  .pagination-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .pagination-info {
+    text-align: center;
+    width: 100%;
   }
 }
 
@@ -3047,7 +3239,7 @@ onMounted(async () => {
     font-size: 0.65rem;
     min-width: 1200px;
     /* Ensure all columns are visible on mobile */
-    table-layout: fixed;
+    table-layout: auto;
   }
 
   .product-table th,
@@ -3167,7 +3359,7 @@ onMounted(async () => {
     font-size: 0.6rem;
     min-width: 1100px;
     /* Even smaller minimum width for very small screens */
-    table-layout: fixed;
+    table-layout: auto;
   }
 
   .product-table th,
@@ -3318,7 +3510,7 @@ onMounted(async () => {
   }
 
   .btn-edit,
-  .btn-delete {
+  .btn-hide {
     min-width: 24px;
     height: 24px;
   }
@@ -3503,6 +3695,97 @@ onMounted(async () => {
   font-weight: 500;
 }
 
+/* Styles cho các cột mới */
+.id-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.ma-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.nha-san-xuat-text,
+.xuat-xu-text {
+  font-size: 0.8rem;
+  color: #6b7280;
+  display: block;
+}
+
+.giam-gia-text {
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 500;
+  display: block;
+}
+
+.giam-gia-value {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.gia-sau-giam-text {
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.ghi-chu-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* Tối ưu hóa hiển thị cho các cột mới */
+.ma-col,
+.nha-san-xuat-col,
+.xuat-xu-col,
+.giam-gia-col,
+.gia-sau-giam-col,
+.ghi-chu-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive text size cho các cột mới */
+@media (max-width: 1400px) {
+  .ma-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .ma-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col {
+    font-size: 0.55rem;
+  }
+}
+
 /* Responsive Design for Table */
 @media (max-width: 1400px) {
   .product-table {
@@ -3515,15 +3798,23 @@ onMounted(async () => {
   }
 
   .stt-col {
-    width: 35px;
-    min-width: 35px;
-    max-width: 35px;
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
   }
 
+
+
   .product-col {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+  }
+
+  .ma-col {
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
   }
 
   .color-col,
@@ -3533,11 +3824,16 @@ onMounted(async () => {
   .sport-col,
   .waterproof-col,
   .price-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col,
   .status-col,
   .action-col {
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
   }
 
   .size-col,
@@ -3546,9 +3842,9 @@ onMounted(async () => {
   .durability-col,
   .image-col,
   .quantity-col {
-    width: 55px;
-    min-width: 55px;
-    max-width: 55px;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
   }
 }
 
@@ -3563,15 +3859,23 @@ onMounted(async () => {
   }
 
   .stt-col {
-    width: 30px;
-    min-width: 30px;
-    max-width: 30px;
+    width: 25px;
+    min-width: 25px;
+    max-width: 25px;
   }
 
+
+
   .product-col {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+  }
+
+  .ma-col {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
   }
 
   .color-col,
@@ -3581,11 +3885,16 @@ onMounted(async () => {
   .sport-col,
   .waterproof-col,
   .price-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col,
   .status-col,
   .action-col {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
   }
 
   .size-col,
@@ -3594,9 +3903,9 @@ onMounted(async () => {
   .durability-col,
   .image-col,
   .quantity-col {
-    width: 45px;
-    min-width: 45px;
-    max-width: 45px;
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
   }
 }
 
