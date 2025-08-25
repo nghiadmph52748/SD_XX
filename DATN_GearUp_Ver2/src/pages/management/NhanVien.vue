@@ -499,6 +499,14 @@
                   </option>
                 </select>
               </div>
+
+              <div class="form-group">
+                <label class="form-label">*Trạng thái</label>
+                <select v-model="employeeForm.trangThai" class="form-control">
+                  <option :value="true">Hoạt động</option>
+                  <option :value="false">Ngừng hoạt động</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

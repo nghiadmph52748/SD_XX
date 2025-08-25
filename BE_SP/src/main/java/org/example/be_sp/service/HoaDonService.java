@@ -9,6 +9,7 @@ import org.example.be_sp.model.response.HoaDonResponse;
 import org.example.be_sp.model.response.NhanVienResponse;
 import org.example.be_sp.model.response.PagingResponse;
 import org.example.be_sp.repository.HoaDonRepository;
+import org.example.be_sp.repository.KhachHangRepository;
 import org.example.be_sp.repository.NhanVienRepository;
 import org.example.be_sp.util.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class HoaDonService {
     @Autowired
     private HoaDonRepository hoaDonRepository;
     @Autowired
-    KhachHangService khachHangService;
+    KhachHangRepository khachHangRepository;
     @Autowired
     NhanVienRepository nhanVienRepository;
     @Autowired
@@ -44,7 +45,7 @@ public class HoaDonService {
     }
     public void add(HoaDonRequest request) {
         HoaDon hd = MapperUtils.map(request, HoaDon.class);
-        hd.setIdKhachHang(khachHangService.findById(request.getIdKhachHang()));
+        hd.setIdKhachHang(khachHangRepository.findKhachHangById(request.getIdKhachHang()));
         hd.setIdPhieuGiamGia(phieuGiamGiaService.getById(request.getIdPhieuGiamGia()));
         hd.setIdNhanVien(nhanVienRepository.getById(request.getIdNhanVien()));
         hoaDonRepository.save(hd);
@@ -52,7 +53,7 @@ public class HoaDonService {
     public void update(Integer id, HoaDonRequest request) {
         HoaDon hd = hoaDonRepository.findById(id).orElseThrow(() -> new ApiException("Không tìm thấy hóa đơn","404"));
         MapperUtils.mapToExisting(request, hd);
-        hd.setIdKhachHang(khachHangService.findById(request.getIdKhachHang()));
+        hd.setIdKhachHang(khachHangRepository.findKhachHangById(request.getIdKhachHang()));
         hd.setIdPhieuGiamGia(phieuGiamGiaService.getById(request.getIdPhieuGiamGia()));
         hd.setIdNhanVien(nhanVienRepository.getById(request.getIdNhanVien()));
         hoaDonRepository.save(hd);

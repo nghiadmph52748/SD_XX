@@ -66,15 +66,15 @@ public class KhachHang {
 
     @Column(name = "update_by")
     private Integer updateBy;
-
+    @JsonBackReference
     @OneToMany(mappedBy = "idKhachHang")
     private Set<DiaChiKhachHang> diaChiKhachHangs = new LinkedHashSet<>();
 
-
+    @JsonBackReference
     @OneToMany(mappedBy = "idKhachHang")
     private Set<HoaDon> hoaDons = new LinkedHashSet<>();
 
-
+    @JsonBackReference
     @OneToMany(mappedBy = "idKhachHang")
     private Set<PhieuGiamGiaCaNhan> phieuGiamGiaCaNhans = new LinkedHashSet<>();
 

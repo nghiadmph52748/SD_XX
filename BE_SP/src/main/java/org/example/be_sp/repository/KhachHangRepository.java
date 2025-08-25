@@ -12,4 +12,6 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
     KhachHang getKhachHangById(Integer id);
 
     KhachHang getById(Integer id);
+
+    KhachHang findKhachHangById(Integer id);
 }

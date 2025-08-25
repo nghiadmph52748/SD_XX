@@ -1,38 +1,38 @@
-const API = "http://localhost:8080/api/dot-giam-gia-management";
+const API = "http://localhost:8080/api/chi-tiet-dot-giam-gia-management";
 
-export const fetchAllDotGiamGia = async () => {
+export const fetchAllChiTietDotGiamGia = async () => {
     const response = await fetch(`${API}/playlist`);
     if (!response.ok) {
-        throw new Error("Failed to fetch dot giam gia");
+        throw new Error("Failed to fetch chi tiet dot giam gia");
     }
     return response.json();
 }
-export const fetchDotGiamGiaById = async (id) => {
+export const fetchChiTietDotGiamGiaById = async (id) => {
     const response = await fetch(`${API}/detail/${id}`);
     if (!response.ok) {
-        throw new Error("Failed to fetch dot giam gia");
+        throw new Error("Failed to fetch chi tiet dot giam gia");
     }
     return response.json();
 }
-export const fetchCreateDotGiamGia = async (dotGiamGia) => {
+export const fetchCreateChiTietDotGiamGia = async (chiTietDotGiamGia) => {
     await fetch(`${API}/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(dotGiamGia)
+        body: JSON.stringify(chiTietDotGiamGia)
     });
 }
-export const fetchUpdateDotGiamGia = async (id, dotGiamGia) => {
+export const fetchUpdateChiTietDotGiamGia = async (id, chiTietDotGiamGia) => {
     await fetch(`${API}/update/${id}`, {
         method: "PUT",
-        headers: { 
+        headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(dotGiamGia)
+        body: JSON.stringify(chiTietDotGiamGia)
     });
 }
-export const fetchUpdateStatusDotGiamGia = async (id) => {
+export const fetchUpdateStatusChiTietDotGiamGia = async (id) => {
     await fetch(`${API}/update/status/${id}`, {
         method: "PUT",
         headers: {

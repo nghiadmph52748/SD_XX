@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="GearUp@localhost" uuid="71a74e47-e348-41be-854a-24a8ee75b692">
+    <data-source source="LOCAL" name="GearUp@localhost" uuid="146d4e42-628c-4f4b-9b3f-865efc3fb73a">
       <driver-ref>sqlserver.ms</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
+      <remarks>$PROJECT_DIR$/BE_SP/src/main/resources/application.properties</remarks>
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
       <jdbc-url>jdbc:sqlserver://localhost:1433;databaseName=GearUp;encrypt=true;trustServerCertificate=true</jdbc-url>
       <jdbc-additional-properties>

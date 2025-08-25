@@ -10,7 +10,7 @@ import Dashboard from './pages/BangDieuKhien.vue'
 
 // User Management (ERD: nguoi_dung)
 import EmployeeManagement from './pages/management/NhanVien.vue'
-import CustomerManagement from './pages/management/QuanLyKhachHang.vue'
+import CustomerManagement from './pages/management/KhachHang.vue'
 
 // Product Management (ERD: san_pham, bien_the_san_pham, hinh_anh_san_pham)
 import ProductManagement from './pages/management/QuanLySanPham.vue'
@@ -69,7 +69,7 @@ const routes = [
 
   // User Management
   { path: '/users/nhan-vien', component: EmployeeManagement },
-  { path: '/users/customers', component: CustomerManagement },
+  { path: '/users/khach-hang', component: CustomerManagement },
 
   // Product Management
   { path: '/products', component: ProductManagement },

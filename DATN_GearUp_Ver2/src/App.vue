@@ -112,7 +112,7 @@ const pageTitle = computed(() => {
 
     // User Management
     "/users/nhan-vien": "Quản lý Nhân viên",
-    "/users/customers": "Quản lý Khách hàng",
+    "/users/khach-hang": "Quản lý Khách hàng",
 
     // Product Management
     "/products": "Danh sách Sản phẩm",
@@ -261,7 +261,7 @@ const menuItems = [
     hasSubmenu: true,
     submenu: [
       { path: "/users/nhan-vien", name: "Nhân viên" },
-      { path: "/users/customers", name: "Khách hàng" },
+      { path: "/users/khach-hang", name: "Khách hàng" },
     ],
   },
 ];

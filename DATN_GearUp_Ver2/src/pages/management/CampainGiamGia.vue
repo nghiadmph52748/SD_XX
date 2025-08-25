@@ -20,7 +20,7 @@
             <span class="btn-icon">📗</span>
             Xuất Excel
           </button>
-          <button class="btn-export" @click="showAddModal = true">
+          <button class="btn-export" @click="openAddModal">
             <span class="btn-icon">➕</span>
             Tạo đợt giảm giá
           </button>
@@ -40,7 +40,7 @@
             {{ filteredCampaigns.length }} / {{ campaigns.length }} chiến dịch
           </div>
         </div>
-        
+
         <div class="filter-content">
           <div class="search-section">
             <div class="input-group">
@@ -51,12 +51,16 @@
                 placeholder="Tìm kiếm theo tên hoặc mô tả chiến dịch..."
                 class="form-control search-input"
               />
-              <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="clear-btn"
+              >
                 <span>✕</span>
               </button>
             </div>
           </div>
-          
+
           <div class="filters-grid">
             <div class="filter-group">
               <label class="filter-label">
@@ -70,7 +74,7 @@
                 <option value="expired">🔚 Đã kết thúc</option>
               </select>
             </div>
-            
+
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">💰</span>
@@ -82,7 +86,7 @@
                 <option value="fixed">💵 Số tiền cố định</option>
               </select>
             </div>
-            
+
             <div class="filter-actions">
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
@@ -105,79 +109,98 @@
           <thead>
             <tr>
               <th>STT</th>
-              <th>Tên chiến dịch</th>
-              <th>Mô tả</th>
-              <th>Loại giảm giá</th>
-              <th>Giá trị</th>
+              <th>Tên đợt giảm giá</th>
+              <th>Giá trị giảm giá</th>
               <th>Thời gian</th>
+              <th>Hiện trạng</th>
               <th>Trạng thái</th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(campaign, index) in filteredCampaigns" :key="campaign.id">
-              <td>{{ index + 1 }}</td>
+            <tr
+              v-for="(campaign, index) in filteredCampaigns"
+              :key="campaign.id"
+            >
+              <td>{{ startIndex + index + 1 }}</td>
               <td>
                 <div class="campaign-name">
-                  <strong>{{ campaign.name }}</strong>
+                  <strong>{{ campaign.tenDotGiamGia }}</strong>
                 </div>
               </td>
               <td>
                 <div class="campaign-description">
-                  {{ campaign.description || 'Không có mô tả' }}
-                </div>
-              </td>
-              <td>
-                <span class="badge badge-info">
-                  {{ campaign.type === 'percentage' ? '📊 Phần trăm' : '💵 Số tiền' }}
-                </span>
-              </td>
-              <td>
-                <div class="value-info">
-                  <strong class="discount-value">
-                    {{ campaign.type === 'percentage' ? campaign.value + '%' : formatCurrency(campaign.value) }}
-                  </strong>
-                  <small v-if="campaign.min_order_value" class="min-order">
-                    Đơn tối thiểu: {{ formatCurrency(campaign.min_order_value) }}
-                  </small>
+                  {{ campaign.giaTriGiamGia || "Không có giá trị giảm giá" }}
                 </div>
               </td>
               <td>
                 <div class="date-info">
                   <div class="date-range">
-                    📅 {{ formatDateShort(campaign.start_date) }}
+                    📅 {{ formatDateShort(campaign.ngayBatDau) }}
                   </div>
                   <div class="date-separator">↓</div>
                   <div class="date-range">
-                    📅 {{ formatDateShort(campaign.end_date) }}
+                    📅 {{ formatDateShort(campaign.ngayKetThuc) }}
                   </div>
                 </div>
               </td>
               <td>
-                <span class="badge" :class="getStatusClass(campaign.status)">
-                  {{ getStatusText(campaign.status) }}
+                <span
+                  :class="[
+                    'badge',
+                    campaign.trangThai ? 'badge-success' : 'badge-warning',
+                  ]"
+                >
+                  {{ campaign.trangThai ? "Đang diễn ra" : "Sắp diễn ra" }}
+                </span>
+              </td>
+              <td>
+                <span
+                  :class="[
+                    'badge',
+                    !campaign.deleted ? 'badge-success' : 'badge-danger',
+                  ]"
+                >
+                  {{ !campaign.deleted ? "Hoạt động" : "Ngừng hoạt động" }}
                 </span>
               </td>
               <td>
                 <div class="action-buttons">
-                  <button class="btn-action" @click="viewCampaign(campaign)" title="Xem chi tiết">
+                  <button
+                    class="btn-action"
+                    @click="viewCampaign(campaign)"
+                    title="Xem chi tiết"
+                  >
                     👁️
                   </button>
-                  <button class="btn-action" @click="editCampaign(campaign)" title="Chỉnh sửa">
+                  <button
+                    class="btn-action"
+                    @click="editCampaign(campaign)"
+                    title="Chỉnh sửa"
+                  >
                     ✏️
                   </button>
-                  <button 
+                  <button
                     v-if="campaign.status !== 'expired'"
                     class="btn-action"
                     @click="deleteCampaign(campaign.id)"
-                    title="Xóa">
+                    title="Xóa"
+                  >
                     🗑️
+                  </button>
+                  <button
+                    v-if="campaign.trangThai"
+                    class="btn-action btn-apply"
+                    @click="openApplyModal(campaign)"
+                    title="Áp dụng"
+                  >
+                    ✅
                   </button>
                 </div>
               </td>
             </tr>
             <tr v-if="filteredCampaigns.length === 0">
-              <td colspan="8" class="text-center empty-state">
+              <td colspan="9" class="text-center empty-state">
                 <div class="empty-message">
                   <span class="empty-icon">📭</span>
                   <p>Không có dữ liệu chiến dịch</p>
@@ -186,19 +209,28 @@
             </tr>
           </tbody>
         </table>
-        
+
         <!-- Pagination -->
         <div class="pagination-wrapper">
           <div class="pagination-info">
-            Xem {{ Math.min(10, filteredCampaigns.length) }} đợt giảm giá
+            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+            {{ totalCampaigns }} đợt giảm giá
           </div>
           <div class="pagination">
-            <button class="btn-export" disabled>
-              <span class="btn-icon">❮</span>
+            <button
+              class="btn btn-outline btn-sm"
+              @click="previousPage"
+              :disabled="currentPage === 1"
+            >
+              ❮ Trước
             </button>
-            <span class="page-info">1</span>
-            <button class="btn-export" disabled>
-              <span class="btn-icon">❯</span>
+            <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+            <button
+              class="btn btn-outline btn-sm"
+              @click="nextPage"
+              :disabled="currentPage === totalPages"
+            >
+              Sau ❯
             </button>
           </div>
         </div>
@@ -206,56 +238,40 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay" @click="closeModals">
+    <div
+      v-if="showAddModal || showEditModal"
+      class="modal-overlay"
+      @click="closeModals"
+    >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ showAddModal ? 'Tạo đợt giảm giá' : 'Cập nhật đợt giảm giá' }}</h3>
+          <h3>
+            {{ showAddModal ? "Tạo đợt giảm giá" : "Cập nhật đợt giảm giá" }}
+          </h3>
           <button class="modal-close" @click="closeModals">×</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">Tên đợt giảm giá *</label>
             <input
-              v-model="formData.name"
+              v-model="formData.tenDotGiamGia"
               type="text"
               class="form-control"
               placeholder="Nhập tên đợt giảm giá"
+              required
             />
           </div>
-          
-          <div class="form-group">
-            <label class="form-label">Mô tả</label>
-            <textarea
-              v-model="formData.description"
-              class="form-control"
-              rows="3"
-              placeholder="Nhập mô tả đợt giảm giá"
-            ></textarea>
-          </div>
 
-          <div class="row">
-            <div class="col-6">
-              <div class="form-group">
-                <label class="form-label">Loại giảm giá *</label>
-                <select v-model="formData.type" class="form-control">
-                  <option value="percentage">Phần trăm (%)</option>
-                  <option value="fixed">Số tiền cố định (VNĐ)</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="form-group">
-                <label class="form-label">Giá trị *</label>
-                <input
-                  v-model.number="formData.value"
-                  type="number"
-                  class="form-control"
-                  :placeholder="formData.type === 'percentage' ? 'Nhập % giảm giá' : 'Nhập số tiền'"
-                  :min="0"
-                  :max="formData.type === 'percentage' ? 100 : undefined"
-                />
-              </div>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Giá trị giảm giá *</label>
+            <input
+              v-model.number="formData.giaTriGiamGia"
+              type="number"
+              class="form-control"
+              placeholder="Nhập giá trị giảm giá"
+              min="0"
+              required
+            />
           </div>
 
           <div class="row">
@@ -263,9 +279,10 @@
               <div class="form-group">
                 <label class="form-label">Ngày bắt đầu *</label>
                 <input
-                  v-model="formData.start_date"
-                  type="datetime-local"
+                  v-model="formData.ngayBatDau"
+                  type="date"
                   class="form-control"
+                  required
                 />
               </div>
             </div>
@@ -273,34 +290,37 @@
               <div class="form-group">
                 <label class="form-label">Ngày kết thúc *</label>
                 <input
-                  v-model="formData.end_date"
-                  type="datetime-local"
+                  v-model="formData.ngayKetThuc"
+                  type="date"
                   class="form-control"
+                  required
                 />
               </div>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Số lượng tối đa</label>
-            <input
-              v-model.number="formData.max_uses"
-              type="number"
+          <div class="form-group" v-if="showEditModal">
+            <label class="form-label">Trạng thái *</label>
+            <select
+              v-model="formData.trangThai"
               class="form-control"
-              placeholder="Để trống nếu không giới hạn"
-              min="0"
-            />
+              :disabled="!isWithinCampaignPeriod"
+            >
+              <option :value="true">Đang diễn ra</option>
+              <option :value="false">Sắp diễn ra</option>
+            </select>
+            <small v-if="!isWithinCampaignPeriod" class="text-muted">
+              Chỉ có thể sửa trạng thái khi ngày hiện tại nằm trong thời gian
+              đợt giảm giá
+            </small>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Giá trị đơn hàng tối thiểu</label>
-            <input
-              v-model.number="formData.min_order_value"
-              type="number"
-              class="form-control"
-              placeholder="Để trống nếu không yêu cầu"
-              min="0"
-            />
+          <div class="form-group" v-if="showEditModal">
+            <label class="form-label">Hiện trạng *</label>
+            <select v-model="formData.deleted" class="form-control">
+              <option :value="false">Hoạt động</option>
+              <option :value="true">Ngừng hoạt động</option>
+            </select>
           </div>
         </div>
         <div class="modal-footer">
@@ -310,70 +330,391 @@
           </button>
           <button class="btn-export" @click="saveCampaign">
             <span class="btn-icon">💾</span>
-            {{ showAddModal ? 'Tạo đợt giảm giá' : 'Cập nhật' }}
+            {{ showAddModal ? "Tạo đợt giảm giá" : "Cập nhật" }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- View Campaign Detail Modal -->
-    <div v-if="showDetailModal" class="modal-overlay" @click="showDetailModal = false">
+    <div
+      v-if="showDetailModal"
+      class="modal-overlay"
+      @click="showDetailModal = false"
+    >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>Chi tiết đợt giảm giá</h3>
-          <button class="modal-close" @click="showDetailModal = false">✕</button>
+          <button class="modal-close" @click="showDetailModal = false">
+            ✕
+          </button>
         </div>
-        
         <div class="modal-body" v-if="selectedCampaign">
           <div class="campaign-detail">
             <div class="campaign-info">
-              <h4>{{ selectedCampaign.name }}</h4>
-              <div class="info-grid">
-                <div class="info-item">
-                  <label>Mô tả:</label>
-                  <span>{{ selectedCampaign.description || 'Không có mô tả' }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Loại giảm giá:</label>
-                  <span class="badge badge-info">
-                    {{ selectedCampaign.type === 'percentage' ? 'Phần trăm' : 'Số tiền cố định' }}
-                  </span>
-                </div>
-                <div class="info-item">
-                  <label>Giá trị:</label>
-                  <span class="discount-value">
-                    {{ selectedCampaign.type === 'percentage' ? selectedCampaign.value + '%' : formatCurrency(selectedCampaign.value) }}
-                  </span>
-                </div>
-                <div class="info-item">
-                  <label>Trạng thái:</label>
-                  <span class="badge" :class="getStatusClass(selectedCampaign.status)">
-                    {{ getStatusText(selectedCampaign.status) }}
-                  </span>
-                </div>
-                <div class="info-item">
-                  <label>Thời gian bắt đầu:</label>
-                  <span>{{ formatDate(selectedCampaign.start_date) }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Thời gian kết thúc:</label>
-                  <span>{{ formatDate(selectedCampaign.end_date) }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Số lượng tối đa:</label>
-                  <span>{{ selectedCampaign.max_uses || 'Không giới hạn' }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Đơn hàng tối thiểu:</label>
-                  <span>{{ selectedCampaign.min_order_value ? formatCurrency(selectedCampaign.min_order_value) : 'Không yêu cầu' }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Ngày tạo:</label>
-                  <span>{{ formatDate(selectedCampaign.created_at) }}</span>
-                </div>
+              <h4>{{ selectedCampaign.tenDotGiamGia }}</h4>
+              <div class="info-item">
+                <label>Giá trị giảm giá(%):</label>
+                <span class="discount-value">
+                  {{ selectedCampaign.giaTriGiamGia + "%" }}
+                </span>
+              </div>
+              <div class="info-item">
+                <label>Hiện trạng:</label>
+                <span
+                  class="badge"
+                  :class="
+                    selectedCampaign.trangThai
+                      ? 'badge-success'
+                      : 'badge-warning'
+                  "
+                >
+                  {{
+                    selectedCampaign.trangThai ? "Hoạt động" : "Ngừng hoạt động"
+                  }}
+                </span>
+              </div>
+              <div class="info-item">
+                <label>Thời gian bắt đầu:</label>
+                <span>{{ formatDate(selectedCampaign.ngayBatDau) }}</span>
+              </div>
+              <div class="info-item">
+                <label>Thời gian kết thúc:</label>
+                <span>{{ formatDate(selectedCampaign.ngayKetThuc) }}</span>
+              </div>
+              <div class="info-item">
+                <label>Trạng thái:</label>
+                <span>{{
+                  selectedCampaign.deleted ? "Ngừng hoạt động" : "Hoạt động"
+                }}</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apply Discount Modal -->
+    <div v-if="showApplyModal" class="modal-overlay" @click="closeApplyModal">
+      <div class="modal-content apply-modal" @click.stop>
+        <div class="modal-header">
+          <h3>Áp dụng đợt giảm giá: {{ applyingCampaign?.tenDotGiamGia }}</h3>
+          <button class="modal-close" @click="closeApplyModal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="discount-info">
+            <div class="info-row">
+              <span class="label">Giá trị giảm giá:</span>
+              <span class="value">{{ applyingCampaign?.giaTriGiamGia }}%</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Thời gian:</span>
+              <span class="value">
+                {{ formatDateShort(applyingCampaign?.ngayBatDau) }} -
+                {{ formatDateShort(applyingCampaign?.ngayKetThuc) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="product-selection">
+            <h4>Chọn sản phẩm chi tiết áp dụng:</h4>
+            <div class="product-search">
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm..."
+                class="form-control"
+                v-model="searchProductQuery"
+              />
+            </div>
+
+            <div class="selection-controls">
+              <button
+                class="btn btn-outline btn-sm"
+                @click="selectAllProducts"
+                :disabled="
+                  selectedProducts.length === availableProducts.length ||
+                  availableProducts.length === 0
+                "
+              >
+                ✅ Chọn hết
+              </button>
+              <button
+                class="btn btn-outline btn-sm"
+                @click="clearAllProducts"
+                :disabled="selectedProducts.length === 0"
+              >
+                ❌ Bỏ chọn hết
+              </button>
+            </div>
+
+            <div class="product-list">
+              <!-- Products already in current campaign -->
+              <div
+                v-if="currentCampaignProducts.length > 0"
+                class="product-section"
+              >
+                <h5 class="section-title current-campaign-title">
+                  🔄 Sản phẩm đã áp dụng cho đợt này ({{
+                    currentCampaignProducts.length
+                  }})
+                </h5>
+                <div
+                  v-for="product in currentCampaignProducts"
+                  :key="'current-' + product.id"
+                  class="product-item current-campaign-product"
+                  @click="toggleProductSelection(product.id)"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="selectedProducts.includes(product.id)"
+                    @click.stop="toggleProductSelection(product.id)"
+                  />
+                  <div class="product-info">
+                    <div class="product-name">{{ product.tenSanPham }}</div>
+                    <div class="product-details">
+                      <div class="details-grid">
+                        <div class="detail-column">
+                          <div class="detail-row">
+                            <span class="detail-label">Màu sắc:</span>
+                            <span class="detail-value">{{
+                              product.tenMauSac
+                            }}</span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="detail-label">Kích thước:</span>
+                            <span class="detail-value">{{
+                              product.tenKichThuoc
+                            }}</span>
+                          </div>
+                        </div>
+                        <div class="detail-column">
+                          <div class="detail-row">
+                            <span class="detail-label">Trạng thái:</span>
+                            <span class="detail-value current-campaign"
+                              >Đã áp dụng</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="product-price">
+                      {{
+                        new Intl.NumberFormat("vi-VN").format(product.giaBan)
+                      }}
+                      VNĐ
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Available Products -->
+              <div
+                v-if="availableProducts.length > currentCampaignProducts.length"
+                class="product-section"
+              >
+                <h5 class="section-title available-title">
+                  ✅ Sản phẩm có thể áp dụng ({{
+                    availableProducts.length - currentCampaignProducts.length
+                  }})
+                </h5>
+                <div
+                  v-for="product in availableProducts.filter(
+                    (p) => !getProductCurrentCampaignStatus(p.id)
+                  )"
+                  :key="product.id"
+                  class="product-item available-product"
+                  @click="toggleProductSelection(product.id)"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="selectedProducts.includes(product.id)"
+                    @click.stop="toggleProductSelection(product.id)"
+                  />
+                  <div class="product-info">
+                    <div class="product-name">{{ product.tenSanPham }}</div>
+                    <div class="product-details">
+                      <div class="details-grid">
+                        <div class="detail-column">
+                          <div class="detail-row">
+                            <span class="detail-label">Màu sắc:</span>
+                            <span class="detail-value">{{
+                              product.tenMauSac
+                            }}</span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="detail-label">Kích thước:</span>
+                            <span class="detail-value">{{
+                              product.tenKichThuoc
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenChatLieu">
+                            <span class="detail-label">Chất liệu:</span>
+                            <span class="detail-value">{{
+                              product.tenChatLieu
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenDoBen">
+                            <span class="detail-label">Độ bền:</span>
+                            <span class="detail-value">{{
+                              product.tenDoBen
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenTrongLuong">
+                            <span class="detail-label">Trọng lượng:</span>
+                            <span class="detail-value">{{
+                              product.tenTrongLuong
+                            }}</span>
+                          </div>
+                        </div>
+
+                        <div class="detail-column">
+                          <div class="detail-row" v-if="product.tenDeGiay">
+                            <span class="detail-label">Đế giày:</span>
+                            <span class="detail-value">{{
+                              product.tenDeGiay
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenDemGiay">
+                            <span class="detail-label">Đệm giày:</span>
+                            <span class="detail-value">{{
+                              product.tenDemGiay
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenLoaiMua">
+                            <span class="detail-label">Loại mùa:</span>
+                            <span class="detail-value">{{
+                              product.tenLoaiMua
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenMonTheThao">
+                            <span class="detail-label">Môn thể thao:</span>
+                            <span class="detail-value">{{
+                              product.tenMonTheThao
+                            }}</span>
+                          </div>
+                          <div class="detail-row" v-if="product.tenChongNuoc">
+                            <span class="detail-label">Chống nước:</span>
+                            <span class="detail-value">{{
+                              product.tenChongNuoc
+                            }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="product-price">
+                      {{
+                        new Intl.NumberFormat("vi-VN").format(product.giaBan)
+                      }}
+                      VNĐ
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Products with existing discount -->
+              <div
+                v-if="productsWithDiscount.length > 0"
+                class="product-section"
+              >
+                <h5 class="section-title unavailable-title">
+                  ❌ Sản phẩm đã có giảm giá ({{ productsWithDiscount.length }})
+                </h5>
+                <div
+                  v-for="product in productsWithDiscount"
+                  :key="product.id"
+                  class="product-item unavailable-product"
+                >
+                  <input type="checkbox" disabled class="disabled-checkbox" />
+                  <div class="product-info">
+                    <div class="product-name disabled-text">
+                      {{ product.tenSanPham }}
+                    </div>
+                    <div class="product-details">
+                      <div class="details-grid">
+                        <div class="detail-column">
+                          <div class="detail-row">
+                            <span class="detail-label">Màu sắc:</span>
+                            <span class="detail-value">{{
+                              product.tenMauSac
+                            }}</span>
+                          </div>
+                          <div class="detail-row">
+                            <span class="detail-label">Kích thước:</span>
+                            <span class="detail-value">{{
+                              product.tenKichThuoc
+                            }}</span>
+                          </div>
+                        </div>
+                        <div class="detail-column">
+                          <div class="detail-row">
+                            <span class="detail-label">Trạng thái:</span>
+                            <span class="detail-value discount-active"
+                              >Đang giảm giá</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="product-price disabled-text">
+                      {{
+                        new Intl.NumberFormat("vi-VN").format(product.giaBan)
+                      }}
+                      VNĐ
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-if="
+                availableProducts.length === 0 &&
+                productsWithDiscount.length === 0 &&
+                currentCampaignProducts.length === 0
+              "
+              class="empty-products"
+            >
+              <p>Không có sản phẩm nào</p>
+            </div>
+
+            <div
+              v-if="
+                availableProducts.length === currentCampaignProducts.length &&
+                productsWithDiscount.length > 0
+              "
+              class="empty-available"
+            >
+              <p class="warning-text">
+                ⚠️ Các sản phẩm còn lại đều đã có đợt giảm giá khác đang hoạt
+                động
+              </p>
+            </div>
+          </div>
+
+          <div class="selection-summary">
+            <div class="selected-count">
+              Đã chọn: {{ selectedProducts.length }} sản phẩm
+            </div>
+            <div class="available-count">
+              Có thể áp dụng: {{ availableProducts.length }} /
+              {{ productsDetails.length }} sản phẩm
+              <br />
+              <small
+                >Đã áp dụng: {{ currentCampaignProducts.length }} | Từ đợt khác:
+                {{ productsWithDiscount.length }}</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="closeApplyModal">
+            Hủy
+          </button>
+          <button class="btn btn-primary" @click="applyDiscountToCampaign">
+            Xác nhận áp dụng
+          </button>
         </div>
       </div>
     </div>
@@ -381,239 +722,647 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from "vue";
+import {
+  fetchAllDotGiamGia,
+  fetchCreateDotGiamGia,
+  fetchUpdateDotGiamGia,
+  fetchUpdateStatusDotGiamGia,
+} from "../../services/GiamGia/DotGiamGiaService";
+import {
+  fetchAllChiTietDotGiamGia,
+  fetchCreateChiTietDotGiamGia,
+  fetchUpdateStatusChiTietDotGiamGia,
+} from "../../services/GiamGia/ChiTietDotGiamGiaService";
+import { fetchAllChiTietSanPham } from "../../services/SanPham/ChiTietSanPhamService";
 
 // Reactive data
-const searchQuery = ref('')
-const statusFilter = ref('')
-const typeFilter = ref('')
-const showAddModal = ref(false)
-const showEditModal = ref(false)
-const showDetailModal = ref(false)
-const editingCampaign = ref(null)
-const selectedCampaign = ref(null)
+const searchQuery = ref("");
+const statusFilter = ref("");
+const typeFilter = ref("");
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const showDetailModal = ref(false);
+const showApplyModal = ref(false);
+const editingCampaign = ref(null);
+const selectedCampaign = ref(null);
+const applyingCampaign = ref(null);
+const selectedProducts = ref([]);
 
+// Pagination data
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+// Form data for campaign
 const formData = ref({
-  name: '',
-  description: '',
-  type: 'percentage',
-  value: 0,
-  start_date: '',
-  end_date: '',
-  max_uses: null,
-  min_order_value: null,
-  status: 'upcoming'
-})
+  tenDotGiamGia: "",
+  giaTriGiamGia: 0,
+  ngayBatDau: "",
+  ngayKetThuc: "",
+  trangThai: true,
+  deleted: false,
+});
 
 // Mock data
-const campaigns = ref([])
+const campaigns = ref([]);
+const campaignDetail = ref([]);
+const productsDetails = ref([]);
 
+// Apply form data
+const applyFormData = ref({
+  idDotGiamGia: null,
+  selectedProductIds: [],
+});
+const fetchDGG = async () => {
+  try {
+    const res = await fetchAllDotGiamGia();
+    // Validate and update status for all campaigns
+    campaigns.value = res.data.map((campaign) =>
+      validateCampaignStatus(campaign)
+    );
+
+    // After loading campaigns, validate inactive ones and update their details
+    setTimeout(async () => {
+      await validateInactiveCampaigns();
+    }, 500); // Small delay to ensure campaign details are loaded
+  } catch (error) {
+    console.error("Error fetching dot giam gia:", error);
+  }
+};
+const fetchChiTietDGG = async () => {
+  try {
+    const res = await fetchAllChiTietDotGiamGia();
+    campaignDetail.value = res.data;
+  } catch (error) {
+    console.error("Error fetching chi tiet dot giam gia: ", error);
+  }
+};
+const fetchProductsDetails = async () => {
+  try {
+    const res = await fetchAllChiTietSanPham();
+    productsDetails.value = res.data;
+  } catch (error) {
+    console.error("Error fetching products details: ", error);
+  }
+};
 // Computed
 const filteredCampaigns = computed(() => {
-  return campaigns.value.filter(campaign => {
-    const matchesSearch = campaign.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         campaign.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-    const matchesStatus = !statusFilter.value || campaign.status === statusFilter.value
-    const matchesType = !typeFilter.value || campaign.type === typeFilter.value
-    return matchesSearch && matchesStatus && matchesType
-  })
-})
+  let filtered = campaigns.value;
+
+  if (searchQuery.value) {
+    filtered = filtered.filter(
+      (campaign) =>
+        campaign.tenDotGiamGia
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        campaign.maDotGiamGia
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase())
+    );
+  }
+
+  if (statusFilter.value) {
+    const isActive = statusFilter.value === "active";
+    filtered = filtered.filter((campaign) => campaign.trangThai === isActive);
+  }
+
+  return filtered.slice(startIndex.value, endIndex.value);
+});
+
+// Total campaigns after filtering (for pagination)
+const totalCampaigns = computed(() => {
+  let filtered = campaigns.value;
+
+  if (searchQuery.value) {
+    filtered = filtered.filter(
+      (campaign) =>
+        campaign.tenDotGiamGia
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase()) ||
+        campaign.maDotGiamGia
+          .toLowerCase()
+          .includes(searchQuery.value.toLowerCase())
+    );
+  }
+
+  if (statusFilter.value) {
+    const isActive = statusFilter.value === "active";
+    filtered = filtered.filter((campaign) => campaign.trangThai === isActive);
+  }
+  return filtered.length;
+});
+
+// Pagination computed properties
+const totalPages = computed(() =>
+  Math.ceil(totalCampaigns.value / itemsPerPage.value)
+);
+
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+
+const endIndex = computed(() =>
+  Math.min(startIndex.value + itemsPerPage.value, totalCampaigns.value)
+);
+
+// Check if current date is within campaign period
+const isWithinCampaignPeriod = computed(() => {
+  if (!editingCampaign.value) return false;
+
+  const now = new Date();
+  const startDate = new Date(editingCampaign.value.ngayBatDau);
+  const endDate = new Date(editingCampaign.value.ngayKetThuc);
+
+  return now >= startDate && now <= endDate;
+});
+
+// Validate and auto-update campaign status based on dates
+const validateCampaignStatus = (campaign) => {
+  const now = new Date();
+  const startDate = new Date(campaign.ngayBatDau);
+  const endDate = new Date(campaign.ngayKetThuc);
+
+  // If current date is not within campaign period, set status to false
+  if (!(now >= startDate && now <= endDate)) {
+    campaign.trangThai = false;
+  }
+
+  return campaign;
+};
+
+// Update campaign detail status when campaign becomes inactive
+const updateCampaignDetailsStatus = async (campaignId) => {
+  try {
+    // Find all campaign details for this campaign
+    const relatedDetails = campaignDetail.value.filter(
+      (detail) => detail.idDotGiamGia === campaignId && !detail.deleted
+    );
+
+    // Update status for each detail
+    for (const detail of relatedDetails) {
+      await fetchUpdateStatusChiTietDotGiamGia(detail.id);
+    }
+  } catch (error) {
+    console.error("Error updating campaign details status:", error);
+  }
+};
+
+// Validate inactive campaigns and update their details
+const validateInactiveCampaigns = async () => {
+  const inactiveCampaigns = campaigns.value.filter(
+    (campaign) => !campaign.trangThai
+  );
+
+  for (const campaign of inactiveCampaigns) {
+    await updateCampaignDetailsStatus(campaign.id);
+  }
+
+  if (inactiveCampaigns.length > 0) {
+    console.log(
+      `Validated and updated ${inactiveCampaigns.length} inactive campaigns`
+    );
+    // Refresh campaign details after updates
+    await fetchChiTietDGG();
+  }
+};
 
 // Methods
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+  return new Date(dateString).toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const formatDateShort = (dateString) => {
-  return new Date(dateString).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-}
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND'
-  }).format(value)
-}
-
-const getStatusClass = (status) => {
-  switch (status) {
-    case 'active': return 'badge-success'
-    case 'upcoming': return 'badge-warning'
-    case 'expired': return 'badge-secondary'
-    default: return 'badge-secondary'
-  }
-}
-
-const getStatusText = (status) => {
-  switch (status) {
-    case 'active': return 'Đang diễn ra'
-    case 'upcoming': return 'Sắp diễn ra'
-    case 'expired': return 'Đã kết thúc'
-    default: return 'Không xác định'
-  }
-}
+  return new Date(dateString).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
 const viewCampaign = (campaign) => {
-  selectedCampaign.value = campaign
-  showDetailModal.value = true
-}
+  selectedCampaign.value = campaign;
+  showDetailModal.value = true;
+};
 
 const editCampaign = (campaign) => {
-  editingCampaign.value = campaign
-  formData.value = { ...campaign }
-  showEditModal.value = true
-}
+  // Validate and auto-update campaign status before editing
+  const validatedCampaign = validateCampaignStatus({ ...campaign });
 
-const deleteCampaign = (id) => {
-  if (confirm('Bạn có chắc chắn muốn xóa đợt giảm giá này?')) {
-    const index = campaigns.value.findIndex(c => c.id === id)
-    if (index > -1) {
-      campaigns.value.splice(index, 1)
+  editingCampaign.value = validatedCampaign;
+  formData.value = {
+    tenDotGiamGia: validatedCampaign.tenDotGiamGia,
+    giaTriGiamGia: validatedCampaign.giaTriGiamGia,
+    ngayBatDau: validatedCampaign.ngayBatDau,
+    ngayKetThuc: validatedCampaign.ngayKetThuc,
+    trangThai: validatedCampaign.trangThai,
+    deleted: validatedCampaign.deleted || false,
+  };
+  showEditModal.value = true;
+};
+
+const deleteCampaign = async (id) => {
+  if (confirm("Bạn có chắc chắn muốn xóa đợt giảm giá này?")) {
+    try {
+      await fetchUpdateStatusDotGiamGia(id);
+      await fetchDGG();
+      alert("Xóa đợt giảm giá thành công!");
+    } catch (error) {
+      console.error("Lỗi khi xóa đợt giảm giá:", error);
+      alert("Có lỗi xảy ra khi xóa đợt giảm giá");
     }
   }
-}
+};
 
-const activateCampaign = (id) => {
-  if (confirm('Bạn có muốn kích hoạt đợt giảm giá này ngay bây giờ?')) {
-    const campaign = campaigns.value.find(c => c.id === id)
-    if (campaign) {
-      campaign.status = 'active'
+const saveCampaign = async () => {
+  try {
+    // Validate form data
+    if (!formData.value.tenDotGiamGia.trim()) {
+      alert("Vui lòng nhập tên đợt giảm giá");
+      return;
     }
-  }
-}
 
-const saveCampaign = () => {
-  if (!formData.value.name.trim()) {
-    alert('Vui lòng nhập tên đợt giảm giá')
-    return
-  }
-  
-  if (!formData.value.value || formData.value.value <= 0) {
-    alert('Vui lòng nhập giá trị giảm giá hợp lệ')
-    return
-  }
-
-  if (!formData.value.start_date || !formData.value.end_date) {
-    alert('Vui lòng chọn ngày bắt đầu và kết thúc')
-    return
-  }
-
-  if (new Date(formData.value.start_date) >= new Date(formData.value.end_date)) {
-    alert('Ngày kết thúc phải sau ngày bắt đầu')
-    return
-  }
-
-  if (showAddModal.value) {
-    const newCampaign = {
-      id: Date.now(),
-      ...formData.value,
-      created_at: new Date().toISOString().split('T')[0]
+    if (!formData.value.giaTriGiamGia || formData.value.giaTriGiamGia <= 0) {
+      alert("Vui lòng nhập giá trị giảm giá hợp lệ");
+      return;
     }
-    campaigns.value.unshift(newCampaign)
-  } else if (showEditModal.value && editingCampaign.value) {
-    const index = campaigns.value.findIndex(c => c.id === editingCampaign.value.id)
-    if (index > -1) {
-      campaigns.value[index] = { ...editingCampaign.value, ...formData.value }
-    }
-  }
 
-  closeModals()
-}
+    if (!formData.value.ngayBatDau || !formData.value.ngayKetThuc) {
+      alert("Vui lòng chọn ngày bắt đầu và kết thúc");
+      return;
+    }
+
+    if (
+      new Date(formData.value.ngayBatDau) >=
+      new Date(formData.value.ngayKetThuc)
+    ) {
+      alert("Ngày kết thúc phải sau ngày bắt đầu");
+      return;
+    }
+
+    // Auto-validate status based on dates before saving
+    const now = new Date();
+    const startDate = new Date(formData.value.ngayBatDau);
+    const endDate = new Date(formData.value.ngayKetThuc);
+
+    // If current date is not within campaign period, force status to false
+    if (!(now >= startDate && now <= endDate)) {
+      formData.value.trangThai = false;
+    }
+
+    if (showAddModal.value) {
+      await fetchCreateDotGiamGia(formData.value);
+      currentPage.value = 1; // Reset to first page
+      alert("Thêm đợt giảm giá thành công!");
+    } else if (showEditModal.value && editingCampaign.value) {
+      const oldStatus = editingCampaign.value.trangThai;
+      await fetchUpdateDotGiamGia(editingCampaign.value.id, formData.value);
+
+      // If campaign status changed from true to false, update related details
+      if (oldStatus && !formData.value.trangThai) {
+        await updateCampaignDetailsStatus(editingCampaign.value.id);
+        alert(
+          "Cập nhật đợt giảm giá thành công! Các sản phẩm liên quan đã được vô hiệu hóa."
+        );
+      } else {
+        alert("Cập nhật đợt giảm giá thành công!");
+      }
+    }
+
+    // Refresh data after save
+    await fetchDGG();
+    closeModals();
+  } catch (error) {
+    console.error("Lỗi khi lưu đợt giảm giá:", error);
+    alert("Có lỗi xảy ra khi lưu thông tin đợt giảm giá");
+  }
+};
 
 const closeModals = () => {
-  showAddModal.value = false
-  showEditModal.value = false
-  showDetailModal.value = false
-  editingCampaign.value = null
-  selectedCampaign.value = null
+  showAddModal.value = false;
+  showEditModal.value = false;
+  showDetailModal.value = false;
+  editingCampaign.value = null;
+  selectedCampaign.value = null;
+  resetForm();
+};
+
+const resetForm = () => {
   formData.value = {
-    name: '',
-    description: '',
-    type: 'percentage',
-    value: 0,
-    start_date: '',
-    end_date: '',
-    max_uses: null,
-    min_order_value: null,
-    status: 'upcoming'
-  }
-}
+    tenDotGiamGia: "",
+    giaTriGiamGia: 0,
+    ngayBatDau: "",
+    ngayKetThuc: "",
+    trangThai: true,
+    deleted: false,
+  };
+};
+
+// Search for products in apply modal
+const searchProductQuery = ref("");
+
+// Check if product already has active discount
+const getProductDiscountStatus = (productId) => {
+  return campaignDetail.value.find(
+    (detail) => detail.idChiTietSanPham === productId && !detail.deleted
+  );
+};
+
+// Check if product belongs to current campaign
+const getProductCurrentCampaignStatus = (productId) => {
+  if (!applyingCampaign.value) return null;
+  return campaignDetail.value.find(
+    (detail) =>
+      detail.idChiTietSanPham === productId &&
+      detail.idDotGiamGia === applyingCampaign.value.id &&
+      !detail.deleted
+  );
+};
+
+// Get available products (not having active discount from OTHER campaigns)
+const availableProducts = computed(() => {
+  return productsDetails.value.filter((product) => {
+    const discountStatus = getProductDiscountStatus(product.id);
+    const currentCampaignStatus = getProductCurrentCampaignStatus(product.id);
+
+    // Allow if no discount OR discount is from current campaign
+    return !discountStatus || currentCampaignStatus;
+  });
+});
+
+// Get products with existing discount from OTHER campaigns
+const productsWithDiscount = computed(() => {
+  return productsDetails.value.filter((product) => {
+    const discountStatus = getProductDiscountStatus(product.id);
+    const currentCampaignStatus = getProductCurrentCampaignStatus(product.id);
+
+    // Show as unavailable only if has discount AND not from current campaign
+    return discountStatus && !currentCampaignStatus;
+  });
+});
+
+// Get products already applied to current campaign
+const currentCampaignProducts = computed(() => {
+  return productsDetails.value.filter((product) =>
+    getProductCurrentCampaignStatus(product.id)
+  );
+});
 
 const clearFilters = () => {
-  searchQuery.value = ''
-  statusFilter.value = ''
-  typeFilter.value = ''
-}
+  searchQuery.value = "";
+  statusFilter.value = "";
+  typeFilter.value = "";
+};
 
 const applyFilters = () => {
   // Filters are already applied through computed property
-  console.log('Filters applied')
-}
+  console.log("Filters applied");
+};
 
 const exportData = () => {
-  alert('Xuất báo cáo chiến dịch khuyến mãi')
-}
+  alert("Xuất báo cáo chiến dịch khuyến mãi");
+};
 
 const exportToExcel = () => {
   try {
     const headerMapping = {
-      'id': 'ID',
-      'name': 'Tên chiến dịch',
-      'description': 'Mô tả',
-      'discount_type': 'Loại giảm giá',
-      'discount_value': 'Giá trị giảm',
-      'min_order_value': 'Giá trị đơn tối thiểu',
-      'max_uses': 'Số lần sử dụng tối đa',
-      'used_count': 'Đã sử dụng',
-      'start_date': 'Ngày bắt đầu',
-      'end_date': 'Ngày kết thúc',
-      'status': 'Trạng thái'
-    }
-    
-    const filteredData = filteredCampaigns.value.map(item => ({
-      id: item.id || 'N/A',
-      name: item.name || 'N/A',
-      description: item.description || 'N/A',
-      discount_type: item.discount_type === 'percentage' ? 'Phần trăm' : 'Số tiền cố định',
-      discount_value: item.discount_type === 'percentage' ? `${item.discount_value}%` : new Intl.NumberFormat('vi-VN').format(item.discount_value),
-      min_order_value: item.min_order_value ? new Intl.NumberFormat('vi-VN').format(item.min_order_value) : 'Không giới hạn',
-      max_uses: item.max_uses || 'Không giới hạn',
+      id: "ID",
+      name: "Tên chiến dịch",
+      description: "Mô tả",
+      discount_type: "Loại giảm giá",
+      discount_value: "Giá trị giảm",
+      min_order_value: "Giá trị đơn tối thiểu",
+      max_uses: "Số lần sử dụng tối đa",
+      used_count: "Đã sử dụng",
+      start_date: "Ngày bắt đầu",
+      end_date: "Ngày kết thúc",
+      status: "Trạng thái",
+    };
+
+    const filteredData = filteredCampaigns.value.map((item) => ({
+      id: item.id || "N/A",
+      name: item.name || "N/A",
+      description: item.description || "N/A",
+      discount_type:
+        item.discount_type === "percentage" ? "Phần trăm" : "Số tiền cố định",
+      discount_value:
+        item.discount_type === "percentage"
+          ? `${item.discount_value}%`
+          : new Intl.NumberFormat("vi-VN").format(item.discount_value),
+      min_order_value: item.min_order_value
+        ? new Intl.NumberFormat("vi-VN").format(item.min_order_value)
+        : "Không giới hạn",
+      max_uses: item.max_uses || "Không giới hạn",
       used_count: item.used_count || 0,
-      start_date: item.start_date ? new Date(item.start_date).toLocaleDateString('vi-VN') : 'N/A',
-      end_date: item.end_date ? new Date(item.end_date).toLocaleDateString('vi-VN') : 'N/A',
-      status: item.status === 'active' ? 'Đang diễn ra' : item.status === 'upcoming' ? 'Sắp diễn ra' : 'Đã kết thúc'
-    }))
-    
+      start_date: item.start_date
+        ? new Date(item.start_date).toLocaleDateString("vi-VN")
+        : "N/A",
+      end_date: item.end_date
+        ? new Date(item.end_date).toLocaleDateString("vi-VN")
+        : "N/A",
+      status:
+        item.status === "active"
+          ? "Đang diễn ra"
+          : item.status === "upcoming"
+          ? "Sắp diễn ra"
+          : "Đã kết thúc",
+    }));
+
     // In a real application, you would use a library like xlsx
-    console.log('Export data:', filteredData)
-    alert('Xuất Excel thành công! (Chức năng đang được phát triển)')
-    return
-    
+    console.log("Export data:", filteredData);
+    alert("Xuất Excel thành công! (Chức năng đang được phát triển)");
+    return;
+
     if (result && result.success) {
-      alert(`✅ ${result.message}`)
+      alert(`✅ ${result.message}`);
     } else {
-      alert(`❌ ${result ? result.message : 'Có lỗi xảy ra khi xuất file Excel'}`)
+      alert(
+        `❌ ${result ? result.message : "Có lỗi xảy ra khi xuất file Excel"}`
+      );
     }
   } catch (error) {
-    console.error('Error exporting to Excel:', error)
-    alert(`Có lỗi xảy ra khi xuất file Excel: ${error.message}`)
+    console.error("Error exporting to Excel:", error);
+    alert(`Có lỗi xảy ra khi xuất file Excel: ${error.message}`);
   }
-}
+};
 
-const refreshData = () => {
-  // Simulate data refresh
-  console.log('Refreshing discount campaigns data...')
-}
+const refreshData = async () => {
+  await fetchDGG();
+  await fetchChiTietDGG();
+  await fetchProductsDetails();
+};
+
+// Apply campaign methods
+const openApplyModal = (campaign) => {
+  applyingCampaign.value = campaign;
+  applyFormData.value.idDotGiamGia = campaign.id;
+
+  // Pre-select products already applied to this campaign
+  const currentlyAppliedProducts = campaignDetail.value
+    .filter((detail) => detail.idDotGiamGia === campaign.id && !detail.deleted)
+    .map((detail) => detail.idChiTietSanPham);
+
+  selectedProducts.value = [...currentlyAppliedProducts];
+  showApplyModal.value = true;
+};
+
+const toggleProductSelection = (productId) => {
+  const index = selectedProducts.value.indexOf(productId);
+  if (index > -1) {
+    selectedProducts.value.splice(index, 1);
+  } else {
+    selectedProducts.value.push(productId);
+  }
+};
+
+const applyDiscountToCampaign = async () => {
+  // Validate if any selected product already has discount from other campaigns
+  const conflictProducts = validateProductSelection();
+  if (conflictProducts.length > 0) {
+    alert(
+      `Các sản phẩm sau đã có đợt giảm giá đang hoạt động:\n${conflictProducts.join(
+        ", "
+      )}\n\nVui lòng bỏ chọn các sản phẩm này!`
+    );
+    return;
+  }
+
+  try {
+    // Get currently applied products for this campaign
+    const currentlyAppliedProducts = campaignDetail.value
+      .filter(
+        (detail) =>
+          detail.idDotGiamGia === applyingCampaign.value.id && !detail.deleted
+      )
+      .map((detail) => detail.idChiTietSanPham);
+
+    // Find products to add (selected but not currently applied)
+    const productsToAdd = selectedProducts.value.filter(
+      (productId) => !currentlyAppliedProducts.includes(productId)
+    );
+
+    // Find products to remove (currently applied but not selected)
+    const productsToRemove = currentlyAppliedProducts.filter(
+      (productId) => !selectedProducts.value.includes(productId)
+    );
+
+    // Add new products
+    for (const productId of productsToAdd) {
+      const chiTietData = {
+        idDotGiamGia: applyFormData.value.idDotGiamGia,
+        idChiTietSanPham: productId,
+        deleted: false,
+      };
+      await fetchCreateChiTietDotGiamGia(chiTietData);
+    }
+
+    // Remove unselected products
+    for (const productId of productsToRemove) {
+      const detailToRemove = campaignDetail.value.find(
+        (detail) =>
+          detail.idDotGiamGia === applyingCampaign.value.id &&
+          detail.idChiTietSanPham === productId &&
+          !detail.deleted
+      );
+      if (detailToRemove) {
+        await fetchUpdateStatusChiTietDotGiamGia(detailToRemove.id);
+      }
+    }
+
+    // Check if campaign status is false and update if needed
+    if (!applyingCampaign.value.trangThai) {
+      await fetchUpdateStatusChiTietDotGiamGia(applyingCampaign.value.id);
+    }
+
+    const addedCount = productsToAdd.length;
+    const removedCount = productsToRemove.length;
+    let message = "Cập nhật đợt giảm giá thành công!";
+
+    if (addedCount > 0 && removedCount > 0) {
+      message += ` Đã thêm ${addedCount} và xóa ${removedCount} sản phẩm.`;
+    } else if (addedCount > 0) {
+      message += ` Đã thêm ${addedCount} sản phẩm.`;
+    } else if (removedCount > 0) {
+      message += ` Đã xóa ${removedCount} sản phẩm.`;
+    }
+
+    alert(message);
+    showApplyModal.value = false;
+    await refreshData();
+  } catch (error) {
+    console.error("Lỗi khi áp dụng đợt giảm giá:", error);
+    alert("Có lỗi xảy ra khi áp dụng đợt giảm giá");
+  }
+};
+
+const closeApplyModal = () => {
+  showApplyModal.value = false;
+  applyingCampaign.value = null;
+  selectedProducts.value = [];
+  applyFormData.value = {
+    idDotGiamGia: null,
+    selectedProductIds: [],
+  };
+};
+
+// Select all products (only available ones)
+const selectAllProducts = () => {
+  selectedProducts.value = availableProducts.value.map((product) => product.id);
+};
+
+// Clear all selected products
+const clearAllProducts = () => {
+  selectedProducts.value = [];
+};
+
+// Validation before applying discount
+const validateProductSelection = () => {
+  const conflictProducts = [];
+
+  for (const productId of selectedProducts.value) {
+    const existingDiscount = getProductDiscountStatus(productId);
+    const currentCampaignDiscount = getProductCurrentCampaignStatus(productId);
+
+    // Only conflict if has discount from OTHER campaign
+    if (existingDiscount && !currentCampaignDiscount) {
+      const product = productsDetails.value.find((p) => p.id === productId);
+      conflictProducts.push(product?.tenSanPham || `ID: ${productId}`);
+    }
+  }
+
+  return conflictProducts;
+};
+
+// Pagination methods
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const openAddModal = () => {
+  resetForm();
+  showAddModal.value = true;
+};
+onMounted(async () => {
+  await fetchDGG();
+  await fetchChiTietDGG();
+  await fetchProductsDetails();
+
+  // Run validation after all data is loaded
+  setTimeout(async () => {
+    await validateInactiveCampaigns();
+  }, 1000);
+});
 </script>
 
 <style scoped>
@@ -642,7 +1391,11 @@ const refreshData = () => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.05) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
   border-bottom: 1px solid rgba(74, 222, 128, 0.15);
 }
 
@@ -928,6 +1681,17 @@ const refreshData = () => {
   border-color: #22c55e;
 }
 
+.btn-apply {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-color: #10b981;
+}
+
+.btn-apply:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-color: #059669;
+}
+
 /* Empty State */
 .empty-state {
   padding: 2rem !important;
@@ -1086,61 +1850,65 @@ const refreshData = () => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-box {
     min-width: auto;
   }
-  
+
   .table {
     font-size: 0.875rem;
   }
-  
-  .table th, .table td {
+
+  .table th,
+  .table td {
     padding: 0.75rem 0.5rem;
   }
 }
 
 @media (max-width: 768px) {
   /* page-header responsive styles are handled in globals.css */
-  
+
   .search-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-controls {
     flex-direction: column;
   }
-  
+
   .pagination-wrapper {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-  
+
   .modal-overlay {
     padding: 1rem;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .table {
     font-size: 0.8125rem;
   }
-  
-  .table th, .table td {
+
+  .table th,
+  .table td {
     padding: 0.5rem 0.25rem;
   }
-  
+
   /* Hide less important columns on mobile */
   .table th:nth-child(4),
   .table td:nth-child(4),
   .table th:nth-child(5),
   .table td:nth-child(5),
   .table th:nth-child(6),
-  .table td:nth-child(6) {
+  .table td:nth-child(6),
+  .table th:nth-child(7),
+  .table td:nth-child(7) {
     display: none;
   }
 }
@@ -1149,18 +1917,399 @@ const refreshData = () => {
   .discount-campaigns {
     padding: 0 0.5rem;
   }
-  
+
   .filter-section {
     padding: 1rem;
   }
-  
+
   .table {
     font-size: 0.75rem;
   }
-  
+
   .card {
     margin: 0 -0.5rem;
     border-radius: 0;
+  }
+}
+
+/* Apply Modal Styles */
+.apply-modal {
+  max-width: 800px;
+}
+
+.discount-info {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.value {
+  font-weight: 600;
+  color: #374151;
+}
+
+.product-selection h4 {
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.product-search {
+  margin-bottom: 1rem;
+}
+
+.product-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.product-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.product-item:hover {
+  background-color: #f3f4f6;
+}
+
+.product-item:last-child {
+  margin-bottom: 0;
+}
+
+.product-item input[type="checkbox"] {
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-name {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.product-details {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.detail-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.125rem;
+  font-size: 0.8125rem;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #4b5563;
+  min-width: 70px;
+}
+
+.detail-value {
+  color: #6b7280;
+  text-align: right;
+  flex: 1;
+}
+
+.product-price {
+  font-weight: 600;
+  color: #22c55e;
+  font-size: 0.875rem;
+}
+
+.empty-products {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.selection-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.selection-controls .btn {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+.selection-summary {
+  margin-top: 1rem;
+}
+
+.selected-count {
+  padding: 0.75rem;
+  background: #ecfdf5;
+  border: 1px solid #d1fae5;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #065f46;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.available-count {
+  padding: 0.5rem;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.available-count small {
+  color: #9ca3af;
+  font-size: 0.8125rem;
+}
+
+.product-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.available-title {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #d1fae5;
+}
+
+.current-campaign-title {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.unavailable-title {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.available-product {
+  border: 1px solid #d1fae5;
+  background: #fafafa;
+}
+
+.available-product:hover {
+  background: #f0fdf4;
+  border-color: #a7f3d0;
+}
+
+.current-campaign-product {
+  border: 1px solid #bfdbfe;
+  background: #f8fafc;
+}
+
+.current-campaign-product:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.unavailable-product {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.disabled-checkbox {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled-text {
+  color: #9ca3af;
+}
+
+.discount-active {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.current-campaign {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.empty-available {
+  text-align: center;
+  padding: 2rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.warning-text {
+  color: #dc2626;
+  font-weight: 500;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .apply-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+
+  .product-list {
+    max-height: 250px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-label {
+    min-width: 90px;
+  }
+}
+
+/* Form styling improvements */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #fff;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.form-control:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Row and column layout */
+.row {
+  display: flex;
+  margin: 0 -0.75rem;
+  margin-bottom: 1rem;
+}
+
+.col-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding: 0 0.75rem;
+}
+
+.col-6 .form-group {
+  margin-bottom: 0;
+}
+
+/* Form sections spacing */
+.modal-body .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.modal-body .row {
+  margin-bottom: 1.25rem;
+}
+
+.modal-body .row:last-child {
+  margin-bottom: 0;
+}
+
+/* Mobile responsive form */
+@media (max-width: 480px) {
+  .row {
+    flex-direction: column;
+    margin: 0;
+    margin-bottom: 1rem;
+  }
+
+  .col-6 {
+    flex: none;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .col-6 .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .col-6:last-child .form-group {
+    margin-bottom: 0;
   }
 }
 </style>

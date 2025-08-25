@@ -1,44 +1,43 @@
 package org.example.be_sp.controller;
 
-import org.example.be_sp.entity.KhachHang;
+import org.example.be_sp.model.request.KhachHangRequest;
+import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/khach-hang-management")
 @CrossOrigin(origins = "*")
 public class KhachHangController {
-
     @Autowired
     private KhachHangService khachHangService;
 
     @GetMapping("/playlist")
-    public ResponseEntity<List<KhachHang>> getAll() {
-        return ResponseEntity.ok(khachHangService.findAll());
+    public ResponseObject<?> getAll() {
+        return new ResponseObject<>(khachHangService.findAll());
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<KhachHang> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(khachHangService.findById(id));
+    public ResponseObject<?> getById(@PathVariable Integer id) {
+        return new ResponseObject<>(khachHangService.findById(id));
     }
 
     @PostMapping("/add")
-    public ResponseEntity<KhachHang> create(@RequestBody KhachHang khachHang) {
-        return ResponseEntity.ok(khachHangService.save(khachHang));
+    public ResponseObject<?> create(@RequestBody KhachHangRequest request) {
+        khachHangService.save(request);
+        return new ResponseObject<>(null, "Thêm khách hàng thành công!");
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<KhachHang> update(@PathVariable Integer id, @RequestBody KhachHang khachHang) {
-        return ResponseEntity.ok(khachHangService.update(id, khachHang));
+    public ResponseObject<?> update(@PathVariable Integer id, @RequestBody KhachHangRequest request) {
+        khachHangService.update(id, request);
+        return new ResponseObject<>(null, "Cập nhật khách hàng thành công!");
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        khachHangService.delete(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        khachHangService.updateStatus(id);
+        return new ResponseObject<>(null, "Xoá khách hàng thành công!");
     }
 }
