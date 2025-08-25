@@ -254,16 +254,15 @@
             </thead>
             <tbody>
               <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
-                <td class="stt-col">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                <td class="stt-col">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="product-col">
                   <div class="product-info">
                     <strong>{{ detail.tenSanPham || detail.sanPham?.tenSanPham || 'N/A' }}</strong>
                   </div>
                 </td>
                 <td class="color-col">
-                  <span class="color-badge"
-                    :style="{ backgroundColor: getColorCode(detail.tenMauSac || detail.mauSac?.tenMauSac) }">
-                    {{ detail.tenMauSac || detail.mauSac?.tenMauSac || 'N/A' }}
+                  <span class="color-badge">
+                    {{ detail.tenMauSac || 'N/A' }}
                   </span>
                 </td>
                 <td class="size-col">
@@ -355,18 +354,18 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-wrapper">
+        <div v-if="totalPages > 1" class="pagination-wrapper">
           <div class="pagination-info">
             Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
             {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
           <div class="pagination">
-            <button class="btn-export" @click="previousPage" :disabled="currentPage === 1">
-              <span class="btn-icon">❮</span>
+            <button @click="previousPage" :disabled="currentPage === 1" class="btn btn-outline btn-sm">
+              ❮ Trước
             </button>
             <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button class="btn-export" @click="nextPage" :disabled="currentPage === totalPages">
-              <span class="btn-icon">❯</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="btn btn-outline btn-sm">
+              Sau ❯
             </button>
           </div>
         </div>
@@ -671,7 +670,7 @@ const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showImageSelector = ref(false)
 const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const pageSize = ref(10)
 const selectedImages = ref([])
 const selectedImageIds = ref([])
 const availableImages = ref([])
@@ -823,15 +822,15 @@ const filteredDetails = computed(() => {
 })
 
 const totalPages = computed(() =>
-  Math.ceil(filteredDetails.value.length / itemsPerPage.value)
+  Math.ceil(filteredDetails.value.length / pageSize.value)
 );
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
 const endIndex = computed(() =>
-  Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length)
+  Math.min(startIndex.value + pageSize.value, filteredDetails.value.length)
 );
 
 const paginatedDetails = computed(() => {
-  return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
+  return filteredDetails.value.slice(startIndex.value, startIndex.value + pageSize.value)
 })
 
 // Computed để theo dõi thay đổi trạng thái
@@ -1036,8 +1035,8 @@ const saveDetail = async () => {
           deleted: false
         })
       } catch (imageError) {
-        console.error('Error handling images:', imageError)
-        alert('Lưu thông tin thành công nhưng có lỗi khi xử lý ảnh!')
+        console.error('Error handling images:', imageError);
+        
       }
     }
 
@@ -1785,7 +1784,7 @@ onMounted(async () => {
 }
 
 .size-col {
-  width: 60px;
+  width: 60px;  
   min-width: 60px;
   max-width: 70px;
 }
@@ -1886,7 +1885,7 @@ onMounted(async () => {
 .color-badge {
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
-  color: white;
+  color: black;
   font-weight: 500;
   font-size: 0.65rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -2070,25 +2069,79 @@ onMounted(async () => {
   font-size: 0.8rem;
 }
 
-/* Pagination */
+/* Pagination enhancements */
 .pagination-wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  gap: 20px;
+}
+
+.pagination-info {
+  display: none;
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 20px;
 }
 
 .page-info {
   font-weight: 600;
-  color: var(--secondary-color);
+  color: #495057;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-outline {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.btn-outline:focus {
+  outline: none;
+  border: 1px solid #dee2e6;
+  box-shadow: none;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #9ca3af;
+  color: #9ca3af;
 }
 
 /* Modal Styles */
