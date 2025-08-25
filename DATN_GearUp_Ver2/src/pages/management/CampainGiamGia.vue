@@ -4,8 +4,8 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý Chiến dịch khuyến mãi</h1>
-          <p class="page-subtitle">Tạo và quản lý các chiến dịch khuyến mãi</p>
+          <h1 class="page-title">🎯 Quản lý chiến dịch khuyến mãi</h1>
+          <p class="page-subtitle">Tạo và quản lý các chiến dịch khuyến mãi một cách hiệu quả</p>
         </div>
         <div class="header-actions">
           <button class="btn-refresh" @click="refreshData">
@@ -121,16 +121,19 @@
             <tr
               v-for="(campaign, index) in filteredCampaigns"
               :key="campaign.id"
+              class="campaign-row"
             >
-              <td>{{ startIndex + index + 1 }}</td>
+              <td class="stt-cell">{{ startIndex + index + 1 }}</td>
               <td>
                 <div class="campaign-name">
                   <strong>{{ campaign.tenDotGiamGia }}</strong>
+                  <div class="campaign-code">{{ campaign.maDotGiamGia }}</div>
                 </div>
               </td>
               <td>
                 <div class="campaign-description">
-                  {{ campaign.giaTriGiamGia || "Không có giá trị giảm giá" }}
+                  <span class="discount-value">{{ campaign.giaTriGiamGia || "0" }}%</span>
+                  <div class="discount-type">Giảm giá theo phần trăm</div>
                 </div>
               </td>
               <td>
@@ -182,7 +185,7 @@
                   </button>
                   <button
                     v-if="campaign.status !== 'expired'"
-                    class="btn-action"
+                    class="btn-action btn-delete"
                     @click="deleteCampaign(campaign.id)"
                     title="Xóa"
                   >
@@ -204,6 +207,7 @@
                 <div class="empty-message">
                   <span class="empty-icon">📭</span>
                   <p>Không có dữ liệu chiến dịch</p>
+                  <small>Hãy tạo chiến dịch đầu tiên để bắt đầu</small>
                 </div>
               </td>
             </tr>
@@ -263,15 +267,17 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Giá trị giảm giá *</label>
+            <label class="form-label">Giá trị giảm giá (%) *</label>
             <input
               v-model.number="formData.giaTriGiamGia"
               type="number"
               class="form-control"
-              placeholder="Nhập giá trị giảm giá"
+              placeholder="Nhập giá trị giảm giá (0-100)"
               min="0"
+              max="100"
               required
             />
+            <small class="form-help">Giá trị từ 0% đến 100%</small>
           </div>
 
           <div class="row">
@@ -354,7 +360,11 @@
             <div class="campaign-info">
               <h4>{{ selectedCampaign.tenDotGiamGia }}</h4>
               <div class="info-item">
-                <label>Giá trị giảm giá(%):</label>
+                <label>Mã đợt giảm giá:</label>
+                <span class="campaign-code">{{ selectedCampaign.maDotGiamGia }}</span>
+              </div>
+              <div class="info-item">
+                <label>Giá trị giảm giá:</label>
                 <span class="discount-value">
                   {{ selectedCampaign.giaTriGiamGia + "%" }}
                 </span>
@@ -1369,6 +1379,7 @@ onMounted(async () => {
 .discount-campaigns {
   max-width: 1400px;
   margin: 0 auto;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 /* page-header styles are now defined in globals.css */
@@ -1384,6 +1395,12 @@ onMounted(async () => {
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(74, 222, 128, 0.1);
+  transition: all 0.3s ease;
+}
+
+.filter-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .filter-header {
@@ -1421,6 +1438,7 @@ onMounted(async () => {
   color: #374151;
   font-size: 1.25rem;
   font-weight: 600;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .filter-stats {
@@ -1430,6 +1448,7 @@ onMounted(async () => {
   border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 500;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .filter-content {
@@ -1461,6 +1480,7 @@ onMounted(async () => {
   font-size: 1rem;
   transition: all 0.3s ease;
   background: #f9fafb;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .search-input:focus {
@@ -1468,6 +1488,7 @@ onMounted(async () => {
   border-color: #4ade80;
   background: white;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
 .clear-btn {
@@ -1511,6 +1532,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 500;
   color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .label-icon {
@@ -1525,12 +1547,14 @@ onMounted(async () => {
   transition: all 0.3s ease;
   background: white;
   color: #374151;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .form-select:focus {
   outline: none;
   border-color: #4ade80;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
 .filter-actions {
@@ -1551,6 +1575,7 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   border: none;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .btn-outline {
@@ -1563,6 +1588,7 @@ onMounted(async () => {
   background: #f3f4f6;
   border-color: #d1d5db;
   color: #374151;
+  transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -1579,7 +1605,7 @@ onMounted(async () => {
 
 /* Table Styles */
 .table th {
-  background-color: #4ade80;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
   font-weight: 600;
   padding: 1rem;
@@ -1589,6 +1615,9 @@ onMounted(async () => {
   position: sticky;
   top: 0;
   z-index: 10;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .table td {
@@ -1597,11 +1626,45 @@ onMounted(async () => {
   vertical-align: middle;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+/* Campaign Row Styles */
+.campaign-row {
+  transition: all 0.3s ease;
+}
+
+.campaign-row:hover {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  transform: scale(1.01);
+}
+
+.stt-cell {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 1rem;
 }
 
 .discount-value {
-  font-weight: 600;
+  font-weight: 700;
   color: #22c55e;
+  font-size: 1.125rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.discount-type {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.campaign-code {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
 /* Table Content Styles */
@@ -1612,6 +1675,7 @@ onMounted(async () => {
 .campaign-name strong {
   color: #374151;
   font-size: 0.9375rem;
+  font-weight: 600;
 }
 
 .campaign-description {
@@ -1692,6 +1756,17 @@ onMounted(async () => {
   border-color: #059669;
 }
 
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border-color: #dc2626;
+}
+
 /* Empty State */
 .empty-state {
   padding: 2rem !important;
@@ -1712,6 +1787,12 @@ onMounted(async () => {
 .empty-message p {
   margin: 0;
   color: #6b7280;
+  font-weight: 500;
+}
+
+.empty-message small {
+  color: #9ca3af;
+  font-size: 0.875rem;
 }
 
 /* Pagination */
@@ -1748,6 +1829,7 @@ onMounted(async () => {
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
@@ -1758,6 +1840,18 @@ onMounted(async () => {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
@@ -1766,11 +1860,14 @@ onMounted(async () => {
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .modal-header h3 {
   margin: 0;
   color: var(--secondary-color);
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
 }
 
 .modal-close {
@@ -1785,10 +1882,12 @@ onMounted(async () => {
   justify-content: center;
   border-radius: 50%;
   transition: background-color 0.3s ease;
+  color: #6b7280;
 }
 
 .modal-close:hover {
   background-color: var(--light-gray);
+  color: #374151;
 }
 
 .modal-body {
@@ -1801,6 +1900,7 @@ onMounted(async () => {
   gap: 1rem;
   padding: 1.5rem;
   border-top: 1px solid var(--border-color);
+  background: #f8fafc;
 }
 
 /* Campaign Detail */
@@ -1814,6 +1914,8 @@ onMounted(async () => {
   text-align: center;
   margin: 0 0 2rem 0;
   color: var(--secondary-color);
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
 }
 
 .info-grid {
@@ -1826,16 +1928,22 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .info-item label {
   font-weight: 500;
   color: var(--medium-gray);
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .info-item span {
   color: var(--secondary-color);
+  font-weight: 500;
 }
 
 /* Responsive Design */
@@ -1942,6 +2050,7 @@ onMounted(async () => {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
 }
 
 .info-row {
@@ -1957,16 +2066,20 @@ onMounted(async () => {
 .label {
   font-weight: 500;
   color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .value {
   font-weight: 600;
   color: #374151;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .product-selection h4 {
   margin-bottom: 1rem;
   color: #374151;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
 }
 
 .product-search {
@@ -1987,13 +2100,15 @@ onMounted(async () => {
   padding: 0.75rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   margin-bottom: 0.5rem;
   border: 1px solid #e5e7eb;
 }
 
 .product-item:hover {
   background-color: #f3f4f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-item:last-child {
@@ -2015,6 +2130,7 @@ onMounted(async () => {
   font-weight: 500;
   color: #374151;
   margin-bottom: 0.25rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .product-details {
@@ -2045,18 +2161,21 @@ onMounted(async () => {
   font-weight: 500;
   color: #4b5563;
   min-width: 70px;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .detail-value {
   color: #6b7280;
   text-align: right;
   flex: 1;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .product-price {
   font-weight: 600;
   color: #22c55e;
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .empty-products {
@@ -2089,6 +2208,7 @@ onMounted(async () => {
   color: #065f46;
   text-align: center;
   margin-bottom: 0.5rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .available-count {
@@ -2099,6 +2219,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   color: #6b7280;
   text-align: center;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .available-count small {
@@ -2116,6 +2237,7 @@ onMounted(async () => {
   margin-bottom: 0.75rem;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .available-title {
@@ -2195,6 +2317,7 @@ onMounted(async () => {
   color: #dc2626;
   font-weight: 500;
   margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -2236,6 +2359,7 @@ onMounted(async () => {
   font-weight: 500;
   color: #374151;
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .form-control {
@@ -2244,20 +2368,38 @@ onMounted(async () => {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.875rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   background-color: #fff;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #4ade80;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
 .form-control:disabled {
   background-color: #f3f4f6;
   color: #9ca3af;
   cursor: not-allowed;
+}
+
+.form-control.is-invalid {
+  border-color: var(--error);
+}
+
+.form-control.is-valid {
+  border-color: var(--success);
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 /* Row and column layout */

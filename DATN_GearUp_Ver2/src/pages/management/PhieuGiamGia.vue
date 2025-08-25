@@ -1025,6 +1025,16 @@ const allFilteredCoupons = computed(() => {
     );
   }
 
+  // Sort by discount type (LoaiGiam) - Phần trăm (%) first, then VND
+  filtered.sort((a, b) => {
+    // false = Phần trăm (%), true = VND
+    if (a.loaiPhieuGiamGia === b.loaiPhieuGiamGia) {
+      return 0; // Same type, maintain order
+    }
+    // Put Phần trăm (%) first (false), then VND (true)
+    return a.loaiPhieuGiamGia ? 1 : -1;
+  });
+
   return filtered;
 });
 
@@ -2701,15 +2711,15 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.coupon-code {
-  font-weight: 700;
-  color: #4ade80;
-  font-size: 1.125rem;
-  background: rgba(74, 222, 128, 0.1);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid rgba(74, 222, 128, 0.2);
-}
+  .coupon-code {
+    font-weight: 700;
+    color: #666666;
+    font-size: 1.125rem;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+  }
 
 .description {
   font-style: italic;
