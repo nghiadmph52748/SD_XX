@@ -8,10 +8,6 @@
           <p class="page-subtitle">Quản lý thông tin và quyền hạn nhân viên</p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
@@ -34,14 +30,10 @@
         <div class="search-box">
           <input
             type="text"
-            placeholder="tên hoặc sdt hoặc email"
+            placeholder="Nhập tên hoặc sdt hoặc email"
             v-model="searchQuery"
             class="form-control"
           />
-          <button class="btn btn-primary" @click="searchEmployees">
-            <span class="btn-icon">🔍</span>
-            Tìm kiếm
-          </button>
         </div>
 
         <div class="filter-controls">
@@ -138,18 +130,18 @@
                     {{ employee.trangThai ? "Hoạt động" : "Ngừng hoạt động" }}
                   </span>
                 </td>
-                <td data-label="Thao tác">
-                  <ButtonGroup spacing="xs">
-                    <button class="btn-export" @click="viewEmployee(employee)">
-                      <span class="btn-icon">👁️</span>
-                      Xem
-                    </button>
-                    <button class="btn-export" @click="editEmployee(employee)">
-                      <span class="btn-icon">✏️</span>
-                      Sửa
-                    </button>
-                  </ButtonGroup>
-                </td>
+                                 <td data-label="Thao tác">
+                   <ButtonGroup spacing="xs">
+                     <button class="btn-detail" @click="viewEmployee(employee)">
+                       <span class="btn-icon">👁️</span>
+                       Chi tiết
+                     </button>
+                     <button class="btn-update" @click="editEmployee(employee)">
+                       <span class="btn-icon">✏️</span>
+                       Sửa
+                     </button>
+                   </ButtonGroup>
+                 </td>
               </tr>
             </tbody>
           </table>
@@ -188,16 +180,16 @@
       class="modal-overlay"
       @click="showAddModal = false"
     >
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
+      <div class="modal-content add-modal" @click.stop>
+        <div class="modal-header add-header">
           <h3>Thông tin nhân viên</h3>
           <button class="modal-close" @click="showAddModal = false">✕</button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body add-body">
           <div class="form-sections">
             <div class="form-section">
-              <h4>Thông tin chi tiết</h4>
+              <h4 class="section-title">Thông tin chi tiết</h4>
               <div class="avatar-upload">
                 <div class="avatar-preview">
                   <img v-if="avatarPreview" :src="avatarPreview" alt="Avatar" />
@@ -222,7 +214,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.cccd"
-                    class="form-control"
+                    class="form-control add-input"
                     required
                   />
                 </div>
@@ -233,7 +225,7 @@
                 <input
                   type="date"
                   v-model="employeeForm.ngaySinh"
-                  class="form-control"
+                  class="form-control add-input"
                   required
                 />
               </div>
@@ -243,7 +235,7 @@
                 <input
                   type="email"
                   v-model="employeeForm.email"
-                  class="form-control"
+                  class="form-control add-input"
                   required
                 />
               </div>
@@ -254,7 +246,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.tenNhanVien"
-                    class="form-control"
+                    class="form-control add-input"
                     required
                   />
                 </div>
@@ -263,7 +255,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.thanhPho"
-                    class="form-control"
+                    class="form-control add-input"
                     placeholder="Nhập tên tỉnh/thành phố"
                     required
                   />
@@ -276,7 +268,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.quan"
-                    class="form-control"
+                    class="form-control add-input"
                     placeholder="Nhập tên quận/huyện"
                     required
                   />
@@ -286,7 +278,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.phuong"
-                    class="form-control"
+                    class="form-control add-input"
                     placeholder="Nhập tên xã/phường/thị trấn"
                     required
                   />
@@ -299,7 +291,7 @@
                   <input
                     type="tel"
                     v-model="employeeForm.soDienThoai"
-                    class="form-control"
+                    class="form-control add-input"
                     required
                   />
                 </div>
@@ -308,7 +300,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.diaChiCuThe"
-                    class="form-control"
+                    class="form-control add-input"
                     required
                   />
                 </div>
@@ -318,7 +310,7 @@
                 <label class="form-label">*Quyền hạn</label>
                 <select
                   v-model="employeeForm.idQuyenHan"
-                  class="form-control"
+                  class="form-control add-input"
                   required
                 >
                   <option value="">Chọn quyền hạn</option>
@@ -335,7 +327,7 @@
           </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer add-footer">
           <button
             type="button"
             class="btn btn-secondary"
@@ -356,16 +348,16 @@
       class="modal-overlay"
       @click="showEditModal = false"
     >
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
+      <div class="modal-content edit-modal" @click.stop>
+        <div class="modal-header edit-header">
           <h3>Cập nhật thông tin nhân viên</h3>
           <button class="modal-close" @click="showEditModal = false">✕</button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body edit-body">
           <div class="form-sections">
             <div class="form-section">
-              <h4>Thông tin chi tiết</h4>
+              <h4 class="section-title">Thông tin chi tiết</h4>
               <div class="avatar-upload">
                 <div class="avatar-preview">
                   <img v-if="avatarPreview" :src="avatarPreview" alt="Avatar" />
@@ -390,7 +382,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.cccd"
-                    class="form-control"
+                    class="form-control edit-input"
                     required
                   />
                 </div>
@@ -401,7 +393,7 @@
                 <input
                   type="date"
                   v-model="employeeForm.ngaySinh"
-                  class="form-control"
+                  class="form-control edit-input"
                   required
                 />
               </div>
@@ -411,7 +403,7 @@
                 <input
                   type="email"
                   v-model="employeeForm.email"
-                  class="form-control"
+                  class="form-control edit-input"
                   required
                 />
               </div>
@@ -422,7 +414,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.tenNhanVien"
-                    class="form-control"
+                    class="form-control edit-input"
                     required
                   />
                 </div>
@@ -431,7 +423,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.thanhPho"
-                    class="form-control"
+                    class="form-control edit-input"
                     placeholder="Nhập tên tỉnh/thành phố"
                     required
                   />
@@ -444,7 +436,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.quan"
-                    class="form-control"
+                    class="form-control edit-input"
                     placeholder="Nhập tên quận/huyện"
                     required
                   />
@@ -454,7 +446,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.phuong"
-                    class="form-control"
+                    class="form-control edit-input"
                     placeholder="Nhập tên xã/phường/thị trấn"
                     required
                   />
@@ -467,7 +459,7 @@
                   <input
                     type="tel"
                     v-model="employeeForm.soDienThoai"
-                    class="form-control"
+                    class="form-control edit-input"
                     required
                   />
                 </div>
@@ -476,7 +468,7 @@
                   <input
                     type="text"
                     v-model="employeeForm.diaChiCuThe"
-                    class="form-control"
+                    class="form-control edit-input"
                     required
                   />
                 </div>
@@ -486,7 +478,7 @@
                 <label class="form-label">*Quyền hạn</label>
                 <select
                   v-model="employeeForm.idQuyenHan"
-                  class="form-control"
+                  class="form-control edit-input"
                   required
                 >
                   <option value="">Chọn quyền hạn</option>
@@ -502,7 +494,7 @@
 
               <div class="form-group">
                 <label class="form-label">*Trạng thái</label>
-                <select v-model="employeeForm.trangThai" class="form-control">
+                <select v-model="employeeForm.trangThai" class="form-control edit-input">
                   <option :value="true">Hoạt động</option>
                   <option :value="false">Ngừng hoạt động</option>
                 </select>
@@ -511,7 +503,7 @@
           </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer edit-footer">
           <button
             type="button"
             class="btn btn-secondary"
@@ -532,15 +524,15 @@
       class="modal-overlay"
       @click="showDetailModal = false"
     >
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
+      <div class="modal-content detail-modal" @click.stop>
+        <div class="modal-header detail-header">
           <h3>Chi tiết nhân viên</h3>
           <button class="modal-close" @click="showDetailModal = false">
             ✕
           </button>
         </div>
 
-        <div class="modal-body" v-if="selectedEmployee">
+        <div class="modal-body detail-body" v-if="selectedEmployee">
           <div class="employee-detail">
             <div class="employee-avatar-section">
               <div class="employee-avatar large">
@@ -551,58 +543,61 @@
                 />
                 <div v-else class="placeholder-avatar large">👤</div>
               </div>
+              <h4 class="employee-name-title">{{ selectedEmployee.tenNhanVien }}</h4>
             </div>
 
             <div class="employee-info">
-              <h4>{{ selectedEmployee.tenNhanVien }}</h4>
               <div class="info-grid">
                 <div class="info-item">
                   <label>Mã nhân viên:</label>
-                  <span>{{ selectedEmployee.maNhanVien }}</span>
+                  <span class="info-value">{{ selectedEmployee.maNhanVien }}</span>
                 </div>
                 <div class="info-item">
                   <label>Email:</label>
-                  <span>{{ selectedEmployee.email }}</span>
+                  <span class="info-value">{{ selectedEmployee.email }}</span>
                 </div>
                 <div class="info-item">
                   <label>Số điện thoại:</label>
-                  <span>{{ selectedEmployee.soDienThoai }}</span>
+                  <span class="info-value">{{ selectedEmployee.soDienThoai }}</span>
                 </div>
                 <div class="info-item">
                   <label>Ngày sinh:</label>
-                  <span>{{ selectedEmployee.ngaySinh }}</span>
+                  <span class="info-value">{{ selectedEmployee.ngaySinh }}</span>
                 </div>
                 <div class="info-item">
                   <label>Tỉnh/Thành phố:</label>
-                  <span>{{
+                  <span class="info-value">{{
                     selectedEmployee.thanhPho || "Chưa cập nhật"
                   }}</span>
                 </div>
                 <div class="info-item">
                   <label>Quận/Huyện:</label>
-                  <span>{{ selectedEmployee.quan || "Chưa cập nhật" }}</span>
+                  <span class="info-value">{{ selectedEmployee.quan || "Chưa cập nhật" }}</span>
                 </div>
                 <div class="info-item">
                   <label>Phường/Xã:</label>
-                  <span>{{ selectedEmployee.phuong || "Chưa cập nhật" }}</span>
+                  <span class="info-value">{{ selectedEmployee.phuong || "Chưa cập nhật" }}</span>
                 </div>
                 <div class="info-item">
                   <label>Địa chỉ cụ thể:</label>
-                  <span>{{
+                  <span class="info-value">{{
                     selectedEmployee.diaChiCuThe || "Chưa cập nhật"
                   }}</span>
                 </div>
                 <div class="info-item">
                   <label>CCCD:</label>
-                  <span>{{ selectedEmployee.cccd }}</span>
+                  <span class="info-value">{{ selectedEmployee.cccd }}</span>
                 </div>
                 <div class="info-item">
                   <label>Chức vụ:</label>
-                  <span>{{ selectedEmployee.tenQuyenHan }}</span>
+                  <span class="info-value">{{ selectedEmployee.tenQuyenHan }}</span>
                 </div>
                 <div class="info-item">
                   <label>Trạng thái:</label>
-                  <span>{{
+                  <span class="info-value status-badge" :class="{
+                    'status-active': selectedEmployee.trangThai,
+                    'status-inactive': !selectedEmployee.trangThai
+                  }">{{
                     selectedEmployee.trangThai ? "Hoạt động" : "Ngừng hoạt động"
                   }}</span>
                 </div>
@@ -903,24 +898,67 @@ onMounted(() => {
   display: flex;
   gap: 1rem;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .search-box {
-  display: flex;
-  gap: 0.5rem;
   flex: 1;
   min-width: 300px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8fff9;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
+}
+
+.search-box input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .filter-controls {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .filter-controls select {
   min-width: 150px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #f8fff9;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.filter-controls select:focus {
+  outline: none;
+  border-color: #4ade80;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
+}
+
+.filter-controls select:hover {
+  border-color: #d1d5db;
+  background-color: #f9fafb;
 }
 
 /* Table Styles */
@@ -1076,6 +1114,54 @@ onMounted(() => {
   gap: 0.25rem !important;
 }
 
+.btn-detail {
+  font-size: 0.75rem !important;
+  padding: 0.375rem 0.5rem !important;
+  margin: 0.125rem !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2) !important;
+}
+
+.btn-detail:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3) !important;
+}
+
+.btn-update {
+  font-size: 0.75rem !important;
+  padding: 0.375rem 0.5rem !important;
+  margin: 0.125rem !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+}
+
+.btn-update:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3) !important;
+}
+
 .btn-icon {
   font-size: 0.875rem !important;
 }
@@ -1108,22 +1194,24 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  background: white;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fff9 100%);
+  border-radius: 16px;
   width: 100%;
   max-width: 700px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px rgba(34, 197, 94, 0.15);
+  border: 2px solid rgba(74, 222, 128, 0.1);
 }
 
 .modal-header {
@@ -1131,34 +1219,44 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid rgba(74, 222, 128, 0.2);
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-radius: 16px 16px 0 0;
+  margin: -2px -2px 0 -2px;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--secondary-color);
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-size: 1.25rem;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  color: white;
 }
 
 .modal-close:hover {
-  background-color: var(--light-gray);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
 }
 
 .modal-body {
   padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fff9 0%, #f0fdf4 100%);
 }
 
 .modal-footer {
@@ -1166,7 +1264,10 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 2px solid rgba(74, 222, 128, 0.2);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-radius: 0 0 16px 16px;
+  margin: 0 -2px -2px -2px;
 }
 
 /* Form Sections */
@@ -1237,38 +1338,205 @@ onMounted(() => {
 
 .employee-avatar-section {
   text-align: center;
+  margin-bottom: 1rem;
+}
+
+.employee-name-title {
+  margin: 1rem 0 0 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .employee-info {
   width: 100%;
 }
 
-.employee-info h4 {
-  text-align: center;
-  margin: 0 0 2rem 0;
-  color: var(--secondary-color);
-}
-
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .info-item label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  color: #1f2937;
+  font-size: 1rem;
   font-weight: 500;
-  color: var(--medium-gray);
+  padding: 0.5rem 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 100px;
+}
+
+.status-active {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Detail Modal Specific Styles */
+.detail-modal {
+  max-width: 800px;
+}
+
+.detail-header {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.detail-body {
+  background: #f9fafb;
+  padding: 2rem;
+}
+
+.employee-avatar.large {
+  width: 120px;
+  height: 120px;
+  border: 4px solid #22c55e;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Edit Modal Specific Styles */
+.edit-modal {
+  max-width: 900px;
+}
+
+.edit-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.edit-body {
+  background: #f9fafb;
+  padding: 2rem;
+}
+
+.edit-footer {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-top: 2px solid rgba(16, 185, 129, 0.2);
+}
+
+.section-title {
+  color: #059669;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.edit-input {
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #10b981;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  transform: translateY(-1px);
+}
+
+.edit-input:hover {
+  border-color: #d1d5db;
+  background-color: #f9fafb;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
   font-size: 0.875rem;
 }
 
-.info-item span {
-  color: var(--secondary-color);
+.form-control {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Add Modal Specific Styles */
+.add-modal {
+  max-width: 900px;
+}
+
+.add-header {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.add-body {
+  background: #f9fafb;
+  padding: 2rem;
+}
+
+.add-footer {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-top: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.add-input {
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.add-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.add-input:hover {
+  border-color: #d1d5db;
+  background-color: #f9fafb;
 }
 
 /* Responsive Design */
@@ -1325,6 +1593,36 @@ onMounted(() => {
   }
 
   .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-body {
+    padding: 1rem;
+  }
+
+  .edit-body {
+    padding: 1rem;
+  }
+
+  .add-body {
+    padding: 1rem;
+  }
+
+  .employee-avatar.large {
+    width: 80px;
+    height: 80px;
+  }
+
+  .employee-name-title {
+    font-size: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.125rem;
+    padding: 0.5rem;
+  }
+
+  .form-row {
     grid-template-columns: 1fr;
   }
 
