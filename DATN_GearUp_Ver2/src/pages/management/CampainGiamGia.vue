@@ -8,6 +8,10 @@
           <p class="page-subtitle">Tạo và quản lý các chiến dịch khuyến mãi một cách hiệu quả</p>
         </div>
         <div class="header-actions">
+          <button class="btn-refresh" @click="refreshData">
+            <span class="btn-icon">🔄</span>
+            Làm mới
+          </button>
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
