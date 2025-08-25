@@ -4,8 +4,8 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý Chiến dịch khuyến mãi</h1>
-          <p class="page-subtitle">Tạo và quản lý các chiến dịch khuyến mãi</p>
+          <h1 class="page-title">🎯 Quản lý chiến dịch khuyến mãi</h1>
+          <p class="page-subtitle">Tạo và quản lý các chiến dịch khuyến mãi một cách hiệu quả</p>
         </div>
         <div class="header-actions">
           <button class="btn-refresh" @click="refreshData">
@@ -121,16 +121,19 @@
             <tr
               v-for="(campaign, index) in filteredCampaigns"
               :key="campaign.id"
+              class="campaign-row"
             >
-              <td>{{ startIndex + index + 1 }}</td>
+              <td class="stt-cell">{{ startIndex + index + 1 }}</td>
               <td>
                 <div class="campaign-name">
                   <strong>{{ campaign.tenDotGiamGia }}</strong>
+                  <div class="campaign-code">{{ campaign.maDotGiamGia }}</div>
                 </div>
               </td>
               <td>
                 <div class="campaign-description">
-                  {{ campaign.giaTriGiamGia || "Không có giá trị giảm giá" }}
+                  <span class="discount-value">{{ campaign.giaTriGiamGia || "0" }}%</span>
+                  <div class="discount-type">Giảm giá theo phần trăm</div>
                 </div>
               </td>
               <td>
@@ -167,7 +170,7 @@
               <td>
                 <div class="action-buttons">
                   <button
-                    class="btn-action"
+                    class="btn-action btn-detail"
                     @click="viewCampaign(campaign)"
                     title="Xem chi tiết"
                   >
@@ -182,7 +185,7 @@
                   </button>
                   <button
                     v-if="campaign.status !== 'expired'"
-                    class="btn-action"
+                    class="btn-action btn-delete"
                     @click="deleteCampaign(campaign.id)"
                     title="Xóa"
                   >
@@ -204,6 +207,7 @@
                 <div class="empty-message">
                   <span class="empty-icon">📭</span>
                   <p>Không có dữ liệu chiến dịch</p>
+                  <small>Hãy tạo chiến dịch đầu tiên để bắt đầu</small>
                 </div>
               </td>
             </tr>
@@ -243,40 +247,63 @@
       class="modal-overlay"
       @click="closeModals"
     >
-      <div class="modal-content" @click.stop>
+      <div class="modal-content edit-modal" @click.stop>
         <div class="modal-header">
-          <h3>
-            {{ showAddModal ? "Tạo đợt giảm giá" : "Cập nhật đợt giảm giá" }}
-          </h3>
-          <button class="modal-close" @click="closeModals">×</button>
+          <div class="header-content">
+            <div class="header-icon">✏️</div>
+            <div class="header-text">
+              <h3>{{ showAddModal ? "Tạo đợt giảm giá" : "Cập nhật đợt giảm giá" }}</h3>
+              <p class="header-subtitle">{{ showAddModal ? "Thiết lập chiến dịch mới" : "Chỉnh sửa thông tin chiến dịch" }}</p>
+            </div>
+          </div>
+          <button class="modal-close" @click="closeModals">✕</button>
         </div>
+        
         <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">Tên đợt giảm giá *</label>
-            <input
-              v-model="formData.tenDotGiamGia"
-              type="text"
-              class="form-control"
-              placeholder="Nhập tên đợt giảm giá"
-              required
-            />
+          <!-- Campaign Information Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">📋</div>
+              <h4>Thông tin cơ bản</h4>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Tên đợt giảm giá *</label>
+              <input
+                v-model="formData.tenDotGiamGia"
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên đợt giảm giá"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Giá trị giảm giá (%) *</label>
+              <div class="input-with-help">
+                <input
+                  v-model.number="formData.giaTriGiamGia"
+                  type="number"
+                  class="form-control"
+                  placeholder="Nhập giá trị giảm giá (0-100)"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <small class="form-help">Giá trị từ 0% đến 100%</small>
+              </div>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Giá trị giảm giá *</label>
-            <input
-              v-model.number="formData.giaTriGiamGia"
-              type="number"
-              class="form-control"
-              placeholder="Nhập giá trị giảm giá"
-              min="0"
-              required
-            />
-          </div>
-
-          <div class="row">
-            <div class="col-6">
-              <div class="form-group">
+          <!-- Campaign Schedule Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">📅</div>
+              <h4>Lịch trình chiến dịch</h4>
+            </div>
+            
+            <div class="date-row">
+              <div class="date-group">
                 <label class="form-label">Ngày bắt đầu *</label>
                 <input
                   v-model="formData.ngayBatDau"
@@ -285,9 +312,7 @@
                   required
                 />
               </div>
-            </div>
-            <div class="col-6">
-              <div class="form-group">
+              <div class="date-group">
                 <label class="form-label">Ngày kết thúc *</label>
                 <input
                   v-model="formData.ngayKetThuc"
@@ -299,36 +324,44 @@
             </div>
           </div>
 
-          <div class="form-group" v-if="showEditModal">
-            <label class="form-label">Trạng thái *</label>
-            <select
-              v-model="formData.trangThai"
-              class="form-control"
-              :disabled="!isWithinCampaignPeriod"
-            >
-              <option :value="true">Đang diễn ra</option>
-              <option :value="false">Sắp diễn ra</option>
-            </select>
-            <small v-if="!isWithinCampaignPeriod" class="text-muted">
-              Chỉ có thể sửa trạng thái khi ngày hiện tại nằm trong thời gian
-              đợt giảm giá
-            </small>
-          </div>
+          <!-- Campaign Status Section (Edit Mode Only) -->
+          <div class="form-section" v-if="showEditModal">
+            <div class="section-header">
+              <div class="section-icon">⚙️</div>
+              <h4>Trạng thái hoạt động</h4>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Trạng thái *</label>
+              <select
+                v-model="formData.trangThai"
+                class="form-control"
+                :disabled="!isWithinCampaignPeriod"
+              >
+                <option :value="true">🟢 Đang diễn ra</option>
+                <option :value="false">🟡 Sắp diễn ra</option>
+              </select>
+              <small v-if="!isWithinCampaignPeriod" class="text-muted">
+                Chỉ có thể sửa trạng thái khi ngày hiện tại nằm trong thời gian đợt giảm giá
+              </small>
+            </div>
 
-          <div class="form-group" v-if="showEditModal">
-            <label class="form-label">Hiện trạng *</label>
-            <select v-model="formData.deleted" class="form-control">
-              <option :value="false">Hoạt động</option>
-              <option :value="true">Ngừng hoạt động</option>
-            </select>
+            <div class="form-group">
+              <label class="form-label">Hiện trạng *</label>
+              <select v-model="formData.deleted" class="form-control">
+                <option :value="false">✅ Hoạt động</option>
+                <option :value="true">❌ Ngừng hoạt động</option>
+              </select>
+            </div>
           </div>
         </div>
+        
         <div class="modal-footer">
-          <button class="btn-export" @click="closeModals">
+          <button class="btn btn-secondary" @click="closeModals">
             <span class="btn-icon">❌</span>
             Hủy
           </button>
-          <button class="btn-export" @click="saveCampaign">
+          <button class="btn btn-primary" @click="saveCampaign">
             <span class="btn-icon">💾</span>
             {{ showAddModal ? "Tạo đợt giảm giá" : "Cập nhật" }}
           </button>
@@ -342,54 +375,257 @@
       class="modal-overlay"
       @click="showDetailModal = false"
     >
-      <div class="modal-content" @click.stop>
+      <div class="modal-content detail-modal" @click.stop>
         <div class="modal-header">
-          <h3>Chi tiết đợt giảm giá</h3>
+          <div class="header-content">
+            <div class="header-icon">🎯</div>
+            <div class="header-text">
+              <h3>Chi tiết đợt giảm giá</h3>
+              <p class="header-subtitle">Thông tin chi tiết và thống kê</p>
+            </div>
+          </div>
           <button class="modal-close" @click="showDetailModal = false">
             ✕
           </button>
         </div>
+        
         <div class="modal-body" v-if="selectedCampaign">
-          <div class="campaign-detail">
-            <div class="campaign-info">
-              <h4>{{ selectedCampaign.tenDotGiamGia }}</h4>
-              <div class="info-item">
-                <label>Giá trị giảm giá(%):</label>
-                <span class="discount-value">
-                  {{ selectedCampaign.giaTriGiamGia + "%" }}
-                </span>
+          <!-- Campaign Overview Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">🎯</div>
+              <h4>Tổng quan chiến dịch</h4>
+            </div>
+            
+            <div class="overview-content">
+              <div class="campaign-title">
+                <h2>{{ selectedCampaign.tenDotGiamGia }}</h2>
+                <div class="campaign-badge">
+                  <span class="badge-code">{{ selectedCampaign.maDotGiamGia }}</span>
+                  <span 
+                    :class="[
+                      'badge-status',
+                      selectedCampaign.trangThai ? 'badge-active' : 'badge-inactive'
+                    ]"
+                  >
+                    {{ selectedCampaign.trangThai ? '🟢 Đang hoạt động' : '🟡 Sắp diễn ra' }}
+                  </span>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Hiện trạng:</label>
-                <span
-                  class="badge"
-                  :class="
-                    selectedCampaign.trangThai
-                      ? 'badge-success'
-                      : 'badge-warning'
-                  "
-                >
-                  {{
-                    selectedCampaign.trangThai ? "Hoạt động" : "Ngừng hoạt động"
-                  }}
-                </span>
-              </div>
-              <div class="info-item">
-                <label>Thời gian bắt đầu:</label>
-                <span>{{ formatDate(selectedCampaign.ngayBatDau) }}</span>
-              </div>
-              <div class="info-item">
-                <label>Thời gian kết thúc:</label>
-                <span>{{ formatDate(selectedCampaign.ngayKetThuc) }}</span>
-              </div>
-              <div class="info-item">
-                <label>Trạng thái:</label>
-                <span>{{
-                  selectedCampaign.deleted ? "Ngừng hoạt động" : "Hoạt động"
-                }}</span>
+
+              <!-- Campaign Stats -->
+              <div class="campaign-stats">
+                <div class="stat-card">
+                  <div class="stat-icon">💰</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ selectedCampaign.giaTriGiamGia }}%</div>
+                    <div class="stat-label">Giá trị giảm giá</div>
+                  </div>
+                </div>
+                
+                <div class="stat-card">
+                  <div class="stat-icon">📅</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ getCampaignDuration(selectedCampaign) }}</div>
+                    <div class="stat-label">Thời gian diễn ra</div>
+                  </div>
+                </div>
+                
+                <div class="stat-card">
+                  <div class="stat-icon">📊</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ getAppliedProductsCount(selectedCampaign.id) }}</div>
+                    <div class="stat-label">Sản phẩm áp dụng</div>
+                  </div>
+                </div>
+                
+                <div class="stat-card">
+                  <div class="stat-icon">⏰</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ getTimeRemaining(selectedCampaign) }}</div>
+                    <div class="stat-label">Thời gian còn lại</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Basic Information Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">📋</div>
+              <h4>Thông tin cơ bản</h4>
+            </div>
+            
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label class="detail-label">Tên đợt giảm giá:</label>
+                <span class="detail-value">{{ selectedCampaign.tenDotGiamGia }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Mã đợt giảm giá:</label>
+                <span class="detail-value code-value">{{ selectedCampaign.maDotGiamGia }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Giá trị giảm giá:</label>
+                <span class="detail-value discount-value">{{ selectedCampaign.giaTriGiamGia }}%</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Trạng thái hoạt động:</label>
+                <span 
+                  :class="[
+                    'detail-value status-badge',
+                    selectedCampaign.trangThai ? 'status-active' : 'status-inactive'
+                  ]"
+                >
+                  {{ selectedCampaign.trangThai ? 'Đang diễn ra' : 'Sắp diễn ra' }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Hiện trạng:</label>
+                <span 
+                  :class="[
+                    'detail-value status-badge',
+                    !selectedCampaign.deleted ? 'status-active' : 'status-deleted'
+                  ]"
+                >
+                  {{ !selectedCampaign.deleted ? 'Hoạt động' : 'Ngừng hoạt động' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Schedule Information Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">📅</div>
+              <h4>Thông tin thời gian</h4>
+            </div>
+            
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label class="detail-label">Ngày bắt đầu:</label>
+                <span class="detail-value">{{ formatDate(selectedCampaign.ngayBatDau) }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Ngày kết thúc:</label>
+                <span class="detail-value">{{ formatDate(selectedCampaign.ngayKetThuc) }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">Thời gian còn lại:</label>
+                <span class="detail-value time-remaining">{{ getTimeRemaining(selectedCampaign) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Applied Products Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">🛍️</div>
+              <h4>Sản phẩm đã áp dụng</h4>
+            </div>
+            
+            <div class="products-summary">
+              <div class="summary-stats">
+                <div class="summary-item">
+                  <span class="summary-label">Tổng sản phẩm:</span>
+                  <span class="summary-value">{{ getAppliedProductsCount(selectedCampaign.id) }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Đang áp dụng:</span>
+                  <span class="summary-value active-count">{{ getActiveProductsCount(selectedCampaign.id) }}</span>
+                </div>
+              </div>
+              
+              <div class="products-list" v-if="getAppliedProducts(selectedCampaign.id).length > 0">
+                <div 
+                  v-for="product in getAppliedProducts(selectedCampaign.id)" 
+                  :key="product.id"
+                  class="product-card"
+                >
+                  <div class="product-info">
+                    <div class="product-name">{{ product.tenSanPham }}</div>
+                    <div class="product-details">
+                      <span class="product-attribute">
+                        <span class="attr-label">Màu:</span>
+                        <span class="attr-value">{{ product.tenMauSac }}</span>
+                      </span>
+                      <span class="product-attribute">
+                        <span class="attr-label">Kích thước:</span>
+                        <span class="attr-value">{{ product.tenKichThuoc }}</span>
+                      </span>
+                      <span class="product-attribute">
+                        <span class="attr-label">Giá gốc:</span>
+                        <span class="attr-value price">{{ formatPrice(product.giaBan) }}</span>
+                      </span>
+                      <span class="product-attribute">
+                        <span class="attr-label">Giá sau giảm:</span>
+                        <span class="attr-value discounted-price">{{ formatPrice(getDiscountedPrice(product.giaBan, selectedCampaign.giaTriGiamGia)) }}</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="product-status">
+                    <span 
+                      :class="[
+                        'status-indicator',
+                        !product.deleted ? 'status-active' : 'status-inactive'
+                      ]"
+                    >
+                      {{ !product.deleted ? '✅ Đang áp dụng' : '❌ Đã dừng' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div v-else class="no-products">
+                <div class="no-products-icon">📦</div>
+                <p>Chưa có sản phẩm nào được áp dụng cho đợt giảm giá này</p>
+                <button class="btn-apply-products" @click="openApplyModal(selectedCampaign)">
+                  <span class="btn-icon">➕</span>
+                  Áp dụng sản phẩm
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campaign Progress Section -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-icon">📈</div>
+              <h4>Tiến độ chiến dịch</h4>
+            </div>
+            
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill"
+                  :style="{ width: getCampaignProgress(selectedCampaign) + '%' }"
+                ></div>
+              </div>
+              <div class="progress-info">
+                <span class="progress-text">{{ getCampaignProgress(selectedCampaign) }}% hoàn thành</span>
+                <span class="progress-days">{{ getDaysRemaining(selectedCampaign) }} ngày còn lại</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button 
+            v-if="selectedCampaign.trangThai && !selectedCampaign.deleted"
+            class="btn btn-primary" 
+            @click="openApplyModal(selectedCampaign)"
+          >
+            <span class="btn-icon">✅</span>
+            Quản lý sản phẩm
+          </button>
+          <button 
+            class="btn btn-primary" 
+            @click="editCampaign(selectedCampaign)"
+          >
+            <span class="btn-icon">✏️</span>
+            Chỉnh sửa
+          </button>
         </div>
       </div>
     </div>
@@ -961,6 +1197,13 @@ const editCampaign = (campaign) => {
     trangThai: validatedCampaign.trangThai,
     deleted: validatedCampaign.deleted || false,
   };
+  
+  // Đóng popup chi tiết nếu đang mở
+  if (showDetailModal.value) {
+    showDetailModal.value = false;
+  }
+  
+  // Mở popup chỉnh sửa
   showEditModal.value = true;
 };
 
@@ -1363,12 +1606,91 @@ onMounted(async () => {
     await validateInactiveCampaigns();
   }, 1000);
 });
+
+// Helper functions
+const getCampaignDuration = (campaign) => {
+  const startDate = new Date(campaign.ngayBatDau);
+  const endDate = new Date(campaign.ngayKetThuc);
+  const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+  return `${duration} ngày`;
+};
+
+const getAppliedProductsCount = (campaignId) => {
+  return campaignDetail.value.filter(
+    (detail) => detail.idDotGiamGia === campaignId && !detail.deleted
+  ).length;
+};
+
+const getActiveProductsCount = (campaignId) => {
+  return campaignDetail.value.filter(
+    (detail) => detail.idDotGiamGia === campaignId && !detail.deleted && detail.trangThai
+  ).length;
+};
+
+const getAppliedProducts = (campaignId) => {
+  const appliedDetails = campaignDetail.value.filter(
+    (detail) => detail.idDotGiamGia === campaignId && !detail.deleted
+  );
+  
+  // Map to product details
+  return appliedDetails.map(detail => {
+    const product = productsDetails.value.find(p => p.id === detail.idChiTietSanPham);
+    return {
+      ...product,
+      deleted: detail.deleted,
+      trangThai: detail.trangThai
+    };
+  }).filter(Boolean);
+};
+
+const getTimeRemaining = (campaign) => {
+  const endDate = new Date(campaign.ngayKetThuc);
+  const now = new Date();
+  const remainingTime = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+  
+  if (remainingTime <= 0) return "Hết hạn";
+  if (remainingTime === 1) return "1 ngày";
+  return `${remainingTime} ngày`;
+};
+
+const getCampaignProgress = (campaign) => {
+  const startDate = new Date(campaign.ngayBatDau);
+  const endDate = new Date(campaign.ngayKetThuc);
+  const now = new Date();
+  
+  if (now < startDate) return 0;
+  if (now > endDate) return 100;
+  
+  const totalDuration = endDate - startDate;
+  const elapsedDuration = now - startDate;
+  const progress = (elapsedDuration / totalDuration) * 100;
+  
+  return Math.round(progress);
+};
+
+const getDaysRemaining = (campaign) => {
+  const endDate = new Date(campaign.ngayKetThuc);
+  const now = new Date();
+  const remainingDays = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+  return Math.max(0, remainingDays);
+};
+
+const formatPrice = (price) => {
+  if (!price) return "0 VNĐ";
+  return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
+};
+
+const getDiscountedPrice = (originalPrice, discountPercentage) => {
+  if (!originalPrice || !discountPercentage) return originalPrice;
+  return Math.round(originalPrice - (originalPrice * discountPercentage) / 100);
+};
 </script>
 
 <style scoped>
 .discount-campaigns {
   max-width: 1400px;
   margin: 0 auto;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 /* page-header styles are now defined in globals.css */
@@ -1384,6 +1706,12 @@ onMounted(async () => {
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(74, 222, 128, 0.1);
+  transition: all 0.3s ease;
+}
+
+.filter-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .filter-header {
@@ -1421,6 +1749,7 @@ onMounted(async () => {
   color: #374151;
   font-size: 1.25rem;
   font-weight: 600;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .filter-stats {
@@ -1430,6 +1759,7 @@ onMounted(async () => {
   border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 500;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .filter-content {
@@ -1461,6 +1791,7 @@ onMounted(async () => {
   font-size: 1rem;
   transition: all 0.3s ease;
   background: #f9fafb;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .search-input:focus {
@@ -1468,6 +1799,7 @@ onMounted(async () => {
   border-color: #4ade80;
   background: white;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
 .clear-btn {
@@ -1511,6 +1843,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 500;
   color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .label-icon {
@@ -1525,12 +1858,14 @@ onMounted(async () => {
   transition: all 0.3s ease;
   background: white;
   color: #374151;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .form-select:focus {
   outline: none;
   border-color: #4ade80;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
 .filter-actions {
@@ -1551,6 +1886,7 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   border: none;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .btn-outline {
@@ -1563,6 +1899,7 @@ onMounted(async () => {
   background: #f3f4f6;
   border-color: #d1d5db;
   color: #374151;
+  transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -1579,7 +1916,7 @@ onMounted(async () => {
 
 /* Table Styles */
 .table th {
-  background-color: #4ade80;
+  background: #4ade80;
   color: white;
   font-weight: 600;
   padding: 1rem;
@@ -1589,6 +1926,45 @@ onMounted(async () => {
   position: sticky;
   top: 0;
   z-index: 10;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Điều chỉnh độ rộng của các cột sort */
+.table th:nth-child(1) { /* STT */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table th:nth-child(2) { /* Tên đợt giảm giá */
+  width: 300px;
+  min-width: 300px;
+}
+
+.table th:nth-child(3) { /* Giá trị giảm giá */
+  width: 200px;
+  min-width: 200px;
+}
+
+.table th:nth-child(4) { /* Thời gian */
+  width: 180px;
+  min-width: 180px;
+}
+
+.table th:nth-child(5) { /* Hiện trạng */
+  width: 150px;
+  min-width: 150px;
+}
+
+.table th:nth-child(6) { /* Trạng thái */
+  width: 150px;
+  min-width: 150px;
+}
+
+.table th:nth-child(7) { /* Thao tác */
+  width: 200px;
+  min-width: 200px;
 }
 
 .table td {
@@ -1597,11 +1973,81 @@ onMounted(async () => {
   vertical-align: middle;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+/* Điều chỉnh độ rộng của các ô tương ứng */
+.table td:nth-child(1) { /* STT */
+  width: 80px;
+  min-width: 80px;
+}
+
+.table td:nth-child(2) { /* Tên đợt giảm giá */
+  width: 300px;
+  min-width: 300px;
+}
+
+.table td:nth-child(3) { /* Giá trị giảm giá */
+  width: 200px;
+  min-width: 200px;
+}
+
+.table td:nth-child(4) { /* Thời gian */
+  width: 180px;
+  min-width: 180px;
+}
+
+.table td:nth-child(5) { /* Hiện trạng */
+  width: 150px;
+  min-width: 150px;
+}
+
+.table td:nth-child(6) { /* Trạng thái */
+  width: 150px;
+  min-width: 150px;
+}
+
+.table td:nth-child(7) { /* Thao tác */
+  width: 200px;
+  min-width: 200px;
+}
+
+/* Campaign Row Styles */
+.campaign-row {
+  transition: all 0.3s ease;
+}
+
+.campaign-row:hover {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  transform: scale(1.01);
+}
+
+.stt-cell {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 1rem;
 }
 
 .discount-value {
-  font-weight: 600;
+  font-weight: 700;
   color: #22c55e;
+  font-size: 1.125rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.discount-type {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.campaign-code {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
 /* Table Content Styles */
@@ -1612,6 +2058,7 @@ onMounted(async () => {
 .campaign-name strong {
   color: #374151;
   font-size: 0.9375rem;
+  font-weight: 600;
 }
 
 .campaign-description {
@@ -1681,6 +2128,18 @@ onMounted(async () => {
   border-color: #22c55e;
 }
 
+.btn-detail {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border-color: #22c55e;
+}
+
+.btn-detail:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  border-color: #16a34a;
+  transform: scale(1.1);
+}
+
 .btn-apply {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
@@ -1690,6 +2149,17 @@ onMounted(async () => {
 .btn-apply:hover {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   border-color: #059669;
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border-color: #dc2626;
 }
 
 /* Empty State */
@@ -1712,6 +2182,12 @@ onMounted(async () => {
 .empty-message p {
   margin: 0;
   color: #6b7280;
+  font-weight: 500;
+}
+
+.empty-message small {
+  color: #9ca3af;
+  font-size: 0.875rem;
 }
 
 /* Pagination */
@@ -1748,6 +2224,7 @@ onMounted(async () => {
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
@@ -1758,6 +2235,18 @@ onMounted(async () => {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-header {
@@ -1766,11 +2255,14 @@ onMounted(async () => {
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 .modal-header h3 {
   margin: 0;
   color: var(--secondary-color);
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
 }
 
 .modal-close {
@@ -1785,10 +2277,12 @@ onMounted(async () => {
   justify-content: center;
   border-radius: 50%;
   transition: background-color 0.3s ease;
+  color: #6b7280;
 }
 
 .modal-close:hover {
   background-color: var(--light-gray);
+  color: #374151;
 }
 
 .modal-body {
@@ -1801,6 +2295,55 @@ onMounted(async () => {
   gap: 1rem;
   padding: 1.5rem;
   border-top: 1px solid var(--border-color);
+  background: #f8fafc;
+}
+
+.modal-footer .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.modal-footer .btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.modal-footer .btn-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.modal-footer .btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.modal-footer .btn-outline {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.modal-footer .btn-outline:hover {
+  background: #f3f4f6;
+  border-color: #4ade80;
+  color: #374151;
+  transform: translateY(-1px);
 }
 
 /* Campaign Detail */
@@ -1814,6 +2357,8 @@ onMounted(async () => {
   text-align: center;
   margin: 0 0 2rem 0;
   color: var(--secondary-color);
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
 }
 
 .info-grid {
@@ -1826,16 +2371,22 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .info-item label {
   font-weight: 500;
   color: var(--medium-gray);
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .info-item span {
   color: var(--secondary-color);
+  font-weight: 500;
 }
 
 /* Responsive Design */
@@ -1942,6 +2493,7 @@ onMounted(async () => {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
 }
 
 .info-row {
@@ -1957,16 +2509,20 @@ onMounted(async () => {
 .label {
   font-weight: 500;
   color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .value {
   font-weight: 600;
   color: #374151;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .product-selection h4 {
   margin-bottom: 1rem;
   color: #374151;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
 }
 
 .product-search {
@@ -1987,13 +2543,15 @@ onMounted(async () => {
   padding: 0.75rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   margin-bottom: 0.5rem;
   border: 1px solid #e5e7eb;
 }
 
 .product-item:hover {
   background-color: #f3f4f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-item:last-child {
@@ -2015,6 +2573,7 @@ onMounted(async () => {
   font-weight: 500;
   color: #374151;
   margin-bottom: 0.25rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .product-details {
@@ -2045,18 +2604,21 @@ onMounted(async () => {
   font-weight: 500;
   color: #4b5563;
   min-width: 70px;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .detail-value {
   color: #6b7280;
   text-align: right;
   flex: 1;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .product-price {
   font-weight: 600;
   color: #22c55e;
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .empty-products {
@@ -2089,6 +2651,7 @@ onMounted(async () => {
   color: #065f46;
   text-align: center;
   margin-bottom: 0.5rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .available-count {
@@ -2099,6 +2662,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   color: #6b7280;
   text-align: center;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .available-count small {
@@ -2116,6 +2680,7 @@ onMounted(async () => {
   margin-bottom: 0.75rem;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .available-title {
@@ -2195,6 +2760,7 @@ onMounted(async () => {
   color: #dc2626;
   font-weight: 500;
   margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -2236,6 +2802,7 @@ onMounted(async () => {
   font-weight: 500;
   color: #374151;
   font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .form-control {
@@ -2244,20 +2811,38 @@ onMounted(async () => {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.875rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   background-color: #fff;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #4ade80;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
 .form-control:disabled {
   background-color: #f3f4f6;
   color: #9ca3af;
   cursor: not-allowed;
+}
+
+.form-control.is-invalid {
+  border-color: var(--error);
+}
+
+.form-control.is-valid {
+  border-color: var(--success);
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
 }
 
 /* Row and column layout */
@@ -2310,6 +2895,803 @@ onMounted(async () => {
 
   .col-6:last-child .form-group {
     margin-bottom: 0;
+  }
+}
+
+/* View Campaign Detail Modal Styles */
+.detail-modal {
+  max-width: 900px;
+  max-height: 90vh;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  font-size: 2.5rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-text h3 {
+  margin: 0;
+  color: white;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.header-subtitle {
+  margin: 0.5rem 0 0 0;
+  color: white;
+  font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  opacity: 0.9;
+}
+
+.campaign-overview {
+  padding: 1.5rem;
+}
+
+.overview-header {
+  margin-bottom: 2rem;
+}
+
+.campaign-title h2 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.campaign-badge {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.badge-code {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  border: 1px solid #e5e7eb;
+}
+
+.badge-status {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.badge-active {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-inactive {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.campaign-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #4ade80;
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #4ade80;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.campaign-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detail-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  margin: 0 0 1.5rem 0;
+  color: #1f2937;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.detail-value {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.code-value {
+  color: #6b7280;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  background: #f9fafb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.discount-value {
+  color: #059669;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.status-badge {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-align: center;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.status-inactive {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.status-deleted {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.time-remaining {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.products-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.summary-label {
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.active-count {
+  color: #059669;
+}
+
+.products-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f9fafb;
+}
+
+.product-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #4ade80;
+}
+
+.product-card:last-child {
+  margin-bottom: 0;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-name {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.product-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.product-attribute {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.attr-label {
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.attr-value {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.price {
+  color: #6b7280;
+}
+
+.discounted-price {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.product-status {
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.status-indicator {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.no-products {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+}
+
+.no-products-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-products p {
+  margin: 0 0 1.5rem 0;
+  font-size: 1rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.btn-apply-products {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-apply-products:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.progress-text {
+  font-weight: 600;
+  color: #059669;
+}
+
+.progress-days {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* Responsive Design for Detail Modal */
+@media (max-width: 768px) {
+  .detail-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+  
+  .campaign-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .campaign-badge {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .product-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-card {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .product-status {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+  
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .campaign-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .campaign-title h2 {
+    font-size: 1.5rem;
+  }
+  
+  .header-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 2rem;
+  }
+  
+  .header-text h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Edit Modal Styling */
+.edit-modal {
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.edit-modal .modal-header {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+  border-bottom: none;
+}
+
+.edit-modal .header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.edit-modal .header-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.edit-modal .header-text h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  color: #fff !important;
+}
+
+.edit-modal .header-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 400;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  color: #fff !important;
+}
+
+.edit-modal .modal-body {
+  padding: 2rem;
+  background: #f8fafc;
+}
+
+.form-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.form-section:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #22c55e;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.section-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.form-control:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.input-with-help {
+  position: relative;
+}
+
+.form-help {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.date-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-muted {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  margin-top: 0.5rem;
+}
+
+.edit-modal .modal-footer {
+  padding: 1.5rem 2rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-radius: 0 0 12px 12px;
+}
+
+.btn {
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid transparent;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border-color: #22c55e;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  border-color: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+/* Responsive Design for Edit Modal */
+@media (max-width: 768px) {
+  .edit-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+  
+  .edit-modal .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .date-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-section {
+    padding: 1rem;
+  }
+  
+  .edit-modal .modal-footer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-modal .header-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .edit-modal .header-text h3 {
+    font-size: 1.25rem;
+  }
+  
+  .section-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
   }
 }
 </style>

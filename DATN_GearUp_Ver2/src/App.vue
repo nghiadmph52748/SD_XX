@@ -20,7 +20,6 @@ const expandedMenus = ref({
   "QUẢN LÝ ĐƠN HÀNG": true,
   "QUẢN LÝ SẢN PHẨM": true,
   "GIẢM GIÁ & KHUYẾN MÃI": true,
-  "HỖ TRỢ KHÁCH HÀNG": true,
   "NGƯỜI DÙNG": true,
 });
 
@@ -231,26 +230,11 @@ const menuItems = [
     submenu: [
       { path: "/marketing/discounts", name: "Mã giảm giá" },
       { path: "/marketing/campaigns", name: "Chiến dịch khuyến mãi" },
-      { path: "/marketing/vouchers", name: "Phiếu giảm giá" },
+
     ],
   },
 
-  // Customer Support Section
-  {
-    name: "HỖ TRỢ KHÁCH HÀNG",
-    iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 4V6L21 9ZM3 9L9 6V4L3 7V9ZM15 18V20L21 17V15L15 18ZM3 15V17L9 20V18L3 15ZM12 8L18 11V13L12 16L6 13V11L12 8Z"/>
-    </svg>`,
-    hasSubmenu: true,
-    submenu: [
-      { path: "/customers/carts", name: "Quản lý giỏ hàng" },
-      { path: "/customers/favorites", name: "Sản phẩm yêu thích" },
-      { path: "/customers/reviews", name: "Đánh giá sản phẩm" },
-      { path: "/customers/comments", name: "Bình luận khách hàng" },
-      { path: "/communication/notifications", name: "Thông báo hệ thống" },
-      { path: "/communication/contacts", name: "Liên hệ & khiếu nại" },
-    ],
-  },
+
 
   // Users Section
   {
