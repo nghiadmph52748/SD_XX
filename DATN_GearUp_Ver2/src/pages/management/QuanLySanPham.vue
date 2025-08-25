@@ -7,20 +7,20 @@
           <h1 class="page-title">Quản Lý Sản Phẩm</h1>
           <p class="page-subtitle">Quản lý thông tin và trạng thái sản phẩm</p>
         </div>
-                 <div class="header-actions">
-           <button class="btn-export" @click="exportData">
-             <span class="btn-icon">📊</span>
-             Xuất báo cáo
-           </button>
-           <button class="btn-export" @click="exportProductsToExcel">
-             <span class="btn-icon">📗</span>
-             Xuất Excel
-           </button>
-           <button class="btn-export" @click="showAddModal = true">
-             <span class="btn-icon">➕</span>
-             Thêm sản phẩm
-           </button>
-         </div>
+        <div class="header-actions">
+          <button class="btn-export" @click="exportData">
+            <span class="btn-icon">📊</span>
+            Xuất báo cáo
+          </button>
+          <button class="btn-export" @click="exportProductsToExcel">
+            <span class="btn-icon">📗</span>
+            Xuất Excel
+          </button>
+          <button class="btn-export" @click="showAddModal = true">
+            <span class="btn-icon">➕</span>
+            Thêm sản phẩm
+          </button>
+        </div>
       </div>
     </div>
 
@@ -38,335 +38,365 @@
         </div>
 
         <div class="filter-content">
-                     <div class="search-section">
-             <div class="input-group">
-               <span class="input-icon">🔍</span>
-               <input
-                 v-model="searchQuery"
-                 type="text"
-                 placeholder="Tìm kiếm theo mã SP, tên SP, nhà sản xuất, xuất xứ..."
-                 class="form-control search-input"
-               />
-               <button
-                 v-if="searchQuery"
-                 @click="searchQuery = ''"
-                 class="clear-btn"
-               >
-                 <span>✕</span>
-               </button>
-             </div>
-           </div>
-
-                       
-
-
-             </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Products Table -->
-    <div class="card">
-      <div class="card-body">
-        <table class="table">
-                     <thead>
-             <tr>
-               <th>STT</th>
-               <th>Mã sản phẩm</th>
-               <th>Tên sản phẩm</th>
-               <th class="sortable" @click="handleSort('NhaSanXuat')">
-                 Nhà sản xuất
-                 <span v-if="sortBy === 'NhaSanXuat'" class="sort-icon">
-                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                 </span>
-               </th>
-               <th class="sortable" @click="handleSort('XuatXu')">
-                 Xuất xứ
-                 <span v-if="sortBy === 'XuatXu'" class="sort-icon">
-                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                 </span>
-               </th>
-               <th class="sortable" @click="handleSort('TrangThai')">
-                 Trạng thái
-                 <span v-if="sortBy === 'TrangThai'" class="sort-icon">
-                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
-                 </span>
-               </th>
-               <th>Thao tác</th>
-             </tr>
-           </thead>
-          <tbody>
-            <tr v-for="(product, i) in filteredProducts" :key="i">
-              <td>{{ startIndex + i + 1 }}</td>
-              <td>{{ product.maSanPham }}</td>
-              <td>{{ product.tenSanPham }}</td>
-              <td>{{ product.tenNhaSanXuat }}</td>
-              <td>{{ product.tenXuatXu }}</td>
-              <td>{{ product.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
-              <td>
-                <ButtonGroup spacing="xs">
-                  <button
-                    class="btn btn-secondary"
-                    @click="viewProduct(product)"
-                  >
-                    👁️
-                  </button>
-                  <button
-                    class="btn btn-secondary"
-                    @click="editProduct(product)"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    class="btn btn-danger"
-                    @click="deleteProduct(product)"
-                  >
-                    🗑️
-                  </button>
-                </ButtonGroup>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Pagination -->
-        <div class="pagination-wrapper">
-          <div class="pagination-info">
-            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
-            {{ totalProducts }} sản phẩm
-          </div>
-          <div class="pagination">
-            <button
-              class="btn btn-outline btn-sm"
-              @click="previousPage"
-              :disabled="currentPage === 1"
-            >
-              ❮ Trước
-            </button>
-            <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button
-              class="btn btn-outline btn-sm"
-              @click="nextPage"
-              :disabled="currentPage === totalPages"
-            >
-              Sau ❯
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modern Add/Edit Product Modal -->
-    <div
-      v-if="showAddModal || showEditModal"
-      class="modern-modal-overlay"
-      @click="closeModals"
-    >
-      <div class="modern-modal-content" @click.stop>
-        <!-- Modal Header -->
-        <div class="modern-modal-header">
-          <div class="header-content">
-            <div class="header-icon">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                />
-              </svg>
-            </div>
-            <div class="header-text">
-              <h2>
-                {{ showAddModal ? "Thêm sản phẩm mới" : "Chỉnh sửa sản phẩm" }}
-              </h2>
-              <p>
-                {{
-                  showAddModal
-                    ? "Tạo sản phẩm mới với thể loại 8-core attributes và SKU auto-generation"
-                    : "Cập nhật thông tin sản phẩm"
-                }}
-              </p>
-            </div>
-          </div>
-          <button class="modern-close-btn" @click="closeModals">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          <div class="search-section">
+            <div class="input-group">
+              <span class="input-icon">🔍</span>
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Tìm kiếm theo mã SP, tên SP, nhà sản xuất, xuất xứ..."
+                class="form-control search-input"
               />
-            </svg>
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="clear-btn"
+              >
+                <span>✕</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="filters-grid">
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🏭</span>
+                Nhà sản xuất
+              </label>
+              <select v-model="selectedNhaSanXuat" class="form-select">
+                <option value="">Tất cả nhà sản xuất</option>
+                <option
+                  v-for="nhaSanXuat in NhaSanXuats"
+                  :key="nhaSanXuat.id"
+                  :value="nhaSanXuat.tenNhaSanXuat"
+                >
+                  {{ nhaSanXuat.tenNhaSanXuat }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🌍</span>
+                Xuất xứ
+              </label>
+              <select v-model="selectedXuatXu" class="form-select">
+                <option value="">Tất cả xuất xứ</option>
+                <option
+                  v-for="xuatXu in XuatXus"
+                  :key="xuatXu.id"
+                  :value="xuatXu.tenXuatXu"
+                >
+                  {{ xuatXu.tenXuatXu }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">⚡</span>
+                Trạng thái
+              </label>
+              <select v-model="selectedTrangThai" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="false">✅ Hoạt động</option>
+                <option value="true">❌ Không hoạt động</option>
+              </select>
+            </div>
+
+            <div class="filter-actions">
+              <button @click="clearFilters" class="btn btn-outline">
+                <span class="btn-icon">🔄</span>
+                Đặt lại
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="card">
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Mã sản phẩm</th>
+            <th>Tên sản phẩm</th>
+            <th class="sortable" @click="handleSort('NhaSanXuat')">
+              Nhà sản xuất
+              <span v-if="sortBy === 'NhaSanXuat'" class="sort-icon">
+                {{ sortOrder === "asc" ? "↑" : "↓" }}
+              </span>
+            </th>
+            <th class="sortable" @click="handleSort('XuatXu')">
+              Xuất xứ
+              <span v-if="sortBy === 'XuatXu'" class="sort-icon">
+                {{ sortOrder === "asc" ? "↑" : "↓" }}
+              </span>
+            </th>
+            <th class="sortable" @click="handleSort('TrangThai')">
+              Trạng thái
+              <span v-if="sortBy === 'TrangThai'" class="sort-icon">
+                {{ sortOrder === "asc" ? "↑" : "↓" }}
+              </span>
+            </th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, i) in filteredProducts" :key="i">
+            <td>{{ startIndex + i + 1 }}</td>
+            <td>{{ product.maSanPham }}</td>
+            <td>{{ product.tenSanPham }}</td>
+            <td>{{ product.tenNhaSanXuat }}</td>
+            <td>{{ product.tenXuatXu }}</td>
+            <td>{{ product.deleted ? "Không hoạt động" : "Hoạt động" }}</td>
+            <td>
+              <ButtonGroup spacing="xs">
+                <button class="btn btn-secondary" @click="viewProduct(product)">
+                  👁️
+                </button>
+                <button class="btn btn-secondary" @click="editProduct(product)">
+                  ✏️
+                </button>
+                <button class="btn btn-danger" @click="deleteProduct(product)">
+                  🗑️
+                </button>
+              </ButtonGroup>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper">
+        <div class="pagination-info">
+          Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+          {{ totalProducts }} sản phẩm
+        </div>
+        <div class="pagination">
+          <button
+            class="btn btn-outline btn-sm"
+            @click="previousPage"
+            :disabled="currentPage === 1"
+          >
+            ❮ Trước
+          </button>
+          <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+          <button
+            class="btn btn-outline btn-sm"
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+          >
+            Sau ❯
           </button>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="modern-modal-body">
-          <!-- Basic Information Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">📋</div>
-              <h3>Thông tin cơ bản</h3>
-            </div>
-            <div class="section-content">
-              <div class="form-grid">
-                <div class="form-field">
-                  <label class="modern-label">Tên sản phẩm *</label>
-                  <input
-                    type="text"
-                    v-model="productForm.tenSanPham"
-                    class="modern-input"
-                    placeholder="Nhập tên sản phẩm"
-                    required
-                  />
-                </div>
+  <!-- Modern Add/Edit Product Modal -->
+  <div
+    v-if="showAddModal || showEditModal"
+    class="modern-modal-overlay"
+    @click="closeModals"
+  >
+    <div class="modern-modal-content" @click.stop>
+      <!-- Modal Header -->
+      <div class="modern-modal-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              />
+            </svg>
+          </div>
+          <div class="header-text">
+            <h2>
+              {{ showAddModal ? "Thêm sản phẩm mới" : "Chỉnh sửa sản phẩm" }}
+            </h2>
+            <p>
+              {{
+                showAddModal
+                  ? "Tạo sản phẩm mới với thể loại 8-core attributes và SKU auto-generation"
+                  : "Cập nhật thông tin sản phẩm"
+              }}
+            </p>
+          </div>
+        </div>
+        <button class="modern-close-btn" @click="closeModals">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </button>
+      </div>
 
-                <div class="form-field">
-                  <label class="modern-label">Nhà sản xuất</label>
-                  <select
-                    v-model="productForm.maNhaSanXuat"
-                    class="modern-select"
-                    required
+      <div class="modern-modal-body">
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <div class="section-header">
+            <div class="section-icon">📋</div>
+            <h3>Thông tin cơ bản</h3>
+          </div>
+          <div class="section-content">
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="modern-label">Tên sản phẩm *</label>
+                <input
+                  type="text"
+                  v-model="productForm.tenSanPham"
+                  class="modern-input"
+                  placeholder="Nhập tên sản phẩm"
+                  required
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="modern-label">Nhà sản xuất</label>
+                <select
+                  v-model="productForm.maNhaSanXuat"
+                  class="modern-select"
+                  required
+                >
+                  <option
+                    v-for="value in NhaSanXuats"
+                    :key="value.id"
+                    :value="value.maNhaSanXuat"
                   >
-                    <option
-                      v-for="value in NhaSanXuats"
-                      :key="value.id"
-                      :value="value.maNhaSanXuat"
-                    >
-                      {{ value.tenNhaSanXuat }}
-                    </option>
-                  </select>
-                </div>
+                    {{ value.tenNhaSanXuat }}
+                  </option>
+                </select>
+              </div>
 
-                <div class="form-field">
-                  <label class="modern-label">Xuất xứ</label>
-                  <select
-                    v-model="productForm.maXuatXu"
-                    class="modern-select"
-                    required
+              <div class="form-field">
+                <label class="modern-label">Xuất xứ</label>
+                <select
+                  v-model="productForm.maXuatXu"
+                  class="modern-select"
+                  required
+                >
+                  <option
+                    v-for="value in XuatXus"
+                    :key="value.id"
+                    :value="value.maXuatXu"
                   >
-                    <option
-                      v-for="value in XuatXus"
-                      :key="value.id"
-                      :value="value.maXuatXu"
-                    >
-                      {{ value.tenXuatXu }}
-                    </option>
-                  </select>
-                </div>
+                    {{ value.tenXuatXu }}
+                  </option>
+                </select>
+              </div>
 
-                <div class="form-field span-2">
-                  <label class="modern-label">Trạng thái</label>
-                  <div class="toggle-group">
-                    <label
-                      class="toggle-option"
-                      :class="{ active: productForm.deleted === false }"
-                    >
-                      <input
-                        class="toggle-indicator"
-                        type="radio"
-                        value="false"
-                        v-model="productForm.deleted"
-                      />
-                      Hoạt động
-                    </label>
-                    <label
-                      class="toggle-option"
-                      :class="{ active: productForm.deleted === true }"
-                    >
-                      <input
-                        class="toggle-indicator"
-                        type="radio"
-                        value="true"
-                        v-model="productForm.deleted"
-                      />
-                      Không hoạt động
-                    </label>
-                  </div>
+              <div class="form-field span-2">
+                <label class="modern-label">Trạng thái</label>
+                <div class="toggle-group">
+                  <label
+                    class="toggle-option"
+                    :class="{ active: productForm.deleted === false }"
+                  >
+                    <input
+                      class="toggle-indicator"
+                      type="radio"
+                      value="false"
+                      v-model="productForm.deleted"
+                    />
+                    Hoạt động
+                  </label>
+                  <label
+                    class="toggle-option"
+                    :class="{ active: productForm.deleted === true }"
+                  >
+                    <input
+                      class="toggle-indicator"
+                      type="radio"
+                      value="true"
+                      v-model="productForm.deleted"
+                    />
+                    Không hoạt động
+                  </label>
                 </div>
               </div>
             </div>
           </div>
         </div>
-                 <!-- Modal Footer -->
-         <div class="modern-modal-footer">
-           <button type="button" class="btn-primary" @click="saveProduct">
-             {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
-           </button>
-         </div>
+      </div>
+      <!-- Modal Footer -->
+      <div class="modern-modal-footer">
+        <button type="button" class="btn-primary" @click="saveProduct">
+          {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
+        </button>
       </div>
     </div>
+  </div>
 
-         <!-- Success Notification Modal -->
-     <div
-       v-if="showSuccessModal"
-       class="success-modal-overlay"
-       @click="closeSuccessModal"
-     >
-       <div class="success-modal-content" @click.stop>
-         <div class="success-icon">
-           <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-           </svg>
-         </div>
-         <div class="success-content">
-           <h2 class="success-title">Thành công!</h2>
-           <p class="success-message">{{ successMessage }}</p>
-         </div>
-         <button class="success-close-btn" @click="closeSuccessModal">
-           Đóng
-         </button>
-       </div>
-     </div>
+  <!-- Success Notification Modal -->
+  <div
+    v-if="showSuccessModal"
+    class="success-modal-overlay"
+    @click="closeSuccessModal"
+  >
+    <div class="success-modal-content" @click.stop>
+      <div class="success-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      </div>
+      <div class="success-content">
+        <h2 class="success-title">Thành công!</h2>
+        <p class="success-message">{{ successMessage }}</p>
+      </div>
+      <button class="success-close-btn" @click="closeSuccessModal">Đóng</button>
+    </div>
+  </div>
 
-     <!-- Product Detail Modal -->
-     <div
-       v-if="showDetailModal"
-       class="modal-overlay"
-       @click="showDetailModal = false"
-     >
-      <div class="modal-content large" @click.stop>
-        <div class="modal-header">
-          <h3>Chi tiết sản phẩm</h3>
-          <button class="modal-close" @click="showDetailModal = false">
-            ✕
-          </button>
-        </div>
+  <!-- Product Detail Modal -->
+  <div
+    v-if="showDetailModal"
+    class="modal-overlay"
+    @click="showDetailModal = false"
+  >
+    <div class="modal-content large" @click.stop>
+      <div class="modal-header">
+        <h3>Chi tiết sản phẩm</h3>
+        <button class="modal-close" @click="showDetailModal = false">✕</button>
+      </div>
 
-        <div class="modal-body" v-if="selectedProduct">
-          <div class="product-detail">
-            <div class="product-detail-info">
-              <h4>{{ selectedProduct.tenSanPham }}</h4>
-              <p>
-                <strong>Mã sản phẩm:</strong> {{ selectedProduct.maSanPham }}
-              </p>
-              <p>
-                <strong>Nhà sản xuất:</strong>
-                {{ selectedProduct.tenNhaSanXuat }}
-              </p>
-              <p><strong>Xuất xứ:</strong> {{ selectedProduct.tenXuatXu }}</p>
-              <p>
-                <strong>Trạng thái:</strong>
-                <span
-                  :class="[
-                    'badge',
-                    selectedProduct.deleted === false
-                      ? 'badge-success'
-                      : 'badge-danger',
-                  ]"
-                >
-                  {{
-                    selectedProduct.deleted === false
-                      ? "Hoạt động"
-                      : "Ngừng hoạt động"
-                  }}
-                </span>
-              </p>
-            </div>
+      <div class="modal-body" v-if="selectedProduct">
+        <div class="product-detail">
+          <div class="product-detail-info">
+            <h4>{{ selectedProduct.tenSanPham }}</h4>
+            <p><strong>Mã sản phẩm:</strong> {{ selectedProduct.maSanPham }}</p>
+            <p>
+              <strong>Nhà sản xuất:</strong>
+              {{ selectedProduct.tenNhaSanXuat }}
+            </p>
+            <p><strong>Xuất xứ:</strong> {{ selectedProduct.tenXuatXu }}</p>
+            <p>
+              <strong>Trạng thái:</strong>
+              <span
+                :class="[
+                  'badge',
+                  selectedProduct.deleted === false
+                    ? 'badge-success'
+                    : 'badge-danger',
+                ]"
+              >
+                {{
+                  selectedProduct.deleted === false
+                    ? "Hoạt động"
+                    : "Ngừng hoạt động"
+                }}
+              </span>
+            </p>
           </div>
         </div>
       </div>
     </div>
-
+  </div>
 </template>
 
 <script setup>
@@ -383,9 +413,9 @@ import { fetchAllNhaSanXuat } from "../../services/ThuocTinh/NhaSanXuatService";
 import { fetchAllXuatXu } from "../../services/ThuocTinh/XuatXuService";
 
 const searchQuery = ref("");
-const selectedCategory = ref("");
-const selectedBrand = ref("");
-const selectedStatus = ref("");
+const selectedNhaSanXuat = ref("");
+const selectedXuatXu = ref("");
+const selectedTrangThai = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const sortBy = ref(""); // NhaSanXuat, XuatXu, TrangThai
@@ -480,21 +510,21 @@ const filteredProducts = computed(() => {
     );
   }
 
-  if (selectedCategory.value) {
+  if (selectedNhaSanXuat.value) {
     filtered = filtered.filter(
       (product) =>
-        product.tenNhaSanXuat.toLowerCase() === selectedCategory.value
+        product.tenNhaSanXuat.toLowerCase() === selectedNhaSanXuat.value
     );
   }
 
-  if (selectedBrand.value) {
+  if (selectedXuatXu.value) {
     filtered = filtered.filter(
-      (product) => product.tenXuatXu.toLowerCase() === selectedBrand.value
+      (product) => product.tenXuatXu.toLowerCase() === selectedXuatXu.value
     );
   }
 
-  if (selectedStatus.value) {
-    const statusValue = selectedStatus.value === "active" ? false : true;
+  if (selectedTrangThai.value) {
+    const statusValue = selectedTrangThai.value === "active" ? false : true;
     filtered = filtered.filter((product) => product.deleted === statusValue);
   }
 
@@ -502,7 +532,7 @@ const filteredProducts = computed(() => {
   if (sortBy.value) {
     filtered.sort((a, b) => {
       let aValue, bValue;
-      
+
       switch (sortBy.value) {
         case "NhaSanXuat":
           aValue = a.tenNhaSanXuat?.toLowerCase() || "";
@@ -512,15 +542,15 @@ const filteredProducts = computed(() => {
           aValue = a.tenXuatXu?.toLowerCase() || "";
           bValue = b.tenXuatXu?.toLowerCase() || "";
           break;
-        
+
         default:
           return 0;
       }
-      
+
       if (sortOrder.value === "asc") {
-        return aValue.localeCompare(bValue, 'vi');
+        return aValue.localeCompare(bValue, "vi");
       } else {
-        return bValue.localeCompare(aValue, 'vi');
+        return bValue.localeCompare(aValue, "vi");
       }
     });
   }
@@ -542,21 +572,21 @@ const totalProducts = computed(() => {
     );
   }
 
-  if (selectedCategory.value) {
+  if (selectedNhaSanXuat.value) {
     filtered = filtered.filter(
       (product) =>
-        product.tenNhaSanXuat.toLowerCase() === selectedCategory.value
+        product.tenNhaSanXuat.toLowerCase() === selectedNhaSanXuat.value
     );
   }
 
-  if (selectedBrand.value) {
+  if (selectedXuatXu.value) {
     filtered = filtered.filter(
-      (product) => product.tenXuatXu.toLowerCase() === selectedBrand.value
+      (product) => product.tenXuatXu.toLowerCase() === selectedXuatXu.value
     );
   }
 
-  if (selectedStatus.value) {
-    const statusValue = selectedStatus.value === "active" ? false : true;
+  if (selectedTrangThai.value) {
+    const statusValue = selectedTrangThai.value === "active" ? false : true;
     filtered = filtered.filter((product) => product.deleted === statusValue);
   }
 
@@ -571,8 +601,6 @@ const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
 const endIndex = computed(() =>
   Math.min(startIndex.value + itemsPerPage.value, totalProducts.value)
 );
-
-
 
 const previousPage = () => {
   if (currentPage.value > 1) {
@@ -600,38 +628,6 @@ const handleSort = (field, order = null) => {
   }
   currentPage.value = 1; // Reset về trang đầu khi sắp xếp
   activeSortDropdown.value = ""; // Đóng dropdown sau khi chọn
-};
-
-const toggleSortDropdown = (field) => {
-  if (activeSortDropdown.value === field) {
-    activeSortDropdown.value = "";
-  } else {
-    activeSortDropdown.value = field;
-  }
-};
-
-const filterByNhaSanXuat = (nsx) => {
-  selectedCategory.value = nsx;
-  currentPage.value = 1;
-  activeSortDropdown.value = "";
-};
-
-const filterByXuatXu = (xx) => {
-  selectedBrand.value = xx;
-  currentPage.value = 1;
-  activeSortDropdown.value = "";
-};
-
-const filterByTrangThai = (status) => {
-  selectedStatus.value = status ? "inactive" : "active";
-  currentPage.value = 1;
-  activeSortDropdown.value = "";
-};
-
-const clearSort = () => {
-  sortBy.value = "";
-  sortOrder.value = "asc";
-  currentPage.value = 1;
 };
 
 const viewProduct = (product) => {
@@ -759,6 +755,14 @@ const exportProductsToExcel = () => {
   }
 };
 
+const clearFilters = () => {
+  searchQuery.value = "";
+  selectedNhaSanXuat.value = "";
+  selectedXuatXu.value = "";
+  selectedTrangThai.value = "";
+  currentPage.value = 1;
+};
+
 onMounted(fetch);
 </script>
 
@@ -781,37 +785,172 @@ onMounted(fetch);
   color: var(--secondary-color);
 } */
 
-/* Filter Section */
+/* Modern Filter Section */
 .filter-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow);
 }
 
-.search-controls {
+.filter-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.1);
+}
+
+.filter-header {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  padding: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.05) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
+  border-bottom: 1px solid rgba(74, 222, 128, 0.15);
 }
 
-.search-box {
+.filter-title {
   display: flex;
-  gap: 0.5rem;
-  flex: 1;
-  min-width: 300px;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.filter-controls {
+.filter-icon {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-radius: 10px;
+}
+
+.filter-title h3 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.filter-stats {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.filter-content {
+  padding: 1.5rem;
+}
+
+.search-section {
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.25rem;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.clear-btn {
+  position: absolute;
+  right: 1rem;
+  background: #ef4444;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 1.25rem;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.label-icon {
+  font-size: 1rem;
+}
+
+.form-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: #374151;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.filter-actions {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.filter-controls select {
-  min-width: 150px;
+  justify-content: center;
+  align-items: end;
 }
 
 /* Table Styles */
@@ -822,34 +961,34 @@ onMounted(fetch);
   background-color: white;
 }
 
- .table th {
-   background-color: #4ade80;
-   color: white;
-   font-weight: 600;
-   padding: 1rem;
-   text-align: center;
-   font-size: 0.875rem;
-   white-space: nowrap;
-   position: sticky;
-   top: 0;
-   z-index: 10;
- }
+.table th {
+  background-color: #4ade80;
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
 
- .table th.sortable {
-   cursor: pointer;
-   user-select: none;
-   transition: background-color 0.2s ease;
- }
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
 
- .table th.sortable:hover {
-   background-color: #22c55e;
- }
+.table th.sortable:hover {
+  background-color: #22c55e;
+}
 
- .sort-icon {
-   margin-left: 0.5rem;
-   font-weight: bold;
-   font-size: 1rem;
- }
+.sort-icon {
+  margin-left: 0.5rem;
+  font-weight: bold;
+  font-size: 1rem;
+}
 
 .table td {
   padding: 1rem;
@@ -938,7 +1077,47 @@ onMounted(fetch);
   color: var(--secondary-color);
 }
 
-/* btn-export styles now in globals.css */
+/* Button styles */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.btn-outline {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.btn-outline:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
 
 /* Modal Styles */
 .modal-overlay {
@@ -1082,9 +1261,27 @@ onMounted(fetch);
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr) auto;
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 1200px) {
   .product-management {
     padding: 0 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .filter-actions {
+    grid-column: span 2;
+    margin-top: 1rem;
+    justify-content: center;
   }
 }
 
@@ -1111,6 +1308,11 @@ onMounted(fetch);
   .table td {
     padding: 0.75rem 0.5rem;
   }
+
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1119,6 +1321,17 @@ onMounted(fetch);
     gap: 1rem;
     align-items: stretch;
   } */
+
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .filter-actions {
+    grid-column: span 2;
+    margin-top: 1rem;
+    justify-content: center;
+  }
 
   .filter-controls {
     flex-direction: column;
@@ -1163,6 +1376,23 @@ onMounted(fetch);
 
   .filter-section {
     padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .filter-actions {
+    grid-column: span 1;
+    margin-top: 1rem;
+    justify-content: center;
+  }
+
+  .filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 
   .table {
@@ -1255,7 +1485,7 @@ onMounted(fetch);
   color: white;
   font-size: 1.5rem;
   font-weight: 700;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   line-height: 1.2;
 }
 
@@ -1271,7 +1501,7 @@ onMounted(fetch);
   font-weight: 700;
   color: white;
   margin-bottom: 8px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .page-subtitle {
@@ -1280,7 +1510,7 @@ onMounted(fetch);
   margin: 0;
   font-weight: 400;
   line-height: 1.5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .modern-close-btn {
@@ -1715,7 +1945,7 @@ onMounted(fetch);
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 700;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -1741,13 +1971,18 @@ onMounted(fetch);
 }
 
 .btn-primary::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -1817,398 +2052,408 @@ onMounted(fetch);
   .btn-primary {
     width: 100%;
     justify-content: center;
-     }
- }
+  }
+}
 
- /* Success Modal Styles */
- .success-modal-overlay {
-   position: fixed;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
-   background-color: rgba(0, 0, 0, 0.6);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   z-index: 2000;
-   padding: 2rem;
-   backdrop-filter: blur(4px);
- }
+/* Success Modal Styles */
+.success-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 2rem;
+  backdrop-filter: blur(4px);
+}
 
- .success-modal-content {
-   background: white;
-   border-radius: 20px;
-   width: 100%;
-   max-width: 500px;
-   padding: 3rem 2rem 2rem 2rem;
-   text-align: center;
-   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-   border: 1px solid rgba(255, 255, 255, 0.1);
-   animation: successSlideIn 0.4s ease-out;
-   position: relative;
-   overflow: hidden;
- }
+.success-modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  padding: 3rem 2rem 2rem 2rem;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: successSlideIn 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
+}
 
- @keyframes successSlideIn {
-   from {
-     opacity: 0;
-     transform: translateY(-30px) scale(0.9);
-   }
-   to {
-     opacity: 1;
-     transform: translateY(0) scale(1);
-   }
- }
+@keyframes successSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
- .success-icon {
-   width: 80px;
-   height: 80px;
-   margin: 0 auto 1.5rem auto;
-   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-   border-radius: 50%;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   color: white;
-   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-   animation: iconBounce 0.6s ease-out 0.2s both;
- }
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem auto;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  animation: iconBounce 0.6s ease-out 0.2s both;
+}
 
- @keyframes iconBounce {
-   0%, 20%, 50%, 80%, 100% {
-     transform: translateY(0);
-   }
-   40% {
-     transform: translateY(-10px);
-   }
-   60% {
-     transform: translateY(-5px);
-   }
- }
+@keyframes iconBounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
 
- .success-content {
-   margin-bottom: 2rem;
- }
+.success-content {
+  margin-bottom: 2rem;
+}
 
- .success-title {
-   font-size: 2rem;
-   font-weight: 700;
-   color: #10b981;
-   margin: 0 0 1rem 0;
-   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
- }
+.success-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #10b981;
+  margin: 0 0 1rem 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
- .success-message {
-   font-size: 1.1rem;
-   color: #6b7280;
-   margin: 0;
-   line-height: 1.6;
-   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
- }
+.success-message {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.6;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
- .success-close-btn {
-   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-   color: white;
-   border: none;
-   padding: 1rem 2.5rem;
-   border-radius: 12px;
-   font-size: 1rem;
-   font-weight: 600;
-   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-   cursor: pointer;
-   transition: all 0.3s ease;
-   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
- }
+.success-close-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
 
- .success-close-btn:hover {
-   transform: translateY(-2px);
-   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-   background: linear-gradient(135deg, #059669 0%, #047857 100%);
- }
+.success-close-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
 
- .success-close-btn:active {
-   transform: translateY(0);
- }
+.success-close-btn:active {
+  transform: translateY(0);
+}
 
- /* Responsive Design for Success Modal */
- @media (max-width: 768px) {
-   .success-modal-overlay {
-     padding: 1rem;
-   }
-
-   .success-modal-content {
-     max-width: 100%;
-     padding: 2rem 1.5rem 1.5rem 1.5rem;
-   }
-
-   .success-title {
-     font-size: 1.75rem;
-   }
-
-   .success-message {
-     font-size: 1rem;
-   }
-
-   .success-close-btn {
-     width: 100%;
-     padding: 1rem;
-   }
- }
-
-   @media (max-width: 480px) {
-    .success-icon {
-      width: 60px;
-      height: 60px;
-    }
-
-    .success-title {
-      font-size: 1.5rem;
-    }
-
-    .success-message {
-      font-size: 0.95rem;
-    }
+/* Responsive Design for Success Modal */
+@media (max-width: 768px) {
+  .success-modal-overlay {
+    padding: 1rem;
   }
 
-     /* Search and Sort Section Styles */
-   .search-section {
-     margin-bottom: 1.5rem;
-   }
-
-   .sort-section {
-     display: flex;
-     gap: 1rem;
-     margin-bottom: 1.5rem;
-   }
-
-   .sort-item {
-     flex: 1;
-     position: relative;
-     background: white;
-     border: 2px solid #d4edda;
-     border-radius: 12px;
-     transition: all 0.3s ease;
-     min-height: 48px;
-     box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
-   }
-
-   .sort-header {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     padding: 0.75rem 1rem;
-     cursor: pointer;
-     min-height: 48px;
-     background: linear-gradient(135deg, #f8fff9 0%, #d4edda 100%);
-     border-radius: 12px;
-   }
-
-   .sort-dropdown {
-     position: absolute;
-     top: 100%;
-     left: 0;
-     right: 0;
-     background: white;
-     border: 2px solid #d4edda;
-     border-top: none;
-     border-radius: 0 0 12px 12px;
-     box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
-     z-index: 100;
-     max-height: 400px;
-     overflow-y: auto;
-     animation: slideIn 0.3s ease-out;
-   }
-
-   .sort-options {
-     padding: 1rem;
-     border-bottom: 1px solid #d4edda;
-     background: #f8fff9;
-   }
-
-   .sort-option {
-     display: flex;
-     align-items: center;
-     gap: 0.5rem;
-     padding: 0.75rem 1rem;
-     cursor: pointer;
-     border-radius: 8px;
-     transition: all 0.3s ease;
-     font-size: 0.875rem;
-     color: #333;
-     margin-bottom: 0.5rem;
-   }
-
-   .sort-option:hover {
-     background: #4ade80;
-     color: white;
-     transform: translateX(5px);
-     box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
-   }
-
-   .sort-arrow {
-     font-weight: bold;
-     color: #4ade80;
-     font-size: 1rem;
-     transition: all 0.3s ease;
-   }
-
-   .sort-option:hover .sort-arrow {
-     color: white;
-   }
-
-   .sort-values {
-     padding: 1rem;
-     background: white;
-   }
-
-   .sort-values-title {
-     font-size: 0.75rem;
-     font-weight: 600;
-     color: #4ade80;
-     margin-bottom: 0.75rem;
-     text-transform: uppercase;
-     letter-spacing: 0.05em;
-     text-align: center;
-   }
-
-   .sort-values-list {
-     display: flex;
-     flex-wrap: wrap;
-     gap: 0.5rem;
-     justify-content: center;
-   }
-
-   .sort-value-item {
-     padding: 0.5rem 1rem;
-     background: #f8fff9;
-     border: 2px solid #d4edda;
-     border-radius: 25px;
-     font-size: 0.875rem;
-     color: #4ade80;
-     cursor: pointer;
-     transition: all 0.3s ease;
-     white-space: nowrap;
-     font-weight: 500;
-   }
-
-   .sort-value-item:hover {
-     background: #4ade80;
-     color: white;
-     border-color: #4ade80;
-     transform: translateY(-2px);
-     box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
-   }
-
-   .sort-item:hover {
-     border-color: #4ade80;
-     background: #f8fff9;
-     transform: translateY(-2px);
-     box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
-   }
-
-   .sort-item:active {
-     transform: translateY(0);
-   }
-
-   .sort-label {
-     font-weight: 600;
-     color: #4ade80;
-     font-size: 0.875rem;
-     font-family: 'Inter', sans-serif;
-   }
-
-   .sort-indicator {
-     font-weight: bold;
-     font-size: 1.25rem;
-     color: #4ade80;
-     animation: sortPulse 0.3s ease-out;
-   }
-
-   .sort-placeholder {
-     font-size: 1.25rem;
-     color: #9ca3af;
-     opacity: 0.7;
-   }
-
-   @keyframes sortPulse {
-     0% { transform: scale(1); }
-     50% { transform: scale(1.2); }
-     100% { transform: scale(1); }
-   }
-
-   @keyframes slideIn {
-     from {
-       opacity: 0;
-       transform: translateY(-10px);
-     }
-     to {
-       opacity: 1;
-       transform: translateY(0);
-     }
-   }
-
-  .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 0.5rem;
-    transition: all 0.2s ease;
+  .success-modal-content {
+    max-width: 100%;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
   }
 
-  .input-group:focus-within {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  .success-title {
+    font-size: 1.75rem;
   }
 
-  .search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 0.875rem;
-    background: transparent;
+  .success-message {
+    font-size: 1rem;
   }
 
-  .clear-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    color: #6b7280;
-    transition: all 0.2s ease;
+  .success-close-btn {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .success-icon {
+    width: 60px;
+    height: 60px;
   }
 
-  .clear-btn:hover {
-    background: #f3f4f6;
-    color: #374151;
+  .success-title {
+    font-size: 1.5rem;
   }
 
-  /* Responsive for sort section */
-  @media (max-width: 768px) {
-    .sort-section {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    .sort-item {
-      min-height: 44px;
-    }
+  .success-message {
+    font-size: 0.95rem;
+  }
+}
 
-    .sort-dropdown {
-      position: fixed;
-      top: auto;
-      left: 1rem;
-      right: 1rem;
-      max-height: 60vh;
-    }
+/* Search and Sort Section Styles */
+.search-section {
+  margin-bottom: 1.5rem;
+}
+
+.sort-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sort-item {
+  flex: 1;
+  position: relative;
+  background: white;
+  border: 2px solid #d4edda;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  min-height: 48px;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
+}
+
+.sort-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  min-height: 48px;
+  background: linear-gradient(135deg, #f8fff9 0%, #d4edda 100%);
+  border-radius: 12px;
+}
+
+.sort-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #d4edda;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+.sort-options {
+  padding: 1rem;
+  border-bottom: 1px solid #d4edda;
+  background: #f8fff9;
+}
+
+.sort-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.sort-option:hover {
+  background: #4ade80;
+  color: white;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.sort-arrow {
+  font-weight: bold;
+  color: #4ade80;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.sort-option:hover .sort-arrow {
+  color: white;
+}
+
+.sort-values {
+  padding: 1rem;
+  background: white;
+}
+
+.sort-values-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4ade80;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.sort-values-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.sort-value-item {
+  padding: 0.5rem 1rem;
+  background: #f8fff9;
+  border: 2px solid #d4edda;
+  border-radius: 25px;
+  font-size: 0.875rem;
+  color: #4ade80;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.sort-value-item:hover {
+  background: #4ade80;
+  color: white;
+  border-color: #4ade80;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+}
+
+.sort-item:hover {
+  border-color: #4ade80;
+  background: #f8fff9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+}
+
+.sort-item:active {
+  transform: translateY(0);
+}
+
+.sort-label {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 0.875rem;
+  font-family: "Inter", sans-serif;
+}
+
+.sort-indicator {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #4ade80;
+  animation: sortPulse 0.3s ease-out;
+}
+
+.sort-placeholder {
+  font-size: 1.25rem;
+  color: #9ca3af;
+  opacity: 0.7;
+}
+
+@keyframes sortPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.input-group:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  background: transparent;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Responsive for sort section */
+@media (max-width: 768px) {
+  .sort-section {
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
-  /* Click outside to close dropdown */
-  .sort-item:focus-within .sort-dropdown {
-    display: block;
+  .sort-item {
+    min-height: 44px;
   }
-  </style>
+
+  .sort-dropdown {
+    position: fixed;
+    top: auto;
+    left: 1rem;
+    right: 1rem;
+    max-height: 60vh;
+  }
+}
+
+/* Click outside to close dropdown */
+.sort-item:focus-within .sort-dropdown {
+  display: block;
+}
+</style>

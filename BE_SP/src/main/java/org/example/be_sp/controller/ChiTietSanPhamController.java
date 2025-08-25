@@ -50,16 +50,10 @@ public class ChiTietSanPhamController {
         return new ResponseObject<>(null, "Cập nhật chi tiết sản phẩm thành công");
     }
 
-    @GetMapping("/update/status/{id}")
+    @PutMapping("/update/status/{id}")
     public ResponseObject<?> updateStatus(@PathVariable Integer id) {
         service.updateStatus(id);
         return new ResponseObject<>(null, "Cập nhật trạng thái chi tiết sản phẩm thành công");
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseObject<?> delete(@PathVariable Integer id) {
-        service.delete(id);
-        return new ResponseObject<>(null, "Xóa chi tiết sản phẩm thành công");
     }
 
     @GetMapping("/full-info")

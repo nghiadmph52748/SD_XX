@@ -58,16 +58,3 @@ export const fetchUpdateStatusChiTietSanPham = async (id) => {
         throw new Error("Failed to update product detail status");
     }
 }
-
-export const fetchDeleteChiTietSanPham = async (id) => {
-    const res = await fetch(`${API}/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    });
-    if (!res.ok) {
-        throw new Error("Failed to delete product detail");
-    }
-    return res.json();
-}
