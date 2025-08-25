@@ -10,14 +10,6 @@
           </p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
-          <button class="btn-export" @click="forceRefreshImageData" title="Làm mới dữ liệu ảnh">
-            <span class="btn-icon">🖼️</span>
-            Làm mới ảnh
-          </button>
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
@@ -336,13 +328,6 @@
                     >
                       <span class="btn-icon">✏️</span>
                     </button>
-                    <button
-                      class="btn-delete"
-                      @click="deleteDetail(detail.id)"
-                      title="Xóa"
-                    >
-                      <span class="btn-icon">🗑️</span>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -634,11 +619,25 @@
        </div>
      </div>
    </div>
+
+   <!-- Popup thông báo thành công -->
+   <div v-if="showSuccessPopup" class="success-popup-overlay" @click="closeSuccessPopup">
+     <div class="success-popup" @click.stop>
+       <div class="success-popup-content">
+         <div class="success-icon">✅</div>
+         <h3 class="success-title">Thành công!</h3>
+         <p class="success-message">{{ successMessage }}</p>
+         <button class="success-btn" @click="closeSuccessPopup">
+           Đóng
+         </button>
+       </div>
+     </div>
+   </div>
  </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
+import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchDeleteChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
 import { fetchAllAnhSanPham } from '../../services/ThuocTinh/AnhSanPhamService'
 import { fetchAllChiTietSanPhamAnh, fetchCreateChiTietSanPhamAnh, fetchCreateMultipleChiTietSanPhamAnh, fetchUpdateChiTietSanPhamAnh, fetchDeleteChiTietSanPhamAnh } from '../../services/ThuocTinh/ChiTietSanPhamAnhService'
 import { fetchAllMauSac } from '../../services/ThuocTinh/MauSacService'
@@ -674,6 +673,8 @@ const pageSize = ref(10)
 const selectedImages = ref([])
 const selectedImageIds = ref([])
 const availableImages = ref([])
+const showSuccessPopup = ref(false)
+const successMessage = ref('')
 // ... existing code ...
 const newChiTietSanPham = ref({
   id: '',
@@ -951,26 +952,7 @@ const editDetail = async (data) => {
    }
  }
 
-const deleteDetail = async (id) => {
-  if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
-    try {
-      await fetchUpdateStatusChiTietSanPham(id)
 
-      // Cập nhật trạng thái ngay lập tức trong giao diện
-      const detailIndex = chiTietSanPhams.value.findIndex(detail => detail.id === id)
-      if (detailIndex !== -1) {
-        chiTietSanPhams.value[detailIndex].trangThai = 0
-      }
-
-      // Refresh lại dữ liệu từ server để đảm bảo đồng bộ
-      await fetchChiTietSanPham()
-      alert('Xóa chi tiết sản phẩm thành công!')
-    } catch (error) {
-      console.error('Error deleting product details:', error)
-      alert('Có lỗi xảy ra khi xóa!')
-    }
-  }
-};
 
 const saveDetail = async () => {
   try {
@@ -996,14 +978,14 @@ const saveDetail = async () => {
     if (showAddModal.value) {
       // Create new
       const response = await fetchCreateChiTietSanPham(dataToSend)
-      alert('Thêm chi tiết sản phẩm thành công!')
+      showSuccessNotification('Thêm chi tiết sản phẩm thành công!')
       // Lấy ID của chi tiết sản phẩm vừa tạo từ response.data
       chiTietSanPhamId = response?.data
       console.log('Created chiTietSanPham with ID:', chiTietSanPhamId)
     } else if (showEditModal.value) {
       // Update existing
       await fetchUpdateChiTietSanPham(dataToSend.id, dataToSend)
-      alert('Cập nhật chi tiết sản phẩm thành công!')
+      showSuccessNotification('Cập nhật chi tiết sản phẩm thành công!')
       chiTietSanPhamId = dataToSend.id
       console.log('Updated chiTietSanPham with ID:', chiTietSanPhamId)
     }
@@ -1083,6 +1065,21 @@ const closeModals = () => {
   selectedImages.value = []
   selectedImageIds.value = []
   console.log('Đã đóng modal và reset form')
+}
+
+// Hàm hiển thị popup thành công
+const showSuccessNotification = (message) => {
+  successMessage.value = message
+  showSuccessPopup.value = true
+  // Tự động đóng popup sau 3 giây
+  setTimeout(() => {
+    showSuccessPopup.value = false
+  }, 3000)
+}
+
+// Hàm đóng popup thành công
+const closeSuccessPopup = () => {
+  showSuccessPopup.value = false
 }
 
 const clearFilters = () => {
@@ -1388,20 +1385,22 @@ onMounted(async () => {
 
 .btn-refresh,
 .btn-export {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 0.75rem 1.25rem;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: 'Inter', sans-serif;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
 }
 
 .btn-add {
@@ -1425,9 +1424,11 @@ onMounted(async () => {
 
 .btn-refresh:hover,
 .btn-export:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .btn-add:hover {
@@ -1437,6 +1438,8 @@ onMounted(async () => {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+
+
 
 .btn-icon {
   font-size: 1rem;
@@ -1672,63 +1675,45 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Table Container - Optimized for full width with horizontal scrollbar */
+/* Table Container - Optimized for full width without horizontal scrollbar */
 .table-container {
   width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   background: white;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   position: relative;
+  border: 1px solid #e2e8f0;
 }
 
-/* Ensure horizontal scrollbar is always visible */
-.table-container::-webkit-scrollbar {
-  height: 12px;
-  background-color: #f1f5f9;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 6px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 6px;
-  border: 2px solid #f1f5f9;
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Product Table - Optimized for full width with horizontal scrollbar */
+/* Product Table - Optimized for full width without horizontal scrollbar */
 .product-table {
   width: 100%;
-  min-width: 1400px;
-  /* Ensure minimum width to show all columns */
   border-collapse: collapse;
   background: white;
-  font-size: 0.75rem;
-  /* Slightly smaller font for better fit */
+  font-size: 0.7rem;
+  /* Smaller font for better fit */
   table-layout: fixed;
   /* Fixed table layout for consistent column widths */
+  max-width: 100%;
+  /* Ensure table doesn't exceed container width */
 }
 
 .product-table th {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
   font-weight: 600;
-  padding: 0.6rem 0.4rem;
-  /* Reduced padding for better fit */
+  padding: 0.5rem 0.3rem;
+  /* Minimal padding for better fit */
   text-align: center;
   white-space: nowrap;
+  /* Prevent text wrapping in headers */
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 0.65rem;
+  /* Smaller font for headers */
 }
 
 .product-table th:last-child {
@@ -1736,16 +1721,21 @@ onMounted(async () => {
 }
 
 .product-table td {
-  padding: 0.6rem 0.4rem;
-  /* Reduced padding for better fit */
+  padding: 0.5rem 0.3rem;
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
-  border-right: 1px solid #f1f5f9;
+  border-bottom: 2px solid #e2e8f0;
+  border-right: 2px solid #e2e8f0;
   background: white;
   white-space: nowrap;
+  /* Prevent text wrapping to save space */
   overflow: hidden;
+  /* Hide overflow to prevent layout issues */
   text-overflow: ellipsis;
+  /* Show ellipsis for long text */
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #374151;
 }
 
 .product-table td:last-child {
@@ -1753,7 +1743,15 @@ onMounted(async () => {
 }
 
 .product-table tbody tr:hover {
-  background-color: #f8fafc;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.product-table tbody tr:hover td {
+  border-color: #cbd5e1;
+  background: transparent;
 }
 
 .no-data {
@@ -1764,107 +1762,108 @@ onMounted(async () => {
   padding: 2rem;
 }
 
-/* Column Widths - Optimized for 100% screen */
+/* Column Widths - Optimized for 100% screen without horizontal scrollbar */
+/* Total width: 40+120+80+60+80+80+80+60+80+70+70+80+60+60+80+80+80 = 1200px */
 .stt-col {
-  width: 50px;
-  min-width: 50px;
-  max-width: 50px;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
 }
 
 .product-col {
-  width: 140px;
-  min-width: 140px;
-  max-width: 160px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 
 .color-col {
   width: 80px;
   min-width: 80px;
-  max-width: 90px;
+  max-width: 80px;
 }
 
 .size-col {
   width: 60px;  
   min-width: 60px;
-  max-width: 70px;
+  max-width: 60px;
 }
 
 .sole-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .material-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .insole-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .weight-col {
-  width: 75px;
-  min-width: 75px;
-  max-width: 85px;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 .sport-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .season-col {
-  width: 75px;
-  min-width: 75px;
-  max-width: 85px;
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
 }
 
 .durability-col {
-  width: 75px;
-  min-width: 75px;
-  max-width: 85px;
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
 }
 
 .waterproof-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .image-col {
-  width: 70px;
-  min-width: 70px;
-  max-width: 80px;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 .quantity-col {
   width: 60px;
   min-width: 60px;
-  max-width: 70px;
+  max-width: 60px;
 }
 
 .price-col {
-  width: 90px;
-  min-width: 90px;
-  max-width: 100px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .status-col {
-  width: 90px;
-  min-width: 90px;
-  max-width: 100px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .action-col {
   width: 80px;
   min-width: 80px;
-  max-width: 90px;
+  max-width: 80px;
 }
 
 /* Product Info - Optimized text size */
@@ -1875,23 +1874,23 @@ onMounted(async () => {
 .product-info strong {
   display: block;
   margin-bottom: 0.25rem;
-  font-size: 0.8rem;
-  /* Slightly smaller for better fit */
+  font-size: 0.7rem;
+  /* Smaller font for better fit */
   color: #1e293b;
   line-height: 1.2;
 }
 
 /* Color Badge - Enhanced */
 .color-badge {
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   color: black;
   font-weight: 500;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 0, 0, 0.1);
   display: inline-block;
-  min-width: 50px;
+  min-width: 40px;
   max-width: 100%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -1909,19 +1908,19 @@ onMounted(async () => {
 .size-badge {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   /* Smaller font */
   display: inline-block;
-  min-width: 35px;
+  min-width: 30px;
   max-width: 100%;
 }
 
 /* Attribute Text - Optimized for compact display */
 .attribute-text {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   /* Smaller font for better fit */
   color: #475569;
   font-weight: 500;
@@ -1936,13 +1935,13 @@ onMounted(async () => {
 .stock-badge {
   background: #10b981;
   color: white;
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   /* Smaller font */
   display: inline-block;
-  min-width: 35px;
+  min-width: 30px;
   max-width: 100%;
 }
 
@@ -1954,20 +1953,20 @@ onMounted(async () => {
 .price-text {
   font-weight: 600;
   color: #059669;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   /* Smaller font */
   white-space: nowrap;
 }
 
 /* Status Badge - Optimized size */
 .status-badge {
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 500;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   /* Smaller font */
   display: inline-block;
-  min-width: 70px;
+  min-width: 60px;
   max-width: 100%;
 }
 
@@ -1992,30 +1991,30 @@ onMounted(async () => {
 }
 
 .product-image {
-  width: 30px;
+  width: 25px;
   /* Smaller image */
-  height: 30px;
+  height: 25px;
   object-fit: cover;
   border-radius: 4px;
-  border: 2px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .image-count {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -4px;
+  right: -4px;
   background: #3b82f6;
   color: white;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 600;
-  border: 2px solid white;
+  border: 1px solid white;
 }
 
 .no-image {
@@ -2027,7 +2026,7 @@ onMounted(async () => {
 /* Action Buttons - Optimized size */
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
   justify-content: center;
 }
 
@@ -2035,14 +2034,14 @@ onMounted(async () => {
 .btn-delete {
   border: none;
   border-radius: 4px;
-  padding: 0.4rem;
+  padding: 0.3rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 28px;
+  min-width: 24px;
+  height: 24px;
 }
 
 .btn-edit {
@@ -2065,8 +2064,10 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
+
+
 .btn-icon {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 /* Pagination enhancements */
@@ -3109,5 +3110,204 @@ onMounted(async () => {
 
 .image-type {
   font-weight: 500;
+}
+
+/* Responsive Design for Table */
+@media (max-width: 1400px) {
+  .product-table {
+    font-size: 0.65rem;
+  }
+  
+  .product-table th,
+  .product-table td {
+    padding: 0.4rem 0.25rem;
+  }
+  
+  .stt-col {
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
+  }
+  
+  .product-col {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+  }
+  
+  .color-col,
+  .sole-col,
+  .material-col,
+  .insole-col,
+  .sport-col,
+  .waterproof-col,
+  .price-col,
+  .status-col,
+  .action-col {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+  
+  .size-col,
+  .weight-col,
+  .season-col,
+  .durability-col,
+  .image-col,
+  .quantity-col {
+    width: 55px;
+    min-width: 55px;
+    max-width: 55px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .product-table {
+    font-size: 0.6rem;
+  }
+  
+  .product-table th,
+  .product-table td {
+    padding: 0.3rem 0.2rem;
+  }
+  
+  .stt-col {
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
+  }
+  
+  .product-col {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+  }
+  
+  .color-col,
+  .sole-col,
+  .material-col,
+  .insole-col,
+  .sport-col,
+  .waterproof-col,
+  .price-col,
+  .status-col,
+  .action-col {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+  }
+  
+  .size-col,
+  .weight-col,
+  .season-col,
+  .durability-col,
+  .image-col,
+  .quantity-col {
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+  }
+}
+
+/* Popup thông báo thành công */
+.success-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.success-popup {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #10b981;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.success-title {
+  color: #10b981;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.success-message {
+  color: #374151;
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.success-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.success-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
 }
 </style>

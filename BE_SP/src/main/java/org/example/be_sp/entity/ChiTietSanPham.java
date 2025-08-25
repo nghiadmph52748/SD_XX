@@ -3,6 +3,20 @@ package org.example.be_sp.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.be_sp.entity.ChiTietDotGiamGia;
+import org.example.be_sp.entity.ChiTietSanPhamAnh;
+import org.example.be_sp.entity.HoaDonChiTiet;
+import org.example.be_sp.entity.SanPham;
+import org.example.be_sp.entity.MauSac;
+import org.example.be_sp.entity.KichThuoc;
+import org.example.be_sp.entity.DeGiay;
+import org.example.be_sp.entity.ChatLieu;
+import org.example.be_sp.entity.DemGiay;
+import org.example.be_sp.entity.TrongLuong;
+import org.example.be_sp.entity.MonTheThao;
+import org.example.be_sp.entity.LoaiMua;
+import org.example.be_sp.entity.DoBen;
+import org.example.be_sp.entity.ChongNuoc;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
@@ -96,13 +110,12 @@ public class ChiTietSanPham {
     @Column(name = "update_by")
     private Integer updateBy;
 
-    @OneToMany(mappedBy = "idChiTietSanPham")
+    @OneToMany(mappedBy = "idChiTietSanPham", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ChiTietDotGiamGia> chiTietDotGiamGias = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "idChiTietSanPham")
+    @OneToMany(mappedBy = "idChiTietSanPham", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ChiTietSanPhamAnh> chiTietSanPhamAnhs = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "idChiTietSanPham")
+    @OneToMany(mappedBy = "idChiTietSanPham", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<HoaDonChiTiet> hoaDonChiTiets = new LinkedHashSet<>();
-
 }
