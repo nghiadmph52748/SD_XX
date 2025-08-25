@@ -17,20 +17,24 @@ public class HoaDonController {
     public ResponseObject<?> getAll() {
         return new ResponseObject<>(hoaDonService.getAll());
     }
+
     @GetMapping("/paging")
-    public ResponseObject<?> paging(@RequestParam(defaultValue = "0") Integer page,@RequestParam(defaultValue = "10") Integer size) {
+    public ResponseObject<?> paging(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return new ResponseObject<>(hoaDonService.phanTrang(page, size));
     }
+
     @PostMapping("/add")
     public ResponseObject<?> add(@RequestBody HoaDonRequest request) {
         hoaDonService.add(request);
         return new ResponseObject<>(null, "Thêm hóa đơn thành công");
     }
+
     @PutMapping("/update/{id}")
     public ResponseObject<?> update(@PathVariable Integer id, @RequestBody HoaDonRequest request) {
         hoaDonService.update(id, request);
         return new ResponseObject<>(null, "Cập nhật hóa đơn thành công");
     }
+
     @PutMapping("/delete/{id}")
     public ResponseObject<?> delete(@PathVariable Integer id) {
         hoaDonService.delete(id);
