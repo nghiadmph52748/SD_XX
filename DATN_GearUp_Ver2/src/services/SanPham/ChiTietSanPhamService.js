@@ -32,6 +32,7 @@ export const fetchCreateChiTietSanPham = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create product detail");
     }
+    return res.json();
 }
 export const fetchUpdateChiTietSanPham = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {
@@ -44,6 +45,7 @@ export const fetchUpdateChiTietSanPham = async (id, data) => {
     if (!res.ok) {
         throw new Error("Failed to update product detail");
     }
+    return res.json();
 }
 export const fetchUpdateStatusChiTietSanPham = async (id) => {
     const res = await fetch(`${API}/update/status/${id}`, {
@@ -55,4 +57,17 @@ export const fetchUpdateStatusChiTietSanPham = async (id) => {
     if (!res.ok) {
         throw new Error("Failed to update product detail status");
     }
+}
+
+export const fetchDeleteChiTietSanPham = async (id) => {
+    const res = await fetch(`${API}/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    if (!res.ok) {
+        throw new Error("Failed to delete product detail");
+    }
+    return res.json();
 }

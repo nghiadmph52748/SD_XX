@@ -4,16 +4,12 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý Chi tiết sản phẩm</h1>
+          <h1 class="page-title">QUẢN LÝ CHI TIẾT SẢN PHẨM</h1>
           <p class="page-subtitle">
             Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho
           </p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
@@ -22,7 +18,7 @@
             <span class="btn-icon">📗</span>
             Xuất Excel
           </button>
-          <button class="btn-export" @click="openAddModal">
+          <button class="btn-add" @click="openAddModal">
             <span class="btn-icon">➕</span>
             Thêm chi tiết SP
           </button>
@@ -211,16 +207,12 @@
               </select>
             </div>
 
-            <div class="filter-actions">
-              <button @click="clearFilters" class="btn btn-outline">
-                <span class="btn-icon">🔄</span>
-                Đặt lại
-              </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">🔍</span>
-                Áp dụng
-              </button>
-            </div>
+                         <div class="filter-actions">
+               <button @click="clearFilters" class="btn btn-outline">
+                 <span class="btn-icon">🔄</span>
+                 Đặt lại
+               </button>
+             </div>
           </div>
         </div>
       </div>
@@ -254,16 +246,15 @@
             </thead>
             <tbody>
               <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
-                <td class="stt-col">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                <td class="stt-col">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td class="product-col">
                   <div class="product-info">
                     <strong>{{ detail.tenSanPham || detail.sanPham?.tenSanPham || 'N/A' }}</strong>
                   </div>
                 </td>
                 <td class="color-col">
-                  <span class="color-badge"
-                    :style="{ backgroundColor: getColorCode(detail.tenMauSac || detail.mauSac?.tenMauSac) }">
-                    {{ detail.tenMauSac || detail.mauSac?.tenMauSac || 'N/A' }}
+                  <span class="color-badge">
+                    {{ detail.tenMauSac || 'N/A' }}
                   </span>
                 </td>
                 <td class="size-col">
@@ -296,18 +287,10 @@
                   <span class="attribute-text">{{ detail.tenChongNuoc || detail.chongNuoc?.tenChongNuoc || 'N/A'
                   }}</span>
                 </td>
-                <td class="image-col">
-                  <div v-if="detail.anhSanPham && detail.anhSanPham.length > 0" class="image-preview">
-                    <img :src="detail.anhSanPham[0]" :alt="detail.tenSanPham" class="product-image" />
-                    <span v-if="detail.anhSanPham.length > 1" class="image-count">+{{ detail.anhSanPham.length - 1
-                    }}</span>
-                  </div>
-                  <div v-else-if="detail.chiTietSanPhamAnhs && detail.chiTietSanPhamAnhs.length > 0"
-                    class="image-preview">
-                    <img :src="detail.chiTietSanPhamAnhs[0].idAnhSanPham?.duongDanAnh" :alt="detail.tenSanPham"
-                      class="product-image" />
-                    <span v-if="detail.chiTietSanPhamAnhs.length > 1" class="image-count">+{{
-                      detail.chiTietSanPhamAnhs.length - 1 }}</span>
+                <td class="image-col" :key="`image-${detail.id}-${imageDataKey.timestamp}`">
+                  <div v-if="getImagesForChiTietSanPham(detail.id).length > 0" class="image-preview">
+                    <img :src="getImageUrl(getImagesForChiTietSanPham(detail.id)[0].duongDanAnh)" :alt="detail.tenSanPham || detail.sanPham?.tenSanPham" class="product-image" />
+                    <span v-if="getImagesForChiTietSanPham(detail.id).length > 1" class="image-count">+{{ getImagesForChiTietSanPham(detail.id).length - 1 }}</span>
                   </div>
                   <span v-else class="no-image">Không có ảnh</span>
                 </td>
@@ -345,13 +328,6 @@
                     >
                       <span class="btn-icon">✏️</span>
                     </button>
-                    <button
-                      class="btn-delete"
-                      @click="deleteDetail(detail.id)"
-                      title="Xóa"
-                    >
-                      <span class="btn-icon">🗑️</span>
-                    </button>
                   </div>
                 </td>
               </tr>
@@ -363,18 +339,18 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-wrapper">
+        <div v-if="totalPages > 1" class="pagination-wrapper">
           <div class="pagination-info">
             Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
             {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
           <div class="pagination">
-            <button class="btn-export" @click="previousPage" :disabled="currentPage === 1">
-              <span class="btn-icon">❮</span>
+            <button @click="previousPage" :disabled="currentPage === 1" class="btn btn-outline btn-sm">
+              ❮ Trước
             </button>
             <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button class="btn-export" @click="nextPage" :disabled="currentPage === totalPages">
-              <span class="btn-icon">❯</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="btn btn-outline btn-sm">
+              Sau ❯
             </button>
           </div>
         </div>
@@ -398,163 +374,272 @@
           </h3>
           <button class="modal-close" @click="closeModals">×</button>
         </div>
-        <div class="modal-body">
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Sản phẩm *</label>
-              <select v-model="newChiTietSanPham.idSanPham" class="form-control" required>
-                <option value="">Chọn sản phẩm</option>
-                <option v-for="product in sanPhams" :key="product.id" :value="product.id">
-                  {{ product.tenSanPham }} ({{ product.maSanPham }})
-                </option>
-              </select>
-            </div>
+                 <div class="modal-body">
+           <div class="form-grid">
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">📦</span>
+                 Sản phẩm *
+               </label>
+               <select v-model="newChiTietSanPham.idSanPham" class="form-control" required>
+                 <option value="">Chọn sản phẩm</option>
+                 <option v-for="product in sanPhams" :key="product.id" :value="product.id">
+                   {{ product.tenSanPham }} ({{ product.maSanPham }})
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Màu sắc *</label>
-              <select v-model="newChiTietSanPham.idMauSac" class="form-control" required>
-                <option value="">Chọn màu sắc</option>
-                <option v-for="color in mauSacs" :key="color.id" :value="color.id">
-                  {{ color.tenMauSac }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🎨</span>
+                 Màu sắc *
+               </label>
+               <select v-model="newChiTietSanPham.idMauSac" class="form-control" required>
+                 <option value="">Chọn màu sắc</option>
+                 <option v-for="color in mauSacs" :key="color.id" :value="color.id">
+                   {{ color.tenMauSac }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Kích thước *</label>
-              <select v-model="newChiTietSanPham.idKichThuoc" class="form-control" required>
-                <option value="">Chọn kích thước</option>
-                <option v-for="size in kichThuocs" :key="size.id" :value="size.id">
-                  {{ size.tenKichThuoc }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">📏</span>
+                 Kích thước *
+               </label>
+               <select v-model="newChiTietSanPham.idKichThuoc" class="form-control" required>
+                 <option value="">Chọn kích thước</option>
+                 <option v-for="size in kichThuocs" :key="size.id" :value="size.id">
+                   {{ size.tenKichThuoc }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Chất liệu *</label>
-              <select v-model="newChiTietSanPham.idChatLieu" class="form-control" required>
-                <option value="">Chọn chất liệu</option>
-                <option v-for="material in chatLieus" :key="material.id" :value="material.id">
-                  {{ material.tenChatLieu }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🧵</span>
+                 Chất liệu *
+               </label>
+               <select v-model="newChiTietSanPham.idChatLieu" class="form-control" required>
+                 <option value="">Chọn chất liệu</option>
+                 <option v-for="material in chatLieus" :key="material.id" :value="material.id">
+                   {{ material.tenChatLieu }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Đế giày</label>
-              <select v-model="newChiTietSanPham.idDeGiay" class="form-control">
-                <option value="">Chọn đế giày</option>
-                <option v-for="sole in deGiays" :key="sole.id" :value="sole.id">
-                  {{ sole.tenDeGiay }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">👟</span>
+                 Đế giày
+               </label>
+               <select v-model="newChiTietSanPham.idDeGiay" class="form-control">
+                 <option value="">Chọn đế giày</option>
+                 <option v-for="sole in deGiays" :key="sole.id" :value="sole.id">
+                   {{ sole.tenDeGiay }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Đệm giày</label>
-              <select v-model="newChiTietSanPham.idDemGiay" class="form-control">
-                <option value="">Chọn đệm giày</option>
-                <option v-for="insole in demGiays" :key="insole.id" :value="insole.id">
-                  {{ insole.tenDemGiay }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🦶</span>
+                 Đệm giày
+               </label>
+               <select v-model="newChiTietSanPham.idDemGiay" class="form-control">
+                 <option value="">Chọn đệm giày</option>
+                 <option v-for="insole in demGiays" :key="insole.id" :value="insole.id">
+                   {{ insole.tenDemGiay }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Trọng lượng</label>
-              <select v-model="newChiTietSanPham.idTrongLuong" class="form-control">
-                <option value="">Chọn trọng lượng</option>
-                <option v-for="weight in trongLuongs" :key="weight.id" :value="weight.id">
-                  {{ weight.tenTrongLuong }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">⚖️</span>
+                 Trọng lượng
+               </label>
+               <select v-model="newChiTietSanPham.idTrongLuong" class="form-control">
+                 <option value="">Chọn trọng lượng</option>
+                 <option v-for="weight in trongLuongs" :key="weight.id" :value="weight.id">
+                   {{ weight.tenTrongLuong }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Môn thể thao</label>
-              <select v-model="newChiTietSanPham.idMonTheThao" class="form-control">
-                <option value="">Chọn môn thể thao</option>
-                <option v-for="sport in monTheThaos" :key="sport.id" :value="sport.id">
-                  {{ sport.tenMonTheThao }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🏃</span>
+                 Môn thể thao
+               </label>
+               <select v-model="newChiTietSanPham.idMonTheThao" class="form-control">
+                 <option value="">Chọn môn thể thao</option>
+                 <option v-for="sport in monTheThaos" :key="sport.id" :value="sport.id">
+                   {{ sport.tenMonTheThao }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Loại mùa</label>
-              <select v-model="newChiTietSanPham.idLoaiMua" class="form-control">
-                <option value="">Chọn loại mùa</option>
-                <option v-for="season in loaiMuas" :key="season.id" :value="season.id">
-                  {{ season.tenLoaiMua }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🌤️</span>
+                 Loại mùa
+               </label>
+               <select v-model="newChiTietSanPham.idLoaiMua" class="form-control">
+                 <option value="">Chọn loại mùa</option>
+                 <option v-for="season in loaiMuas" :key="season.id" :value="season.id">
+                   {{ season.tenLoaiMua }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Độ bền</label>
-              <select v-model="newChiTietSanPham.idDoBen" class="form-control">
-                <option value="">Chọn độ bền</option>
-                <option v-for="durability in doBens" :key="durability.id" :value="durability.id">
-                  {{ durability.tenDoBen }}
-                </option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">🛡️</span>
+                 Độ bền
+               </label>
+               <select v-model="newChiTietSanPham.idDoBen" class="form-control">
+                 <option value="">Chọn độ bền</option>
+                 <option v-for="durability in doBens" :key="durability.id" :value="durability.id">
+                   {{ durability.tenDoBen }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Chống nước</label>
-              <select v-model="newChiTietSanPham.idChongNuoc" class="form-control">
-                <option value="">Chọn chống nước</option>
-                <option v-for="waterproof in chongNuocs" :key="waterproof.id" :value="waterproof.id">
-                  {{ waterproof.tenChongNuoc }}
-                </option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Giá bán *</label>
-              <input v-model="newChiTietSanPham.giaBan" type="number" class="form-control" placeholder="Nhập giá bán"
-                min="0" step="1000" required />
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">💧</span>
+                 Chống nước
+               </label>
+               <select v-model="newChiTietSanPham.idChongNuoc" class="form-control">
+                 <option value="">Chọn chống nước</option>
+                 <option v-for="waterproof in chongNuocs" :key="waterproof.id" :value="waterproof.id">
+                   {{ waterproof.tenChongNuoc }}
+                 </option>
+               </select>
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Số lượng *</label>
-              <input v-model="newChiTietSanPham.soLuong" type="number" class="form-control" placeholder="Nhập số lượng"
-                min="0" required />
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">💰</span>
+                 Giá bán *
+               </label>
+               <input v-model="newChiTietSanPham.giaBan" type="number" class="form-control" placeholder="Nhập giá bán"
+                 min="0" step="1000" required />
+             </div>
 
-            <div class="form-group">
-              <label class="form-label">Trạng thái</label>
-              <select v-model="newChiTietSanPham.trangThai" class="form-control">
-                <option :value="true">Hoạt động</option>
-                <option :value="false">Ngừng hoạt động</option>
-              </select>
-            </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">📦</span>
+                 Số lượng *
+               </label>
+               <input v-model="newChiTietSanPham.soLuong" type="number" class="form-control" placeholder="Nhập số lượng"
+                 min="0" required />
+             </div>
 
-            <div class="form-group span-2">
-              <label class="form-label">Ghi chú</label>
-              <textarea v-model="newChiTietSanPham.ghiChu" class="form-control" rows="3"
-                placeholder="Nhập ghi chú..."></textarea>
-            </div>
-          </div>
-        </div>
+             <div class="form-group">
+               <label class="form-label">
+                 <span class="label-icon">⚡</span>
+                 Trạng thái
+               </label>
+               <select v-model="newChiTietSanPham.trangThai" class="form-control">
+                 <option :value="true">✅ Hoạt động</option>
+                 <option :value="false">❌ Ngừng hoạt động</option>
+               </select>
+             </div>
+
+                           <div class="form-group span-2">
+                <label class="form-label">
+                  <span class="label-icon">🖼️</span>
+                  Ảnh sản phẩm
+                </label>
+                <div class="image-upload-section">
+                  <div class="image-preview-grid">
+                    <div v-for="(image, index) in selectedImages" :key="index" class="image-preview-item">
+                      <img :src="getImageUrl(image)" :alt="`Ảnh ${index + 1}`" class="preview-image" />
+                      <button type="button" @click="removeImage(index)" class="remove-image-btn">×</button>
+                    </div>
+                    <div v-if="selectedImages.length < 5" class="image-upload-btn" @click="openImageSelector">
+                      <span class="upload-icon">📷</span>
+                      <span class="upload-text">Thêm ảnh</span>
+                    </div>
+                  </div>
+                  <p class="image-help-text">Chọn tối đa 5 ảnh cho sản phẩm</p>
+                </div>
+              </div>
+
+              <div class="form-group span-2">
+                <label class="form-label">
+                  <span class="label-icon">📝</span>
+                  Ghi chú
+                </label>
+                <textarea v-model="newChiTietSanPham.ghiChu" class="form-control" rows="3"
+                  placeholder="Nhập ghi chú..."></textarea>
+              </div>
+           </div>
+         </div>
         <div class="modal-footer">
-          <button class="btn-export" @click="closeModals">
-            <span class="btn-icon">❌</span>
-            Hủy
-          </button>
-          <button class="btn-export" @click="saveDetail">
-            <span class="btn-icon">💾</span>
+          <button class="btn-save" @click="saveDetail">
+            <span class="btn-icon">{{ showAddModal ? "➕" : "💾" }}</span>
             {{ showAddModal ? "Thêm" : "Cập nhật" }}
           </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+                 </div>
+       </div>
+     </div>
+
+     <!-- Image Selector Modal -->
+     <div v-if="showImageSelector" class="modal-overlay" @click="closeImageSelector">
+       <div class="modal-content image-selector" @click.stop>
+         <div class="modal-header">
+           <h3>Chọn ảnh sản phẩm</h3>
+           <button class="modal-close" @click="closeImageSelector">×</button>
+         </div>
+         <div class="modal-body">
+           <div class="image-grid">
+             <div v-for="image in availableImages" :key="image.id" 
+                  class="image-item" 
+                  :class="{ 'selected': selectedImageIds.includes(image.id) }"
+                  @click="toggleImageSelection(image.id)">
+               <img :src="getImageUrl(image.duongDanAnh)" :alt="image.loaiAnh || 'Ảnh sản phẩm'" class="grid-image" />
+               <div class="image-overlay">
+                 <span class="check-icon">✓</span>
+               </div>
+               <div class="image-info">
+                 <span class="image-type">{{ image.loaiAnh || 'N/A' }}</span>
+               </div>
+             </div>
+           </div>
+         </div>
+         <div class="modal-footer">
+           <button class="btn-save" @click="confirmImageSelection">
+             <span class="btn-icon">✅</span>
+             Xác nhận
+           </button>
+         </div>
+       </div>
+     </div>
+   </div>
+
+   <!-- Popup thông báo thành công -->
+   <div v-if="showSuccessPopup" class="success-popup-overlay" @click="closeSuccessPopup">
+     <div class="success-popup" @click.stop>
+       <div class="success-popup-content">
+         <div class="success-icon">✅</div>
+         <h3 class="success-title">Thành công!</h3>
+         <p class="success-message">{{ successMessage }}</p>
+         <button class="success-btn" @click="closeSuccessPopup">
+           Đóng
+         </button>
+       </div>
+     </div>
+   </div>
+ </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchUpdateStatusChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
+import { fetchAllChiTietSanPham, fetchCreateChiTietSanPham, fetchUpdateChiTietSanPham, fetchDeleteChiTietSanPham } from '../../services/SanPham/ChiTietSanPhamService'
 import { fetchAllAnhSanPham } from '../../services/ThuocTinh/AnhSanPhamService'
+import { fetchAllChiTietSanPhamAnh, fetchCreateChiTietSanPhamAnh, fetchCreateMultipleChiTietSanPhamAnh, fetchUpdateChiTietSanPhamAnh, fetchDeleteChiTietSanPhamAnh } from '../../services/ThuocTinh/ChiTietSanPhamAnhService'
 import { fetchAllMauSac } from '../../services/ThuocTinh/MauSacService'
 import { fetchAllKichThuoc } from '../../services/ThuocTinh/KichThuocService'
 import { fetchAllDeGiay } from '../../services/ThuocTinh/DeGiayService'
@@ -582,8 +667,14 @@ const selectedChongNuoc = ref('')
 const statusFilter = ref('')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showImageSelector = ref(false)
 const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const pageSize = ref(10)
+const selectedImages = ref([])
+const selectedImageIds = ref([])
+const availableImages = ref([])
+const showSuccessPopup = ref(false)
+const successMessage = ref('')
 // ... existing code ...
 const newChiTietSanPham = ref({
   id: '',
@@ -608,6 +699,7 @@ const newChiTietSanPham = ref({
 const sanPhams = ref([])
 const anhSanPhams = ref([])
 const chiTietSanPhams = ref([])
+const chiTietSanPhamAnhs = ref([])
 const mauSacs = ref([])
 const kichThuocs = ref([])
 const chatLieus = ref([])
@@ -655,6 +747,15 @@ const fetchAllThuocTinh = async () => {
     chongNuocs.value = res11.data
     let res12 = await fetchAllSanPham();
     sanPhams.value = res12.data
+    let res13 = await fetchAllChiTietSanPhamAnh();
+    chiTietSanPhamAnhs.value = res13.data
+    
+    // Cập nhật imageDataKey để đảm bảo table re-render
+    imageDataKey.value = {
+      chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+      anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      timestamp: Date.now()
+    }
   } catch (error) {
     console.error('Error fetching product details:', error)
   }
@@ -722,15 +823,15 @@ const filteredDetails = computed(() => {
 })
 
 const totalPages = computed(() =>
-  Math.ceil(filteredDetails.value.length / itemsPerPage.value)
+  Math.ceil(filteredDetails.value.length / pageSize.value)
 );
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
 const endIndex = computed(() =>
-  Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length)
+  Math.min(startIndex.value + pageSize.value, filteredDetails.value.length)
 );
 
 const paginatedDetails = computed(() => {
-  return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
+  return filteredDetails.value.slice(startIndex.value, startIndex.value + pageSize.value)
 })
 
 // Computed để theo dõi thay đổi trạng thái
@@ -738,6 +839,13 @@ const statusCounts = computed(() => {
   const active = chiTietSanPhams.value.filter(detail => detail.trangThai === 1).length
   const inactive = chiTietSanPhams.value.filter(detail => detail.trangThai === 0).length
   return { active, inactive, total: chiTietSanPhams.value.length }
+})
+
+// Ref để theo dõi thay đổi dữ liệu ảnh và đảm bảo table re-render
+const imageDataKey = ref({
+  chiTietSanPhamAnhsLength: 0,
+  anhSanPhamsLength: 0,
+  timestamp: Date.now()
 })
 
 // Methods
@@ -827,33 +935,24 @@ const editDetail = async (data) => {
       trangThai: data.trangThai === 1 || data.trangThai === true,
       ghiChu: data.ghiChu || ''
     }
-    showEditModal.value = true
-  } catch (error) {
-    console.error('Error in editDetail:', error)
-    alert('Có lỗi xảy ra khi mở form chỉnh sửa!')
-  }
-}
+                  // Load ảnh sản phẩm từ AnhSanPham
+     const images = getImagesForChiTietSanPham(data.id)
+     if (images.length > 0) {
+       selectedImages.value = images.map(img => img.duongDanAnh)
+       selectedImageIds.value = images.map(img => img.id)
+     } else {
+       selectedImages.value = []
+       selectedImageIds.value = []
+     }
+     
+     showEditModal.value = true
+   } catch (error) {
+     console.error('Error in editDetail:', error)
+     alert('Có lỗi xảy ra khi mở form chỉnh sửa!')
+   }
+ }
 
-const deleteDetail = async (id) => {
-  if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
-    try {
-      await fetchUpdateStatusChiTietSanPham(id)
 
-      // Cập nhật trạng thái ngay lập tức trong giao diện
-      const detailIndex = chiTietSanPhams.value.findIndex(detail => detail.id === id)
-      if (detailIndex !== -1) {
-        chiTietSanPhams.value[detailIndex].trangThai = 0
-      }
-
-      // Refresh lại dữ liệu từ server để đảm bảo đồng bộ
-      await fetchChiTietSanPham()
-      alert('Xóa chi tiết sản phẩm thành công!')
-    } catch (error) {
-      console.error('Error deleting product details:', error)
-      alert('Có lỗi xảy ra khi xóa!')
-    }
-  }
-};
 
 const saveDetail = async () => {
   try {
@@ -874,18 +973,66 @@ const saveDetail = async () => {
       trangThai: newChiTietSanPham.value.trangThai ? 1 : 0
     }
 
+    let chiTietSanPhamId = null
+
     if (showAddModal.value) {
       // Create new
       const response = await fetchCreateChiTietSanPham(dataToSend)
-      alert('Thêm chi tiết sản phẩm thành công!')
+      showSuccessNotification('Thêm chi tiết sản phẩm thành công!')
+      // Lấy ID của chi tiết sản phẩm vừa tạo từ response.data
+      chiTietSanPhamId = response?.data
+      console.log('Created chiTietSanPham with ID:', chiTietSanPhamId)
     } else if (showEditModal.value) {
       // Update existing
       await fetchUpdateChiTietSanPham(dataToSend.id, dataToSend)
-      alert('Cập nhật chi tiết sản phẩm thành công!')
+      showSuccessNotification('Cập nhật chi tiết sản phẩm thành công!')
+      chiTietSanPhamId = dataToSend.id
+      console.log('Updated chiTietSanPham with ID:', chiTietSanPhamId)
+    }
+
+    // Xử lý ảnh sản phẩm
+    if (chiTietSanPhamId && selectedImageIds.value.length > 0) {
+      try {
+        // Xóa tất cả liên kết ảnh cũ
+        const existingImages = chiTietSanPhamAnhs.value.filter(item => 
+          item.idChiTietSanPham === chiTietSanPhamId
+        )
+        
+        console.log('Existing images to delete:', existingImages)
+        
+        for (const existingImage of existingImages) {
+          if (existingImage.id) {
+            console.log('Deleting image link with ID:', existingImage.id)
+            await fetchDeleteChiTietSanPhamAnh(existingImage.id)
+          } else {
+            console.warn('Skipping image with undefined ID:', existingImage)
+          }
+        }
+
+        // Tạo liên kết ảnh mới - sử dụng method tạo nhiều ảnh cùng lúc
+        console.log('Creating multiple image links for image IDs:', selectedImageIds.value)
+        await fetchCreateMultipleChiTietSanPhamAnh({
+          idChiTietSanPham: chiTietSanPhamId,
+          idAnhSanPhamList: selectedImageIds.value,
+          deleted: false
+        })
+      } catch (imageError) {
+        console.error('Error handling images:', imageError);
+        
+      }
     }
 
     // Refresh data từ server để đảm bảo đồng bộ
+    console.log('Bắt đầu refresh dữ liệu...')
+    
+    // Đảm bảo thứ tự refresh để dữ liệu ảnh được cập nhật đúng
     await fetchChiTietSanPham()
+    console.log('Đã refresh chiTietSanPham, số lượng:', chiTietSanPhams.value.length)
+    
+    // Force refresh dữ liệu ảnh để đảm bảo table được cập nhật
+    await forceRefreshImageData()
+    
+    console.log('Hoàn thành refresh dữ liệu')
     closeModals()
   } catch (error) {
     console.error('Error saving product details:', error)
@@ -915,6 +1062,24 @@ const closeModals = () => {
     trangThai: true,
     ghiChu: ''
   }
+  selectedImages.value = []
+  selectedImageIds.value = []
+  console.log('Đã đóng modal và reset form')
+}
+
+// Hàm hiển thị popup thành công
+const showSuccessNotification = (message) => {
+  successMessage.value = message
+  showSuccessPopup.value = true
+  // Tự động đóng popup sau 3 giây
+  setTimeout(() => {
+    showSuccessPopup.value = false
+  }, 3000)
+}
+
+// Hàm đóng popup thành công
+const closeSuccessPopup = () => {
+  showSuccessPopup.value = false
 }
 
 const clearFilters = () => {
@@ -973,6 +1138,7 @@ const refreshData = async () => {
     clearFilters()
 
     alert('Làm mới dữ liệu thành công!')
+    console.log('Đã refresh dữ liệu thành công')
   } catch (error) {
     console.error('Error refreshing data:', error)
     alert('Có lỗi xảy ra khi làm mới dữ liệu!')
@@ -999,7 +1165,144 @@ const openAddModal = () => {
     trangThai: true,
     ghiChu: ''
   }
+  selectedImages.value = []
+  selectedImageIds.value = []
   showAddModal.value = true
+  console.log('Đã mở modal thêm mới')
+}
+
+const openImageSelector = () => {
+  try {
+    // Chỉ hiển thị những ảnh chưa bị xóa
+    availableImages.value = anhSanPhams.value.filter(img => !img.deleted)
+    showImageSelector.value = true
+    console.log('Đã mở image selector với', availableImages.value.length, 'ảnh')
+  } catch (error) {
+    console.error('Error opening image selector:', error)
+    alert('Có lỗi khi mở image selector!')
+  }
+}
+
+const closeImageSelector = () => {
+  showImageSelector.value = false
+}
+
+const toggleImageSelection = (imageId) => {
+  const index = selectedImageIds.value.indexOf(imageId)
+  if (index > -1) {
+    // Bỏ chọn ảnh
+    selectedImageIds.value.splice(index, 1)
+    selectedImages.value.splice(index, 1)
+  } else {
+    // Chọn ảnh mới
+    if (selectedImageIds.value.length < 5) {
+      const image = anhSanPhams.value.find(img => img.id === imageId)
+      if (image) {
+        selectedImageIds.value.push(imageId)
+        selectedImages.value.push(image.duongDanAnh)
+      }
+    } else {
+      alert('Chỉ được chọn tối đa 5 ảnh!')
+    }
+  }
+}
+
+const removeImage = (index) => {
+  selectedImages.value.splice(index, 1)
+  selectedImageIds.value.splice(index, 1)
+  console.log('Đã xóa ảnh tại vị trí:', index)
+}
+
+const confirmImageSelection = () => {
+  showImageSelector.value = false
+}
+
+// Method để lấy ảnh cho một chi tiết sản phẩm
+const getImagesForChiTietSanPham = (chiTietSanPhamId) => {
+  try {
+    // Đảm bảo dữ liệu đã được load
+    if (!chiTietSanPhamAnhs.value || !anhSanPhams.value) {
+      console.log('Dữ liệu chưa sẵn sàng, đang chờ...')
+      return []
+    }
+    
+    // Lọc các liên kết ảnh cho chi tiết sản phẩm này
+    const imageLinks = chiTietSanPhamAnhs.value.filter(item => 
+      item.idChiTietSanPham === chiTietSanPhamId && !item.deleted
+    );
+    
+ 
+    
+    // Map để lấy thông tin ảnh đầy đủ
+    const images = imageLinks.map(item => {
+      const anhSanPham = anhSanPhams.value.find(anh => anh.id === item.idAnhSanPham);
+      if (anhSanPham) {
+        return {
+          id: anhSanPham.id,
+          duongDanAnh: anhSanPham.duongDanAnh,
+          loaiAnh: anhSanPham.loaiAnh,
+          moTa: anhSanPham.moTa
+        }
+      } else {
+        console.log(`Không tìm thấy ảnh với ID: ${item.idAnhSanPham}`)
+        return null
+      }
+    }).filter(img => img !== null);
+    
+
+    return images
+  } catch (error) {
+    console.error('Error getting images for chi tiet san pham:', error)
+    return []
+  }
+};
+
+// Method để tạo URL đầy đủ cho ảnh
+const getImageUrl = (imagePath) => {
+  try {
+    if (!imagePath) return '';
+    
+    // Nếu đã là URL đầy đủ thì trả về nguyên
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    
+    // Nếu là đường dẫn tương đối, thêm base URL của backend
+    if (imagePath.startsWith('uploads/')) {
+      return `http://localhost:8080/${imagePath}`;
+    }
+    
+    // Nếu bắt đầu bằng / thì thêm base URL
+    if (imagePath.startsWith('/')) {
+      return `http://localhost:8080${imagePath}`;
+    }
+    
+    return imagePath;
+  } catch (error) {
+    console.error('Error getting image URL:', error)
+    return ''
+  }
+};
+
+// Method để force refresh dữ liệu ảnh
+const forceRefreshImageData = async () => {
+  try {
+    console.log('Force refresh dữ liệu ảnh...')
+    
+    // Refresh dữ liệu ảnh
+    await fetchAllThuocTinh()
+    
+    // Force Vue re-render bằng cách thay đổi timestamp
+    imageDataKey.value = {
+      chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+      anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      timestamp: Date.now()
+    }
+    
+    console.log('Đã force refresh dữ liệu ảnh thành công')
+  } catch (error) {
+    console.error('Error force refreshing image data:', error)
+  }
 }
 
 onMounted(async () => {
@@ -1019,6 +1322,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Global font settings */
+* {
+  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 /* CSS Custom Properties */
 :root {
   --border-color: #e5e7eb;
@@ -1074,26 +1385,61 @@ onMounted(async () => {
 
 .btn-refresh,
 .btn-export {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 0.75rem 1.25rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+.btn-add {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
 }
 
 .btn-refresh:hover,
 .btn-export:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+
+.btn-add:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+
 
 .btn-icon {
   font-size: 1rem;
@@ -1193,6 +1539,11 @@ onMounted(async () => {
   color: #9ca3af;
   font-size: 1.5rem;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .clear-btn {
@@ -1278,7 +1629,7 @@ onMounted(async () => {
   gap: 1rem;
   align-items: end;
   grid-column: span 4;
-  justify-content: center;
+  justify-content: flex-end;
   margin-top: 1rem;
 }
 
@@ -1324,63 +1675,45 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Table Container - Optimized for full width with horizontal scrollbar */
+/* Table Container - Optimized for full width without horizontal scrollbar */
 .table-container {
   width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   background: white;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   position: relative;
+  border: 1px solid #e2e8f0;
 }
 
-/* Ensure horizontal scrollbar is always visible */
-.table-container::-webkit-scrollbar {
-  height: 12px;
-  background-color: #f1f5f9;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 6px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 6px;
-  border: 2px solid #f1f5f9;
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Product Table - Optimized for full width with horizontal scrollbar */
+/* Product Table - Optimized for full width without horizontal scrollbar */
 .product-table {
   width: 100%;
-  min-width: 1400px;
-  /* Ensure minimum width to show all columns */
   border-collapse: collapse;
   background: white;
-  font-size: 0.75rem;
-  /* Slightly smaller font for better fit */
+  font-size: 0.7rem;
+  /* Smaller font for better fit */
   table-layout: fixed;
   /* Fixed table layout for consistent column widths */
+  max-width: 100%;
+  /* Ensure table doesn't exceed container width */
 }
 
 .product-table th {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
   font-weight: 600;
-  padding: 0.6rem 0.4rem;
-  /* Reduced padding for better fit */
+  padding: 0.5rem 0.3rem;
+  /* Minimal padding for better fit */
   text-align: center;
   white-space: nowrap;
+  /* Prevent text wrapping in headers */
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 0.65rem;
+  /* Smaller font for headers */
 }
 
 .product-table th:last-child {
@@ -1388,16 +1721,21 @@ onMounted(async () => {
 }
 
 .product-table td {
-  padding: 0.6rem 0.4rem;
-  /* Reduced padding for better fit */
+  padding: 0.5rem 0.3rem;
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
-  border-right: 1px solid #f1f5f9;
+  border-bottom: 2px solid #e2e8f0;
+  border-right: 2px solid #e2e8f0;
   background: white;
   white-space: nowrap;
+  /* Prevent text wrapping to save space */
   overflow: hidden;
+  /* Hide overflow to prevent layout issues */
   text-overflow: ellipsis;
+  /* Show ellipsis for long text */
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #374151;
 }
 
 .product-table td:last-child {
@@ -1405,7 +1743,15 @@ onMounted(async () => {
 }
 
 .product-table tbody tr:hover {
-  background-color: #f8fafc;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.product-table tbody tr:hover td {
+  border-color: #cbd5e1;
+  background: transparent;
 }
 
 .no-data {
@@ -1416,107 +1762,108 @@ onMounted(async () => {
   padding: 2rem;
 }
 
-/* Column Widths - Optimized for 100% screen */
+/* Column Widths - Optimized for 100% screen without horizontal scrollbar */
+/* Total width: 40+120+80+60+80+80+80+60+80+70+70+80+60+60+80+80+80 = 1200px */
 .stt-col {
-  width: 50px;
-  min-width: 50px;
-  max-width: 50px;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
 }
 
 .product-col {
-  width: 140px;
-  min-width: 140px;
-  max-width: 160px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 
 .color-col {
   width: 80px;
   min-width: 80px;
-  max-width: 90px;
+  max-width: 80px;
 }
 
 .size-col {
-  width: 60px;
+  width: 60px;  
   min-width: 60px;
-  max-width: 70px;
+  max-width: 60px;
 }
 
 .sole-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .material-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .insole-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .weight-col {
-  width: 75px;
-  min-width: 75px;
-  max-width: 85px;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 .sport-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .season-col {
-  width: 75px;
-  min-width: 75px;
-  max-width: 85px;
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
 }
 
 .durability-col {
-  width: 75px;
-  min-width: 75px;
-  max-width: 85px;
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
 }
 
 .waterproof-col {
-  width: 85px;
-  min-width: 85px;
-  max-width: 95px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .image-col {
-  width: 70px;
-  min-width: 70px;
-  max-width: 80px;
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
 }
 
 .quantity-col {
   width: 60px;
   min-width: 60px;
-  max-width: 70px;
+  max-width: 60px;
 }
 
 .price-col {
-  width: 90px;
-  min-width: 90px;
-  max-width: 100px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .status-col {
-  width: 90px;
-  min-width: 90px;
-  max-width: 100px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .action-col {
   width: 80px;
   min-width: 80px;
-  max-width: 90px;
+  max-width: 80px;
 }
 
 /* Product Info - Optimized text size */
@@ -1527,23 +1874,23 @@ onMounted(async () => {
 .product-info strong {
   display: block;
   margin-bottom: 0.25rem;
-  font-size: 0.8rem;
-  /* Slightly smaller for better fit */
+  font-size: 0.7rem;
+  /* Smaller font for better fit */
   color: #1e293b;
   line-height: 1.2;
 }
 
 /* Color Badge - Enhanced */
 .color-badge {
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
-  color: white;
+  color: black;
   font-weight: 500;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 0, 0, 0.1);
   display: inline-block;
-  min-width: 50px;
+  min-width: 40px;
   max-width: 100%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -1561,19 +1908,19 @@ onMounted(async () => {
 .size-badge {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   /* Smaller font */
   display: inline-block;
-  min-width: 35px;
+  min-width: 30px;
   max-width: 100%;
 }
 
 /* Attribute Text - Optimized for compact display */
 .attribute-text {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   /* Smaller font for better fit */
   color: #475569;
   font-weight: 500;
@@ -1588,13 +1935,13 @@ onMounted(async () => {
 .stock-badge {
   background: #10b981;
   color: white;
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   /* Smaller font */
   display: inline-block;
-  min-width: 35px;
+  min-width: 30px;
   max-width: 100%;
 }
 
@@ -1606,20 +1953,20 @@ onMounted(async () => {
 .price-text {
   font-weight: 600;
   color: #059669;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   /* Smaller font */
   white-space: nowrap;
 }
 
 /* Status Badge - Optimized size */
 .status-badge {
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.3rem;
   border-radius: 4px;
   font-weight: 500;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   /* Smaller font */
   display: inline-block;
-  min-width: 70px;
+  min-width: 60px;
   max-width: 100%;
 }
 
@@ -1644,30 +1991,30 @@ onMounted(async () => {
 }
 
 .product-image {
-  width: 30px;
+  width: 25px;
   /* Smaller image */
-  height: 30px;
+  height: 25px;
   object-fit: cover;
   border-radius: 4px;
-  border: 2px solid #e2e8f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .image-count {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -4px;
+  right: -4px;
   background: #3b82f6;
   color: white;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 600;
-  border: 2px solid white;
+  border: 1px solid white;
 }
 
 .no-image {
@@ -1679,7 +2026,7 @@ onMounted(async () => {
 /* Action Buttons - Optimized size */
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
   justify-content: center;
 }
 
@@ -1687,14 +2034,14 @@ onMounted(async () => {
 .btn-delete {
   border: none;
   border-radius: 4px;
-  padding: 0.4rem;
+  padding: 0.3rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 28px;
+  min-width: 24px;
+  height: 24px;
 }
 
 .btn-edit {
@@ -1717,29 +2064,85 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
+
+
 .btn-icon {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
-/* Pagination */
+/* Pagination enhancements */
 .pagination-wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  gap: 20px;
+}
+
+.pagination-info {
+  display: none;
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 20px;
 }
 
 .page-info {
   font-weight: 600;
-  color: var(--secondary-color);
+  color: #495057;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-outline {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.btn-outline:focus {
+  outline: none;
+  border: 1px solid #dee2e6;
+  box-shadow: none;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #9ca3af;
+  color: #9ca3af;
 }
 
 /* Modal Styles */
@@ -1749,22 +2152,36 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-content.large {
@@ -1775,50 +2192,102 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 2rem 2rem 1.5rem 2rem;
+  border-bottom: 2px solid #f3f4f6;
+  background: #22c55e;
+  border-radius: 16px 16px 0 0;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--secondary-color);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
 }
 
 .modal-close {
-  background: none;
+  background: rgba(239, 68, 68, 0.1);
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
+  color: #ef4444;
 }
 
 .modal-close:hover {
-  background-color: var(--light-gray);
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
+  background: white;
 }
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 2rem 2rem 2rem;
+  border-top: 2px solid #f3f4f6;
+  background: #f8fafc;
+  border-radius: 0 0 16px 16px;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+.btn-save:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-save .btn-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-save:hover .btn-icon {
+  transform: scale(1.1);
 }
 
 /* Form styles */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 1rem 0;
 }
 
 .form-grid .form-group:nth-child(13),
@@ -1829,6 +2298,7 @@ onMounted(async () => {
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .form-group.span-2 {
@@ -1836,22 +2306,30 @@ onMounted(async () => {
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
   color: #374151;
   font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.label-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
 }
 
 .form-control {
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.875rem;
   background: white;
   transition: all 0.2s ease;
   font-weight: 500;
   color: #374151;
+  min-height: 48px;
 }
 
 .form-control:focus {
@@ -1869,6 +2347,22 @@ onMounted(async () => {
 .form-control::placeholder {
   color: #9ca3af;
   font-weight: 400;
+}
+
+/* Enhanced form controls */
+.form-control select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.form-control textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
 }
 
 /* Responsive Design - Optimized for 100% screen */
@@ -2438,11 +2932,382 @@ onMounted(async () => {
     height: 24px;
   }
 
-  /* Ensure horizontal scrollbar is visible on very small screens */
-  .table-container {
-    -webkit-overflow-scrolling: touch;
-    overflow-x: auto;
-    overflow-y: hidden;
+     /* Ensure horizontal scrollbar is visible on very small screens */
+   .table-container {
+     -webkit-overflow-scrolling: touch;
+     overflow-x: auto;
+     overflow-y: hidden;
+   }
+ }
+
+/* Image Upload Styles */
+.image-upload-section {
+  margin-top: 0.5rem;
+}
+
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.remove-image-btn:hover {
+  background: #ef4444;
+  transform: scale(1.1);
+}
+
+.image-upload-btn {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f9fafb;
+}
+
+.image-upload-btn:hover {
+  border-color: #4ade80;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  color: #6b7280;
+}
+
+.upload-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.image-help-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+  text-align: center;
+}
+
+/* Image Selector Modal */
+.modal-content.image-selector {
+  max-width: 800px;
+  max-height: 80vh;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.image-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-item:hover {
+  border-color: #4ade80;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-item.selected {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.3);
+}
+
+.grid-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-item.selected .image-overlay {
+  opacity: 1;
+}
+
+.check-icon {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.image-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.image-type {
+  font-weight: 500;
+}
+
+/* Responsive Design for Table */
+@media (max-width: 1400px) {
+  .product-table {
+    font-size: 0.65rem;
+  }
+  
+  .product-table th,
+  .product-table td {
+    padding: 0.4rem 0.25rem;
+  }
+  
+  .stt-col {
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
+  }
+  
+  .product-col {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+  }
+  
+  .color-col,
+  .sole-col,
+  .material-col,
+  .insole-col,
+  .sport-col,
+  .waterproof-col,
+  .price-col,
+  .status-col,
+  .action-col {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+  
+  .size-col,
+  .weight-col,
+  .season-col,
+  .durability-col,
+  .image-col,
+  .quantity-col {
+    width: 55px;
+    min-width: 55px;
+    max-width: 55px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .product-table {
+    font-size: 0.6rem;
+  }
+  
+  .product-table th,
+  .product-table td {
+    padding: 0.3rem 0.2rem;
+  }
+  
+  .stt-col {
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
+  }
+  
+  .product-col {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+  }
+  
+  .color-col,
+  .sole-col,
+  .material-col,
+  .insole-col,
+  .sport-col,
+  .waterproof-col,
+  .price-col,
+  .status-col,
+  .action-col {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+  }
+  
+  .size-col,
+  .weight-col,
+  .season-col,
+  .durability-col,
+  .image-col,
+  .quantity-col {
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+  }
+}
+
+/* Popup thông báo thành công */
+.success-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.success-popup {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #10b981;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.success-title {
+  color: #10b981;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.success-message {
+  color: #374151;
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.success-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.success-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
   }
 }
 </style>

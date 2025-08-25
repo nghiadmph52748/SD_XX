@@ -4,27 +4,23 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý sản phẩm</h1>
+          <h1 class="page-title">Quản Lý Sản Phẩm</h1>
           <p class="page-subtitle">Quản lý thông tin và trạng thái sản phẩm</p>
         </div>
-        <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
-          <button class="btn-export" @click="exportData">
-            <span class="btn-icon">📊</span>
-            Xuất báo cáo
-          </button>
-          <button class="btn-export" @click="exportProductsToExcel">
-            <span class="btn-icon">📗</span>
-            Xuất Excel
-          </button>
-          <button class="btn-export" @click="showAddModal = true">
-            <span class="btn-icon">➕</span>
-            Thêm sản phẩm
-          </button>
-        </div>
+                 <div class="header-actions">
+           <button class="btn-export" @click="exportData">
+             <span class="btn-icon">📊</span>
+             Xuất báo cáo
+           </button>
+           <button class="btn-export" @click="exportProductsToExcel">
+             <span class="btn-icon">📗</span>
+             Xuất Excel
+           </button>
+           <button class="btn-export" @click="showAddModal = true">
+             <span class="btn-icon">➕</span>
+             Thêm sản phẩm
+           </button>
+         </div>
       </div>
     </div>
 
@@ -42,76 +38,29 @@
         </div>
 
         <div class="filter-content">
-          <div class="search-section">
-            <div class="input-group">
-              <span class="input-icon">🔍</span>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Tìm kiếm tên sản phẩm, mã sản phẩm, mô tả..."
-                class="form-control search-input"
-              />
-              <button
-                v-if="searchQuery"
-                @click="searchQuery = ''"
-                class="clear-btn"
-              >
-                <span>✕</span>
-              </button>
-            </div>
-          </div>
+                     <div class="search-section">
+             <div class="input-group">
+               <span class="input-icon">🔍</span>
+               <input
+                 v-model="searchQuery"
+                 type="text"
+                 placeholder="Tìm kiếm theo mã SP, tên SP, nhà sản xuất, xuất xứ..."
+                 class="form-control search-input"
+               />
+               <button
+                 v-if="searchQuery"
+                 @click="searchQuery = ''"
+                 class="clear-btn"
+               >
+                 <span>✕</span>
+               </button>
+             </div>
+           </div>
 
-          <div class="filters-grid">
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">📦</span>
-                Danh mục
-              </label>
-              <select v-model="selectedCategory" class="form-select">
-                <option value="">Tất cả danh mục</option>
-                <option value="giay-the-thao">⚽ Giày thể thao</option>
-                <option value="giay-luoi">👞 Giày lười</option>
-                <option value="giay-cao-co">🥾 Giày cao cổ</option>
-              </select>
-            </div>
+                       
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">🏷️</span>
-                Thương hiệu
-              </label>
-              <select v-model="selectedBrand" class="form-select">
-                <option value="">Tất cả thương hiệu</option>
-                <option value="balenciaga">👑 Balenciaga</option>
-                <option value="converse">⭐ Converse</option>
-                <option value="nike">✓ Nike</option>
-                <option value="adidas">🔥 Adidas</option>
-              </select>
-            </div>
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">⚡</span>
-                Trạng thái
-              </label>
-              <select v-model="selectedStatus" class="form-select">
-                <option value="">Tất cả trạng thái</option>
-                <option value="active">✅ Hoạt động</option>
-                <option value="inactive">❌ Ngừng hoạt động</option>
-              </select>
-            </div>
-
-            <div class="filter-actions">
-              <button @click="clearFilters" class="btn btn-outline">
-                <span class="btn-icon">🔄</span>
-                Đặt lại
-              </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">🔍</span>
-                Áp dụng
-              </button>
-            </div>
-          </div>
+             </div>
         </div>
       </div>
     </div>
@@ -120,17 +69,32 @@
     <div class="card">
       <div class="card-body">
         <table class="table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Mã sản phẩm</th>
-              <th>Tên sản phẩm</th>
-              <th>Nhà sản xuất</th>
-              <th>Xuất xứ</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
+                     <thead>
+             <tr>
+               <th>STT</th>
+               <th>Mã sản phẩm</th>
+               <th>Tên sản phẩm</th>
+               <th class="sortable" @click="handleSort('NhaSanXuat')">
+                 Nhà sản xuất
+                 <span v-if="sortBy === 'NhaSanXuat'" class="sort-icon">
+                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                 </span>
+               </th>
+               <th class="sortable" @click="handleSort('XuatXu')">
+                 Xuất xứ
+                 <span v-if="sortBy === 'XuatXu'" class="sort-icon">
+                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                 </span>
+               </th>
+               <th class="sortable" @click="handleSort('TrangThai')">
+                 Trạng thái
+                 <span v-if="sortBy === 'TrangThai'" class="sort-icon">
+                   {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                 </span>
+               </th>
+               <th>Thao tác</th>
+             </tr>
+           </thead>
           <tbody>
             <tr v-for="(product, i) in filteredProducts" :key="i">
               <td>{{ startIndex + i + 1 }}</td>
@@ -323,24 +287,43 @@
             </div>
           </div>
         </div>
-        <!-- Modal Footer -->
-        <div class="modern-modal-footer">
-          <button type="button" class="btn-secondary" @click="closeModals">
-            Hủy bỏ
-          </button>
-          <button type="button" class="btn-primary" @click="saveProduct">
-            {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
-          </button>
-        </div>
+                 <!-- Modal Footer -->
+         <div class="modern-modal-footer">
+           <button type="button" class="btn-primary" @click="saveProduct">
+             {{ showAddModal ? "Tạo sản phẩm" : "Cập nhật" }}
+           </button>
+         </div>
       </div>
     </div>
 
-    <!-- Product Detail Modal -->
-    <div
-      v-if="showDetailModal"
-      class="modal-overlay"
-      @click="showDetailModal = false"
-    >
+         <!-- Success Notification Modal -->
+     <div
+       v-if="showSuccessModal"
+       class="success-modal-overlay"
+       @click="closeSuccessModal"
+     >
+       <div class="success-modal-content" @click.stop>
+         <div class="success-icon">
+           <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+           </svg>
+         </div>
+         <div class="success-content">
+           <h2 class="success-title">Thành công!</h2>
+           <p class="success-message">{{ successMessage }}</p>
+         </div>
+         <button class="success-close-btn" @click="closeSuccessModal">
+           Đóng
+         </button>
+       </div>
+     </div>
+
+     <!-- Product Detail Modal -->
+     <div
+       v-if="showDetailModal"
+       class="modal-overlay"
+       @click="showDetailModal = false"
+     >
       <div class="modal-content large" @click.stop>
         <div class="modal-header">
           <h3>Chi tiết sản phẩm</h3>
@@ -383,7 +366,7 @@
         </div>
       </div>
     </div>
-  </div>
+
 </template>
 
 <script setup>
@@ -405,9 +388,14 @@ const selectedBrand = ref("");
 const selectedStatus = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const sortBy = ref(""); // NhaSanXuat, XuatXu, TrangThai
+const sortOrder = ref("asc"); // asc, desc
+const activeSortDropdown = ref(""); // Để kiểm soát dropdown nào đang mở
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const showDetailModal = ref(false);
+const showSuccessModal = ref(false);
+const successMessage = ref("");
 const selectedProduct = ref(null);
 const activeVariantTab = ref("auto");
 const productForm = ref({});
@@ -482,14 +470,13 @@ const filteredProducts = computed(() => {
   let filtered = products.value;
 
   if (searchQuery.value) {
+    const searchTerm = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (product) =>
-        product.maSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase()) ||
-        product.tenSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase())
+        product.maSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenNhaSanXuat?.toLowerCase().includes(searchTerm) ||
+        product.tenXuatXu?.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -511,6 +498,33 @@ const filteredProducts = computed(() => {
     filtered = filtered.filter((product) => product.deleted === statusValue);
   }
 
+  // Sắp xếp dữ liệu
+  if (sortBy.value) {
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy.value) {
+        case "NhaSanXuat":
+          aValue = a.tenNhaSanXuat?.toLowerCase() || "";
+          bValue = b.tenNhaSanXuat?.toLowerCase() || "";
+          break;
+        case "XuatXu":
+          aValue = a.tenXuatXu?.toLowerCase() || "";
+          bValue = b.tenXuatXu?.toLowerCase() || "";
+          break;
+        
+        default:
+          return 0;
+      }
+      
+      if (sortOrder.value === "asc") {
+        return aValue.localeCompare(bValue, 'vi');
+      } else {
+        return bValue.localeCompare(aValue, 'vi');
+      }
+    });
+  }
+
   return filtered.slice(startIndex.value, endIndex.value);
 });
 
@@ -518,14 +532,13 @@ const totalProducts = computed(() => {
   let filtered = products.value;
 
   if (searchQuery.value) {
+    const searchTerm = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (product) =>
-        product.maSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase()) ||
-        product.tenSanPham
-          .toLowerCase()
-          .includes(searchQuery.value.toLowerCase())
+        product.maSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenSanPham?.toLowerCase().includes(searchTerm) ||
+        product.tenNhaSanXuat?.toLowerCase().includes(searchTerm) ||
+        product.tenXuatXu?.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -559,6 +572,8 @@ const endIndex = computed(() =>
   Math.min(startIndex.value + itemsPerPage.value, totalProducts.value)
 );
 
+
+
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -569,6 +584,54 @@ const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
   }
+};
+
+const handleSort = (field, order = null) => {
+  if (order) {
+    sortBy.value = field;
+    sortOrder.value = order;
+  } else {
+    if (sortBy.value === field) {
+      sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+    } else {
+      sortBy.value = field;
+      sortOrder.value = "asc";
+    }
+  }
+  currentPage.value = 1; // Reset về trang đầu khi sắp xếp
+  activeSortDropdown.value = ""; // Đóng dropdown sau khi chọn
+};
+
+const toggleSortDropdown = (field) => {
+  if (activeSortDropdown.value === field) {
+    activeSortDropdown.value = "";
+  } else {
+    activeSortDropdown.value = field;
+  }
+};
+
+const filterByNhaSanXuat = (nsx) => {
+  selectedCategory.value = nsx;
+  currentPage.value = 1;
+  activeSortDropdown.value = "";
+};
+
+const filterByXuatXu = (xx) => {
+  selectedBrand.value = xx;
+  currentPage.value = 1;
+  activeSortDropdown.value = "";
+};
+
+const filterByTrangThai = (status) => {
+  selectedStatus.value = status ? "inactive" : "active";
+  currentPage.value = 1;
+  activeSortDropdown.value = "";
+};
+
+const clearSort = () => {
+  sortBy.value = "";
+  sortOrder.value = "asc";
+  currentPage.value = 1;
 };
 
 const viewProduct = (product) => {
@@ -599,6 +662,11 @@ const closeModals = () => {
   showEditModal.value = false;
   resetForm();
 };
+
+const closeSuccessModal = () => {
+  showSuccessModal.value = false;
+  successMessage.value = "";
+};
 const resetForm = () => {
   productForm.value = {
     tenSanPham: "",
@@ -609,26 +677,35 @@ const resetForm = () => {
   activeVariantTab.value = "auto";
 };
 const saveProduct = async () => {
-  if (showAddModal.value) {
-    const newProduct = {
-      tenSanPham: productForm.value.tenSanPham,
-      idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
-      idXuatXu: getOneXX(productForm.value.maXuatXu),
-      deleted: productForm.value.deleted,
-    };
-    await fetchCreate(newProduct);
-  } else if (showEditModal.value) {
-    const newProduct = {
-      tenSanPham: productForm.value.tenSanPham,
-      idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
-      idXuatXu: getOneXX(productForm.value.maXuatXu),
-      deleted: productForm.value.deleted,
-    };
-    console.log("Updating product:", newProduct);
-    await fetchUpdate(productForm.value.id, newProduct);
+  try {
+    if (showAddModal.value) {
+      const newProduct = {
+        tenSanPham: productForm.value.tenSanPham,
+        idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
+        idXuatXu: getOneXX(productForm.value.maXuatXu),
+        deleted: productForm.value.deleted,
+      };
+      await fetchCreate(newProduct);
+      successMessage.value = `Sản phẩm "${productForm.value.tenSanPham}" đã được tạo thành công!`;
+      showSuccessModal.value = true;
+    } else if (showEditModal.value) {
+      const newProduct = {
+        tenSanPham: productForm.value.tenSanPham,
+        idNhaSanXuat: getOneNSX(productForm.value.maNhaSanXuat),
+        idXuatXu: getOneXX(productForm.value.maXuatXu),
+        deleted: productForm.value.deleted,
+      };
+      console.log("Updating product:", newProduct);
+      await fetchUpdate(productForm.value.id, newProduct);
+      successMessage.value = `Sản phẩm "${productForm.value.tenSanPham}" đã được cập nhật thành công!`;
+      showSuccessModal.value = true;
+    }
+    closeModals();
+    await fetch();
+  } catch (error) {
+    console.error("Error saving product:", error);
+    alert("Có lỗi xảy ra khi lưu sản phẩm!");
   }
-  closeModals();
-  await fetch();
 };
 const exportData = () => {
   alert("Xuất báo cáo sản phẩm");
@@ -745,18 +822,34 @@ onMounted(fetch);
   background-color: white;
 }
 
-.table th {
-  background-color: #4ade80;
-  color: white;
-  font-weight: 600;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
+ .table th {
+   background-color: #4ade80;
+   color: white;
+   font-weight: 600;
+   padding: 1rem;
+   text-align: center;
+   font-size: 0.875rem;
+   white-space: nowrap;
+   position: sticky;
+   top: 0;
+   z-index: 10;
+ }
+
+ .table th.sortable {
+   cursor: pointer;
+   user-select: none;
+   transition: background-color 0.2s ease;
+ }
+
+ .table th.sortable:hover {
+   background-color: #22c55e;
+ }
+
+ .sort-icon {
+   margin-left: 0.5rem;
+   font-weight: bold;
+   font-size: 1rem;
+ }
 
 .table td {
   padding: 1rem;
@@ -1103,18 +1196,30 @@ onMounted(fetch);
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modern-modal-content {
-  background: #ffffff;
+  background: white;
   border-radius: 16px;
   width: 100%;
   max-width: 900px;
   max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modern-modal-header {
@@ -1122,8 +1227,9 @@ onMounted(fetch);
   align-items: center;
   justify-content: space-between;
   padding: 2rem 2rem 1.5rem 2rem;
-  border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 2px solid #f3f4f6;
+  background: #22c55e;
+  border-radius: 16px 16px 0 0;
 }
 
 .header-content {
@@ -1136,62 +1242,82 @@ onMounted(fetch);
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .header-text h2 {
   margin: 0;
+  color: white;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  font-family: 'Inter', sans-serif;
   line-height: 1.2;
 }
 
 .header-text p:not(.page-subtitle) {
   margin: 0.25rem 0 0 0;
   font-size: 0.875rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.4;
 }
 
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #e5e7eb;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .modern-close-btn {
-  width: 40px;
-  height: 40px;
+  background: rgba(239, 68, 68, 0.1);
   border: none;
-  background: #f1f5f9;
-  border-radius: 10px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  border-radius: 50%;
   transition: all 0.2s ease;
-  color: #64748b;
+  color: #ef4444;
 }
 
 .modern-close-btn:hover {
-  background: #e2e8f0;
-  color: #334155;
-  transform: scale(1.05);
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modern-modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 0 2rem 2rem 2rem;
+  padding: 2rem;
+  background: white;
 }
 
 .modern-modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   padding: 1.5rem 2rem 2rem 2rem;
-  border-top: 1px solid #f1f5f9;
-  background: #fafbfc;
+  border-top: 2px solid #f3f4f6;
+  background: #f9fafb;
 }
 
 /* Form Section Styles */
@@ -1582,13 +1708,51 @@ onMounted(fetch);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: #22c55e;
   color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  background: #059669;
+}
+
+.btn-primary:active {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 /* Responsive Design for Modern Modal */
@@ -1653,6 +1817,398 @@ onMounted(fetch);
   .btn-primary {
     width: 100%;
     justify-content: center;
+     }
+ }
+
+ /* Success Modal Styles */
+ .success-modal-overlay {
+   position: fixed;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: rgba(0, 0, 0, 0.6);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   z-index: 2000;
+   padding: 2rem;
+   backdrop-filter: blur(4px);
+ }
+
+ .success-modal-content {
+   background: white;
+   border-radius: 20px;
+   width: 100%;
+   max-width: 500px;
+   padding: 3rem 2rem 2rem 2rem;
+   text-align: center;
+   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   animation: successSlideIn 0.4s ease-out;
+   position: relative;
+   overflow: hidden;
+ }
+
+ @keyframes successSlideIn {
+   from {
+     opacity: 0;
+     transform: translateY(-30px) scale(0.9);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0) scale(1);
+   }
+ }
+
+ .success-icon {
+   width: 80px;
+   height: 80px;
+   margin: 0 auto 1.5rem auto;
+   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: white;
+   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+   animation: iconBounce 0.6s ease-out 0.2s both;
+ }
+
+ @keyframes iconBounce {
+   0%, 20%, 50%, 80%, 100% {
+     transform: translateY(0);
+   }
+   40% {
+     transform: translateY(-10px);
+   }
+   60% {
+     transform: translateY(-5px);
+   }
+ }
+
+ .success-content {
+   margin-bottom: 2rem;
+ }
+
+ .success-title {
+   font-size: 2rem;
+   font-weight: 700;
+   color: #10b981;
+   margin: 0 0 1rem 0;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+
+ .success-message {
+   font-size: 1.1rem;
+   color: #6b7280;
+   margin: 0;
+   line-height: 1.6;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+
+ .success-close-btn {
+   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+   color: white;
+   border: none;
+   padding: 1rem 2.5rem;
+   border-radius: 12px;
+   font-size: 1rem;
+   font-weight: 600;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+ }
+
+ .success-close-btn:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+   background: linear-gradient(135deg, #059669 0%, #047857 100%);
+ }
+
+ .success-close-btn:active {
+   transform: translateY(0);
+ }
+
+ /* Responsive Design for Success Modal */
+ @media (max-width: 768px) {
+   .success-modal-overlay {
+     padding: 1rem;
+   }
+
+   .success-modal-content {
+     max-width: 100%;
+     padding: 2rem 1.5rem 1.5rem 1.5rem;
+   }
+
+   .success-title {
+     font-size: 1.75rem;
+   }
+
+   .success-message {
+     font-size: 1rem;
+   }
+
+   .success-close-btn {
+     width: 100%;
+     padding: 1rem;
+   }
+ }
+
+   @media (max-width: 480px) {
+    .success-icon {
+      width: 60px;
+      height: 60px;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+    }
+
+    .success-message {
+      font-size: 0.95rem;
+    }
   }
-}
-</style>
+
+     /* Search and Sort Section Styles */
+   .search-section {
+     margin-bottom: 1.5rem;
+   }
+
+   .sort-section {
+     display: flex;
+     gap: 1rem;
+     margin-bottom: 1.5rem;
+   }
+
+   .sort-item {
+     flex: 1;
+     position: relative;
+     background: white;
+     border: 2px solid #d4edda;
+     border-radius: 12px;
+     transition: all 0.3s ease;
+     min-height: 48px;
+     box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1);
+   }
+
+   .sort-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 0.75rem 1rem;
+     cursor: pointer;
+     min-height: 48px;
+     background: linear-gradient(135deg, #f8fff9 0%, #d4edda 100%);
+     border-radius: 12px;
+   }
+
+   .sort-dropdown {
+     position: absolute;
+     top: 100%;
+     left: 0;
+     right: 0;
+     background: white;
+     border: 2px solid #d4edda;
+     border-top: none;
+     border-radius: 0 0 12px 12px;
+     box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+     z-index: 100;
+     max-height: 400px;
+     overflow-y: auto;
+     animation: slideIn 0.3s ease-out;
+   }
+
+   .sort-options {
+     padding: 1rem;
+     border-bottom: 1px solid #d4edda;
+     background: #f8fff9;
+   }
+
+   .sort-option {
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     padding: 0.75rem 1rem;
+     cursor: pointer;
+     border-radius: 8px;
+     transition: all 0.3s ease;
+     font-size: 0.875rem;
+     color: #333;
+     margin-bottom: 0.5rem;
+   }
+
+   .sort-option:hover {
+     background: #4ade80;
+     color: white;
+     transform: translateX(5px);
+     box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+   }
+
+   .sort-arrow {
+     font-weight: bold;
+     color: #4ade80;
+     font-size: 1rem;
+     transition: all 0.3s ease;
+   }
+
+   .sort-option:hover .sort-arrow {
+     color: white;
+   }
+
+   .sort-values {
+     padding: 1rem;
+     background: white;
+   }
+
+   .sort-values-title {
+     font-size: 0.75rem;
+     font-weight: 600;
+     color: #4ade80;
+     margin-bottom: 0.75rem;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     text-align: center;
+   }
+
+   .sort-values-list {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 0.5rem;
+     justify-content: center;
+   }
+
+   .sort-value-item {
+     padding: 0.5rem 1rem;
+     background: #f8fff9;
+     border: 2px solid #d4edda;
+     border-radius: 25px;
+     font-size: 0.875rem;
+     color: #4ade80;
+     cursor: pointer;
+     transition: all 0.3s ease;
+     white-space: nowrap;
+     font-weight: 500;
+   }
+
+   .sort-value-item:hover {
+     background: #4ade80;
+     color: white;
+     border-color: #4ade80;
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+   }
+
+   .sort-item:hover {
+     border-color: #4ade80;
+     background: #f8fff9;
+     transform: translateY(-2px);
+     box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+   }
+
+   .sort-item:active {
+     transform: translateY(0);
+   }
+
+   .sort-label {
+     font-weight: 600;
+     color: #4ade80;
+     font-size: 0.875rem;
+     font-family: 'Inter', sans-serif;
+   }
+
+   .sort-indicator {
+     font-weight: bold;
+     font-size: 1.25rem;
+     color: #4ade80;
+     animation: sortPulse 0.3s ease-out;
+   }
+
+   .sort-placeholder {
+     font-size: 1.25rem;
+     color: #9ca3af;
+     opacity: 0.7;
+   }
+
+   @keyframes sortPulse {
+     0% { transform: scale(1); }
+     50% { transform: scale(1.2); }
+     100% { transform: scale(1); }
+   }
+
+   @keyframes slideIn {
+     from {
+       opacity: 0;
+       transform: translateY(-10px);
+     }
+     to {
+       opacity: 1;
+       transform: translateY(0);
+     }
+   }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .input-group:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.875rem;
+    background: transparent;
+  }
+
+  .clear-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    color: #6b7280;
+    transition: all 0.2s ease;
+  }
+
+  .clear-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  /* Responsive for sort section */
+  @media (max-width: 768px) {
+    .sort-section {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .sort-item {
+      min-height: 44px;
+    }
+
+    .sort-dropdown {
+      position: fixed;
+      top: auto;
+      left: 1rem;
+      right: 1rem;
+      max-height: 60vh;
+    }
+  }
+
+  /* Click outside to close dropdown */
+  .sort-item:focus-within .sort-dropdown {
+    display: block;
+  }
+  </style>

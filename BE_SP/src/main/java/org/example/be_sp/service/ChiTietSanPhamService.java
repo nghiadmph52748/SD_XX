@@ -24,6 +24,7 @@ import org.example.be_sp.util.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChiTietSanPhamService {
@@ -64,7 +65,7 @@ public class ChiTietSanPhamService {
         return new PagingResponse<>(repository.findAll(PageRequest.of(page, size)).map(ChiTietSanPhamResponse::new), page);
     }
 
-    public void add(ChiTietSanPhamRequest request) {
+    public Integer add(ChiTietSanPhamRequest request) {
         ChiTietSanPham c = MapperUtils.map(request, ChiTietSanPham.class);
         c.setIdSanPham(sanPham.findSanPhamById(request.getIdSanPham()));
         c.setIdMauSac(mauSac.findMauSacById(request.getIdMauSac()));
@@ -77,7 +78,8 @@ public class ChiTietSanPhamService {
         c.setIdLoaiMua(loaiMua.findLoaiMuaById(request.getIdLoaiMua()));
         c.setIdDoBen(doBen.findDoBenById(request.getIdDoBen()));
         c.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
-        repository.save(c);
+        ChiTietSanPham saved = repository.save(c);
+        return saved.getId();
     }
 
     public void update(ChiTietSanPhamRequest request, Integer id) {
@@ -101,6 +103,14 @@ public class ChiTietSanPhamService {
         ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
         chiTietSanPham.setDeleted(true);
         repository.save(chiTietSanPham);
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+        
+        // Xóa chi tiết sản phẩm (các bản ghi liên quan sẽ được xử lý bởi cascade hoặc database constraints)
+        repository.delete(chiTietSanPham);
     }
 
     public List<ChiTietSanPhamFullResponse> getAllWithFullInfo() {
