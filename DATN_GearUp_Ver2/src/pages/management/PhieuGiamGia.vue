@@ -8,10 +8,7 @@
           <p class="page-subtitle">Tạo và quản lý các phiếu giảm giá</p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
+
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
@@ -34,7 +31,7 @@
         <div class="filter-header">
           <div class="filter-title">
             <span class="filter-icon">🎫</span>
-            <h3>Tìm kiếm phiếu giảm giá</h3>
+                         <h3 style="font-family: 'Arial', 'Helvetica', sans-serif; font-weight: 700; letter-spacing: 0.5px; color: #4ade80;">Tìm kiếm phiếu giảm giá</h3>
           </div>
           <div class="filter-stats">
             {{ filteredCoupons.length }} / {{ coupons.length }} phiếu
@@ -123,14 +120,14 @@
               />
             </div>
 
-            <div class="filter-actions">
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🔄</span>
+                Làm mới
+              </label>
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
-                Đặt lại
-              </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">🔍</span>
-                Áp dụng
+                Làm mới
               </button>
             </div>
           </div>
@@ -188,8 +185,12 @@
               </td>
               <td>{{ coupon.soLuongDung }}</td>
               <td>{{ coupon.moTa }}</td>
-              <td>{{ coupon.trangThai ? "Đang hoạt động" : "Đã kết thúc" }}</td>
-              <td>{{ !coupon.deleted ? "Hoạt động" : "Không hoạt động" }}</td>
+                             <td :class="['status-text', coupon.trangThai ? 'text-green' : 'text-red']">
+                 {{ coupon.trangThai ? "Đang hoạt động" : "Đã kết thúc" }}
+               </td>
+               <td :class="['status-text', !coupon.deleted ? 'text-green' : 'text-red']">
+                 {{ !coupon.deleted ? "Hoạt động" : "Không hoạt động" }}
+               </td>
               <td>
                 <div class="action-buttons">
                   <button
@@ -551,6 +552,7 @@
         </div>
       </div>
     </div>
+    -->
 
     <!-- Coupon Detail Modal -->
     <div
@@ -558,64 +560,40 @@
       class="modal-overlay"
       @click="showDetailModal = false"
     >
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h3>Chi tiết phiếu giảm giá</h3>
+      <div class="modal-content detail-modal" @click.stop>
+        <div class="modal-header detail-header">
+          <div class="header-content">
+            <div class="coupon-title">
+              <span class="coupon-icon">🎫</span>
+              <h3>{{ selectedCoupon?.tenPhieuGiamGia }}</h3>
+            </div>
+            <div class="coupon-status">
+              <span :class="['status-badge', getStatusClass(selectedCoupon)]">
+                {{ getStatusText(selectedCoupon) }}
+              </span>
+            </div>
+          </div>
           <button class="modal-close" @click="showDetailModal = false">
             ✕
           </button>
         </div>
 
-        <div class="modal-body" v-if="selectedCoupon">
+        <div class="modal-body detail-body" v-if="selectedCoupon">
           <div class="coupon-detail">
-            <div class="coupon-info">
-              <h4>{{ selectedCoupon.tenPhieuGiamGia }}</h4>
+            <!-- Basic Information Section -->
+            <div class="detail-section">
+              <div class="section-header">
+                <span class="section-icon">📋</span>
+                <h4>Thông tin cơ bản</h4>
+              </div>
               <div class="info-grid">
                 <div class="info-item" v-if="selectedCoupon.maPhieuGiamGia">
-                  <label>Mã phiếu giảm giá:</label>
-                  <span class="coupon-code">{{
-                    selectedCoupon.maPhieuGiamGia
-                  }}</span>
+                  <label>Mã phiếu:</label>
+                  <span class="coupon-code">{{ selectedCoupon.maPhieuGiamGia }}</span>
                 </div>
                 <div class="info-item">
                   <label>Mô tả:</label>
-                  <span>{{ selectedCoupon.moTa || "Không có mô tả" }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Kiểu giảm giá:</label>
-                  <span>{{
-                    !selectedCoupon.loaiPhieuGiamGia
-                      ? "Phần trăm (%)"
-                      : "Số tiền cố định (VND)"
-                  }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Giá trị giảm:</label>
-                  <span class="discount-value">
-                    {{
-                      !selectedCoupon.loaiPhieuGiamGia
-                        ? selectedCoupon.giaTriGiamGia + "%"
-                        : formatCurrency(selectedCoupon.giaTriGiamGia)
-                    }}
-                  </span>
-                </div>
-                <div class="info-item">
-                  <label>Hóa đơn tối thiểu:</label>
-                  <span>{{
-                    formatCurrency(selectedCoupon.hoaDonToiThieu || 0)
-                  }}</span>
-                </div>
-                <div class="info-item" v-if="selectedCoupon.soTienToiDa">
-                  <label>Giảm tối đa:</label>
-                  <span>{{ formatCurrency(selectedCoupon.soTienToiDa) }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Số lượng sử dụng:</label>
-                  <span>{{ selectedCoupon.soLuongDung }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Đã sử dụng:</label>
-                  <span>{{ selectedCoupon.soLuongDaDung || 0 }}</span>
+                  <span class="description">{{ selectedCoupon.moTa || "Không có mô tả" }}</span>
                 </div>
                 <div class="info-item">
                   <label>Loại phiếu:</label>
@@ -624,39 +602,164 @@
                   </span>
                 </div>
                 <div class="info-item">
-                  <label>Ngày bắt đầu:</label>
-                  <span>{{ formatDateTime(selectedCoupon.ngayBatDau) }}</span>
+                  <label>Ngày tạo:</label>
+                  <span>{{ formatDateTime(selectedCoupon.ngayTao || selectedCoupon.ngayBatDau) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Discount Information Section -->
+            <div class="detail-section">
+              <div class="section-header">
+                <span class="section-icon">💰</span>
+                <h4>Thông tin giảm giá</h4>
+              </div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>Kiểu giảm giá:</label>
+                  <span class="discount-type">
+                    {{ !selectedCoupon.loaiPhieuGiamGia ? "Phần trăm (%)" : "Số tiền cố định (VND)" }}
+                  </span>
                 </div>
                 <div class="info-item">
-                  <label>Ngày kết thúc:</label>
-                  <span>{{ formatDateTime(selectedCoupon.ngayKetThuc) }}</span>
+                  <label>Giá trị giảm:</label>
+                  <span class="discount-value">
+                    {{ !selectedCoupon.loaiPhieuGiamGia ? selectedCoupon.giaTriGiamGia + "%" : formatCurrency(selectedCoupon.giaTriGiamGia) }}
+                  </span>
                 </div>
                 <div class="info-item">
-                  <label>Trạng thái:</label>
-                  <span :class="['badge', getStatusClass(selectedCoupon)]">
-                    {{ getStatusText(selectedCoupon) }}
+                  <label>Hóa đơn tối thiểu:</label>
+                  <span class="min-amount">{{ formatCurrency(selectedCoupon.hoaDonToiThieu || 0) }}</span>
+                </div>
+                <div class="info-item" v-if="selectedCoupon.soTienToiDa">
+                  <label>Giảm tối đa:</label>
+                  <span class="max-discount">{{ formatCurrency(selectedCoupon.soTienToiDa) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Usage Information Section -->
+            <div class="detail-section">
+              <div class="section-header">
+                <span class="section-icon">📊</span>
+                <h4>Thông tin sử dụng</h4>
+              </div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>Số lượng sử dụng:</label>
+                  <span class="usage-count">{{ selectedCoupon.soLuongDung }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Đã sử dụng:</label>
+                  <span class="used-count">{{ selectedCoupon.soLuongDaDung || 0 }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Còn lại:</label>
+                  <span class="remaining-count">{{ (selectedCoupon.soLuongDung || 0) - (selectedCoupon.soLuongDaDung || 0) }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Tỷ lệ sử dụng:</label>
+                  <span class="usage-rate">
+                    {{ selectedCoupon.soLuongDung ? Math.round(((selectedCoupon.soLuongDaDung || 0) / selectedCoupon.soLuongDung) * 100) : 0 }}%
                   </span>
                 </div>
               </div>
+            </div>
 
-              <!-- Personal Customers List -->
-              <div
-                v-if="getAppliedCustomers(selectedCoupon.id).length > 0"
-                class="personal-customers-section"
-              >
-                <h5>Khách hàng được áp dụng:</h5>
+            <!-- Time Information Section -->
+            <div class="detail-section">
+              <div class="section-header">
+                <span class="section-icon">⏰</span>
+                <h4>Thông tin thời gian</h4>
+              </div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>Ngày bắt đầu:</label>
+                  <span class="start-date">{{ formatDateTime(selectedCoupon.ngayBatDau) }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Ngày kết thúc:</label>
+                  <span class="end-date">{{ formatDateTime(selectedCoupon.ngayKetThuc) }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Thời gian còn lại:</label>
+                  <span class="time-remaining">
+                    {{ getTimeRemaining(selectedCoupon.ngayKetThuc) }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <label>Trạng thái hoạt động:</label>
+                  <span :class="['badge', selectedCoupon.trangThai ? 'badge-success' : 'badge-danger']">
+                    {{ selectedCoupon.trangThai ? "Đang hoạt động" : "Tạm dừng" }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Personal Customers Section -->
+            <div
+              v-if="getAppliedCustomers(selectedCoupon.id).length > 0"
+              class="detail-section"
+            >
+              <div class="section-header">
+                <span class="section-icon">👥</span>
+                <h4>Khách hàng được áp dụng</h4>
+              </div>
+              <div class="customers-info">
+                <div class="customers-summary">
+                  <span class="customers-count">
+                    {{ getAppliedCustomers(selectedCoupon.id).length }} khách hàng
+                  </span>
+                </div>
                 <div class="customer-chips">
                   <span
                     v-for="customer in getAppliedCustomers(selectedCoupon.id)"
                     :key="customer.id"
                     class="customer-chip"
                   >
+                    <span class="customer-avatar">👤</span>
                     {{ customer.tenKhachHang }}
+                    <span class="customer-email" v-if="customer.email">({{ customer.email }})</span>
                   </span>
                 </div>
               </div>
             </div>
+
+            <!-- Statistics Section -->
+            <div class="detail-section">
+              <div class="section-header">
+                <span class="section-icon">📈</span>
+                <h4>Thống kê</h4>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-value">{{ selectedCoupon.soLuongDung || 0 }}</div>
+                  <div class="stat-label">Tổng số lượng</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">{{ selectedCoupon.soLuongDaDung || 0 }}</div>
+                  <div class="stat-label">Đã sử dụng</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">{{ (selectedCoupon.soLuongDung || 0) - (selectedCoupon.soLuongDaDung || 0) }}</div>
+                  <div class="stat-label">Còn lại</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">
+                    {{ selectedCoupon.soLuongDung ? Math.round(((selectedCoupon.soLuongDaDung || 0) / selectedCoupon.soLuongDung) * 100) : 0 }}%
+                  </div>
+                  <div class="stat-label">Tỷ lệ sử dụng</div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div class="modal-footer detail-footer">
+          <button class="btn btn-primary" @click="editFromDetail(selectedCoupon)">
+            <span class="btn-icon">✏️</span>
+            Chỉnh sửa
+          </button>
         </div>
       </div>
     </div>
@@ -853,6 +956,28 @@ const getStatusText = (coupon) => {
   return statusTexts[status] || "Không xác định";
 };
 
+const getTimeRemaining = (endDate) => {
+  if (!endDate) return "Không xác định";
+  
+  const now = new Date();
+  const end = new Date(endDate);
+  const diff = end - now;
+  
+  if (diff <= 0) return "Đã hết hạn";
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (days > 0) {
+    return `${days} ngày ${hours} giờ`;
+  } else if (hours > 0) {
+    return `${hours} giờ ${minutes} phút`;
+  } else {
+    return `${minutes} phút`;
+  }
+};
+
 const viewCoupon = (coupon) => {
   selectedCoupon.value = coupon;
   showDetailModal.value = true;
@@ -924,6 +1049,14 @@ const editCoupon = (coupon) => {
   });
 
   showEditModal.value = true;
+};
+
+const editFromDetail = (coupon) => {
+  // Đóng popup xem chi tiết
+  showDetailModal.value = false;
+  
+  // Gọi function editCoupon để mở popup chỉnh sửa
+  editCoupon(coupon);
 };
 
 const fetchUpdateStatusPGG = async (id) => {
@@ -1291,6 +1424,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Global font settings */
+* {
+  font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 .discount-coupons {
   max-width: 1400px;
   margin: 0 auto;
@@ -1313,17 +1454,22 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size:2rem;
+  font-weight: 700;
   margin: 0;
   color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .page-subtitle {
   font-size: 1.125rem;
   margin: 0.5rem 0 0 0;
   opacity: 0.9;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
 }
 
 /* Modern Filter Section */
@@ -1374,6 +1520,8 @@ onMounted(() => {
   color: #374151;
   font-size: 1.25rem;
   font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.3px;
 }
 
 .filter-stats {
@@ -1515,7 +1663,7 @@ onMounted(() => {
 }
 
 .filter-actions {
-  grid-column: span 2;
+  grid-column: 1 / -1;
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
@@ -1539,12 +1687,21 @@ onMounted(() => {
   background: white;
   border: 2px solid #e5e7eb;
   color: #6b7280;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-outline:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-color: #22c55e;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-outline:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
@@ -1560,34 +1717,164 @@ onMounted(() => {
 }
 
 /* Table Styles */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.1);
+}
+
 .table th {
   background-color: #4ade80;
   color: white;
-  font-weight: 600;
-  padding: 1rem;
+  font-weight: 700;
+  padding: 0.75rem 0.5rem;
   text-align: center;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  border-right: none;
+  border-left: none;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+.table th:first-child {
+  border-top-left-radius: 20px;
+}
+
+.table th:last-child {
+  border-top-right-radius: 20px;
+}
+
+
+
 .table td {
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   text-align: center;
   vertical-align: middle;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.1);
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.15);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .coupon-code {
-  font-weight: 600;
-  color: #4ade80;
+  font-weight: 700;
+  color: #000000;
+  font-size: 1rem;
+  text-shadow: none;
 }
 
 .coupon-name {
-  font-weight: 500;
+  font-weight: 600;
   text-align: left;
+  color: #374151;
 }
 
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   justify-content: center;
+  align-items: center;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.status-badge.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.inactive {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.status-badge.pending {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Table responsive */
+@media (max-width: 1024px) {
+  .table {
+    font-size: 0.8rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.card-body {
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.02) 0%, rgba(34, 197, 94, 0.02) 100%);
+}
+
+@media (max-width: 768px) {
+  .table {
+    border-radius: 12px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 /* Pagination */
@@ -1595,20 +1882,48 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid rgba(74, 222, 128, 0.2);
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  margin-left: -2rem;
+  margin-right: -2rem;
+  margin-bottom: -2rem;
+}
+
+.pagination-info {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  background: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(74, 222, 128, 0.1);
 }
 
 .pagination {
   display: flex;
   align-items: center;
   gap: 1rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(74, 222, 128, 0.1);
 }
 
 .page-info {
-  font-weight: 600;
-  color: var(--secondary-color);
+  font-weight: 700;
+  color: #4ade80;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  min-width: 80px;
+  text-align: center;
 }
 
 /* Modal Styles */
@@ -1988,6 +2303,411 @@ onMounted(() => {
 
   .detail-label {
     min-width: 90px;
+  }
+}
+
+/* Status Text Styles */
+.status-text {
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.text-green {
+  color: #10b981;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.status-text:hover {
+  transform: scale(1.05);
+}
+
+/* Detail Modal Styles */
+.detail-modal {
+  max-width: 900px;
+  max-height: 90vh;
+}
+
+.detail-header {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border-bottom: none;
+}
+
+.detail-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.coupon-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.coupon-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coupon-title h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.coupon-status {
+  margin-left: auto;
+}
+
+.detail-header .status-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.detail-body {
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.02) 0%, rgba(34, 197, 94, 0.02) 100%);
+}
+
+.detail-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(74, 222, 128, 0.1);
+  transition: all 0.3s ease;
+}
+
+.detail-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(74, 222, 128, 0.2);
+}
+
+.section-icon {
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-header h4 {
+  margin: 0;
+  color: #374151;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item span {
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.coupon-code {
+  font-weight: 700;
+  color: #4ade80;
+  font-size: 1.125rem;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.description {
+  font-style: italic;
+  color: #6b7280;
+}
+
+.discount-type {
+  font-weight: 600;
+  color: #059669;
+}
+
+.discount-value {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 1.125rem;
+}
+
+.min-amount, .max-discount {
+  font-weight: 600;
+  color: #7c3aed;
+}
+
+.usage-count, .used-count, .remaining-count {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.usage-count {
+  color: #059669;
+}
+
+.used-count {
+  color: #dc2626;
+}
+
+.remaining-count {
+  color: #7c3aed;
+}
+
+.usage-rate {
+  font-weight: 700;
+  color: #f59e0b;
+  font-size: 1.125rem;
+}
+
+.start-date, .end-date {
+  font-weight: 600;
+  color: #059669;
+}
+
+.time-remaining {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 1.125rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.customers-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.customers-summary {
+  text-align: center;
+}
+
+.customers-count {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+}
+
+.customer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.customer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 25px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.customer-chip:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.customer-avatar {
+  font-size: 1rem;
+}
+
+.customer-email {
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(74, 222, 128, 0.1);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(74, 222, 128, 0.15);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4ade80;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-footer {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border-top: 1px solid rgba(74, 222, 128, 0.2);
+  padding: 1.5rem;
+}
+
+.detail-footer .btn {
+  padding: 0.875rem 1.75rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.detail-footer .btn-outline {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.detail-footer .btn-outline:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.detail-footer .btn-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.detail-footer .btn-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive Design for Detail Modal */
+@media (max-width: 768px) {
+  .detail-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+  
+  .detail-header .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .coupon-status {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .customer-chips {
+    justify-content: center;
   }
 }
 </style>
