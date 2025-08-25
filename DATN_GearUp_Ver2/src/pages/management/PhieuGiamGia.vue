@@ -1078,31 +1078,40 @@ import {
 import { fetchAllPhieuGiamGiaCaNhan } from "../../services/GiamGia/PhieuGiamGiaCaNhanService";
 import { fetchAllKhachHang } from "../../services/KhachHang/KhachHangService";
 
-// Data
+// ===== REACTIVE DATA =====
+// Search and filter data
 const searchQuery = ref("");
 const fromDate = ref("");
 const toDate = ref("");
 const selectedType = ref("");
 const selectedType2 = ref("");
 const selectedStatus = ref("");
+
+// Modal control data
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const showDetailModal = ref(false);
 const showNotificationModal = ref(false);
 const showDeleteModal = ref(false);
+
+// Selected data
 const selectedCoupon = ref(null);
 const editingCoupon = ref(null);
 const deleteCouponData = ref(null);
+
+// Notification data
 const notificationData = ref({
   type: "success",
   title: "",
   message: "",
   details: null,
 });
+
 // Pagination data
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
+// ===== FORM DATA =====
 const couponForm = ref({
   maPhieuGiamGia: "",
   tenPhieuGiamGia: "",
@@ -1119,14 +1128,16 @@ const couponForm = ref({
   idKhachHang: [],
 });
 
+// ===== DATA ARRAYS =====
 const coupons = ref([]);
 const personalCoupons = ref([]);
 const customers = ref([]);
 
-// Customer selection for form
+// ===== CUSTOMER SELECTION =====
 const searchCustomerQuery = ref("");
 const selectedCustomers = ref([]);
 // fetch data
+// ===== FETCH FUNCTIONS =====
 const fetchPGG = async () => {
   try {
     const res = await fetchAllPhieuGiamGia();
@@ -1137,6 +1148,7 @@ const fetchPGG = async () => {
     console.error("Error fetching phieu giam gia: ", error);
   }
 };
+
 const fetchCustomers = async () => {
   try {
     const res = await fetchAllKhachHang();
@@ -1145,6 +1157,7 @@ const fetchCustomers = async () => {
     console.error("Error fetching customers: ", error);
   }
 };
+
 const fetchPersonalPGG = async () => {
   try {
     const res = await fetchAllPhieuGiamGiaCaNhan();
@@ -1153,11 +1166,13 @@ const fetchPersonalPGG = async () => {
     console.error("Error fetching phieu giam gia ca nhan: ", error);
   }
 };
+
 const fetchAll = async () => {
   await fetchPGG();
   await fetchCustomers();
   await fetchPersonalPGG();
 };
+// ===== COMPUTED PROPERTIES =====
 // Apply all filters first
 const allFilteredCoupons = computed(() => {
   let filtered = coupons.value;
@@ -1224,7 +1239,7 @@ const availableCustomers = computed(() => {
   return filtered;
 });
 
-// Methods
+// ===== UTILITY METHODS =====
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -1243,6 +1258,7 @@ const formatDateTime = (dateString) => {
   return new Date(dateString).toLocaleString("vi-VN");
 };
 
+// ===== STATUS METHODS =====
 const getCouponStatus = (coupon) => {
   const now = new Date();
   const startDate = new Date(coupon.ngayBatDau);
@@ -1299,9 +1315,12 @@ const getTimeRemaining = (endDate) => {
   }
 };
 
-// Hàm validate ngày và cập nhật trạng thái
-// Kiểm tra nếu ngày hiện tại không nằm trong khoảng ngayBatDau và ngayKetThuc
-// thì sẽ cập nhật trangThai thành false
+// ===== VALIDATION METHODS =====
+/**
+ * Validate ngày và cập nhật trạng thái phiếu giảm giá
+ * @param {Object} coupon - Phiếu giảm giá cần validate
+ * @returns {Promise<boolean>} - True nếu có cập nhật, false nếu không
+ */
 const validateAndUpdateStatus = async (coupon) => {
   const now = new Date();
   const startDate = new Date(coupon.ngayBatDau);
@@ -1326,7 +1345,10 @@ const validateAndUpdateStatus = async (coupon) => {
   return false; // Trả về false nếu không có cập nhật
 };
 
-// Hàm validate tất cả phiếu giảm giá
+/**
+ * Validate tất cả phiếu giảm giá và cập nhật trạng thái
+ * @returns {Promise<void>}
+ */
 const validateAllCoupons = async () => {
   let updatedCount = 0;
 
@@ -1369,7 +1391,11 @@ const validateAllCoupons = async () => {
   }
 };
 
-// Hàm validate một phiếu giảm giá cụ thể
+/**
+ * Validate một phiếu giảm giá cụ thể
+ * @param {number} couponId - ID của phiếu giảm giá
+ * @returns {Promise<void>}
+ */
 const validateSingleCoupon = async (couponId) => {
   const coupon = coupons.value.find((c) => c.id === couponId);
   if (coupon) {
@@ -1392,11 +1418,20 @@ const validateSingleCoupon = async (couponId) => {
   }
 };
 
+// ===== ACTION METHODS =====
+/**
+ * Xem chi tiết phiếu giảm giá
+ * @param {Object} coupon - Phiếu giảm giá cần xem
+ */
 const viewCoupon = (coupon) => {
   selectedCoupon.value = coupon;
   showDetailModal.value = true;
 };
 
+/**
+ * Chỉnh sửa phiếu giảm giá
+ * @param {Object} coupon - Phiếu giảm giá cần chỉnh sửa
+ */
 const editCoupon = (coupon) => {
   // Ensure customers data is loaded
   if (customers.value.length === 0) {
@@ -1408,7 +1443,11 @@ const editCoupon = (coupon) => {
   }
 
   editingCoupon.value = coupon;
+
+  // Tái sử dụng hàm resetForm và cập nhật với dữ liệu mới
+  resetForm();
   couponForm.value = {
+    ...couponForm.value, // Giữ lại cấu trúc form
     maPhieuGiamGia: coupon.maPhieuGiamGia || "",
     tenPhieuGiamGia: coupon.tenPhieuGiamGia || "",
     moTa: coupon.moTa || "",
@@ -1465,6 +1504,10 @@ const editCoupon = (coupon) => {
   showEditModal.value = true;
 };
 
+/**
+ * Chỉnh sửa phiếu giảm giá từ popup chi tiết
+ * @param {Object} coupon - Phiếu giảm giá cần chỉnh sửa
+ */
 const editFromDetail = (coupon) => {
   // Đóng popup xem chi tiết
   showDetailModal.value = false;
@@ -1473,6 +1516,10 @@ const editFromDetail = (coupon) => {
   editCoupon(coupon);
 };
 
+/**
+ * Mở popup xác nhận xóa phiếu giảm giá
+ * @param {number} id - ID của phiếu giảm giá cần xóa
+ */
 const fetchUpdateStatusPGG = async (id) => {
   // Tìm thông tin phiếu giảm giá để hiển thị trong popup
   const coupon = coupons.value.find((c) => c.id === id);
@@ -1482,6 +1529,10 @@ const fetchUpdateStatusPGG = async (id) => {
   }
 };
 
+/**
+ * Xác nhận xóa phiếu giảm giá
+ * @returns {Promise<void>}
+ */
 const confirmDelete = async () => {
   if (!deleteCouponData.value) return;
 
@@ -1512,11 +1563,18 @@ const confirmDelete = async () => {
   }
 };
 
+/**
+ * Đóng popup xác nhận xóa
+ */
 const closeDeleteModal = () => {
   showDeleteModal.value = false;
   deleteCouponData.value = null;
 };
 
+/**
+ * Tạo phiếu giảm giá mới
+ * @returns {Promise<void>}
+ */
 const fetchCreatePGG = async () => {
   try {
     const couponData = { ...couponForm.value };
@@ -1539,6 +1597,11 @@ const fetchCreatePGG = async () => {
     throw error; // Re-throw to handle in saveCoupon
   }
 };
+/**
+ * Cập nhật phiếu giảm giá
+ * @param {number} id - ID của phiếu giảm giá cần cập nhật
+ * @returns {Promise<void>}
+ */
 const fetchUpdatePGG = async (id) => {
   try {
     const couponData = { ...couponForm.value };
@@ -1561,8 +1624,13 @@ const fetchUpdatePGG = async (id) => {
     throw error; // Re-throw to handle in saveCoupon
   }
 };
+/**
+ * Lưu phiếu giảm giá (tạo mới hoặc cập nhật)
+ * @returns {Promise<void>}
+ */
 const saveCoupon = async () => {
   try {
+    // ===== VALIDATION =====
     if (!couponForm.value.tenPhieuGiamGia.trim()) {
       alert("Vui lòng nhập tên phiếu giảm giá");
       return;
@@ -1650,6 +1718,9 @@ const saveCoupon = async () => {
   }
 };
 
+/**
+ * Đóng tất cả modal và reset form
+ */
 const closeModals = () => {
   showAddModal.value = false;
   showEditModal.value = false;
@@ -1663,7 +1734,12 @@ const closeModals = () => {
   resetForm();
 };
 
-// Notification methods
+// ===== NOTIFICATION METHODS =====
+/**
+ * Hiển thị thông báo thành công
+ * @param {string} message - Nội dung thông báo
+ * @param {Object} details - Chi tiết bổ sung
+ */
 const showSuccessNotification = (message, details = null) => {
   notificationData.value = {
     type: "success",
@@ -1679,6 +1755,11 @@ const showSuccessNotification = (message, details = null) => {
   }, 5000);
 };
 
+/**
+ * Hiển thị thông báo lỗi
+ * @param {string} message - Nội dung thông báo lỗi
+ * @param {Object} errorDetails - Chi tiết lỗi
+ */
 const showErrorNotification = (message, errorDetails = null) => {
   notificationData.value = {
     type: "error",
@@ -1694,10 +1775,16 @@ const showErrorNotification = (message, errorDetails = null) => {
   }, 8000);
 };
 
+/**
+ * Đóng modal thông báo
+ */
 const closeNotificationModal = () => {
   showNotificationModal.value = false;
 };
 
+/**
+ * Mở modal tạo mới phiếu giảm giá
+ */
 const openAddModal = () => {
   resetForm();
   selectedCustomers.value = [];
@@ -1705,7 +1792,11 @@ const openAddModal = () => {
   showAddModal.value = true;
 };
 
-// Customer selection methods
+// ===== CUSTOMER SELECTION METHODS =====
+/**
+ * Toggle chọn/bỏ chọn khách hàng
+ * @param {number} customerId - ID của khách hàng
+ */
 const toggleCustomerSelection = (customerId) => {
   const index = selectedCustomers.value.indexOf(customerId);
   if (index > -1) {
@@ -1715,28 +1806,47 @@ const toggleCustomerSelection = (customerId) => {
   }
 };
 
+/**
+ * Chọn tất cả khách hàng
+ */
 const selectAllCustomers = () => {
   selectedCustomers.value = availableCustomers.value.map(
     (customer) => customer.id
   );
 };
 
+/**
+ * Bỏ chọn tất cả khách hàng
+ */
 const clearAllCustomers = () => {
   selectedCustomers.value = [];
 };
 
-// Reset pagination when filters change
+// ===== PAGINATION METHODS =====
+/**
+ * Reset về trang đầu tiên khi thay đổi filter
+ */
 const resetPagination = () => {
   currentPage.value = 1;
 };
 
+/**
+ * Lấy số lượng khách hàng cá nhân của phiếu giảm giá
+ * @param {number} couponId - ID của phiếu giảm giá
+ * @returns {number} - Số lượng khách hàng
+ */
 const getPersonalCustomerCount = (couponId) => {
   return personalCoupons.value.filter(
     (pc) => pc.idPhieuGiamGia === couponId && !pc.deleted
   ).length;
 };
 
-// Get coupon type text and class
+// ===== COUPON TYPE METHODS =====
+/**
+ * Lấy text hiển thị loại phiếu giảm giá
+ * @param {Object} coupon - Phiếu giảm giá
+ * @returns {string} - Text hiển thị
+ */
 const getCouponTypeText = (coupon) => {
   if (coupon.idKhachHang && coupon.idKhachHang.length > 0) {
     if (coupon.idKhachHang.length === 1) {
@@ -1754,6 +1864,11 @@ const getCouponTypeText = (coupon) => {
   return "Công khai";
 };
 
+/**
+ * Lấy CSS class cho loại phiếu giảm giá
+ * @param {Object} coupon - Phiếu giảm giá
+ * @returns {string} - CSS class
+ */
 const getCouponTypeClass = (coupon) => {
   if (coupon.idKhachHang && coupon.idKhachHang.length > 0) {
     return "badge-warning";
@@ -1761,7 +1876,11 @@ const getCouponTypeClass = (coupon) => {
   return "badge-success";
 };
 
-// Get list of customers applied to this coupon
+/**
+ * Lấy danh sách khách hàng áp dụng phiếu giảm giá
+ * @param {number} couponId - ID của phiếu giảm giá
+ * @returns {Array} - Danh sách khách hàng
+ */
 const getAppliedCustomers = (couponId) => {
   // Find the coupon first
   const coupon = coupons.value.find((c) => c.id === couponId);
@@ -1789,7 +1908,9 @@ const getAppliedCustomers = (couponId) => {
   );
 };
 
-// Check if coupon should show customer selection in form
+/**
+ * Kiểm tra xem có nên hiển thị phần chọn khách hàng không
+ */
 const shouldShowCustomerSelection = computed(() => {
   return couponForm.value.idKhachHang === "personal";
 });
@@ -1805,6 +1926,9 @@ const formDebugInfo = computed(() => {
   };
 });
 
+/**
+ * Reset form về trạng thái ban đầu
+ */
 const resetForm = () => {
   couponForm.value = {
     maPhieuGiamGia: "",
@@ -1823,19 +1947,27 @@ const resetForm = () => {
   };
 };
 
-// Pagination methods
+/**
+ * Chuyển về trang trước
+ */
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
   }
 };
 
+/**
+ * Chuyển đến trang tiếp theo
+ */
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
   }
 };
 
+/**
+ * Xóa tất cả filter
+ */
 const clearFilters = () => {
   searchQuery.value = "";
   selectedType.value = "";
@@ -1845,20 +1977,32 @@ const clearFilters = () => {
   toDate.value = "";
 };
 
+/**
+ * Áp dụng filter (đã được xử lý qua computed property)
+ */
 const applyFilters = () => {
   // Filters are already applied through computed property
   console.log("Filters applied");
 };
 
+/**
+ * Làm mới dữ liệu
+ */
 const refreshData = () => {
   // Simulate data refresh
   console.log("Refreshing discount coupons data...");
 };
 
+/**
+ * Xuất báo cáo phiếu giảm giá
+ */
 const exportData = () => {
   alert("Xuất báo cáo phiếu giảm giá");
 };
 
+/**
+ * Xuất dữ liệu ra file Excel
+ */
 const exportToExcel = () => {
   try {
     const headerMapping = {
@@ -1915,7 +2059,10 @@ const exportToExcel = () => {
   }
 };
 
-// Watch filters and reset pagination
+// ===== WATCHERS =====
+/**
+ * Theo dõi thay đổi filter và reset pagination
+ */
 watch(
   [searchQuery, selectedType, selectedType2, selectedStatus, fromDate, toDate],
   () => {
@@ -1923,6 +2070,7 @@ watch(
   }
 );
 
+// ===== LIFECYCLE HOOKS =====
 onMounted(() => {
   // Set default dates
   const today = new Date();
@@ -1930,6 +2078,8 @@ onMounted(() => {
 
   fromDate.value = today.toISOString().split("T")[0];
   toDate.value = nextWeek.toISOString().split("T")[0];
+
+  // Fetch initial data
   fetchPGG();
   fetchPersonalPGG();
   fetchCustomers();
