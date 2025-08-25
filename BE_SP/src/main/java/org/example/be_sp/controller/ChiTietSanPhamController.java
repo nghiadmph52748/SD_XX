@@ -3,9 +3,10 @@ package org.example.be_sp.controller;
 import org.example.be_sp.model.request.ChiTietSanPhamRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.ChiTietSanPhamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,8 @@ public class ChiTietSanPhamController {
     @Autowired
     ChiTietSanPhamService service;
 
+    private static final Logger logger = LoggerFactory.getLogger(ChiTietSanPhamController.class);
+
     @GetMapping("/paging")
     public ResponseObject<?> pagingAll(@RequestParam(defaultValue = "0") Integer page,
                                        @RequestParam(defaultValue = "10") Integer size) {
@@ -30,7 +33,12 @@ public class ChiTietSanPhamController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(service.getAll());
+        try {
+            return new ResponseObject<>(service.getAll());
+        } catch (Exception e) {
+            logger.error("Error getting all ChiTietSanPham", e);
+            return new ResponseObject<>(null, "Error getting all ChiTietSanPham");
+        }
     }
 
     @GetMapping("/detail/{id}")

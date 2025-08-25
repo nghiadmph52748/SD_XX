@@ -1,16 +1,16 @@
 package org.example.be_sp.model.response;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+
+import org.example.be_sp.entity.ChiTietSanPham;
+import org.example.be_sp.entity.DotGiamGia;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.be_sp.entity.ChiTietSanPham;
-import org.example.be_sp.entity.DotGiamGia;
-import org.example.be_sp.exception.ApiException;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -48,27 +48,62 @@ public class ChiTietSanPhamResponse {
 
     public ChiTietSanPhamResponse(ChiTietSanPham s) {
         this.id = s.getId();
-        this.duongDanAnh = s.getChiTietSanPhamAnhs().stream()
+        // Xử lý ảnh một cách nhẹ nhàng, không throw exception nếu không có ảnh
+        this.duongDanAnh = s.getChiTietSanPhamAnhs() != null ? 
+            s.getChiTietSanPhamAnhs().stream()
                 .filter(a -> !Boolean.TRUE.equals(a.getDeleted()))
-                .map(a -> a.getIdAnhSanPham().getDuongDanAnh())
+                .map(a -> a.getIdAnhSanPham() != null ? a.getIdAnhSanPham().getDuongDanAnh() : null)
+                .filter(duongDan -> duongDan != null)
                 .findFirst()
-                .orElseThrow(() -> new ApiException("Chi tiết sản phẩm chưa có ảnh!", "404"));
-        this.maSanPham = s.getIdSanPham().getMaSanPham();
-        this.tenSanPham = s.getIdSanPham().getTenSanPham();
-        this.tenNhaSanXuat = s.getIdSanPham().getIdNhaSanXuat().getTenNhaSanXuat();
-        this.tenXuatXu = s.getIdSanPham().getIdXuatXu().getTenXuatXu();
-        this.tenMauSac = s.getIdMauSac().getTenMauSac();
-        this.tenKichThuoc = s.getIdKichThuoc().getTenKichThuoc();
-        this.tenDeGiay = s.getIdDeGiay().getTenDeGiay();
-        this.tenChatLieu = s.getIdChatLieu().getTenChatLieu();
-        this.tenDemGiay = s.getIdDemGiay().getTenDemGiay();
-        this.tenTrongLuong = s.getIdTrongLuong().getTenTrongLuong();
-        this.tenMonTheThao = s.getIdMonTheThao().getTenMonTheThao();
-        this.tenLoaiMua = s.getIdLoaiMua().getTenLoaiMua();
-        this.tenDoBen = s.getIdDoBen().getTenDoBen();
-        this.tenChongNuoc = s.getIdChongNuoc().getTenChongNuoc();
+                .orElse("") : "";
+        
+        // Kiểm tra null trước khi truy cập các thuộc tính
+        if (s.getIdSanPham() != null) {
+            this.maSanPham = s.getIdSanPham().getMaSanPham();
+            this.tenSanPham = s.getIdSanPham().getTenSanPham();
+            if (s.getIdSanPham().getIdNhaSanXuat() != null) {
+                this.tenNhaSanXuat = s.getIdSanPham().getIdNhaSanXuat().getTenNhaSanXuat();
+            }
+            if (s.getIdSanPham().getIdXuatXu() != null) {
+                this.tenXuatXu = s.getIdSanPham().getIdXuatXu().getTenXuatXu();
+            }
+        }
+        
+        if (s.getIdMauSac() != null) {
+            this.tenMauSac = s.getIdMauSac().getTenMauSac();
+        }
+        if (s.getIdKichThuoc() != null) {
+            this.tenKichThuoc = s.getIdKichThuoc().getTenKichThuoc();
+        }
+        if (s.getIdDeGiay() != null) {
+            this.tenDeGiay = s.getIdDeGiay().getTenDeGiay();
+        }
+        if (s.getIdChatLieu() != null) {
+            this.tenChatLieu = s.getIdChatLieu().getTenChatLieu();
+        }
+        if (s.getIdDemGiay() != null) {
+            this.tenDemGiay = s.getIdDemGiay().getTenDemGiay();
+        }
+        if (s.getIdTrongLuong() != null) {
+            this.tenTrongLuong = s.getIdTrongLuong().getTenTrongLuong();
+        }
+        if (s.getIdMonTheThao() != null) {
+            this.tenMonTheThao = s.getIdMonTheThao().getTenMonTheThao();
+        }
+        if (s.getIdLoaiMua() != null) {
+            this.tenLoaiMua = s.getIdLoaiMua().getTenLoaiMua();
+        }
+        if (s.getIdDoBen() != null) {
+            this.tenDoBen = s.getIdDoBen().getTenDoBen();
+        }
+        if (s.getIdChongNuoc() != null) {
+            this.tenChongNuoc = s.getIdChongNuoc().getTenChongNuoc();
+        }
+        
         this.soLuong = s.getSoLuong();
         this.giaBan = s.getGiaBan();
+        
+        // Xử lý giảm giá
         DotGiamGia applied = null;
         if (s.getChiTietDotGiamGias() != null && !s.getChiTietDotGiamGias().isEmpty()) {
             LocalDate today = LocalDate.now();

@@ -1,29 +1,28 @@
 package org.example.be_sp.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import org.example.be_sp.entity.ChiTietDotGiamGia;
-import org.example.be_sp.entity.ChiTietSanPhamAnh;
-import org.example.be_sp.entity.HoaDonChiTiet;
-import org.example.be_sp.entity.SanPham;
-import org.example.be_sp.entity.MauSac;
-import org.example.be_sp.entity.KichThuoc;
-import org.example.be_sp.entity.DeGiay;
-import org.example.be_sp.entity.ChatLieu;
-import org.example.be_sp.entity.DemGiay;
-import org.example.be_sp.entity.TrongLuong;
-import org.example.be_sp.entity.MonTheThao;
-import org.example.be_sp.entity.LoaiMua;
-import org.example.be_sp.entity.DoBen;
-import org.example.be_sp.entity.ChongNuoc;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Nationalized;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Nationalized;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -111,11 +110,14 @@ public class ChiTietSanPham {
     private Integer updateBy;
 
     @OneToMany(mappedBy = "idChiTietSanPham", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<ChiTietDotGiamGia> chiTietDotGiamGias = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "idChiTietSanPham", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<ChiTietSanPhamAnh> chiTietSanPhamAnhs = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "idChiTietSanPham", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<HoaDonChiTiet> hoaDonChiTiets = new LinkedHashSet<>();
 }

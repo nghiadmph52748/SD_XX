@@ -21,6 +21,8 @@ import org.example.be_sp.repository.MonTheThaoRepository;
 import org.example.be_sp.repository.SanPhamRepository;
 import org.example.be_sp.repository.TrongLuongRepository;
 import org.example.be_sp.util.MapperUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChiTietSanPhamService {
+    private static final Logger logger = LoggerFactory.getLogger(ChiTietSanPhamService.class);
     @Autowired
     ChiTietSanPhamRepository repository;
     @Autowired
@@ -54,7 +57,21 @@ public class ChiTietSanPhamService {
     ChongNuocRepository chongNuoc;
 
     public List<ChiTietSanPhamResponse> getAll() {
-        return repository.findAll().stream().map(ChiTietSanPhamResponse::new).toList();
+        logger.info("Bắt đầu lấy tất cả chi tiết sản phẩm");
+        try {
+            List<ChiTietSanPham> allChiTietSanPham = repository.findAllWithValidData();
+            logger.info("Tìm thấy {} chi tiết sản phẩm hợp lệ từ database", allChiTietSanPham.size());
+            
+            List<ChiTietSanPhamResponse> result = allChiTietSanPham.stream()
+                    .map(ChiTietSanPhamResponse::new)
+                    .toList();
+            
+            logger.info("Trả về {} chi tiết sản phẩm", result.size());
+            return result;
+        } catch (Exception e) {
+            logger.error("Lỗi khi lấy tất cả chi tiết sản phẩm: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     public ChiTietSanPhamResponse getById(Integer id) {
@@ -114,8 +131,7 @@ public class ChiTietSanPhamService {
     }
 
     public List<ChiTietSanPhamFullResponse> getAllWithFullInfo() {
-        return repository.findAll().stream()
-                .filter(ctsp -> !ctsp.getDeleted())
+        return repository.findAllWithValidData().stream()
                 .map(ChiTietSanPhamFullResponse::new)
                 .toList();
     }
