@@ -253,73 +253,78 @@
       class="modal-overlay"
       @click="closeModals"
     >
-      <div class="modal-content large" @click.stop>
-        <div class="modal-header">
-          <h3>
-            {{
-              showAddModal ? "Tạo phiếu giảm giá" : "Cập nhật phiếu giảm giá"
-            }}
-          </h3>
-          <div v-if="showEditModal" class="debug-info">
-            <small
-              >Debug: {{ formDebugInfo.formType }} |
-              {{ formDebugInfo.selectedCustomersCount }} customers</small
-            >
+      <div class="modal-content detail-modal" @click.stop>
+        <div class="modal-header detail-header">
+          <div class="header-content">
+            <div class="coupon-title">
+              <span class="coupon-icon">🎫</span>
+              <h3>{{ showAddModal ? "Tạo phiếu giảm giá" : "Cập nhật phiếu giảm giá" }}</h3>
+            </div>
+            <div v-if="showEditModal" class="coupon-status">
+              <span class="status-badge badge-warning">
+                Chỉnh sửa
+              </span>
+            </div>
           </div>
           <button class="modal-close" @click="closeModals">✕</button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body detail-body">
           <form @submit.prevent="saveCoupon">
-            <div class="form-sections">
-              <!-- Basic Information -->
-              <div class="form-section">
-                <h4>Thông tin cơ bản</h4>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Tên phiếu giảm giá *</label>
+            <div class="coupon-detail">
+              <!-- Basic Information Section -->
+              <div class="detail-section">
+                <div class="section-header">
+                  <span class="section-icon">📋</span>
+                  <h4>Thông tin cơ bản</h4>
+                </div>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Tên phiếu giảm giá *</label>
                     <input
                       type="text"
                       v-model="couponForm.tenPhieuGiamGia"
-                      class="form-control"
+                      class="form-control edit-input"
                       placeholder="Nhập tên phiếu giảm giá"
                       required
                     />
                   </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Mô tả</label>
-                  <textarea
-                    v-model="couponForm.moTa"
-                    class="form-control"
-                    rows="3"
-                    placeholder="Nhập mô tả phiếu giảm giá"
-                  ></textarea>
+                  <div class="info-item">
+                    <label>Mô tả</label>
+                    <textarea
+                      v-model="couponForm.moTa"
+                      class="form-control edit-textarea"
+                      rows="3"
+                      placeholder="Nhập mô tả phiếu giảm giá"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
 
-              <!-- Discount Settings -->
-              <div class="form-section">
-                <h4>Cài đặt giảm giá</h4>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Kiểu giảm giá *</label>
+              <!-- Discount Information Section -->
+              <div class="detail-section">
+                <div class="section-header">
+                  <span class="section-icon">💰</span>
+                  <h4>Thông tin giảm giá</h4>
+                </div>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Kiểu giảm giá *</label>
                     <select
                       v-model="couponForm.loaiPhieuGiamGia"
-                      class="form-control"
+                      class="form-control edit-select"
                       required
                     >
                       <option :value="false">Phần trăm (%)</option>
                       <option :value="true">Số tiền cố định (VND)</option>
                     </select>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Giá trị giảm *</label>
+                  <div class="info-item">
+                    <label>Giá trị giảm *</label>
                     <input
                       type="number"
                       v-model="couponForm.giaTriGiamGia"
-                      class="form-control"
+                      class="form-control edit-input"
                       :placeholder="
                         !couponForm.loaiPhieuGiamGia
                           ? 'Nhập % giảm (1-100)'
@@ -330,25 +335,22 @@
                       required
                     />
                   </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Hóa đơn tối thiểu</label>
+                  <div class="info-item">
+                    <label>Hóa đơn tối thiểu</label>
                     <input
                       type="number"
                       v-model="couponForm.hoaDonToiThieu"
-                      class="form-control"
+                      class="form-control edit-input"
                       placeholder="0"
                       min="0"
                     />
                   </div>
-                  <div class="form-group" v-if="!couponForm.loaiPhieuGiamGia">
-                    <label class="form-label">Số tiền giảm tối đa</label>
+                  <div class="info-item" v-if="!couponForm.loaiPhieuGiamGia">
+                    <label>Giảm tối đa</label>
                     <input
                       type="number"
                       v-model="couponForm.soTienToiDa"
-                      class="form-control"
+                      class="form-control edit-input"
                       placeholder="Số tiền giảm tối đa"
                       min="0"
                     />
@@ -356,26 +358,29 @@
                 </div>
               </div>
 
-              <!-- Usage Settings -->
-              <div class="form-section">
-                <h4>Cài đặt sử dụng</h4>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Số lượng sử dụng *</label>
+              <!-- Usage Information Section -->
+              <div class="detail-section">
+                <div class="section-header">
+                  <span class="section-icon">📊</span>
+                  <h4>Thông tin sử dụng</h4>
+                </div>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Số lượng sử dụng *</label>
                     <input
                       type="number"
                       v-model="couponForm.soLuongDung"
-                      class="form-control"
+                      class="form-control edit-input"
                       placeholder="Nhập số lượng"
                       min="1"
                       required
                     />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Loại phiếu *</label>
+                  <div class="info-item">
+                    <label>Loại phiếu *</label>
                     <select
                       v-model="couponForm.idKhachHang"
-                      class="form-control"
+                      class="form-control edit-select"
                     >
                       <option :value="null">
                         Công khai (tất cả khách hàng)
@@ -397,7 +402,7 @@
                     <input
                       type="text"
                       placeholder="Tìm kiếm khách hàng..."
-                      class="form-control"
+                      class="form-control edit-input"
                       v-model="searchCustomerQuery"
                     />
                   </div>
@@ -497,39 +502,53 @@
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">Ngày bắt đầu *</label>
+              <!-- Time Information Section -->
+              <div class="detail-section">
+                <div class="section-header">
+                  <span class="section-icon">⏰</span>
+                  <h4>Thông tin thời gian</h4>
+                </div>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Ngày bắt đầu *</label>
                     <input
                       type="date"
                       v-model="couponForm.ngayBatDau"
-                      class="form-control"
+                      class="form-control edit-input"
                       required
                     />
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Ngày kết thúc *</label>
+                  <div class="info-item">
+                    <label>Ngày kết thúc *</label>
                     <input
                       type="date"
                       v-model="couponForm.ngayKetThuc"
-                      class="form-control"
+                      class="form-control edit-input"
                       required
                     />
                   </div>
                 </div>
+              </div>
 
-                <div class="form-row" v-if="showEditModal">
-                  <div class="form-group">
-                    <label class="form-label">Trạng thái *</label>
-                    <select v-model="couponForm.trangThai" class="form-control">
+              <!-- Status Section (only for edit) -->
+              <div class="detail-section" v-if="showEditModal">
+                <div class="section-header">
+                  <span class="section-icon">⚙️</span>
+                  <h4>Trạng thái</h4>
+                </div>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Trạng thái hoạt động *</label>
+                    <select v-model="couponForm.trangThai" class="form-control edit-select">
                       <option :value="true">Đang hoạt động</option>
                       <option :value="false">Tạm dừng</option>
                     </select>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label">Hiện trạng *</label>
-                    <select v-model="couponForm.deleted" class="form-control">
+                  <div class="info-item">
+                    <label>Hiện trạng *</label>
+                    <select v-model="couponForm.deleted" class="form-control edit-select">
                       <option :value="false">Hoạt động</option>
                       <option :value="true">Ngừng hoạt động</option>
                     </select>
@@ -540,19 +559,18 @@
           </form>
         </div>
 
-        <div class="modal-footer">
-          <button class="btn-export" @click="closeModals">
+        <div class="modal-footer detail-footer">
+          <button class="btn btn-outline" @click="closeModals">
             <span class="btn-icon">❌</span>
             Hủy
           </button>
-          <button class="btn-export" @click="saveCoupon">
+          <button class="btn btn-primary" @click="saveCoupon">
             <span class="btn-icon">💾</span>
             {{ showAddModal ? "Tạo phiếu giảm giá" : "Cập nhật" }}
           </button>
         </div>
       </div>
     </div>
-    -->
 
     <!-- Coupon Detail Modal -->
     <div
@@ -763,6 +781,145 @@
         </div>
       </div>
     </div>
+
+    <!-- Notification Modal -->
+    <div
+      v-if="showNotificationModal"
+      class="modal-overlay notification-overlay"
+      @click="closeNotificationModal"
+    >
+      <div class="modal-content notification-modal" @click.stop>
+        <div class="notification-header" :class="notificationData.type">
+          <div class="notification-icon">
+            <span v-if="notificationData.type === 'success'">✅</span>
+            <span v-else>❌</span>
+          </div>
+          <div class="notification-title">
+            <h3>{{ notificationData.title }}</h3>
+            <p>{{ notificationData.message }}</p>
+          </div>
+          <button class="notification-close" @click="closeNotificationModal">✕</button>
+        </div>
+
+        <div class="notification-body" v-if="notificationData.details">
+          <div class="notification-details">
+            <h4>Chi tiết cập nhật:</h4>
+            <div class="details-grid">
+              <div class="detail-item" v-if="notificationData.details.tenPhieuGiamGia">
+                <span class="detail-label">Tên phiếu:</span>
+                <span class="detail-value">{{ notificationData.details.tenPhieuGiamGia }}</span>
+              </div>
+              <div class="detail-item" v-if="notificationData.details.loaiPhieuGiamGia">
+                <span class="detail-label">Loại giảm giá:</span>
+                <span class="detail-value">{{ notificationData.details.loaiPhieuGiamGia }}</span>
+              </div>
+              <div class="detail-item" v-if="notificationData.details.giaTriGiamGia">
+                <span class="detail-label">Giá trị:</span>
+                <span class="detail-value">
+                  {{ notificationData.details.loaiPhieuGiamGia === 'Phần trăm' 
+                    ? notificationData.details.giaTriGiamGia + '%' 
+                    : formatCurrency(notificationData.details.giaTriGiamGia) }}
+                </span>
+              </div>
+              <div class="detail-item" v-if="notificationData.details.ngayBatDau">
+                <span class="detail-label">Ngày bắt đầu:</span>
+                <span class="detail-value">{{ formatDate(notificationData.details.ngayBatDau) }}</span>
+              </div>
+              <div class="detail-item" v-if="notificationData.details.ngayKetThuc">
+                <span class="detail-label">Ngày kết thúc:</span>
+                <span class="detail-value">{{ formatDate(notificationData.details.ngayKetThuc) }}</span>
+              </div>
+              <div class="detail-item" v-if="notificationData.details.trangThai">
+                <span class="detail-label">Trạng thái:</span>
+                <span class="detail-value">{{ notificationData.details.trangThai }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notification-footer">
+          <button class="btn btn-primary" @click="closeNotificationModal">
+            <span class="btn-icon">👌</span>
+            Đã hiểu
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteModal"
+      class="modal-overlay delete-overlay"
+      @click="closeDeleteModal"
+    >
+      <div class="modal-content delete-modal" @click.stop>
+        <div class="delete-header">
+          <div class="delete-icon">🗑️</div>
+          <h3>Xác nhận xóa phiếu giảm giá</h3>
+        </div>
+
+        <div class="delete-body">
+          <div class="delete-warning">
+            <div class="warning-icon">⚠️</div>
+            <p class="warning-text">
+              Bạn có chắc chắn muốn xóa phiếu giảm giá 
+              <strong>"{{ deleteCouponData?.tenPhieuGiamGia }}"</strong>?
+            </p>
+          </div>
+          
+          <div class="delete-details" v-if="deleteCouponData">
+            <h4>Thông tin phiếu giảm giá:</h4>
+            <div class="delete-info-grid">
+              <div class="delete-info-item">
+                <span class="info-label">Mã phiếu:</span>
+                <span class="info-value">{{ deleteCouponData.maPhieuGiamGia || 'N/A' }}</span>
+              </div>
+              <div class="delete-info-item">
+                <span class="info-label">Loại giảm giá:</span>
+                <span class="info-value">
+                  {{ !deleteCouponData.loaiPhieuGiamGia ? 'Phần trăm (%)' : 'Số tiền cố định (VND)' }}
+                </span>
+              </div>
+              <div class="delete-info-item">
+                <span class="info-label">Giá trị giảm:</span>
+                <span class="info-value">
+                  {{ !deleteCouponData.loaiPhieuGiamGia 
+                    ? deleteCouponData.giaTriGiamGia + '%' 
+                    : formatCurrency(deleteCouponData.giaTriGiamGia) }}
+                </span>
+              </div>
+              <div class="delete-info-item">
+                <span class="info-label">Thời gian:</span>
+                <span class="info-value">
+                  {{ formatDate(deleteCouponData.ngayBatDau) }} - {{ formatDate(deleteCouponData.ngayKetThuc) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="delete-consequences">
+            <h4>⚠️ Hậu quả khi xóa:</h4>
+            <ul class="consequences-list">
+              <li>Phiếu giảm giá sẽ bị vô hiệu hóa hoàn toàn</li>
+              <li>Không thể khôi phục lại sau khi xóa</li>
+              <li>Khách hàng sẽ không thể sử dụng phiếu này</li>
+              <li>Dữ liệu thống kê sẽ bị ảnh hưởng</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="delete-footer">
+          <button class="btn btn-outline" @click="closeDeleteModal">
+            <span class="btn-icon">❌</span>
+            Hủy bỏ
+          </button>
+          <button class="btn btn-danger" @click="confirmDelete">
+            <span class="btn-icon">🗑️</span>
+            Xác nhận xóa
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -787,8 +944,17 @@ const selectedStatus = ref("");
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const showDetailModal = ref(false);
+const showNotificationModal = ref(false);
+const showDeleteModal = ref(false);
 const selectedCoupon = ref(null);
 const editingCoupon = ref(null);
+const deleteCouponData = ref(null);
+const notificationData = ref({
+  type: 'success',
+  title: '',
+  message: '',
+  details: null
+});
 // Pagination data
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -1060,17 +1226,40 @@ const editFromDetail = (coupon) => {
 };
 
 const fetchUpdateStatusPGG = async (id) => {
-  if (confirm("Bạn có chắc chắn muốn xóa phiếu giảm giá này?")) {
-    try {
-      await fetchUpdateStatusPhieuGiamGia(id);
-      await fetchPGG(); // Reload data after delete
-      alert("Xóa phiếu giảm giá thành công!");
-    } catch (error) {
-      console.error("Lỗi khi xóa phiếu giảm giá:", error);
-      alert("Có lỗi xảy ra khi xóa phiếu giảm giá");
-    }
+  // Tìm thông tin phiếu giảm giá để hiển thị trong popup
+  const coupon = coupons.value.find(c => c.id === id);
+  if (coupon) {
+    deleteCouponData.value = coupon;
+    showDeleteModal.value = true;
   }
 };
+
+const confirmDelete = async () => {
+  if (!deleteCouponData.value) return;
+  
+  try {
+    await fetchUpdateStatusPhieuGiamGia(deleteCouponData.value.id);
+    await fetchPGG(); // Reload data after delete
+    closeDeleteModal();
+    showSuccessNotification("Xóa phiếu giảm giá thành công!", {
+      message: "Phiếu giảm giá đã được xóa khỏi hệ thống",
+      tenPhieuGiamGia: deleteCouponData.value.tenPhieuGiamGia,
+      loaiPhieuGiamGia: !deleteCouponData.value.loaiPhieuGiamGia ? "Phần trăm" : "Số tiền cố định",
+      giaTriGiamGia: deleteCouponData.value.giaTriGiamGia,
+      ngayBatDau: deleteCouponData.value.ngayBatDau,
+      ngayKetThuc: deleteCouponData.value.ngayKetThuc
+    });
+  } catch (error) {
+    console.error("Lỗi khi xóa phiếu giảm giá:", error);
+    showErrorNotification("Có lỗi xảy ra khi xóa phiếu giảm giá", error.message);
+  }
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteCouponData.value = null;
+};
+
 const fetchCreatePGG = async () => {
   try {
     const couponData = { ...couponForm.value };
@@ -1159,18 +1348,35 @@ const saveCoupon = async () => {
       // Close modals and reset form
       closeModals();
       await fetchAll(); // Refresh data
-      alert("Thêm phiếu giảm giá thành công!");
+      
+      // Show success notification
+      showSuccessNotification("Thêm phiếu giảm giá thành công!", {
+        tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
+        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia ? "Phần trăm" : "Số tiền cố định",
+        giaTriGiamGia: couponForm.value.giaTriGiamGia,
+        ngayBatDau: couponForm.value.ngayBatDau,
+        ngayKetThuc: couponForm.value.ngayKetThuc
+      });
     } else if (showEditModal.value && editingCoupon.value) {
       // Call update API
       await fetchUpdatePGG(editingCoupon.value.id);
       // Close modals and reset form
       closeModals();
       await fetchAll(); // Refresh data
-      alert("Cập nhật phiếu giảm giá thành công!");
+      
+      // Show success notification
+      showSuccessNotification("Cập nhật phiếu giảm giá thành công!", {
+        tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
+        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia ? "Phần trăm" : "Số tiền cố định",
+        giaTriGiamGia: couponForm.value.giaTriGiamGia,
+        ngayBatDau: couponForm.value.ngayBatDau,
+        ngayKetThuc: couponForm.value.ngayKetThuc,
+        trangThai: couponForm.value.trangThai ? "Đang hoạt động" : "Tạm dừng"
+      });
     }
   } catch (error) {
     console.error("Lỗi khi lưu phiếu giảm giá:", error);
-    alert("Có lỗi xảy ra khi lưu thông tin phiếu giảm giá");
+    showErrorNotification("Có lỗi xảy ra khi lưu thông tin phiếu giảm giá", error.message);
   }
 };
 
@@ -1178,11 +1384,48 @@ const closeModals = () => {
   showAddModal.value = false;
   showEditModal.value = false;
   showDetailModal.value = false;
+  showDeleteModal.value = false;
   editingCoupon.value = null;
   selectedCoupon.value = null;
+  deleteCouponData.value = null;
   selectedCustomers.value = [];
   searchCustomerQuery.value = "";
   resetForm();
+};
+
+// Notification methods
+const showSuccessNotification = (message, details = null) => {
+  notificationData.value = {
+    type: 'success',
+    title: 'Thành công! 🎉',
+    message: message,
+    details: details
+  };
+  showNotificationModal.value = true;
+  
+  // Auto close after 5 seconds
+  setTimeout(() => {
+    showNotificationModal.value = false;
+  }, 5000);
+};
+
+const showErrorNotification = (message, errorDetails = null) => {
+  notificationData.value = {
+    type: 'error',
+    title: 'Có lỗi xảy ra! ❌',
+    message: message,
+    details: errorDetails
+  };
+  showNotificationModal.value = true;
+  
+  // Auto close after 8 seconds for errors
+  setTimeout(() => {
+    showNotificationModal.value = false;
+  }, 8000);
+};
+
+const closeNotificationModal = () => {
+  showNotificationModal.value = false;
 };
 
 const openAddModal = () => {
@@ -2680,6 +2923,67 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
+/* Edit Form Input Styles */
+.edit-input,
+.edit-select,
+.edit-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: #374151;
+  font-family: 'Inter', sans-serif;
+}
+
+.edit-input:focus,
+.edit-select:focus,
+.edit-textarea:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
+}
+
+.edit-input:hover,
+.edit-select:hover,
+.edit-textarea:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.edit-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+}
+
+.edit-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  appearance: none;
+}
+
+.edit-select:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234ade80' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Form Control Override for Edit Modal */
+.detail-section .form-control {
+  margin: 0;
+}
+
+.detail-section .info-item {
+  margin-bottom: 0;
+}
+
 /* Responsive Design for Detail Modal */
 @media (max-width: 768px) {
   .detail-modal {
@@ -2708,6 +3012,492 @@ onMounted(() => {
   
   .customer-chips {
     justify-content: center;
+  }
+  
+  .edit-input,
+  .edit-select,
+  .edit-textarea {
+    font-size: 1rem;
+    padding: 0.875rem 1rem;
+  }
+}
+
+/* Notification Modal Styles */
+.notification-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.notification-modal {
+  max-width: 600px;
+  max-height: 80vh;
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+@keyframes slideInFromTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.notification-header.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.notification-header.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.notification-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-title {
+  flex: 1;
+}
+
+.notification-title h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.notification-title p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+  color: white;
+}
+
+.notification-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.notification-body {
+  padding: 1.5rem;
+  background: #f9fafb;
+}
+
+.notification-details h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-details h4::before {
+  content: "📋";
+  font-size: 1.25rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.detail-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #4ade80;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.notification-footer {
+  padding: 1.5rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+}
+
+.notification-footer .btn {
+  min-width: 120px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.notification-footer .btn-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.notification-footer .btn-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive Design for Notification Modal */
+@media (max-width: 768px) {
+  .notification-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+  
+  .notification-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .notification-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-item {
+    padding: 0.75rem;
+  }
+}
+
+/* Delete Modal Styles */
+.delete-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+.delete-modal {
+  max-width: 700px;
+  max-height: 85vh;
+  animation: slideInFromCenter 0.4s ease-out;
+}
+
+@keyframes slideInFromCenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.delete-header {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+}
+
+.delete-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.delete-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.delete-body {
+  padding: 2rem;
+  background: #f9fafb;
+}
+
+.delete-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.warning-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.warning-text {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #92400e;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.warning-text strong {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.delete-details {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.delete-details h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-details h4::before {
+  content: "📋";
+  font-size: 1.25rem;
+}
+
+.delete-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.delete-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.delete-consequences {
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.delete-consequences h4 {
+  margin: 0 0 1rem 0;
+  color: #dc2626;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.consequences-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #7f1d1d;
+}
+
+.consequences-list li {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.consequences-list li:last-child {
+  margin-bottom: 0;
+}
+
+.delete-footer {
+  padding: 2rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-radius: 0 0 12px 12px;
+}
+
+.delete-footer .btn {
+  min-width: 140px;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.delete-footer .btn-outline {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.delete-footer .btn-outline:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+}
+
+.delete-footer .btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.delete-footer .btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.delete-footer .btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive Design for Delete Modal */
+@media (max-width: 768px) {
+  .delete-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+  
+  .delete-header {
+    padding: 1.5rem;
+  }
+  
+  .delete-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .delete-header h3 {
+    font-size: 1.25rem;
+  }
+  
+  .delete-body {
+    padding: 1.5rem;
+  }
+  
+  .delete-warning {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .warning-icon {
+    margin: 0 auto 0.5rem auto;
+  }
+  
+  .delete-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .delete-footer {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+  
+  .delete-footer .btn {
+    min-width: 100%;
   }
 }
 </style>
