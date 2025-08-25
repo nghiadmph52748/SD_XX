@@ -40,3 +40,11 @@ export const fetchUpdateStatusPhieuGiamGia = async (id) => {
         },
     });
 }
+
+export const fetchActivePhieuGiamGiaForCustomer = async (customerId) => {
+    const response = await fetch(`${API}/list/khach-hang/active/${customerId}`);
+    if (!response.ok) {
+        throw new Error("Failed to fetch active phieu giam gia");
+    }
+    return response.json();
+}

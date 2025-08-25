@@ -4,7 +4,15 @@ import org.example.be_sp.model.request.PhieuGiamGiaRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.PhieuGiamGiaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/phieu-giam-gia-management")
@@ -44,5 +52,10 @@ public class PhieuGiamGiaController {
     public ResponseObject<?> updateStatus(@PathVariable Integer id) {
         service.updateStatus(id);
         return new ResponseObject<>(null, "Update status success");
+    }
+
+    @GetMapping("/list/khach-hang/active/{id}")
+    public ResponseObject<?> getActiveForCustomer(@PathVariable Integer id) {
+        return new ResponseObject<>(service.getActiveCouponsForCustomer(id));
     }
 }

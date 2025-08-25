@@ -5,8 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.be_sp.entity.ChiTietSanPham;
+import org.example.be_sp.entity.DotGiamGia;
+import org.example.be_sp.exception.ApiException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 @Getter
@@ -15,6 +18,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ChiTietSanPhamResponse {
     Integer id;
+    String duongDanAnh;
     String maSanPham;
     String tenSanPham;
     String tenNhaSanXuat;
@@ -31,6 +35,9 @@ public class ChiTietSanPhamResponse {
     String tenChongNuoc;
     Integer soLuong;
     BigDecimal giaBan;
+    String tenDotGiamGia;
+    Integer giaTriGiamGia;
+    BigDecimal giaSauGiam;
     Boolean trangThai;
     String ghiChu;
     Boolean deleted;
@@ -41,6 +48,11 @@ public class ChiTietSanPhamResponse {
 
     public ChiTietSanPhamResponse(ChiTietSanPham s) {
         this.id = s.getId();
+        this.duongDanAnh = s.getChiTietSanPhamAnhs().stream()
+                .filter(a -> !Boolean.TRUE.equals(a.getDeleted()))
+                .map(a -> a.getIdAnhSanPham().getDuongDanAnh())
+                .findFirst()
+                .orElseThrow(() -> new ApiException("Chi tiết sản phẩm chưa có ảnh!", "404"));
         this.maSanPham = s.getIdSanPham().getMaSanPham();
         this.tenSanPham = s.getIdSanPham().getTenSanPham();
         this.tenNhaSanXuat = s.getIdSanPham().getIdNhaSanXuat().getTenNhaSanXuat();
@@ -57,6 +69,29 @@ public class ChiTietSanPhamResponse {
         this.tenChongNuoc = s.getIdChongNuoc().getTenChongNuoc();
         this.soLuong = s.getSoLuong();
         this.giaBan = s.getGiaBan();
+        DotGiamGia applied = null;
+        if (s.getChiTietDotGiamGias() != null && !s.getChiTietDotGiamGias().isEmpty()) {
+            LocalDate today = LocalDate.now();
+            applied = s.getChiTietDotGiamGias().stream()
+                    .filter(p -> !Boolean.TRUE.equals(p.getDeleted()))
+                    .map(p -> p.getIdDotGiamGia())
+                    .filter(dgg -> dgg != null
+                            && !Boolean.TRUE.equals(dgg.getDeleted())
+                            && Boolean.TRUE.equals(dgg.getTrangThai())
+                            && (dgg.getNgayBatDau() == null || !today.isBefore(dgg.getNgayBatDau()))
+                            && (dgg.getNgayKetThuc() == null || !today.isAfter(dgg.getNgayKetThuc())))
+                    .findFirst()
+                    .orElse(null);
+        }
+        this.tenDotGiamGia = applied != null ? applied.getTenDotGiamGia() : "Không có đợt giảm giá";
+        this.giaTriGiamGia = applied != null && applied.getGiaTriGiamGia() != null ? applied.getGiaTriGiamGia() : 0;
+        if (this.giaBan != null && this.giaTriGiamGia != null && this.giaTriGiamGia > 0) {
+            BigDecimal discount = this.giaBan.multiply(BigDecimal.valueOf(this.giaTriGiamGia))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            this.giaSauGiam = this.giaBan.subtract(discount);
+        } else {
+            this.giaSauGiam = this.giaBan;
+        }
         this.trangThai = s.getTrangThai();
         this.ghiChu = s.getGhiChu();
         this.deleted = s.getDeleted();

@@ -1,5 +1,8 @@
 package org.example.be_sp.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.example.be_sp.entity.KhachHang;
 import org.example.be_sp.entity.PhieuGiamGia;
 import org.example.be_sp.entity.PhieuGiamGiaCaNhan;
@@ -14,9 +17,6 @@ import org.example.be_sp.util.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class PhieuGiamGiaService {
@@ -100,5 +100,19 @@ public class PhieuGiamGiaService {
                 phieuGiamGiaCaNhanRepository.save(pggcn);
             }
         }
+    }
+
+    public List<PhieuGiamGiaResponse> getActiveCouponsForCustomer(Integer idKhachHang) {
+        KhachHang khachHang = khachHangRepository.findById(idKhachHang).orElseThrow(() -> new ApiException("KhachHang not found", "404"));
+        List<PhieuGiamGia> activeCoupons = phieuGiamGiaRepository.findAllByDeletedFalseAndTrangThaiTrueAndLoaiPhieuGiamGiaTrue(false,true,true);
+        List<PhieuGiamGiaCaNhan> personalCoupons = phieuGiamGiaCaNhanRepository.findAllByIdKhachHangAndDeletedAndTrangThai(khachHang, false, true);
+        List<PhieuGiamGiaResponse> result = new ArrayList<>();
+        for (PhieuGiamGia coupon : activeCoupons) {
+            result.add(new PhieuGiamGiaResponse(coupon));
+        }
+        for (PhieuGiamGiaCaNhan personalCoupon : personalCoupons) {
+            result.add(new PhieuGiamGiaResponse(personalCoupon.getIdPhieuGiamGia()));
+        }
+        return result;
     }
 }

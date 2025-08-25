@@ -1,6 +1,6 @@
 package org.example.be_sp.controller;
 
-import org.example.be_sp.model.request.HoaDonRequest;
+import org.example.be_sp.model.request.BanHangTaiQuayRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.HoaDonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,13 @@ public class HoaDonController {
     }
 
     @PostMapping("/add")
-    public ResponseObject<?> add(@RequestBody HoaDonRequest request) {
+    public ResponseObject<?> add(@RequestBody BanHangTaiQuayRequest request) {
         hoaDonService.add(request);
         return new ResponseObject<>(null, "Thêm hóa đơn thành công");
     }
 
     @PutMapping("/update/{id}")
-    public ResponseObject<?> update(@PathVariable Integer id, @RequestBody HoaDonRequest request) {
+    public ResponseObject<?> update(@PathVariable Integer id, @RequestBody BanHangTaiQuayRequest request) {
         hoaDonService.update(id, request);
         return new ResponseObject<>(null, "Cập nhật hóa đơn thành công");
     }

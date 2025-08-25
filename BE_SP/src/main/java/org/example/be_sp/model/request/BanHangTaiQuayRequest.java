@@ -1,23 +1,28 @@
 package org.example.be_sp.model.request;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
-public class HoaDonRequest {
+@AllArgsConstructor
+@NoArgsConstructor
+public class BanHangTaiQuayRequest {
     private Integer idKhachHang;
     private Integer idPhieuGiamGia;
     private Integer idNhanVien;
-    private String tenHoaDon;
-    private Boolean loaiDon;
+    private Integer idPhuongThucThanhToan;
+    private Integer idTrangThaiDonHang;
+    private HashMap<Integer, Integer> danhSachSanPham; // key: idSanPham, value: soLuong
     private BigDecimal phiVanChuyen;
     private BigDecimal tongTien;
     private BigDecimal tongTienSauGiam;
-    private String ghiChu;
     private String tenNguoiNhan;
     private String diaChiNhanHang;
     private String soDienThoaiNguoiNhan;
