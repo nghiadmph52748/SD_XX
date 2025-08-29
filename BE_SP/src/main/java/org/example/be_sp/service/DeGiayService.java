@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DeGiayService extends GenericCrudService<DeGiay, Integer, DeGiayResponse, DeGiayRequest> {
 
@@ -17,6 +19,10 @@ public class DeGiayService extends GenericCrudService<DeGiay, Integer, DeGiayRes
     private DeGiayRepository repository;
     public DeGiayService(Class<DeGiay> entity, Class<DeGiayResponse> deGiayResponseClass, Class<DeGiayRequest> deGiayRequestClass, JpaRepository<DeGiay, Integer> repository) {
         super(entity, deGiayResponseClass, deGiayRequestClass, repository);
+    }
+
+    public List<DeGiayResponse> getAllDeGiay() {
+        return repository.findAllByDeleted(false).stream().map(DeGiayResponse::new).toList();
     }
 
     public void updateStatus(Integer id) {

@@ -49,7 +49,7 @@ public class NhanVien {
     @Column(name = "so_dien_thoai", length = 12)
     private String soDienThoai;
 
-    @Column(name = "anh_nha_vien")
+    @Column(name = "anh_nhan_vien")
     private String anhNhanVien;
 
     @Column(name = "ngay_sinh")

@@ -10,12 +10,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class NhaSanXuatService extends GenericCrudService<NhaSanXuat, Integer, NhaSanXuatResponse, NhaSanXuatRequest> {
     @Autowired
     private NhaSanXuatRepository nhaSanXuatRepository;
     public NhaSanXuatService(Class<NhaSanXuat> entity, Class<NhaSanXuatResponse> nhaSanXuatResponseClass, Class<NhaSanXuatRequest> nhaSanXuatRequestClass, JpaRepository<NhaSanXuat, Integer> nhaSanXuatRepository) {
         super(entity, nhaSanXuatResponseClass, nhaSanXuatRequestClass, nhaSanXuatRepository);
+    }
+
+    public List<NhaSanXuatResponse> getAllNhaSanXuat() {
+        List<NhaSanXuat> list = nhaSanXuatRepository.findByDeletedFalse(false);
+        return list.stream().map(NhaSanXuatResponse::new).toList();
     }
 
     public void updateStatus(Integer id) {

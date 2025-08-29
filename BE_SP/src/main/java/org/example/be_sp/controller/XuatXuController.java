@@ -17,7 +17,7 @@ public class XuatXuController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(xuatXuService.getAll());
+        return new ResponseObject<>(xuatXuService.getAllXuatXu());
     }
 
     @GetMapping("/paging")

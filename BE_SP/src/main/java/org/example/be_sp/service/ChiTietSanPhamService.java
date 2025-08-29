@@ -6,18 +6,12 @@ import org.example.be_sp.entity.ChiTietSanPham;
 import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.ChiTietSanPhamRequest;
 import org.example.be_sp.model.response.ChiTietSanPhamFullResponse;
-import org.example.be_sp.model.response.ChiTietSanPhamResponse;
 import org.example.be_sp.model.response.PagingResponse;
 import org.example.be_sp.repository.ChatLieuRepository;
 import org.example.be_sp.repository.ChiTietSanPhamRepository;
-import org.example.be_sp.repository.ChongNuocRepository;
 import org.example.be_sp.repository.DeGiayRepository;
-import org.example.be_sp.repository.DemGiayRepository;
-import org.example.be_sp.repository.DoBenRepository;
 import org.example.be_sp.repository.KichThuocRepository;
-import org.example.be_sp.repository.LoaiMuaRepository;
 import org.example.be_sp.repository.MauSacRepository;
-import org.example.be_sp.repository.MonTheThaoRepository;
 import org.example.be_sp.repository.SanPhamRepository;
 import org.example.be_sp.repository.TrongLuongRepository;
 import org.example.be_sp.util.MapperUtils;
@@ -30,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChiTietSanPhamService {
-    private static final Logger logger = LoggerFactory.getLogger(ChiTietSanPhamService.class);
     @Autowired
     ChiTietSanPhamRepository repository;
     @Autowired
@@ -44,48 +37,25 @@ public class ChiTietSanPhamService {
     @Autowired
     ChatLieuRepository chatLieu;
     @Autowired
-    DemGiayRepository demGiay;
-    @Autowired
     TrongLuongRepository trongLuong;
-    @Autowired
-    MonTheThaoRepository monTheThao;
-    @Autowired
-    LoaiMuaRepository loaiMua;
-    @Autowired
-    DoBenRepository doBen;
-    @Autowired
-    ChongNuocRepository chongNuoc;
 
-    public List<ChiTietSanPhamResponse> getAll() {
-        logger.info("Bắt đầu lấy tất cả chi tiết sản phẩm");
-        try {
-            List<ChiTietSanPham> allChiTietSanPham = repository.findAllWithValidData();
-            logger.info("Tìm thấy {} chi tiết sản phẩm hợp lệ từ database", allChiTietSanPham.size());
-            
-            // Log thêm thông tin về từng sản phẩm để debug
-            allChiTietSanPham.forEach(ctsp -> 
-                logger.debug("Sản phẩm ID: {}, deleted: {}, trangThai: {}", 
-                           ctsp.getId(), ctsp.getDeleted(), ctsp.getTrangThai())
-            );
-            
-            List<ChiTietSanPhamResponse> result = allChiTietSanPham.stream()
-                    .map(ChiTietSanPhamResponse::new)
-                    .toList();
-            
-            logger.info("Trả về {} chi tiết sản phẩm", result.size());
-            return result;
-        } catch (Exception e) {
-            logger.error("Lỗi khi lấy tất cả chi tiết sản phẩm: {}", e.getMessage(), e);
-            throw e;
-        }
+    public List<ChiTietSanPhamFullResponse> getAll() {
+        return repository.findAllByDeleted(false).stream().map(ChiTietSanPhamFullResponse::new).toList();
     }
 
-    public ChiTietSanPhamResponse getById(Integer id) {
-        return repository.findById(id).map(ChiTietSanPhamResponse::new).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+    public List<ChiTietSanPhamFullResponse> getAllByIdSanPham(Integer idSanPham) {
+        return repository.findAllByDeletedAndIdSanPham_Id(false, idSanPham).stream().map(ChiTietSanPhamFullResponse::new).toList();
     }
 
-    public PagingResponse<ChiTietSanPhamResponse> paging(Integer page, Integer size) {
-        return new PagingResponse<>(repository.findAll(PageRequest.of(page, size)).map(ChiTietSanPhamResponse::new), page);
+    public ChiTietSanPhamFullResponse getById(Integer id) {
+        return repository.findById(id).map(ChiTietSanPhamFullResponse::new).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+    }
+
+    public void updateStatus(Integer id) {
+        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+        chiTietSanPham.setDeleted(true);
+        chiTietSanPham.setTrangThai(false);
+        repository.save(chiTietSanPham);
     }
 
     public Integer add(ChiTietSanPhamRequest request) {
@@ -95,76 +65,21 @@ public class ChiTietSanPhamService {
         c.setIdKichThuoc(kichThuoc.findKichThuocById(request.getIdKichThuoc()));
         c.setIdDeGiay(deGiay.findDeGiayById(request.getIdDeGiay()));
         c.setIdChatLieu(chatLieu.findChatLieuById(request.getIdChatLieu()));
-        c.setIdDemGiay(demGiay.findDemGiayById(request.getIdDemGiay()));
         c.setIdTrongLuong(trongLuong.findTrongLuongById(request.getIdTrongLuong()));
-        c.setIdMonTheThao(monTheThao.findMonTheThaoById(request.getIdMonTheThao()));
-        c.setIdLoaiMua(loaiMua.findLoaiMuaById(request.getIdLoaiMua()));
-        c.setIdDoBen(doBen.findDoBenById(request.getIdDoBen()));
-        c.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
         ChiTietSanPham saved = repository.save(c);
         return saved.getId();
     }
 
     public void update(ChiTietSanPhamRequest request, Integer id) {
-        ChiTietSanPham e = MapperUtils.map(request, ChiTietSanPham.class);
+        ChiTietSanPham e = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+        MapperUtils.mapToExisting(request, e);
         e.setId(id);
         e.setIdSanPham(sanPham.findSanPhamById(request.getIdSanPham()));
         e.setIdMauSac(mauSac.findMauSacById(request.getIdMauSac()));
         e.setIdKichThuoc(kichThuoc.findKichThuocById(request.getIdKichThuoc()));
         e.setIdDeGiay(deGiay.findDeGiayById(request.getIdDeGiay()));
         e.setIdChatLieu(chatLieu.findChatLieuById(request.getIdChatLieu()));
-        e.setIdDemGiay(demGiay.findDemGiayById(request.getIdDemGiay()));
         e.setIdTrongLuong(trongLuong.findTrongLuongById(request.getIdTrongLuong()));
-        e.setIdMonTheThao(monTheThao.findMonTheThaoById(request.getIdMonTheThao()));
-        e.setIdLoaiMua(loaiMua.findLoaiMuaById(request.getIdLoaiMua()));
-        e.setIdDoBen(doBen.findDoBenById(request.getIdDoBen()));
-        e.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
         repository.save(e);
-    }
-
-    @Transactional
-    public void updateStatus(Integer id) {
-        logger.info("Bắt đầu cập nhật trạng thái chi tiết sản phẩm với ID: {}", id);
-        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
-        
-        logger.info("Trạng thái trước khi cập nhật - deleted: {}, trangThai: {}", 
-                   chiTietSanPham.getDeleted(), chiTietSanPham.getTrangThai());
-        
-        chiTietSanPham.setDeleted(true);
-        chiTietSanPham.setTrangThai(false);
-        
-        ChiTietSanPham saved = repository.save(chiTietSanPham);
-        logger.info("Đã cập nhật thành công chi tiết sản phẩm ID: {}, deleted: {}, trangThai: {}", 
-                   saved.getId(), saved.getDeleted(), saved.getTrangThai());
-    }
-
-    @Transactional
-    public void restoreStatus(Integer id) {
-        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
-        chiTietSanPham.setDeleted(false);
-        chiTietSanPham.setTrangThai(true);
-        repository.save(chiTietSanPham);
-    }
-
-    @Transactional
-    public void delete(Integer id) {
-        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
-        
-        // Xóa chi tiết sản phẩm (các bản ghi liên quan sẽ được xử lý bởi cascade hoặc database constraints)
-        repository.delete(chiTietSanPham);
-    }
-
-    public List<ChiTietSanPhamFullResponse> getAllWithFullInfo() {
-        return repository.findAllWithValidData().stream()
-                .map(ChiTietSanPhamFullResponse::new)
-                .toList();
-    }
-
-    public PagingResponse<ChiTietSanPhamFullResponse> pagingWithFullInfo(Integer page, Integer size) {
-        return new PagingResponse<>(
-                repository.findAll(PageRequest.of(page, size))
-                        .map(ChiTietSanPhamFullResponse::new), 
-                page
-        );
     }
 }

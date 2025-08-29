@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,5 +16,10 @@ public class AnhSanPhamRequest {
     String duongDanAnh;
     String loaiAnh;
     String moTa;
+    Boolean trangThai;
     Boolean deleted;
+    LocalDate createAt;
+    Integer createBy;
+    LocalDate updateAt;
+    Integer updateBy;
 }

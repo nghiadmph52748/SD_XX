@@ -18,12 +18,7 @@ public class ChiTietSanPhamRequest {
     Integer idKichThuoc;
     Integer idDeGiay;
     Integer idChatLieu;
-    Integer idDemGiay;
     Integer idTrongLuong;
-    Integer idMonTheThao;
-    Integer idLoaiMua;
-    Integer idDoBen;
-    Integer idChongNuoc;
     Integer soLuong;
     BigDecimal giaBan;
     Boolean trangThai;

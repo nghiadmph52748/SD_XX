@@ -1,0 +1,2548 @@
+/* 
+ * Products Unified CSS - Chỉ áp dụng cho các trang /products/*
+ * KHÔNG sờ vào phần menu
+ * KHÔNG có hover effect
+ * CSS sạch sẽ, không trùng lặp
+ */
+
+/* ===== MÀU SẮC CHUNG ===== */
+:root {
+  --text-primary: #000000;
+  --text-secondary: #1e293b;
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #f1f5f9;
+  --border-color: #cbd5e1;
+  --accent-color: #16a34a;
+  --success-color: #059669;
+  --warning-color: #d97706;
+  --error-color: #dc2626;
+  --info-color: #2563eb;
+  --header-bg: #ececec;
+  --header-text: #000000;
+  --filter-bg: #ffffff;
+  --filter-border: transparent;
+}
+
+/* ===== BACKGROUND CHO TOÀN BỘ WEB ===== */
+html,
+body {
+  background-color: var(--bg-primary);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#app {
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+}
+
+/* ===== STYLE CHO ROUTERLINK SẢN PHẨM ===== */
+.product-link {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.product-text {
+  color: #000000 !important;
+  font-weight: bold !important;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+/* ===== CHỈ ÁP DỤNG CHO PRODUCTS PAGES ===== */
+[data-route*="/products"] *,
+[data-route*="/products/"] *,
+.products-page *,
+.product-management *,
+.them-san-pham-page * {
+  /* CSS cho products pages */
+}
+
+/* ===== PRODUCT TABLE STYLES ===== */
+.product-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  border: 1px solid var(--border-color);
+  /* Đảm bảo table không bị nhảy cột */
+  table-layout: fixed;
+  /* Giảm font size để hiển thị đầy đủ */
+  font-size: 12px;
+}
+
+.product-table th {
+  background: var(--header-bg);
+  color: var(--header-text);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 8px 6px;
+  text-align: left;
+  border: none;
+  position: relative;
+  height: 48px;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+}
+
+.product-table th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.product-table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.product-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.product-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  color: var(--text-primary);
+  font-size: 12px;
+  transition: all 0.3s ease;
+  height: 48px;
+  box-sizing: border-box;
+  text-align: left;
+  background: var(--bg-primary);
+}
+
+.product-table tbody tr {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* KHÔNG có hover effect */
+.product-table tbody tr.editing-row {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 4px solid var(--accent-color);
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.15);
+}
+
+/* ===== PRODUCT CELL STYLES ===== */
+.product-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+  min-height: 32px;
+  padding: 6px 0;
+}
+
+/* ===== SPECIFIC COLUMN ALIGNMENT ===== */
+.product-table td:nth-child(4) {
+  text-align: left;
+}
+
+.product-table td:nth-child(5) {
+  text-align: center;
+}
+
+.product-cell .product-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+/* ===== INLINE EDIT STYLES ===== */
+.inline-edit {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Đảm bảo không làm thay đổi layout của table */
+  min-height: 32px;
+  box-sizing: border-box;
+  /* Sửa vấn đề input đè lên nhau */
+  position: relative;
+  z-index: 1;
+}
+
+/* CSS để table không bị nhảy cột khi vào edit mode */
+.product-table td {
+  /* Đảm bảo kích thước cột cố định */
+  min-width: 0;
+  max-width: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Cho phép xuống dòng khi cần thiết */
+  white-space: normal;
+  word-wrap: break-word;
+  /* Giảm padding để table gọn gàng hơn */
+  padding: 4px 3px;
+  height: auto;
+  min-height: 36px;
+  vertical-align: middle;
+  /* Căn trái tất cả các trường dữ liệu */
+  text-align: left;
+  /* Giảm font size để hiển thị đầy đủ */
+  font-size: 12px;
+}
+
+/* Các cột có thể edit cần có width cố định */
+.product-table .quantity-col {
+  width: 110px;
+  min-width: 110px;
+  max-width: 110px;
+  /* Căn giữa trên dưới */
+  vertical-align: middle;
+}
+
+.product-table .status-col {
+  width: auto;
+  min-width: 60px;
+  max-width: 80px;
+  /* Căn giữa trên dưới */
+  vertical-align: middle;
+}
+
+/* Cột giá bán có thể edit */
+.product-table .price-col {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  /* Căn giữa trên dưới */
+  vertical-align: middle;
+  /* Giá tiền hiển thị viết liền */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CSS cho các cột có nội dung dài */
+.product-table .nha-san-xuat-col,
+.product-table .xuat-xu-col,
+.product-table .color-col,
+.product-table .size-col,
+.product-table .sole-col,
+.product-table .material-col,
+.product-table .weight-col {
+  /* Cho phép xuống dòng tốt hơn */
+  word-break: break-word;
+  hyphens: auto;
+  /* Căn giữa trên dưới */
+  vertical-align: middle;
+}
+
+/* CSS cho cột giảm giá */
+.product-table .giam-gia-col {
+  text-align: center;
+  /* Căn giữa */
+  vertical-align: middle;
+  /* Giá trị giảm giá hiển thị đầy đủ */
+  white-space: nowrap;
+  overflow: visible;
+  /* Cho phép hiển thị đầy đủ */
+  text-overflow: clip;
+  /* Không cắt bằng dấu ... */
+  min-width: 80px;
+  max-width: 80px;
+}
+
+/* CSS cho các cột giá tiền để hiển thị viết liền */
+.product-table .price-col,
+.product-table .gia-sau-giam-col {
+  white-space: nowrap;
+  /* Không cho phép xuống dòng */
+  overflow: visible;
+  /* Cho phép hiển thị đầy đủ */
+  text-overflow: clip;
+  /* Không cắt bằng dấu ... */
+  /* Đảm bảo giá tiền hiển thị đầy đủ */
+  min-width: 80px;
+  max-width: 100px;
+}
+
+/* CSS cho cột ảnh để hiển thị tốt hơn */
+.product-table .image-col {
+  vertical-align: middle;
+  text-align: center;
+  /* Giữ căn giữa cho cột ảnh */
+}
+
+/* Căn giữa tất cả các cột ngoại trừ giá bán và giá sau giảm */
+.product-table .stt-col,
+.product-table .nha-san-xuat-col,
+.product-table .xuat-xu-col,
+.product-table .color-col,
+.product-table .size-col,
+.product-table .sole-col,
+.product-table .material-col,
+.product-table .weight-col,
+.product-table .quantity-col,
+.product-table .giam-gia-col,
+.product-table .status-col,
+.product-table .action-col {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* CSS cho ảnh trong cột ảnh */
+.product-table .image-col img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* CSS cho cột thao tác để căn giữa */
+.product-table .action-col {
+  vertical-align: middle;
+  text-align: center;
+  /* Giữ căn giữa cho cột thao tác */
+  /* Thêm padding để có khoảng cách với lề */
+  padding: 8px 6px;
+}
+
+/* Đảm bảo input và select trong edit mode không làm thay đổi kích thước cột */
+.inline-edit .edit-input,
+.inline-edit .edit-select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* Sửa vấn đề input đè lên nhau */
+  position: relative;
+  z-index: 2;
+}
+
+/* CSS để tránh xung đột giữa các input trong cùng một hàng */
+.editing-row .inline-edit {
+  position: relative;
+  z-index: 1;
+}
+
+.editing-row .inline-edit .edit-input,
+.editing-row .inline-edit .edit-select {
+  z-index: 2;
+}
+
+/* CSS cho hàng đang edit */
+.editing-row {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.1) 100%);
+  border-left: 3px solid var(--accent-color);
+}
+
+.editing-row td {
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Đảm bảo các cột có kích thước cố định */
+.product-table th.stt-col {
+  width: 35px;
+  min-width: 35px;
+  max-width: 35px;
+  padding: 6px 4px;
+}
+
+/* CSS cho cột STT để căn giữa */
+.product-table .stt-col {
+  text-align: center;
+  /* Căn giữa cho cột STT */
+}
+
+/* CSS cho cột STT trong thead cũng căn giữa */
+.product-table th.stt-col {
+  text-align: center;
+}
+
+/* Căn giữa tất cả header ngoại trừ giá bán và giá sau giảm */
+.product-table th.stt-col,
+.product-table th.image-col,
+.product-table th.nha-san-xuat-col,
+.product-table th.xuat-xu-col,
+.product-table th.color-col,
+.product-table th.size-col,
+.product-table th.sole-col,
+.product-table th.material-col,
+.product-table th.weight-col,
+.product-table th.quantity-col,
+.product-table th.giam-gia-col,
+.product-table th.status-col,
+.product-table th.action-col {
+  text-align: center;
+}
+
+/* Căn giữa tất cả header ngoại trừ giá bán và giá sau giảm */
+.product-table th.stt-col,
+.product-table th.image-col,
+.product-table th.nha-san-xuat-col,
+.product-table th.xuat-xu-col,
+.product-table th.color-col,
+.product-table th.size-col,
+.product-table th.sole-col,
+.product-table th.material-col,
+.product-table th.weight-col,
+.product-table th.quantity-col,
+.product-table th.giam-gia-col,
+.product-table th.status-col,
+.product-table th.action-col {
+  text-align: center;
+}
+
+.product-table th.image-col {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  /* Căn giữa cho cột ảnh trong thead */
+}
+
+.product-table th.nha-san-xuat-col,
+.product-table th.xuat-xu-col {
+  width: 65px;
+  min-width: 65px;
+  max-width: 65px;
+  padding: 6px 6px;
+}
+
+.product-table th.color-col,
+.product-table th.size-col,
+.product-table th.sole-col,
+.product-table th.material-col,
+.product-table th.weight-col {
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  padding: 6px 6px;
+}
+
+.product-table th.quantity-col {
+  width: 110px;
+  min-width: 110px;
+  max-width: 110px;
+  padding: 8px 8px;
+}
+
+.product-table th.price-col {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+.product-table th.giam-gia-col {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  /* Căn giữa cho header cột giảm giá */
+}
+
+.product-table th.gia-sau-giam-col {
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.product-table th.status-col {
+  width: 123px;
+  min-width: 123px;
+  max-width: 123px;
+}
+
+.product-table th.action-col {
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  text-align: center;
+  /* Căn giữa cho cột thao tác trong thead */
+}
+
+.inline-edit .edit-input,
+.inline-edit .edit-select {
+  width: 85%;
+  min-height: 30px;
+  padding: 6px 8px;
+  border: 2px solid var(--accent-color);
+  border-radius: 6px;
+  font-size: 12px;
+  background: white;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s ease;
+  /* Sửa vấn đề input đè lên nhau */
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  /* Làm cho input đẹp hơn */
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
+  font-weight: 500;
+}
+
+/* CSS riêng cho input số lượng - nhỏ gọn hơn */
+.edit-input-soLuong {
+  width: 55px !important;
+  min-height: 28px !important;
+  padding: 6px 8px !important;
+  font-size: 12px !important;
+  text-align: left !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 4px rgba(34, 197, 94, 0.1) !important;
+}
+
+/* CSS riêng cho input giá bán - nhỏ gọn hơn */
+.edit-input-giaBan {
+  width: 100px !important;
+  min-height: 28px !important;
+  padding: 6px 8px !important;
+  font-size: 12px !important;
+  text-align: center !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 4px rgba(34, 197, 94, 0.1) !important;
+}
+
+/* CSS mới hoàn toàn cho input trong edit mode - tránh bị đè */
+.edit-mode-input {
+  width: 100% !important;
+  min-height: 32px !important;
+  padding: 8px 10px !important;
+  border: 2px solid var(--accent-color) !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  background: white !important;
+  color: var(--text-primary) !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15) !important;
+  font-weight: 500 !important;
+}
+
+.edit-mode-input:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2), 0 4px 12px rgba(34, 197, 94, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+.edit-mode-select {
+  width: 120px !important;
+  min-height: 32px !important;
+  padding: 8px 10px !important;
+  border: 2px solid var(--accent-color) !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  background: white !important;
+  color: var(--text-primary) !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15) !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  background-color: #f8fdf9 !important;
+}
+
+.edit-mode-select:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2), 0 4px 12px rgba(34, 197, 94, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* CSS để override Vue scoped style - sử dụng attribute selector */
+.inline-edit input[data-v-0f378fd0],
+.inline-edit select[data-v-0f378fd0] {
+  width: 100% !important;
+  min-width: unset !important;
+  max-width: unset !important;
+  box-sizing: border-box !important;
+  padding: 8px 10px !important;
+  border: 2px solid var(--accent-color) !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  background: white !important;
+  color: var(--text-primary) !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15) !important;
+  font-weight: 500 !important;
+  /* Đảm bảo text hiển thị */
+  text-align: left !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+/* Override mạnh cho select trạng thái */
+.inline-edit select[data-v-0f378fd0] {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  box-sizing: border-box !important;
+}
+
+/* Override cực mạnh cho select trạng thái - sử dụng nhiều selector */
+.inline-edit select[data-v-0f378fd0],
+.inline-edit .edit-mode-select[data-v-0f378fd0],
+.inline-edit select.edit-mode-select[data-v-0f378fd0],
+.product-table .inline-edit select[data-v-0f378fd0] {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+/* Override cho input số lượng */
+.inline-edit input[data-v-0f378fd0].edit-input-soLuong {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  font-size: 13px !important;
+  text-align: left !important;
+  padding: 8px 10px !important;
+}
+
+/* Override cho input giá bán */
+.inline-edit input[data-v-0f378fd0].edit-input-giaBan {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  font-size: 13px !important;
+  text-align: center !important;
+  padding: 8px 10px !important;
+}
+
+/* Override cho select */
+.inline-edit select[data-v-0f378fd0] {
+  cursor: pointer !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2316a34a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 18px !important;
+  padding-right: 35px !important;
+  background-color: #f8fdf9 !important;
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  font-size: 12px !important;
+  padding: 8px 10px !important;
+}
+
+.inline-edit .edit-input:focus,
+.inline-edit .edit-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2), 0 4px 12px rgba(34, 197, 94, 0.25);
+  transform: translateY(-1px);
+}
+
+.inline-edit .edit-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2316a34a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px;
+  padding-right: 35px;
+  /* Làm cho select đẹp hơn */
+  background-color: #f8fdf9;
+}
+
+/* ===== STATUS BADGE STYLES ===== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-badge.active {
+  background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.inactive {
+  background: linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  /* Thêm padding để có khoảng cách với lề */
+  padding: 0;
+}
+
+/* CSS riêng cho button trong cột thao tác - tránh conflict với .btn */
+.action-buttons .btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+}
+
+.action-btn.view {
+  background: linear-gradient(135deg, var(--info-color) 0%, #2563eb 100%);
+  color: var(--text-primary);
+}
+
+.action-btn.edit {
+  background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
+  color: var(--text-primary);
+}
+
+.action-btn.delete {
+  background: linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%);
+  color: var(--text-primary);
+}
+
+/* KHÔNG có hover effect */
+
+/* ===== CHECKBOX STYLES ===== */
+.product-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background: var(--bg-primary);
+  position: relative;
+  margin: 0 auto;
+  display: block;
+}
+
+.product-table input[type="checkbox"]:checked {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.product-table input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* KHÔNG có hover effect */
+
+/* ===== PAGINATION STYLES ===== */
+.pagination-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-info {
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+
+  .product-table th,
+  .product-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .edit-input,
+  .edit-select {
+    min-width: 150px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-table {
+    font-size: 12px;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .edit-input,
+  .edit-select {
+    min-width: 120px;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .pagination-wrapper {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===== CARD HEADER STYLES ===== */
+.card-header {
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--header-bg);
+  color: var(--header-text);
+  border-radius: none !important;
+}
+
+.card-header .table-header-content {
+  padding: 0;
+  margin: 0;
+}
+
+.card-header .table-title {
+  margin: 0 0 0 20px;
+  font-size: 1.125rem;
+  color: var(--header-text);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ===== FILTER HEADER STYLES ===== */
+.filter-header {
+  padding: 16px 20px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--filter-border);
+  color: var(--header-text);
+}
+
+.filter-header .filter-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--header-text);
+}
+
+.filter-header .filter-title h3 {
+  color: var(--header-text);
+  margin: 0;
+}
+
+.filter-header .filter-icon {
+  color: var(--header-text);
+}
+
+.filter-header .filter-actions {
+  gap: 0.75rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  right: 10%;
+}
+
+.btn-export .btn-icon {
+  font-size: 1rem;
+}
+
+/* ===== FILTER SECTION STYLES ===== */
+.filter-section {
+  margin-bottom: 2rem;
+}
+
+.filter-card {
+  background: var(--filter-bg);
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ===== FILTER CONTENT STYLES ===== */
+.filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  /* padding: 1.5rem; */
+  margin: 0 !important;
+  align-items: flex-start;
+}
+
+.search-section {
+  position: relative;
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.25rem 1rem 3rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.input-icon {
+  position: absolute;
+  left: 38px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #666;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.filter-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 12px !important;
+  flex-direction: row !important;
+  border: none !important;
+}
+
+.filter-label {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  text-align: left !important;
+  min-width: 80px !important;
+  margin-bottom: 0 !important;
+}
+
+.filter-group select {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  flex: 1;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
+}
+
+.btn-outline {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  background: white;
+  color: var(--accent-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+  white-space: nowrap;
+}
+
+.btn-outline:hover {
+  background: var(--accent-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+}
+
+/* ===== BUTTON STYLES ===== */
+.btn-save-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+  min-width: 200px;
+  justify-content: center;
+}
+
+.btn-save-all:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
+}
+
+.btn-save-all .btn-icon {
+  font-size: 1rem;
+}
+
+/* ===== CUSTOM CONFIRM DIALOG STYLES ===== */
+.custom-confirm-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  animation: fadeIn 0.3s ease-out;
+  pointer-events: auto;
+}
+
+.custom-confirm-dialog .confirm-content {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.custom-confirm-dialog .confirm-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+  border-radius: 20px 20px 0 0;
+}
+
+.custom-confirm-dialog h3 {
+  margin: 0 0 1.5rem 0;
+  color: #22c55e;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.custom-confirm-dialog h3::before {
+  content: "⚠️";
+  font-size: 1.75rem;
+}
+
+.custom-confirm-dialog p {
+  margin: 0 0 2rem 0;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 1rem;
+  background: rgba(59, 130, 246, 0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+.custom-confirm-dialog .confirm-buttons {
+  display: flex !important;
+  gap: 1rem !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.custom-confirm-dialog .btn {
+  padding: 0.875rem 2rem !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  border: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 0.95rem !important;
+  min-width: 120px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.custom-confirm-dialog .btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.custom-confirm-dialog .btn:hover::before {
+  left: 100%;
+}
+
+.custom-confirm-dialog .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.custom-confirm-dialog .btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+}
+
+.custom-confirm-dialog .btn-secondary {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(100, 116, 139, 0.4);
+}
+
+.custom-confirm-dialog .btn-secondary:hover {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(100, 116, 139, 0.5);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .custom-confirm-dialog .confirm-content {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    border-radius: 16px;
+  }
+
+  .custom-confirm-dialog h3 {
+    font-size: 1.25rem;
+  }
+
+  .custom-confirm-dialog p {
+    font-size: 0.9rem;
+    padding: 0.875rem;
+  }
+
+  .custom-confirm-dialog .btn {
+    padding: 0.75rem 1.5rem;
+    min-width: 100px;
+    font-size: 0.9rem;
+  }
+
+  .custom-confirm-dialog .confirm-buttons {
+    flex-direction: row !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* CSS bổ sung để đảm bảo popup luôn hiển thị ở giữa trang web */
+.custom-confirm-dialog {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  pointer-events: auto !important;
+}
+
+.custom-confirm-dialog .confirm-content {
+  position: relative !important;
+  z-index: 1000000 !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Đảm bảo không có element nào che khuất popup */
+.custom-confirm-dialog * {
+  position: relative !important;
+  z-index: inherit !important;
+}
+
+/* Đảm bảo popup luôn ở trên cùng */
+body {
+  overflow: hidden !important;
+}
+
+.custom-confirm-dialog {
+  overflow: visible !important;
+}
+
+/* Đảm bảo popup luôn ở giữa màn hình */
+.custom-confirm-dialog {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.custom-confirm-dialog .confirm-content {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000000 !important;
+}
+
+/* ===== BASIC BUTTON STYLES ===== */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+}
+
+.btn-outline:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+/* ===== RESPONSIVE DESIGN FOR SAVE ALL BUTTON ===== */
+@media (max-width: 768px) {
+  .btn-save-all {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-save-all {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8rem;
+    min-width: 160px;
+  }
+}
+
+/* ===== EXPORT BUTTON STYLES ===== */
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+}
+
+.btn-export:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
+}
+
+.btn-export .btn-icon {
+  font-size: 1rem;
+}
+
+/* ===== TABLE HEADER CONTENT STYLES ===== */
+.table-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--header-text);
+}
+
+.table-title {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--header-text);
+  height: 51.200px;
+  display: flex;
+  align-items: center;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.table-actions .btn-save-all {
+  margin-left: 0;
+}
+
+/* ===== FILTER CONTENT STYLES ===== */
+.filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  align-items: flex-start;
+}
+
+.search-section {
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: left;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: nowrap;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  width: 70%;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  text-align: left;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+}
+
+.filter-actions {
+  flex-shrink: 0;
+  width: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+}
+
+.filter-actions .btn {
+  width: auto;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  background: white;
+  color: var(--accent-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+}
+
+/* ===== RADIO BUTTONS STYLES ===== */
+.radio-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+}
+
+.radio-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+.radio-item:hover {
+  transform: translateY(-1px) !important;
+}
+
+.radio-item input[type="radio"] {
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: var(--accent-color) !important;
+  cursor: pointer !important;
+}
+
+.radio-text {
+  font-size: 0.875rem !important;
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+
+/* ===== NÚT ĐẶT LẠI CĂN TRÁI ===== */
+.filter-group .btn-outline {
+  margin-left: 10xp !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* ===== HIỆU ỨNG HOVER CHO CÁC NÚT ===== */
+.btn-outline:hover {
+  background: var(--accent-color) !important;
+  color: white !important;
+  border-color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3) !important;
+}
+
+.btn-export:hover {
+  background: var(--accent-color) !important;
+  color: white !important;
+  border-color: white !important;
+  transform: translateY(-2px) !important;
+}
+
+.btn-save-all:hover {
+  background: var(--accent-color) !important;
+  color: white !important;
+  border-color: white !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ===== CSS CHO FILE THÊM SẢN PHẨM ===== */
+.them-san-pham-page {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* ===== FORM CONTAINER ===== */
+.form-container {
+  margin-bottom: 30px;
+}
+
+.form-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+/* ===== FORM SECTION ===== */
+.form-section {
+  padding: 30px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.section-icon {
+  font-size: 28px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.section-header h3 {
+  color: #2c3e50;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ===== FORM GRID ===== */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.form-field.span-2 {
+  grid-column: span 2;
+}
+
+/* ===== FORM FIELD ===== */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modern-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.modern-input {
+  padding: 15px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 14px;
+  background: white;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ===== TOGGLE GROUP ===== */
+.toggle-group {
+  display: flex;
+  gap: 15px;
+}
+
+.toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  background: white;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.toggle-option.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.toggle-option:hover:not(.active) {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+}
+
+.toggle-indicator {
+  width: 16px;
+  height: 16px;
+  accent-color: white;
+}
+
+/* ===== FORM ACTIONS ===== */
+.form-actions {
+  padding: 30px;
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+  background: #f8f9fa;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== SUCCESS MODAL ===== */
+.success-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.success-modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+}
+
+.success-icon {
+  color: #22c55e;
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.success-title {
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.success-message {
+  color: #6b7280;
+  font-size: 16px;
+  margin-bottom: 25px;
+}
+
+.success-close-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.success-close-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* ===== CSS CHO FILE QUẢN LÝ SẢN PHẨM ===== */
+.card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.card-header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  border-radius: none !important;
+  padding: 20px 30px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.table-title {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.card-body {
+  padding: 0;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: #f8f9fa;
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 15px;
+  text-align: left;
+  border-bottom: 2px solid #e9ecef;
+  font-size: 14px;
+}
+
+.table td {
+  padding: 15px;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: middle;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.inline-edit {
+  width: 100%;
+}
+
+.edit-input,
+.edit-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.edit-input:focus,
+.edit-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.product-cell {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.editing-row {
+  background-color: #f0f9ff !important;
+}
+
+/* CSS cho tất cả thuộc tính sản phẩm - Search và Filter */
+
+/* Container chính cho search và filter */
+.search-filter-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+/* Layout chính cho search box */
+.search-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* Phần search input */
+.search-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-input-group label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input-group label i {
+  color: #6b7280;
+}
+
+.search-input-group input {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.search-input-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input-group input::placeholder {
+  color: #9ca3af;
+}
+
+/* Phần filter */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label i {
+  color: #6b7280;
+}
+
+.filter-group select {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Radio filter styles - giống với radio-item của quản lý sản phẩm */
+.radio-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.radio-filter .radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.radio-filter .radio-label:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-1px);
+}
+
+.radio-filter .radio-label input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-color);
+}
+
+.radio-filter .radio-label span {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Phần action button */
+.action-group {
+  display: flex;
+  align-items: flex-end;
+}
+
+.action-group .btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.action-group .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.action-group .btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.action-group .btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .search-box {
+    gap: 20px;
+  }
+
+  .search-input-group,
+  .filter-group {
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-filter-section {
+    padding: 20px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .search-input-group,
+  .filter-group,
+  .action-group {
+    min-width: auto;
+  }
+
+  .action-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-filter-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .search-box {
+    gap: 12px;
+  }
+
+  .search-input-group input,
+  .filter-group select,
+  .action-group .btn {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
+
+/* ===== FILTERS GRID STYLES ===== */
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  align-items: end;
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.filters-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  margin: auto 150px;
+}
+
+/* Responsive cho filters-grid */
+@media (max-width: 1200px) {
+  .filters-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* ===== BUTTON STYLES CHO CHI TIET SAN PHAM ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
+}
+
+.btn .btn-icon {
+  font-size: 1rem;
+}
+
+/* Button primary style */
+.btn-primary {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.btn-primary:active {
+  background: #059669;
+  border-color: #059669;
+}
+
+/* Button secondary style */
+.btn-secondary {
+  background: white;
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:active {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+/* Button danger style */
+.btn-danger {
+  background: white;
+  color: var(--error-color);
+  border-color: var(--error-color);
+}
+
+.btn-danger:active {
+  background: var(--error-color);
+  color: white;
+}
+
+/* ===== CSS ĐẶC BIỆT CHO EDIT MODE - ĐẢM BẢO HIỂN THỊ ===== */
+.inline-edit input,
+.inline-edit select {
+  color: #333 !important;
+  background: white !important;
+  z-index: 999 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-align: left !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  border: 2px solid var(--accent-color) !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15) !important;
+  min-height: 32px !important;
+  padding: 8px 10px !important;
+}
+
+/* Bỏ hoàn toàn icon mũi tên cho tất cả select */
+.inline-edit select {
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  background-position: unset !important;
+  background-size: unset !important;
+  padding-right: 10px !important;
+}
+
+/* Override cực mạnh cho tất cả select - đảm bảo width đúng */
+.inline-edit select,
+.inline-edit .edit-mode-select,
+.inline-edit select.edit-mode-select {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  /* Bỏ hoàn toàn icon mũi tên */
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  background-position: unset !important;
+  background-size: unset !important;
+  padding-right: 10px !important;
+}
+
+/* Đảm bảo text trong input hiển thị rõ ràng */
+.inline-edit input::placeholder,
+.inline-edit select::placeholder {
+  color: #999 !important;
+  opacity: 1 !important;
+}
+
+/* Đảm bảo option trong select hiển thị rõ ràng */
+.inline-edit select option {
+  color: #333 !important;
+  background: white !important;
+  padding: 8px !important;
+}
+
+/* ===== CSS CHO POPUP EDIT ===== */
+.edit-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.edit-popup {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.edit-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-popup-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.edit-popup-content {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.edit-popup-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.edit-popup-actions .btn {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}

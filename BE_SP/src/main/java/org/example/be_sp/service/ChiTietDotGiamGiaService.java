@@ -43,11 +43,16 @@ public class ChiTietDotGiamGiaService {
         repository.save(e);
     }
 
-    public void update(Integer id, ChiTietDotGiamGiaRequest chiTietDotGiamGiaResponse) {
-        ChiTietDotGiamGia e = MapperUtils.map(chiTietDotGiamGiaResponse, ChiTietDotGiamGia.class);
+    public void update(Integer id, ChiTietDotGiamGiaRequest request) {
+        ChiTietDotGiamGia ex = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết đợt giảm giá không tồn tại " +id, "404"));
+        ChiTietDotGiamGia e = MapperUtils.map(request, ChiTietDotGiamGia.class);
         e.setId(id);
-        e.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(chiTietDotGiamGiaResponse.getIdChiTietSanPham()));
-        e.setIdDotGiamGia(dotGiamGiaRepository.findDotGiamGiaById(chiTietDotGiamGiaResponse.getIdDotGiamGia()));
+        e.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(request.getIdChiTietSanPham()));
+        e.setIdDotGiamGia(dotGiamGiaRepository.findDotGiamGiaById(request.getIdDotGiamGia()));
+        e.setDeleted(ex.getDeleted());
+        e.setTrangThai(ex.getTrangThai());
+        e.setCreateAt(ex.getCreateAt());
+        e.setCreateBy(ex.getCreateBy());
         repository.save(e);
     }
 

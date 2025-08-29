@@ -1,12 +1,12 @@
 package org.example.be_sp.util;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.response.PagingResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class GenericCrudService<E, ID, response,request> {
     private final Class<E> entity;

@@ -16,7 +16,7 @@ public class ChatLieuController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(chatLieuService.getAll(), "Hiển thị danh sách");
+        return new ResponseObject<>(chatLieuService.getAllChatLieu());
     }
 
     @GetMapping("/paging")

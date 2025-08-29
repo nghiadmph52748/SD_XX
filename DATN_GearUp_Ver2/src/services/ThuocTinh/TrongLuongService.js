@@ -32,6 +32,7 @@ export const fetchCreateTrongLuong = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create weight");
     }
+    return res.json();
 }
 export const fetchUpdateTrongLuong = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

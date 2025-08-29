@@ -16,7 +16,7 @@ public class MauSacController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(mauSacService.getAll());
+        return new ResponseObject<>(mauSacService.getAllMauSac());
     }
 
     @GetMapping("/paging")

@@ -1,16 +1,16 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, markRaw } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import logoUrl from "@/assets/gearup-logo-official.svg";
+import { computed, markRaw, onMounted, onUnmounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { setGlobalNotificationInstance } from "../src/services/response/dichVuThongBao.js";
 import { useAuth } from "../src/services/response/khoXacThuc.js";
 import { useNotifications } from "./composables/useNotifications.js";
-import { setGlobalNotificationInstance } from "../src/services/response/dichVuThongBao.js";
-import logoUrl from "@/assets/gearup-logo-official.svg";
 
 const router = useRouter();
 const route = useRoute();
 const { authState, logout: authLogout, initializeAuth } = useAuth();
 
-const sidebarOpen = ref(localStorage.getItem('sidebarOpen') !== 'false'); // Remember sidebar state
+const sidebarOpen = ref(localStorage.getItem("sidebarOpen") !== "false"); // Remember sidebar state
 const showNotifications = ref(false);
 const showUserDropdown = ref(false);
 const showAllNotificationsModal = ref(false);
@@ -122,12 +122,7 @@ const pageTitle = computed(() => {
     "/products/kich-thuoc": "Kích thước",
     "/products/de-giay": "Đế giày",
     "/products/chat-lieu": "Chất liệu",
-    "/products/dem-giay": "Đệm giày",
     "/products/trong-luong": "Trọng lượng",
-    "/products/mon-the-thao": "Môn thể thao",
-    "/products/loai-mua": "Loại mùa",
-    "/products/do-ben": "Độ bền",
-    "/products/chong-nuoc": "Chống nước",
     "/products/anh-san-pham": "Ảnh sản phẩm",
 
     // Sales & Orders
@@ -197,7 +192,6 @@ const menuItems = [
     hasSubmenu: true,
     submenu: [
       { path: "/products", name: "Danh sách sản phẩm" },
-      { path: "/products/details", name: "Chi tiết sản phẩm" },
       {
         name: "Thuộc tính sản phẩm",
         hasSubSubmenu: true,
@@ -208,12 +202,7 @@ const menuItems = [
           { path: "/products/kich-thuoc", name: "Kích thước" },
           { path: "/products/de-giay", name: "Đế giày" },
           { path: "/products/chat-lieu", name: "Chất liệu" },
-          { path: "/products/dem-giay", name: "Đệm giày" },
           { path: "/products/trong-luong", name: "Trọng lượng" },
-          { path: "/products/mon-the-thao", name: "Môn thể thao" },
-          { path: "/products/loai-mua", name: "Loại mùa" },
-          { path: "/products/do-ben", name: "Độ bền" },
-          { path: "/products/chong-nuoc", name: "Chống nước" },
           { path: "/products/anh-san-pham", name: "Ảnh sản phẩm" },
         ],
       },
@@ -230,11 +219,8 @@ const menuItems = [
     submenu: [
       { path: "/marketing/discounts", name: "Mã giảm giá" },
       { path: "/marketing/campaigns", name: "Chiến dịch khuyến mãi" },
-
     ],
   },
-
-
 
   // Users Section
   {
@@ -476,12 +462,12 @@ onMounted(() => {
   const checkMobile = () => {
     if (window.innerWidth <= 768) {
       sidebarOpen.value = false;
-      localStorage.setItem('sidebarOpen', 'false');
+      localStorage.setItem("sidebarOpen", "false");
     }
   };
-  
+
   checkMobile();
-  window.addEventListener('resize', checkMobile);
+  window.addEventListener("resize", checkMobile);
 
   // No automatic notifications - only trigger on actual changes
 });
@@ -489,16 +475,16 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("click", closeDropdowns);
   document.removeEventListener("keydown", handleKeydown);
-  window.removeEventListener('resize', checkMobile);
+  window.removeEventListener("resize", checkMobile);
 });
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
-  localStorage.setItem('sidebarOpen', sidebarOpen.value.toString());
+  localStorage.setItem("sidebarOpen", sidebarOpen.value.toString());
 };
 
 const handleKeydown = (event) => {
-  if (event.ctrlKey && event.key === 'b') {
+  if (event.ctrlKey && event.key === "b") {
     event.preventDefault();
     toggleSidebar();
   }
@@ -507,7 +493,7 @@ const handleKeydown = (event) => {
 const checkMobile = () => {
   if (window.innerWidth <= 768) {
     sidebarOpen.value = false;
-    localStorage.setItem('sidebarOpen', 'false');
+    localStorage.setItem("sidebarOpen", "false");
   }
 };
 </script>
@@ -525,14 +511,19 @@ const checkMobile = () => {
         <div class="logo" @click="navigateToDashboard">
           <img :src="logoUrl" alt="GearUp Logo" class="logo-icon" />
         </div>
-        <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarOpen ? 'Thu gọn menu' : 'Mở rộng menu'">
+        <button
+          class="sidebar-toggle"
+          @click="toggleSidebar"
+          :title="sidebarOpen ? 'Thu gọn menu' : 'Mở rộng menu'"
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path v-if="sidebarOpen" d="M19 13H5v-2h14v2z"/>
-            <path v-else d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            <path v-if="sidebarOpen" d="M19 13H5v-2h14v2z" />
+            <path v-else d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
           </svg>
         </button>
       </div>
 
+      <hr />
       <!-- Navigation Menu -->
       <nav class="nav-menu">
         <template v-for="item in menuItems" :key="item.name">
@@ -608,7 +599,7 @@ const checkMobile = () => {
                 "
                 :title="!sidebarOpen ? subitem.name : ''"
               >
-                <span class="submenu-bullet">•</span>
+                <!-- Dấu bullet đã được ẩn bằng CSS -->
                 <span class="submenu-text">{{ subitem.name }}</span>
                 <span v-if="subitem.hasSubSubmenu" class="submenu-arrow-sub">
                   <svg
@@ -641,12 +632,7 @@ const checkMobile = () => {
                     { path: '/products/kich-thuoc', name: 'Kích thước' },
                     { path: '/products/de-giay', name: 'Đế giày' },
                     { path: '/products/chat-lieu', name: 'Chất liệu' },
-                    { path: '/products/dem-giay', name: 'Đệm giày' },
                     { path: '/products/trong-luong', name: 'Trọng lượng' },
-                    { path: '/products/mon-the-thao', name: 'Môn thể thao' },
-                    { path: '/products/loai-mua', name: 'Loại mùa' },
-                    { path: '/products/do-ben', name: 'Độ bền' },
-                    { path: '/products/chong-nuoc', name: 'Chống nước' },
                     { path: '/products/anh-san-pham', name: 'Ảnh sản phẩm' },
                   ]"
                   :key="subSubitem.path"
@@ -655,7 +641,7 @@ const checkMobile = () => {
                   @click="router.push(subSubitem.path)"
                   :title="!sidebarOpen ? subSubitem.name : ''"
                 >
-                  <span class="sub-submenu-bullet">◦</span>
+                  <!-- Dấu bullet đã được ẩn bằng CSS -->
                   <span class="sub-submenu-text">{{ subSubitem.name }}</span>
                 </div>
               </div>
@@ -666,7 +652,10 @@ const checkMobile = () => {
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" :class="{ 'main-content-expanded': !sidebarOpen }">
+    <div
+      class="main-content"
+      :class="{ 'main-content-expanded': !sidebarOpen }"
+    >
       <!-- Header -->
       <header class="header">
         <div class="header-left"></div>
@@ -790,7 +779,7 @@ const checkMobile = () => {
           </div>
         </div>
       </header>
-
+      <hr>
       <!-- Page Content -->
       <main class="page-content">
         <router-view />
@@ -984,8 +973,6 @@ const checkMobile = () => {
   justify-content: space-between;
   position: relative;
 }
-
-
 
 .sidebar-toggle:hover {
   background-color: #f3f4f6;
@@ -1237,7 +1224,7 @@ const checkMobile = () => {
 .sub-submenu-text {
   color: #000000;
   flex: 1;
-  color: #000000;     
+  color: #000000;
 }
 
 .menu-icon {
@@ -1369,7 +1356,7 @@ const checkMobile = () => {
 
 /* Header */
 .header {
-  background: var(--surface);
+  background: #ffffff;
   border-bottom: 1px solid var(--border);
   padding: var(--spacing-lg) var(--spacing-3xl);
   display: flex;
@@ -2277,10 +2264,6 @@ const checkMobile = () => {
   border-radius: 50%;
 }
 
-.card-body {
-  margin-bottom: 1rem;
-}
-
 .notification-title-full {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
@@ -2361,7 +2344,7 @@ const checkMobile = () => {
 }
 
 .avatar-initial {
-  color: white;
+  color: rgb(0, 0, 0);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-lg);
   text-transform: uppercase;
@@ -2394,7 +2377,7 @@ const checkMobile = () => {
 /* Page Content */
 .page-content {
   flex: 1;
-  padding: var(--spacing-3xl);
+  padding: 1rem;
   overflow-y: auto;
   background-color: var(--background);
 }

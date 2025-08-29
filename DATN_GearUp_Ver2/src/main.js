@@ -2,9 +2,10 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './styles/style.css'
 import './styles/globals.css'
+import './styles/cssSanPham/productsUnified.css'
+import { addProductsPageClass } from './utils/productsPageClass.js'
 import App from './App.vue'
 
-// Import pages
 import Login from './pages/DangNhap.vue'
 import Dashboard from './pages/BangDieuKhien.vue'
 
@@ -13,10 +14,11 @@ import EmployeeManagement from './pages/management/NhanVien.vue'
 import CustomerManagement from './pages/management/KhachHang.vue'
 
 // Product Management (ERD: san_pham, bien_the_san_pham, hinh_anh_san_pham)
-import ProductManagement from './pages/management/QuanLySanPham.vue'
+import ProductManagement from './pages/products/SanPham/QuanLySanPham.vue'
+import ThemSanPham from './pages/products/SanPham/ThemSanPham.vue'
 
 // Product Attributes (ERD: danh_muc, thuong_hieu, mau_sac, kich_thuoc)
-import ProductDetails from './pages/products/ChiTietSanPham.vue'
+import ProductDetails from './pages/products/SanPham/ChiTietSanPham.vue'
 
 // Order Management (ERD: hoa_don, hoa_don_chi_tiet, thanh_toan)
 import OrderManagement from './pages/management/QuanLyDonHang.vue'
@@ -48,19 +50,14 @@ import ActivityLogsManagement from './pages/management/QuanLyNhatKyHoatDong.vue'
 import PriceHistoryManagement from './pages/management/QuanLyLichSuGia.vue'
 
 // 
-import XuatXu  from './pages/products/XuatXu.vue'
-import NhaSanXuat from './pages/products/NhaSanXuat.vue'
-import MauSac from './pages/products/MauSac.vue'
-import KichThuoc from './pages/products/KichThuoc.vue'
-import DeGiay from './pages/products/DeGiay.vue'
-import ChatLieu from './pages/products/ChatLieu.vue'
-import DemGiay from './pages/products/DemGiay.vue'
-import TrongLuong from './pages/products/TrongLuong.vue'
-import MonTheThao from './pages/products/MonTheThao.vue'
-import LoaiMua from './pages/products/LoaiMua.vue'
-import DoBen from './pages/products/DoBen.vue'
-import ChongNuoc from './pages/products/ChongNuoc.vue'
-import AnhSanPham from './pages/products/AnhSanPham.vue'
+import XuatXu from './pages/products/ThuocTinh/XuatXu.vue'
+import NhaSanXuat from './pages/products/ThuocTinh/NhaSanXuat.vue'
+import MauSac from './pages/products/ThuocTinh/MauSac.vue'
+import KichThuoc from './pages/products/ThuocTinh/KichThuoc.vue'
+import DeGiay from './pages/products/ThuocTinh/DeGiay.vue'
+import ChatLieu from './pages/products/ThuocTinh/ChatLieu.vue'
+import TrongLuong from './pages/products/ThuocTinh/TrongLuong.vue'
+import AnhSanPham from './pages/products/ThuocTinh/AnhSanPham.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -73,19 +70,15 @@ const routes = [
 
   // Product Management
   { path: '/products', component: ProductManagement },
-  { path: '/products/details', component: ProductDetails },
+  { path: '/products/add', component: ThemSanPham },
+  { path: '/products/details/:id', component: ProductDetails },
   { path: '/products/xuat-xu', component: XuatXu },
   { path: '/products/nha-san-xuat', component: NhaSanXuat },
   { path: '/products/mau-sac', component: MauSac },
   { path: '/products/kich-thuoc', component: KichThuoc },
   { path: '/products/de-giay', component: DeGiay },
   { path: '/products/chat-lieu', component: ChatLieu },
-  { path: '/products/dem-giay', component: DemGiay },
   { path: '/products/trong-luong', component: TrongLuong },
-  { path: '/products/mon-the-thao', component: MonTheThao },
-  { path: '/products/loai-mua', component: LoaiMua },
-  { path: '/products/do-ben', component: DoBen },
-  { path: '/products/chong-nuoc', component: ChongNuoc },
   { path: '/products/anh-san-pham', component: AnhSanPham },
   // Sales & Orders
   { path: '/sales/pos', component: POSSystem },
@@ -131,4 +124,8 @@ const router = createRouter({
 
 const app = createApp(App)
 app.use(router)
+
+// Khởi tạo products page class manager
+addProductsPageClass()
+
 app.mount('#app')

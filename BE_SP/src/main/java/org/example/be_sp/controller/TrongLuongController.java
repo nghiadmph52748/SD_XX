@@ -15,7 +15,7 @@ public class TrongLuongController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(trongLuongService.getAll());
+        return new ResponseObject<>(trongLuongService.getAllTrongLuong());
     }
 
     @GetMapping("/paging")

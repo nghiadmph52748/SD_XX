@@ -1,11 +1,9 @@
 package org.example.be_sp.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.example.be_sp.entity.ChiTietSanPhamAnh;
 import org.example.be_sp.model.request.ChiTietSanPhamAnhListRequest;
-import org.example.be_sp.model.request.ChiTietSanPhamAnhRequest;
 import org.example.be_sp.model.response.ChiTietSanPhamAnhResponse;
 import org.example.be_sp.model.response.PagingResponse;
 import org.example.be_sp.repository.AnhSanPhamRepository;
@@ -26,7 +24,7 @@ public class ChiTietSanPhamAnhService {
     AnhSanPhamRepository anhSanPhamRepository;
 
     public List<ChiTietSanPhamAnhResponse> getAll() {
-        return repository.findAll().stream().map(ChiTietSanPhamAnhResponse::new).toList();
+        return repository.findAllByDeleted(false).stream().map(ChiTietSanPhamAnhResponse::new).toList();
     }
 
     public ChiTietSanPhamAnhResponse getById(Integer id) {
@@ -39,41 +37,50 @@ public class ChiTietSanPhamAnhService {
         return new PagingResponse<>(repository.findAll(PageRequest.of(page, size)).map(ChiTietSanPhamAnhResponse::new), page);
     }
 
-    public ChiTietSanPhamAnh add(ChiTietSanPhamAnhRequest chiTietSanPhamAnhResponse) {
-        ChiTietSanPhamAnh e = MapperUtils.map(chiTietSanPhamAnhResponse, ChiTietSanPhamAnh.class);
-        e.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(chiTietSanPhamAnhResponse.getIdChiTietSanPham()));
-        e.setIdAnhSanPham(anhSanPhamRepository.findAnhSanPhamById(chiTietSanPhamAnhResponse.getIdAnhSanPham()));
-        ChiTietSanPhamAnh saved = repository.save(e);
-        return saved;
-    }
-
-    public List<ChiTietSanPhamAnh> addMultiple(ChiTietSanPhamAnhListRequest request) {
-        List<ChiTietSanPhamAnh> savedList = new ArrayList<>();
-        
-        for (Integer idAnhSanPham : request.getIdAnhSanPhamList()) {
-            ChiTietSanPhamAnh e = new ChiTietSanPhamAnh();
-            e.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(request.getIdChiTietSanPham()));
-            e.setIdAnhSanPham(anhSanPhamRepository.findAnhSanPhamById(idAnhSanPham));
-            e.setDeleted(false);
+    public void add(ChiTietSanPhamAnhListRequest request) {
+        try {
+            // Kiểm tra chi tiết sản phẩm có tồn tại không
+            var chiTietSanPham = chiTietSanPhamRepository.findChiTietSanPhamById(request.getIdChiTietSanPham());
+            if (chiTietSanPham == null) {
+                throw new RuntimeException("Không tìm thấy chi tiết sản phẩm với ID: " + request.getIdChiTietSanPham());
+            }
             
-            ChiTietSanPhamAnh saved = repository.save(e);
-            savedList.add(saved);
+            for (Integer idAnhSanPham : request.getIdAnhSanPhamList()) {
+                // Kiểm tra ảnh sản phẩm có tồn tại không
+                var anhSanPham = anhSanPhamRepository.findAnhSanPhamById(idAnhSanPham);
+                if (anhSanPham == null) {
+                    throw new RuntimeException("Không tìm thấy ảnh sản phẩm với ID: " + idAnhSanPham);
+                }
+                
+                ChiTietSanPhamAnh e = new ChiTietSanPhamAnh();
+                e.setIdChiTietSanPham(chiTietSanPham);
+                e.setIdAnhSanPham(anhSanPham);
+                e.setTrangThai(request.getTrangThai() != null ? request.getTrangThai() : true);
+                e.setDeleted(request.getDeleted() != null ? request.getDeleted() : false);
+                repository.save(e);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-        
-        return savedList;
     }
 
-    public void update(Integer id, ChiTietSanPhamAnhRequest chiTietSanPhamAnhResponse) {
-        ChiTietSanPhamAnh existing = MapperUtils.map(chiTietSanPhamAnhResponse, ChiTietSanPhamAnh.class);
+    public void update(Integer id, ChiTietSanPhamAnhListRequest request) {
+        ChiTietSanPhamAnh existing = MapperUtils.map(request, ChiTietSanPhamAnh.class);
         existing.setId(id);
-        existing.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(chiTietSanPhamAnhResponse.getIdChiTietSanPham()));
-        existing.setIdAnhSanPham(anhSanPhamRepository.findAnhSanPhamById(chiTietSanPhamAnhResponse.getIdAnhSanPham()));
+        existing.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(request.getIdChiTietSanPham()));
+        existing.setIdAnhSanPham(anhSanPhamRepository.findAnhSanPhamById(request.getIdAnhSanPhamList().get(0)));
         repository.save(existing);
     }
 
     public void updateStatus(Integer id){
-        ChiTietSanPhamAnh existing = repository.findById(id).orElseThrow(() -> new RuntimeException("ChiTietSanPhamAnh not found with id: " + id));
-        existing.setDeleted(true);
-        repository.save(existing);
+        try {
+            ChiTietSanPhamAnh existing = repository.findById(id).orElseThrow(() -> new RuntimeException("ChiTietSanPhamAnh not found with id: " + id));
+            existing.setDeleted(true);
+            existing.setTrangThai(false); // Set trangThai = false khi soft delete
+            repository.save(existing);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

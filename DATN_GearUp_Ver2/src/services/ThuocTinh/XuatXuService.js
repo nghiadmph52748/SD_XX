@@ -35,6 +35,7 @@ export const fetchCreateXuatXu = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create origin");
     }
+    return res.json();
 }
 
 export const fetchUpdateXuatXu = async (id, data) => {
