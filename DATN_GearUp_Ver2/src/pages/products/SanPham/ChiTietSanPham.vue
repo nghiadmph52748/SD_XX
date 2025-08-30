@@ -187,6 +187,7 @@
                 <div
                   v-if="getImagesForChiTietSanPhamForEdit(detail.id).length > 0"
                   class="image-preview"
+                  :key="`image-preview-${detail.id}-${imageDataKey.timestamp}`"
                 >
                   <img
                     :src="
@@ -197,12 +198,14 @@
                     "
                     :alt="detail.tenSanPham || detail.sanPham?.tenSanPham"
                     class="product-image"
+                    :key="`image-${detail.id}-${imageDataKey.timestamp}`"
                   />
                   <span
                     v-if="
                       getImagesForChiTietSanPhamForEdit(detail.id).length > 1
                     "
                     class="image-count"
+                    :key="`count-${detail.id}-${imageDataKey.timestamp}`"
                   >
                     +{{
                       getImagesForChiTietSanPhamForEdit(detail.id).length - 1
@@ -1251,6 +1254,7 @@ const updateImagesForChiTietSanPham = async (chiTietSanPhamId, newImageIds) => {
       const requestData = {
         idChiTietSanPham: chiTietSanPhamId,
         idAnhSanPhamList: newImageIds,
+        trangThai: true,
         deleted: false,
       };
 
@@ -2231,6 +2235,7 @@ const currentProductName = computed(() => {
 const imageDataKey = ref({
   chiTietSanPhamAnhsLength: 0,
   anhSanPhamsLength: 0,
+  chiTietSanPhamsLength: 0,
   timestamp: Date.now(),
 });
 
@@ -2732,6 +2737,7 @@ const handleFileUploadForEdit = async (event) => {
             idAnhSanPhamList: [imageId], // Chuyển thành mảng để phù hợp với backend
             trangThai: true,
             deleted: false,
+            createAt: new Date().toISOString().split("T")[0],
           };
 
           const linkResponse = await fetchCreateMultipleChiTietSanPhamAnh(
@@ -2844,8 +2850,60 @@ const removeProductImageForEdit = async (imageId) => {
 // Method để lấy ảnh cho một chi tiết sản phẩm
 const getImagesForChiTietSanPhamForEdit = (chiTietSanPhamId) => {
   try {
+    console.log(
+      "🔍 getImagesForChiTietSanPhamForEdit called with ID:",
+      chiTietSanPhamId
+    );
+
+    // Tìm chi tiết sản phẩm trong danh sách đã fetch
+    const chiTietSanPham = chiTietSanPhams.value.find(
+      (item) => item.id === chiTietSanPhamId
+    );
+
+    if (!chiTietSanPham) {
+      console.log("🔍 ChiTietSanPham not found for ID:", chiTietSanPhamId);
+      return [];
+    }
+
+    // Kiểm tra xem chi tiết sản phẩm có trường anhSanPham không
+    if (chiTietSanPham.anhSanPham && Array.isArray(chiTietSanPham.anhSanPham)) {
+      console.log(
+        "🔍 Using anhSanPham from chiTietSanPham:",
+        chiTietSanPham.anhSanPham
+      );
+
+      // Chuyển đổi array đường dẫn ảnh thành format tương thích với UI
+      const images = chiTietSanPham.anhSanPham.map((duongDanAnh, index) => ({
+        id: `direct_${chiTietSanPhamId}_${index}`, // Tạo ID giả
+        duongDanAnh: duongDanAnh,
+        loaiAnh: "product",
+        moTa: `Ảnh ${index + 1} của chi tiết sản phẩm ${chiTietSanPhamId}`,
+        file: null,
+        url: null,
+        isNew: false,
+      }));
+
+      console.log(
+        "🔍 Converted images for chiTietSanPhamId",
+        chiTietSanPhamId,
+        ":",
+        images
+      );
+      return images;
+    }
+
+    // Fallback: sử dụng cách cũ nếu không có anhSanPham trực tiếp
+    console.log(
+      "🔍 Fallback: using old method for chiTietSanPhamId",
+      chiTietSanPhamId
+    );
+
     // Đảm bảo dữ liệu đã được load
     if (!chiTietSanPhamAnhs.value || !anhSanPhams.value) {
+      console.log("🔍 Data not loaded yet:", {
+        chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+        anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      });
       return [];
     }
 
@@ -2854,11 +2912,24 @@ const getImagesForChiTietSanPhamForEdit = (chiTietSanPhamId) => {
       (item) => item.idChiTietSanPham === chiTietSanPhamId && !item.deleted
     );
 
+    console.log(
+      "🔍 Found image links for chiTietSanPhamId",
+      chiTietSanPhamId,
+      ":",
+      imageLinks
+    );
+
     // Map để lấy thông tin ảnh đầy đủ
     const images = imageLinks
       .map((item) => {
         const anhSanPham = anhSanPhams.value.find(
           (anh) => anh.id === item.idAnhSanPham
+        );
+        console.log(
+          "🔍 Looking for anhSanPham with ID:",
+          item.idAnhSanPham,
+          "Found:",
+          anhSanPham
         );
         if (anhSanPham) {
           return {
@@ -2871,11 +2942,18 @@ const getImagesForChiTietSanPhamForEdit = (chiTietSanPhamId) => {
             isNew: false,
           };
         } else {
+          console.log("⚠️ AnhSanPham not found for ID:", item.idAnhSanPham);
           return null;
         }
       })
       .filter((img) => img !== null);
 
+    console.log(
+      "🔍 Final images for chiTietSanPhamId",
+      chiTietSanPhamId,
+      ":",
+      images
+    );
     return images;
   } catch (error) {
     console.error("Error getting images for chi tiet san pham:", error);
@@ -2886,23 +2964,34 @@ const getImagesForChiTietSanPhamForEdit = (chiTietSanPhamId) => {
 // Method để tạo URL đầy đủ cho ảnh
 const getImageUrlForEdit = (imagePath) => {
   try {
-    if (!imagePath) return "";
+    console.log("🔍 getImageUrlForEdit called with:", imagePath);
+
+    if (!imagePath) {
+      console.log("🔍 imagePath is empty");
+      return "";
+    }
 
     // Nếu đã là URL đầy đủ thì trả về nguyên
-    if (imagePath.startsWith("http://") || imagePath.startsWith("http://")) {
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      console.log("🔍 imagePath is already full URL:", imagePath);
       return imagePath;
     }
 
     // Nếu là đường dẫn tương đối, thêm base URL của backend
     if (imagePath.startsWith("uploads/")) {
-      return `http://localhost:8080/${imagePath}`;
+      const fullUrl = `http://localhost:8080/${imagePath}`;
+      console.log("🔍 Converted uploads path to full URL:", fullUrl);
+      return fullUrl;
     }
 
     // Nếu bắt đầu bằng / thì thêm base URL
     if (imagePath.startsWith("/")) {
-      return `http://localhost:8080${imagePath}`;
+      const fullUrl = `http://localhost:8080${imagePath}`;
+      console.log("🔍 Converted absolute path to full URL:", fullUrl);
+      return fullUrl;
     }
 
+    console.log("🔍 Returning imagePath as is:", imagePath);
     return imagePath;
   } catch (error) {
     console.error("Error getting image URL:", error);
@@ -2913,18 +3002,26 @@ const getImageUrlForEdit = (imagePath) => {
 // Method để lấy URL hiển thị ảnh trong form edit (ưu tiên url trước, sau đó mới đến duongDanAnh)
 const getImageDisplayUrl = (image) => {
   try {
-    if (!image) return "";
+    console.log("🔍 getImageDisplayUrl called with:", image);
+
+    if (!image) {
+      console.log("🔍 image is null/undefined");
+      return "";
+    }
 
     // Ưu tiên url (object URL) trước - dành cho ảnh mới upload
     if (image.url) {
+      console.log("🔍 Using image.url:", image.url);
       return image.url;
     }
 
     // Nếu không có url thì dùng duongDanAnh (ảnh có sẵn)
     if (image.duongDanAnh) {
+      console.log("🔍 Using image.duongDanAnh:", image.duongDanAnh);
       return getImageUrlForEdit(image.duongDanAnh);
     }
 
+    console.log("🔍 No valid URL found in image object");
     return "";
   } catch (error) {
     console.error("Error getting image display URL:", error);
@@ -2937,11 +3034,13 @@ const forceRefreshImageDataForEdit = async () => {
   try {
     // Refresh dữ liệu ảnh
     await fetchAllThuocTinh();
+    await fetchChiTietSanPham(route.params.id);
 
     // Force Vue re-render bằng cách thay đổi timestamp
     imageDataKey.value = {
       chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
       anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      chiTietSanPhamsLength: chiTietSanPhams.value?.length || 0,
       timestamp: Date.now(),
     };
   } catch (error) {

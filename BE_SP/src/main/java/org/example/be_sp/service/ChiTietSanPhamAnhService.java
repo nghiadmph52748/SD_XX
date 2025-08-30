@@ -39,19 +39,38 @@ public class ChiTietSanPhamAnhService {
 
     public void add(ChiTietSanPhamAnhListRequest request) {
         try {
+            // Kiểm tra dữ liệu đầu vào
+            if (request == null) {
+                throw new RuntimeException("Request không được null");
+            }
+            if (request.getIdChiTietSanPham() == null) {
+                throw new RuntimeException("ID chi tiết sản phẩm không được null");
+            }
+            if (request.getIdAnhSanPhamList() == null) {
+                throw new RuntimeException("Danh sách ID ảnh sản phẩm không được null");
+            }
+            if (request.getIdAnhSanPhamList().isEmpty()) {
+                throw new RuntimeException("Danh sách ID ảnh sản phẩm không được rỗng");
+            }
+
             // Kiểm tra chi tiết sản phẩm có tồn tại không
             var chiTietSanPham = chiTietSanPhamRepository.findChiTietSanPhamById(request.getIdChiTietSanPham());
             if (chiTietSanPham == null) {
                 throw new RuntimeException("Không tìm thấy chi tiết sản phẩm với ID: " + request.getIdChiTietSanPham());
             }
-            
+
             for (Integer idAnhSanPham : request.getIdAnhSanPhamList()) {
+                // Kiểm tra ID ảnh không null
+                if (idAnhSanPham == null) {
+                    throw new RuntimeException("ID ảnh sản phẩm không được null trong danh sách");
+                }
+
                 // Kiểm tra ảnh sản phẩm có tồn tại không
                 var anhSanPham = anhSanPhamRepository.findAnhSanPhamById(idAnhSanPham);
                 if (anhSanPham == null) {
                     throw new RuntimeException("Không tìm thấy ảnh sản phẩm với ID: " + idAnhSanPham);
                 }
-                
+
                 ChiTietSanPhamAnh e = new ChiTietSanPhamAnh();
                 e.setIdChiTietSanPham(chiTietSanPham);
                 e.setIdAnhSanPham(anhSanPham);

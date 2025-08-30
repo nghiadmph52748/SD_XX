@@ -30,9 +30,29 @@ export const fetchCreateChatLieu = async (data) => {
         body: JSON.stringify(data),
     });
     if (!res.ok) {
-        throw new Error("Failed to create material");
+        const errorText = await res.text();
+        throw new Error(`Failed to create material: ${res.status} - ${errorText}`);
     }
-    return res.json();
+
+    const responseData = await res.json();
+
+    // Backend trả về format: { data: id, message: "..." }
+    if (responseData && responseData.data !== undefined) {
+        // Nếu data là ID (number)
+        if (typeof responseData.data === 'number' && responseData.data > 0) {
+            return {
+                id: responseData.data,
+                message: responseData.message
+            };
+        }
+        // Nếu data là null hoặc 0
+        if (responseData.data === null || responseData.data === 0) {
+            throw new Error("Backend returned null or zero ID for created material");
+        }
+        return responseData.data;
+    }
+
+    return responseData;
 }
 export const fetchUpdateChatLieu = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

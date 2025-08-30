@@ -2,10 +2,26 @@ const API = "http://localhost:8080/api/anh-san-pham-management";
 
 export const fetchAllAnhSanPham = async () => {
     const res = await fetch(`${API}/playlist`);
+
     if (!res.ok) {
-        throw new Error("Failed to fetch product images");
+        const errorText = await res.text();
+        console.error(`❌ API Error ${res.status}:`, errorText);
+        throw new Error(`Failed to fetch product images: ${res.status} - ${errorText}`);
     }
-    return res.json();
+
+    const responseData = await res.json();
+    // Backend trả về format: { data: [...], message: "..." }
+    if (responseData && responseData.data !== undefined) {
+        return responseData.data;
+    }
+
+    // Nếu response trực tiếp là array
+    if (Array.isArray(responseData)) {
+        return responseData;
+    }
+
+    // Fallback
+    return responseData;
 }
 
 export const fetchOneAnhSanPham = async (id) => {

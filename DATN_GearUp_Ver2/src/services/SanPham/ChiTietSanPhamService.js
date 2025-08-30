@@ -51,6 +51,8 @@ export const fetchCreateChiTietSanPham = async (data) => {
         updateBy: data.updateBy || 1 // Default value
     };
 
+    console.log(`🔄 Đang gọi API tạo chi tiết sản phẩm với dữ liệu:`, JSON.stringify(requestData, null, 2));
+
     const res = await fetch(`${API}/add`, {
         method: "POST",
         headers: {
@@ -58,11 +60,56 @@ export const fetchCreateChiTietSanPham = async (data) => {
         },
         body: JSON.stringify(requestData),
     });
+
+    console.log(`📥 Response status: ${res.status}`);
+    console.log(`📥 Response headers:`, res.headers);
+
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to create product detail");
+        const errorText = await res.text();
+        console.error(`❌ API Error ${res.status}:`, errorText);
+        throw new Error(`Failed to create product detail: ${res.status} - ${errorText}`);
     }
-    return res.json();
+
+    const responseData = await res.json();
+    console.log(`✅ Response từ tạo chi tiết sản phẩm:`, responseData);
+
+    // Kiểm tra format response từ backend
+    if (responseData && typeof responseData === 'object') {
+        // Backend trả về format: { data: id, message: "..." }
+        if (responseData.data !== undefined) {
+            console.log(`📝 Response từ backend - data:`, responseData.data);
+            console.log(`📝 Response từ backend - message:`, responseData.message);
+
+            // Nếu data là ID (number)
+            if (typeof responseData.data === 'number' && responseData.data > 0) {
+                console.log(`✅ Chi tiết sản phẩm được tạo với ID: ${responseData.data}`);
+                // Trả về object chứa ID để tương thích với frontend
+                return {
+                    id: responseData.data,
+                    message: responseData.message
+                };
+            }
+
+            // Nếu data là null hoặc không phải ID
+            if (responseData.data === null || responseData.data === 0) {
+                console.error(`❌ Backend trả về ID null hoặc 0:`, responseData);
+                return null;
+            }
+
+            // Nếu data là object khác
+            return responseData.data;
+        }
+
+        // Nếu response trực tiếp là object chứa ID
+        if (responseData.id) {
+            console.log(`📝 Response trực tiếp chứa ID:`, responseData.id);
+            return responseData;
+        }
+    }
+
+    // Fallback: trả về response gốc
+    console.log(`📝 Trả về response gốc:`, responseData);
+    return responseData;
 }
 
 export const fetchUpdateChiTietSanPham = async (id, data) => {

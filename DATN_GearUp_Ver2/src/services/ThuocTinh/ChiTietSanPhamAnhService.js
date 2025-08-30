@@ -98,6 +98,8 @@ export const fetchCreateMultipleChiTietSanPhamAnh = async (data) => {
         updateBy: data.updateBy || 1 // Default value
     };
 
+    console.log(`🔄 Đang gọi API tạo nhiều liên kết ảnh:`, JSON.stringify(requestData, null, 2));
+
     const res = await fetch(`${API}/add-multiple`, {
         method: "POST",
         headers: {
@@ -105,11 +107,32 @@ export const fetchCreateMultipleChiTietSanPhamAnh = async (data) => {
         },
         body: JSON.stringify(requestData)
     });
+
+    console.log(`📥 Response status: ${res.status}`);
+    console.log(`📥 Response headers:`, res.headers);
+
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to create multiple product image details");
+        const errorText = await res.text();
+        console.error(`❌ API Error ${res.status}:`, errorText);
+        throw new Error(`Failed to create multiple product image details: ${res.status} - ${errorText}`);
     }
-    return res.json();
+
+    const responseData = await res.json();
+    console.log(`✅ Response từ tạo nhiều liên kết ảnh:`, responseData);
+
+    // Backend trả về format: { success: true/false, message: "...", data: null }
+    if (responseData && typeof responseData === 'object') {
+        if (responseData.success === false) {
+            throw new Error(responseData.message || "Backend returned error");
+        }
+        if (responseData.success === true) {
+            console.log(`✅ Tạo nhiều liên kết ảnh thành công: ${responseData.message}`);
+            return responseData;
+        }
+    }
+
+    // Fallback
+    return responseData;
 }
 
 export const fetchUpdateStatusChiTietSanPhamAnh = async (id) => {

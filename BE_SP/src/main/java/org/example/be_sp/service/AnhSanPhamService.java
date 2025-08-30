@@ -59,7 +59,6 @@ public class AnhSanPhamService extends GenericCrudService<AnhSanPham, Integer, A
         try {
             AnhSanPham entity = MapperUtils.map(request, AnhSanPham.class);
             AnhSanPham savedEntity = anhSanPhamRepository.save(entity);
-            System.out.println("✅ Đã tạo ảnh sản phẩm với ID: " + savedEntity.getId());
             return savedEntity;
         } catch (Exception e) {
             System.err.println("❌ Lỗi tạo ảnh sản phẩm: " + e.getMessage());

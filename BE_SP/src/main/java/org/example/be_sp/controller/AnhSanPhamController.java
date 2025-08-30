@@ -1,6 +1,7 @@
 package org.example.be_sp.controller;
 
 import java.io.File;
+import java.time.LocalDate;
 
 import org.example.be_sp.entity.AnhSanPham;
 import org.example.be_sp.model.request.AnhSanPhamRequest;
@@ -45,20 +46,21 @@ public class AnhSanPhamController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("loaiAnh") String loaiAnh,
             @RequestParam(value = "moTa", required = false) String moTa,
-            @RequestParam(value = "deleted", defaultValue = "false") Boolean deleted) {
+            @RequestParam(value = "deleted", defaultValue = "false") Boolean deleted,
+            @RequestParam(value = "trangThai", defaultValue = "true") Boolean trangThai) {
         try {
             // Tạo request object từ các tham số
             AnhSanPhamRequest request = new AnhSanPhamRequest();
             request.setLoaiAnh(loaiAnh);
             request.setMoTa(moTa);
+            request.setTrangThai(trangThai);
             request.setDeleted(deleted);
 
             // Xử lý file upload và lưu đường dẫn
             String filePath = anhSanPhamService.uploadFile(file);
             request.setDuongDanAnh(filePath);
-
+            request.setCreateAt(LocalDate.now());
             AnhSanPham savedAnhSanPham = anhSanPhamService.addAnhSanPham(request);
-            System.out.println("✅ Controller trả về ID ảnh: " + savedAnhSanPham.getId());
             return new ResponseObject<>(savedAnhSanPham.getId(), "Thêm ảnh sản phẩm thành công");
         } catch (Exception e) {
             return new ResponseObject<>(null, "Lỗi khi thêm ảnh sản phẩm: " + e.getMessage());
@@ -71,12 +73,15 @@ public class AnhSanPhamController {
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam("loaiAnh") String loaiAnh,
             @RequestParam(value = "moTa", required = false) String moTa,
-            @RequestParam(value = "deleted", defaultValue = "false") Boolean deleted) {
+            @RequestParam(value = "deleted", defaultValue = "false") Boolean deleted,
+            @RequestParam(value = "trangThai", defaultValue = "true") Boolean trangThai) {
         try {
             AnhSanPhamRequest request = new AnhSanPhamRequest();
             request.setLoaiAnh(loaiAnh);
             request.setMoTa(moTa);
             request.setDeleted(deleted);
+            request.setTrangThai(trangThai);
+            request.setUpdateAt(LocalDate.now());
 
             // Nếu có file mới, upload file mới
             if (file != null && !file.isEmpty()) {
