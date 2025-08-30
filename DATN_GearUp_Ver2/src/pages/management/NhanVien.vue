@@ -1,29 +1,4 @@
 <template>
-  <div class="employee-management">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="page-title">Quản lý nhân viên</h1>
-          <p class="page-subtitle">Quản lý thông tin và quyền hạn nhân viên</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-export" @click="exportData">
-            <span class="btn-icon">📊</span>
-            Xuất báo cáo
-          </button>
-          <button class="btn-export" @click="exportToExcel">
-            <span class="btn-icon">📗</span>
-            Xuất Excel
-          </button>
-          <button class="btn-export" @click="openAddModal">
-            <span class="btn-icon">➕</span>
-            Tạo nhân viên
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Search and Filter Section -->
     <div class="filter-section">
       <div class="search-controls">
@@ -58,6 +33,25 @@
     </div>
 
     <!-- Employees Table -->
+     <!-- Action Buttons Section -->
+      <!-- Tiêu đề và đường kẻ ngang -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <div style="font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 6px;">
+          📋 Danh sách nhân viên
+        </div>
+      </div>
+      <hr style="margin-top: 0; margin-bottom: 15px;" />
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+    <button class="custom-button" @click="showAddModal = true">
+      <i class="fas fa-plus-circle"></i> Thêm nhân viên
+    </button>
+    <button class="custom-button" @click="exportToExcel">
+      <i class="fas fa-download"></i> Download template
+    </button>
+    </div>
+
+
     <div class="card">
       <div class="card-body">
         <div class="table-responsive">
@@ -69,10 +63,10 @@
                 <th>Mã nhân viên</th>
                 <th>Tên nhân viên</th>
                 <th>Email</th>
-                <th>SĐT</th>
+                <!-- <th>SĐT</th>
                 <th>Ngày sinh</th>
                 <th>CCCD</th>
-                <th>Địa chỉ</th>
+                <th>Địa chỉ</th> -->
                 <th>Chức vụ</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
@@ -90,7 +84,7 @@
                   <div class="employee-avatar">
                     <img
                       v-if="employee.anhNhanVien"
-                      :src="employee.anhNhanVien"
+                      :src="'http://localhost:8080' + employee.anhNhanVien"
                       :alt="employee.tenNhanVien"
                     />
                     <div v-else class="placeholder-avatar">👤</div>
@@ -103,7 +97,7 @@
                   {{ employee.tenNhanVien }}
                 </td>
                 <td data-label="Email">{{ employee.email }}</td>
-                <td data-label="SĐT">{{ employee.soDienThoai }}</td>
+                <!-- <td data-label="SĐT">{{ employee.soDienThoai }}</td>
                 <td data-label="Ngày sinh">{{ employee.ngaySinh }}</td>
                 <td data-label="CCCD">{{ employee.cccd }}</td>
                 <td data-label="Địa chỉ">
@@ -116,7 +110,7 @@
                     ", " +
                     employee.diaChiCuThe
                   }}
-                </td>
+                </td> -->
                 <td data-label="Chức vụ">{{ employee.tenQuyenHan }}</td>
                 <td data-label="Trạng thái">
                   <span
@@ -131,14 +125,13 @@
                   </span>
                 </td>
                                  <td data-label="Thao tác">
-                   <ButtonGroup spacing="xs">
+                   <ButtonGroup spacing="xs" class="action-buttons">
                      <button class="btn-detail" @click="viewEmployee(employee)">
                        <span class="btn-icon">👁️</span>
-                       Chi tiết
                      </button>
                      <button class="btn-update" @click="editEmployee(employee)">
                        <span class="btn-icon">✏️</span>
-                       Sửa
+                       
                      </button>
                    </ButtonGroup>
                  </td>
@@ -310,7 +303,7 @@
                 <input
                   type="text"
                   v-model="employeeForm.tenTaiKhoan"
-                  class="form-control"
+                  class="form-control bright-input"
                   required
                 />
               </div>
@@ -319,7 +312,7 @@
                 <input
                   type="password"
                   v-model="employeeForm.matKhau"
-                  class="form-control"
+                  class="form-control bright-input"
                   required
                 />
               </div>
@@ -347,15 +340,20 @@
         <div class="modal-footer add-footer">
           <button
             type="button"
-            class="btn btn-secondary"
+            class="btn-cancel"
             @click="showAddModal = false"
           >
             Hủy
           </button>
-          <button type="submit" class="btn btn-primary" @click="saveEmployee">
+          <button
+            type="submit"
+            class="btn-submit"
+            @click="saveEmployee"
+          >
             Thêm Nhân Viên
           </button>
         </div>
+
       </div>
     </div>
 
@@ -392,7 +390,7 @@
               </div>
             </div>
 
-            <div class="form-section">
+             <div class="form-section">
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">*Số CCCD</label>
@@ -489,9 +487,9 @@
                     required
                   />
                 </div>
-              </div>
+              </div> 
 
-              <div class="form-group">
+               <div class="form-group">
                 <label class="form-label">*Tài khoản</label>
                 <input
                   type="text"
@@ -499,8 +497,8 @@
                   class="form-control"
                   required
                 />
-              </div>
-              <div class="form-group">
+              </div> 
+               <div class="form-group">
                 <label class="form-label">*Mật khẩu</label>
                 <input
                   type="password"
@@ -508,8 +506,8 @@
                   class="form-control"
                   required
                 />
-              </div>
-              <div class="form-group">
+              </div> 
+               <div class="form-group">
                 <label class="form-label">*Quyền hạn</label>
                 <select
                   v-model="employeeForm.idQuyenHan"
@@ -525,9 +523,9 @@
                     {{ value.tenQuyenHan }}
                   </option>
                 </select>
-              </div>
+              </div> 
 
-              <div class="form-group">
+               <div class="form-group">
                 <label class="form-label">*Trạng thái</label>
                 <select v-model="employeeForm.trangThai" class="form-control edit-input">
                   <option :value="true">Hoạt động</option>
@@ -573,7 +571,7 @@
               <div class="employee-avatar large">
                 <img
                   v-if="selectedEmployee.anhNhanVien"
-                  :src="selectedEmployee.anhNhanVien"
+                  :src="'http://localhost:8080' + selectedEmployee.anhNhanVien"
                   alt="Ảnh nhân viên"
                 />
                 <div v-else class="placeholder-avatar large">👤</div>
@@ -650,13 +648,16 @@
         </div>
       </div>
     </div>
-  </div>
+    
+    
+
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import ActionButton from "@/components/ui/NutHanhDong.vue";
 import ButtonGroup from "@/components/ui/NhomNut.vue";
+import * as XLSX from "xlsx";
 import {
   fetchAllNhanVien,
   fetchUpdateNhanVien,
@@ -793,12 +794,12 @@ const viewEmployee = (employee) => {
 };
 
 const editEmployee = async (data) => {
-  // Điền dữ liệu nhân viên vào form
-  employeeForm.value = { ...data };
+  employeeForm.value = { ...data, file: null };
 
-  // Hiển thị ảnh preview nếu có
   if (data.anhNhanVien) {
-    avatarPreview.value = data.anhNhanVien;
+    avatarPreview.value = "http://localhost:8080" + data.anhNhanVien;
+  } else {
+    avatarPreview.value = "";
   }
 
   showEditModal.value = true;
@@ -807,34 +808,61 @@ const editEmployee = async (data) => {
 const handleAvatarUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      avatarPreview.value = e.target.result;
-      employeeForm.value.avatar = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    employeeForm.value.file = file; // lưu file vào form
+    avatarPreview.value = URL.createObjectURL(file); // preview
   }
 };
 
 const saveEmployee = async () => {
   try {
+    let newImageUrl = employeeForm.value.anhNhanVien; // mặc định giữ ảnh cũ
+
+    // Nếu có file mới thì upload
+    if (employeeForm.value.file) {
+      const formData = new FormData();
+      formData.append("file", employeeForm.value.file);
+
+      const res = await fetch("http://localhost:8080/api/upload/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload ảnh thất bại");
+
+      // Backend trả về đường dẫn, ví dụ: "/uploads/avatar123.jpg"
+      const fileUrl = await res.text();
+      newImageUrl = fileUrl;
+
+      // cập nhật preview bằng link server thật
+      avatarPreview.value = "http://localhost:8080" + fileUrl;
+    }
+
+    // Payload gửi đi
+    const payload = {
+      ...employeeForm.value,
+      anhNhanVien: newImageUrl,
+    };
+    delete payload.file; // xoá file khỏi payload vì file đã upload riêng
+
     if (showAddModal.value) {
-      await fetchCreateNhanVien(employeeForm.value);
+      await fetchCreateNhanVien(payload); // thêm mới
       currentPage.value = 1;
     } else if (showEditModal.value) {
-      await fetchUpdateNhanVien(employeeForm.value.id, employeeForm.value);
+      await fetchUpdateNhanVien(employeeForm.value.id, payload); // sửa
     }
+
     showAddModal.value = false;
     showEditModal.value = false;
     await fetchAll();
     resetForm();
-  } catch (res) {
-    console.log(res.message);
-    alert(res.message);
+  } catch (err) {
+    console.error("Lỗi:", err.message);
+    alert(err.message);
   }
 };
 
-const resetForm = () => {
+
+const resetForm = (resetAvatar = true) => {
   employeeForm.value = {
     tenNhanVien: "",
     cccd: "",
@@ -850,8 +878,11 @@ const resetForm = () => {
     trangThai: true,
     delete: false,
   };
-  avatarPreview.value = "";
+  if (resetAvatar) {
+    avatarPreview.value = "";
+  }
 };
+
 
 const openAddModal = () => {
   resetForm();
@@ -885,29 +916,10 @@ const exportData = () => {
 
 const exportToExcel = () => {
   try {
-    const headerMapping = {
-      maNhanVien: "Mã NV",
-      tenNhanVien: "Họ tên",
-      email: "Email",
-      soDienThoai: "Số điện thoại",
-      ngaySinh: "Ngày sinh",
-      gioiTinh: "Giới tính",
-      tenQuyenHan: "Chức vụ",
-      trangThai: "Trạng thái",
-    };
-
-    const filteredData = filteredEmployees.value.map((item) => ({
-      maNhanVien: item.maNhanVien || "N/A",
-      tenNhanVien: item.tenNhanVien || "N/A",
-      email: item.email || "N/A",
-      soDienThoai: item.soDienThoai || "N/A",
-      ngaySinh: item.ngaySinh || "N/A",
-      gioiTinh: item.gioiTinh || "N/A",
-      tenQuyenHan: item.tenQuyenHan || "N/A",
-      trangThai: item.trangThai || "N/A",
-    }));
-
-    console.log("Exporting employees to Excel:", filteredData);
+    const ws = XLSX.utils.json_to_sheet(filteredEmployees.value);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Nhân viên");
+    XLSX.writeFile(wb, "DanhSachNhanVien.xlsx");
     alert("✅ Xuất file Excel thành công!");
   } catch (error) {
     console.error("Error exporting to Excel:", error);
@@ -915,19 +927,74 @@ const exportToExcel = () => {
   }
 };
 
+
 // Khởi tạo dữ liệu khi component được mount
 onMounted(() => {
   fetchAll();
   fetchQuyenHan();
 });
+
 </script>
 
 <style scoped>
+.action-buttons-section .btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #1f3e72;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #0f0d24;
+  color: white;
+}
+
+.custom-button {
+  background-color: #1e2d50;  /* Màu xanh đậm */
+  color: #ffffff;
+  border: 1px solid #1e2d50;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-button:hover {
+  background-color: #24365e;  /* Hover sáng hơn nhẹ */
+  border-color: #24365e;
+  transform: translateY(-1px);
+}
+
+.custom-button i {
+  font-size: 16px;
+}
+
 .employee-management {
   max-width: 1400px;
   margin: 0 auto;
 }
+.bright-input {
+  background-color: #ffffff;      /* nền trắng */
+  border: 2px solid #dce1e6;      /* viền xanh sáng */
+  color: #000000;                 /* chữ đen */
+  font-weight: 500;
+  transition: 0.3s ease;
+}
 
+.bright-input:focus {
+  outline: none;
+  border-color: #eef1f3;         /* viền khi focus */
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
 /* page-header styles are now defined in globals.css */
 
 /* Filter Section */
@@ -949,6 +1016,24 @@ onMounted(() => {
 .search-box {
   flex: 1;
   min-width: 300px;
+}
+.avatar {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+.badge-active {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.badge-inactive {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .search-box input {
@@ -1035,10 +1120,11 @@ onMounted(() => {
   border-spacing: 0;
   position: relative;
   table-layout: fixed; /* Fixed layout to control widths */
+  border-spacing: 0 8px; /* khoảng cách giữa các dòng */
 }
 
 .table th {
-  background-color: #4ade80;
+  background-color: #bacbc0;
   color: white;
   font-weight: 600;
   padding: 0.5rem 0.25rem;
@@ -1148,64 +1234,97 @@ onMounted(() => {
   text-align: left;
 }
 
+
 /* Compact action buttons */
-.btn-export {
-  font-size: 0.75rem !important;
-  padding: 0.375rem 0.5rem !important;
-  margin: 0.125rem !important;
-  white-space: nowrap !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
+/* Giả sử phần chứa 2 nút có class .action-buttons hoặc tương tự */
+.action-buttons {
+  display: flex;
+  justify-content: center; /* căn giữa theo chiều ngang */
+  align-items: center; /* căn giữa theo chiều dọc */
+  gap: 8px; /* khoảng cách giữa 2 nút */
 }
 
+.btn-export {
+  background-color: white;
+  color: #7ccd8f;
+  border: 2px solid #fdfffe;
+  padding: 15px 26px;
+  border-radius: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+.btn-export:hover {
+  background-color: #46b460;
+  color: rgb(246, 246, 246);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+
 .btn-detail {
-  font-size: 0.75rem !important;
+ font-size: 0.75rem !important;
   padding: 0.375rem 0.5rem !important;
   margin: 0.125rem !important;
   white-space: nowrap !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 0.25rem !important;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+ background: linear-gradient(135deg, #6c5f5f 0%, #5c8ca0 100%) !important; /* tím nhạt */
   color: white !important;
   border: none !important;
   border-radius: 6px !important;
   font-weight: 500 !important;
   transition: all 0.3s ease !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2) !important;
+   box-shadow: 0 2px 4px rgba(167, 139, 250, 0.3) !important;
 }
 
 .btn-detail:hover {
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+   background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%) !important;
   transform: scale(1.1) !important;
-  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3) !important;
+   box-shadow: 0 4px 8px rgba(124, 58, 237, 0.4) !important;
 }
 
 .btn-update {
-  font-size: 0.75rem !important;
+   font-size: 0.75rem !important;
   padding: 0.375rem 0.5rem !important;
   margin: 0.125rem !important;
   white-space: nowrap !important;
   display: inline-flex !important;
   align-items: center !important;
   gap: 0.25rem !important;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+   background: linear-gradient(135deg, #6c5f5f 0%, #5c8ca0 100%) !important; /* tím nhạt */
   color: white !important;
   border: none !important;
   border-radius: 6px !important;
   font-weight: 500 !important;
   transition: all 0.3s ease !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+  box-shadow: 0 2px 4px rgba(167, 139, 250, 0.3) !important;
 }
 
 .btn-update:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+ background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%) !important;
   transform: scale(1.1) !important;
-  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 4px 8px rgba(124, 58, 237, 0.4) !important;
 }
+.btn-detail:active {
+  transform: scale(0.95) !important;
+  box-shadow: 0 1px 3px rgba(34, 197, 94, 0.4) !important;
+}
+
+.btn-update:active {
+  transform: scale(0.95) !important;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.4) !important;
+}
+.btn-detail, .btn-update {
+  min-width: 50px !important;
+}
+
 
 .btn-icon {
   font-size: 0.875rem !important;
@@ -1231,6 +1350,42 @@ onMounted(() => {
   font-weight: 600;
   color: var(--secondary-color);
 }
+.btn-cancel {
+  background: white;
+  color: #374151;
+  border: 2px solid #d1d5db;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-cancel:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  transform: scale(1.05);
+}
+
+
+.btn-submit {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.2);
+}
+
+.btn-submit:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+}
 
 /* Modal Styles */
 .modal-overlay {
@@ -1246,18 +1401,26 @@ onMounted(() => {
   z-index: 1000;
   padding: 2rem;
   backdrop-filter: blur(4px);
+
+  overflow: hidden; /* ✅ ngăn scroll ở lớp overlay */
 }
 
 .modal-content {
   background: linear-gradient(135deg, #ffffff 0%, #f8fff9 100%);
   border-radius: 16px;
-  width: 100%;
-  max-width: 700px;
-  max-height: 90vh;
-  overflow-y: auto;
+  width: 90%;       /* giảm độ dài lại */
+  max-width: 300px;
+  max-height: 90vh;          /* Giới hạn chiều cao modal */
+  overflow-y: auto;          /* Scroll khi nội dung dài */
   box-shadow: 0 20px 40px rgba(34, 197, 94, 0.15);
   border: 2px solid rgba(74, 222, 128, 0.1);
 }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 cột */
+  gap: 16px;
+}
+
 
 .modal-header {
   display: flex;
@@ -1306,13 +1469,12 @@ onMounted(() => {
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 2px solid rgba(74, 222, 128, 0.2);
   background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border-top: 2px solid rgba(74, 222, 128, 0.2);
   border-radius: 0 0 16px 16px;
-  margin: 0 -2px -2px -2px;
 }
 
 /* Form Sections */
@@ -1382,20 +1544,21 @@ onMounted(() => {
 }
 
 .employee-avatar-section {
-  text-align: center;
-  margin-bottom: 1rem;
+   display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .employee-name-title {
-  margin: 1rem 0 0 0;
-  color: #1f2937;
-  font-size: 1.5rem;
-  font-weight: 600;
+   margin-top: 1rem;
+  font-size: 1.75rem;
+  font-weight: bold;
   text-align: center;
 }
 
 .employee-info {
   width: 100%;
+  
 }
 
 .info-grid {
@@ -1405,56 +1568,47 @@ onMounted(() => {
 }
 
 .info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  background: #fff;
   padding: 1rem;
-  background: white;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .info-item label {
-  font-weight: 600;
+   font-weight: 600;
   color: #6b7280;
   font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
 }
 
 .info-value {
-  color: #1f2937;
   font-size: 1rem;
   font-weight: 500;
-  padding: 0.5rem 0;
+  color: #111827;
 }
 
 .status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
-  text-align: center;
-  min-width: 100px;
 }
 
 .status-active {
-  background-color: #dcfce7;
+    background: #dcfce7;
   color: #166534;
-  border: 1px solid #bbf7d0;
 }
 
 .status-inactive {
-  background-color: #fee2e2;
+  background: #fee2e2;
   color: #991b1b;
-  border: 1px solid #fecaca;
 }
 
 /* Detail Modal Specific Styles */
 .detail-modal {
-  max-width: 800px;
+   max-width: 90vw !important;  /* rộng 90% màn hình */
+  width: 90vw !important;
 }
 
 .detail-header {
@@ -1462,13 +1616,15 @@ onMounted(() => {
 }
 
 .detail-body {
-  background: #f9fafb;
   padding: 2rem;
+  max-height: 80vh;   /* tránh tràn màn hình */
+  overflow-y: auto;
 }
 
 .employee-avatar.large {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
   border: 4px solid #22c55e;
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
@@ -1590,6 +1746,13 @@ onMounted(() => {
     padding: 0 1rem;
   }
 }
+@media (max-width: 768px) {
+  .detail-modal {
+    max-width: 95vw;
+    padding: 1rem;
+  }
+}
+
 
 @media (max-width: 1024px) {
   .search-controls {
@@ -1795,5 +1958,6 @@ onMounted(() => {
     width: 60px;
     height: 60px;
   }
+  
 }
 </style>

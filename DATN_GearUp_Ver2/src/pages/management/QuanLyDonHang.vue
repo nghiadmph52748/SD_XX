@@ -710,13 +710,65 @@
 </template>
 
 <script setup>
+
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { exportToExcel, formatDataForExcel } from '../../utils/xuatExcel.js'
+import axios from "axios"
+
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { exportToExcel, formatDataForExcel } from "../../utils/xuatExcel.js";
 
+
 const router = useRouter();
 
 // Data
+
+const searchQuery = ref('')
+const fromDate = ref('')
+const toDate = ref('')
+const selectedType = ref('')
+const selectedStatus = ref('TAT_CA')
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+const viewMode = ref('table') // 'table' or 'grid'
+const minAmount = ref('')
+const maxAmount = ref('')
+const sortField = ref('')
+const sortDirection = ref('asc') // 'asc' or 'desc'
+const showDetailModal = ref(false)
+const selectedOrder = ref(null)
+const backendTotalOrders = ref(0)
+const backendTotalPages = ref(0)
+const loading = ref(false)
+
+
+const fetchOrders = async () => {
+  loading.value = true
+  try {
+    const res = await axios.get("http://localhost:8080/api/hoa-don-management/paging", {
+      params: {
+        page: currentPage.value - 1,   // backend phân trang từ 0
+        size: itemsPerPage.value
+      }
+    })
+
+    // Backend trả về ResponseObject, bên trong là Page<HoaDon>
+    // ResponseObject<?> = { data: { content, totalElements, totalPages, ... } }
+    orders.value = res.data.data.content
+    totalOrders.value = res.data.data.totalElements
+    totalPages.value = res.data.data.totalPages
+
+    console.log("Fetched orders:", orders.value)
+  } catch (err) {
+    console.error("❌ Lỗi khi gọi API:", err)
+    error.value = "Không thể tải dữ liệu từ server"
+  } finally {
+    loading.value = false
+  }
+}
+
 const searchQuery = ref("");
 const fromDate = ref("");
 const toDate = ref("");
@@ -731,6 +783,7 @@ const sortField = ref("");
 const sortDirection = ref("asc"); // 'asc' or 'desc'
 const showDetailModal = ref(false);
 const selectedOrder = ref(null);
+
 
 const statusTabs = [
   { value: "TAT_CA", label: "TẤT CẢ", icon: "📋" },
@@ -932,13 +985,21 @@ const getStatusText = (status) => {
 
 const previousPage = () => {
   if (currentPage.value > 1) {
+    currentPage.value--
+    fetchOrders()
+
     currentPage.value--;
   }
 };
 
+
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    fetchOrders()
+
     currentPage.value++;
+
   }
 };
 
@@ -1091,13 +1152,20 @@ const exportData = () => {
 };
 
 onMounted(() => {
+  fetchOrders()
+
+  const today = new Date()
+  const oneMonthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+  toDate.value = today.toISOString().split("T")[0]
+  fromDate.value = "2025-01-01"
+})
+
   // Set default dates to show all data
   const today = new Date();
   const oneMonthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
   toDate.value = today.toISOString().split("T")[0];
   fromDate.value = "2025-01-01"; // Set to beginning of 2025 to show all example data
-});
 </script>
 
 <style scoped>
