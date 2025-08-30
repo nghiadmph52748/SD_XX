@@ -1,32 +1,5 @@
 <template>
   <div class="customer-management">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="page-title">Quản lý khách hàng</h1>
-          <p class="page-subtitle">Quản lý thông tin và hoạt động khách hàng</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
-          <button class="btn-export" @click="exportData">
-            <span class="btn-icon">📊</span>
-            Xuất báo cáo
-          </button>
-          <button class="btn-export" @click="exportToExcel">
-            <span class="btn-icon">📗</span>
-            Xuất Excel
-          </button>
-          <button class="btn-export" @click="addCustomer">
-            <span class="btn-icon">➕</span>
-            Thêm khách hàng
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Search and Filter Section -->
     <div class="filter-section">
@@ -38,7 +11,6 @@
             v-model="searchQuery"
             class="form-control"
           />
-          <button class="btn-export">🔍</button>
         </div>
 
         <div class="filter-controls">
@@ -58,6 +30,21 @@
     </div>
 
     <!-- Customers Table -->
+     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <div style="font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 6px;">
+          📋 Danh sách Khách Hàng
+        </div>
+      </div>
+      <hr style="margin-top: 0; margin-bottom: 15px;" />
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+    <button class="custom-button" @click="showAddModal = true">
+      <i class="fas fa-plus-circle"></i> Thêm nhân viên
+    </button>
+    <button class="custom-button" @click="exportToExcel">
+      <i class="fas fa-download"></i> Download template
+    </button>
+    </div>
     <div class="card">
       <div class="card-body">
         <table class="table">
@@ -115,12 +102,13 @@
               <td>
                 <ButtonGroup spacing="xs">
                   <ActionButton
-                    icon="view"
-                    variant="info"
-                    size="sm"
-                    tooltip="Xem chi tiết"
-                    @click="viewCustomer(customer)"
-                  />
+                      icon="view"
+                      variant="info"
+                      size="sm"
+                      tooltip="Xem chi tiết"
+                      class="action-button-info"
+                      @click="viewCustomer(customer)"
+                    />
                   <ActionButton
                     icon="edit"
                     variant="warning"
@@ -187,27 +175,27 @@
             <div class="customer-info">
               <h4>{{ selectedCustomer.tenKhachHang }}</h4>
               <div class="info-grid">
-                <div class="info-item">
+                <div class="info-box">
                   <label>Email:</label>
                   <span>{{ selectedCustomer.email }}</span>
                 </div>
-                <div class="info-item">
+                <div class="info-box">
                   <label>Số điện thoại:</label>
                   <span>{{ selectedCustomer.soDienThoai }}</span>
                 </div>
-                <div class="info-item">
+                <div class="info-box">
                   <label>Ngày sinh:</label>
                   <span>{{ selectedCustomer.ngaySinh }}</span>
                 </div>
-                <div class="info-item">
+                <div class="info-box">
                   <label>Giới tính:</label>
                   <span>{{ selectedCustomer.gioiTinh ? "Nam" : "Nữ" }}</span>
                 </div>
-                <div class="info-item">
+                <div class="info-box">
                   <label>Tài khoản:</label>
                   <span>{{ selectedCustomer.tenTaiKhoan }}</span>
                 </div>
-                <div class="info-item">
+                <div class="info-box">
                   <label>Mật khẩu:</label>
                   <span>{{ selectedCustomer.matKhau }}</span>
                 </div>
@@ -641,6 +629,9 @@
 import { ref, computed, onMounted } from "vue";
 import ActionButton from "@/components/ui/NutHanhDong.vue";
 import ButtonGroup from "@/components/ui/NhomNut.vue";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 import {
   fetchAllKhachHang,
   fetchCreateKhachHang,
@@ -683,15 +674,16 @@ const customerForm = ref({
 
 // Mock data
 const customers = ref([]);
-
 const fetchAll = async () => {
   try {
     const response = await fetchAllKhachHang();
-    customers.value = response.data;
+    customers.value = response.data; // giữ nguyên tất cả, lọc ở computed
   } catch (res) {
     console.log(res.message);
   }
 };
+
+
 // Computed
 const filteredCustomers = computed(() => {
   let filtered = customers.value;
@@ -823,13 +815,19 @@ const saveCustomer = async () => {
 };
 
 const deleteCustomer = async (id) => {
+  const confirmDelete = window.confirm("Bạn có chắc chắn muốn xoá khách hàng này không?");
+  if (!confirmDelete) return;
+
   try {
-    await fetchUpdateStatusKhachHang(id);
-    await fetchAll();
-  } catch (res) {
-    console.log(res.message);
+    await fetchUpdateStatusKhachHang(id); // cập nhật deleted = true
+    customers.value = customers.value.filter((c) => c.id !== id); // ẩn ngay khỏi bảng
+    alert("✅ Đã xoá khách hàng khỏi danh sách hiển thị.");
+  } catch (error) {
+    console.error("❌ Lỗi khi xoá khách hàng:", error.message);
+    alert("❌ Có lỗi xảy ra khi xoá khách hàng.");
   }
 };
+
 
 const addAddress = () => {
   customerForm.value.listDiaChi.push({
@@ -883,43 +881,46 @@ const nextPage = () => {
   }
 };
 
-const exportData = () => {
-  alert("Chức năng xuất báo cáo đang được phát triển");
-};
 
 const exportToExcel = () => {
   try {
     const headerMapping = {
-      name: "Họ tên",
+      tenKhachHang: "Họ tên",
       email: "Email",
-      phone: "Số điện thoại",
-      birthDate: "Ngày sinh",
-      gender: "Giới tính",
-      status: "Trạng thái",
-      address: "Địa chỉ",
-      totalOrders: "Tổng đơn hàng",
-      totalSpent: "Tổng chi tiêu",
+      soDienThoai: "Số điện thoại",
+      ngaySinh: "Ngày sinh",
+      gioiTinh: "Giới tính",
+      deleted: "Trạng thái",
     };
 
     const filteredData = filteredCustomers.value.map((item) => ({
-      name: item.name || "N/A",
-      email: item.email || "N/A",
-      phone: item.phone || "N/A",
-      birthDate: item.birthDate || "N/A",
-      gender: item.gender || "N/A",
-      status: item.status === "active" ? "Hoạt động" : "Ngừng hoạt động",
-      address: item.address || "N/A",
-      totalOrders: item.totalOrders || 0,
-      totalSpent: formatCurrency(item.totalSpent || 0),
+      [headerMapping.tenKhachHang]: item.tenKhachHang || "N/A",
+      [headerMapping.email]: item.email || "N/A",
+      [headerMapping.soDienThoai]: item.soDienThoai || "N/A",
+      [headerMapping.ngaySinh]: item.ngaySinh
+        ? formatDate(item.ngaySinh)
+        : "N/A",
+      [headerMapping.gioiTinh]: item.gioiTinh ? "Nam" : "Nữ",
+      [headerMapping.deleted]: item.deleted ? "Ngừng hoạt động" : "Hoạt động",
     }));
 
-    console.log("Exporting customers to Excel:", filteredData);
+    // Tạo worksheet & workbook
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "KhachHang");
+
+    // Xuất file
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "DanhSachKhachHang.xlsx");
+
     alert("✅ Xuất file Excel thành công!");
   } catch (error) {
     console.error("Error exporting to Excel:", error);
     alert("❌ Có lỗi xảy ra khi xuất file Excel");
   }
 };
+
 onMounted(fetchAll);
 </script>
 
@@ -953,20 +954,41 @@ onMounted(fetchAll);
   flex: 1;
   min-width: 300px;
 }
-
 .filter-controls {
   display: flex;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .filter-controls select {
   min-width: 150px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #f8fff9;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-sizing: border-box;
 }
+
+.filter-controls select:focus {
+  outline: none;
+  border-color: #5ebe81;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
+}
+
+.filter-controls select:hover {
+  border-color: #d1d5db;
+  background-color: #f9fafb;
+}
+
 
 /* Table Styles */
 .table th {
-  background-color: #4ade80;
+  background-color: #9baea2;
   color: white;
   font-weight: 600;
   padding: 1rem;
@@ -1236,7 +1258,7 @@ onMounted(fetchAll);
 }
 
 .btn-remove-address:hover {
-  background-color: #dc2626;
+  background-color: #b27171;
 }
 
 .btn-remove-address .btn-icon {
@@ -1378,4 +1400,164 @@ onMounted(fetchAll);
     border-radius: 0;
   }
 }
+.action-buttons-section .btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #1f3e72;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #0f0d24;
+  color: white;
+}
+
+.custom-button {
+  background-color: #1e2d50;  /* Màu xanh đậm */
+  color: #ffffff;
+  border: 1px solid #1e2d50;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.custom-button:hover {
+  background-color: #24365e;  /* Hover sáng hơn nhẹ */
+  border-color: #24365e;
+  transform: translateY(-1px);
+}
+
+.custom-button i {
+  font-size: 16px;
+}
+::v-deep label.form-label {
+  color: #000000;
+  font-weight: 600;
+}
+::v-deep input.form-control,
+::v-deep select.form-control,
+::v-deep textarea.form-control {
+  color: #000000;
+  font-weight: 500;
+}
+::v-deep input::placeholder,
+::v-deep textarea::placeholder {
+  color: #555555;
+  opacity: 1;
+}
+/* Ví dụ style nút "Xem chi tiết" */
+.action-button-info {
+  background-color: #5f768e; /* màu xanh đậm */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.action-button-info:hover {
+  background-color: #2e6096; /* xanh đậm hơn khi hover */
+  cursor: pointer;
+}
+.modal-content {
+  width: 80vw;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+  background-color: #f9f9f9;
+}
+
+.info-box {
+  background-color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+}
+
+.info-box strong {
+  color: #444;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #f44336;
+  color: white;
+}
+
+
+.modal-content h3,
+.modal-content h4 {
+  font-weight: 700; /* Tiêu đề đậm hơn */
+  color: #111;
+}
+
+.modal-content label {
+  font-weight: 700; /* Các nhãn (label) đậm */
+  color: #333;
+  display: inline-block;
+  width: 120px; /* Giữ khoảng cách đều */
+}
+
+.modal-content span {
+  font-weight: 600; /* Nội dung đậm vừa phải */
+  color: #444;
+}
+
+.address-label {
+  font-weight: 700;
+  color: #333;
+}
+
+.badge-success {
+  background-color: #4caf50;
+  color: white;
+  font-weight: 700;
+  padding: 4px 20px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.badge-danger {
+  background-color: #f44336;
+  color: white;
+  font-weight: 700;
+  padding: 4px 4px;
+  border-radius: 15px;
+  text-transform: uppercase;
+}
+
+
 </style>

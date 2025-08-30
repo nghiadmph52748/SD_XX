@@ -595,6 +595,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { exportToExcel, formatDataForExcel } from '../../utils/xuatExcel.js'
+import axios from "axios"
 
 const router = useRouter()
 
@@ -613,6 +614,35 @@ const sortField = ref('')
 const sortDirection = ref('asc') // 'asc' or 'desc'
 const showDetailModal = ref(false)
 const selectedOrder = ref(null)
+const backendTotalOrders = ref(0)
+const backendTotalPages = ref(0)
+const loading = ref(false)
+
+
+const fetchOrders = async () => {
+  loading.value = true
+  try {
+    const res = await axios.get("http://localhost:8080/api/hoa-don-management/paging", {
+      params: {
+        page: currentPage.value - 1,   // backend phân trang từ 0
+        size: itemsPerPage.value
+      }
+    })
+
+    // Backend trả về ResponseObject, bên trong là Page<HoaDon>
+    // ResponseObject<?> = { data: { content, totalElements, totalPages, ... } }
+    orders.value = res.data.data.content
+    totalOrders.value = res.data.data.totalElements
+    totalPages.value = res.data.data.totalPages
+
+    console.log("Fetched orders:", orders.value)
+  } catch (err) {
+    console.error("❌ Lỗi khi gọi API:", err)
+    error.value = "Không thể tải dữ liệu từ server"
+  } finally {
+    loading.value = false
+  }
+}
 
 const statusTabs = [
   { value: 'TAT_CA', label: 'TẤT CẢ', icon: '📋' },
@@ -784,12 +814,15 @@ const getStatusText = (status) => {
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
+    fetchOrders()
   }
 }
+
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
+    fetchOrders()
   }
 }
 
@@ -942,12 +975,12 @@ const exportData = () => {
 }
 
 onMounted(() => {
-  // Set default dates to show all data
+  fetchOrders()
+
   const today = new Date()
   const oneMonthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
-  
-  toDate.value = today.toISOString().split('T')[0]
-  fromDate.value = '2025-01-01' // Set to beginning of 2025 to show all example data
+  toDate.value = today.toISOString().split("T")[0]
+  fromDate.value = "2025-01-01"
 })
 </script>
 
