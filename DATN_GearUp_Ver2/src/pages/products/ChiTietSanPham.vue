@@ -4,1276 +4,29 @@
     <div class="page-header">
       <div class="header-content">
         <div class="header-text">
-          <h1 class="page-title">Quản lý Chi tiết sản phẩm & Thuộc tính</h1>
-          <p class="page-subtitle">Quản lý biến thể sản phẩm, thuộc tính và tồn kho tập trung</p>
+          <h1 class="page-title">QUẢN LÝ CHI TIẾT SẢN PHẨM</h1>
+          <p class="page-subtitle">
+            Quản lý biến thể sản phẩm, giá bán và số lượng tồn kho
+          </p>
         </div>
         <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
           <button class="btn-export" @click="exportData">
             <span class="btn-icon">📊</span>
             Xuất báo cáo
           </button>
-          <button class="btn-export" @click="exportToExcel">
+          <button class="btn-export" @click="exportDetailsToExcel">
             <span class="btn-icon">📗</span>
             Xuất Excel
+          </button>
+          <button class="btn-add" @click="openAddModal">
+            <span class="btn-icon">➕</span>
+            Thêm chi tiết SP
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Main Tab Navigation -->
-    <div class="main-tab-navigation">
-      <div class="main-tab-container">
-        <button 
-          v-for="tab in mainTabs" 
-          :key="tab.id"
-          @click="selectMainTab(tab.id)"
-          :class="['main-tab-button', { active: activeMainTab === tab.id }]"
-        >
-          <span class="tab-icon">{{ tab.icon }}</span>
-          <span class="tab-label">{{ tab.label }}</span>
-          <span class="tab-count">{{ getMainTabCount(tab.id) }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Sub Tab Navigation -->
-    <div class="sub-tab-navigation" v-if="getSubTabs(activeMainTab).length > 0">
-      <div class="sub-tab-container">
-        <button 
-          v-for="subTab in getSubTabs(activeMainTab)" 
-          :key="subTab.id"
-          @click="activeSubTab = subTab.id"
-          :class="['sub-tab-button', { active: activeSubTab === subTab.id }]"
-        >
-          <span class="sub-tab-icon">{{ subTab.icon }}</span>
-          <span class="sub-tab-label">{{ subTab.label }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Dynamic Tab Content -->
-    <div class="tab-content">
-      <!-- Product Details -->
-      <div v-show="activeMainTab === 'details'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách chi tiết sản phẩm</h3>
-            <button class="btn-primary" @click="activeSubTab = 'form'; isEditing = false">
-              <span class="btn-icon">➕</span>
-              Thêm chi tiết sản phẩm
-            </button>
-          </div>
-          <div class="view-content">
-            <div v-if="loading" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="productDetails.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in productDetails" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteProductDetail(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} chi tiết sản phẩm</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveProductDetail(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên chi tiết sản phẩm *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên chi tiết sản phẩm"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} chi tiết sản phẩm
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Manufacturers -->
-      <div v-show="activeMainTab === 'manufacturers'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách nhà sản xuất</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingManufacturers" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="manufacturers.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in manufacturers" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteManufacturer(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} nhà sản xuất</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveManufacturer(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên nhà sản xuất *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên nhà sản xuất"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} nhà sản xuất
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Origins -->
-      <div v-show="activeMainTab === 'origins'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách xuất xứ</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingOrigins" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="origins.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in origins" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteOrigin(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} xuất xứ</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveOrigin(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên xuất xứ *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên xuất xứ"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} xuất xứ
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Colors -->
-      <div v-show="activeMainTab === 'colors'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách màu sắc</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingColors" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="colors.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in colors" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteColor(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} màu sắc</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveColor(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên màu sắc *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên màu sắc"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} màu sắc
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sizes -->
-      <div v-show="activeMainTab === 'sizes'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách kích thước</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingSizes" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="sizes.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in sizes" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteSize(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} kích thước</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveSize(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên kích thước *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên kích thước"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} kích thước
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Materials -->
-      <div v-show="activeMainTab === 'materials'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách chất liệu</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingMaterials" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="materials.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in materials" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteMaterial(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} chất liệu</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveMaterial(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên chất liệu *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên chất liệu"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} chất liệu
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Soles -->
-      <div v-show="activeMainTab === 'soles'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách đế giày</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingSoles" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="soles.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in soles" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteSole(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} đế giày</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveSole(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên đế giày *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên đế giày"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} đế giày
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cushionings -->
-      <div v-show="activeMainTab === 'cushionings'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách đệm giày</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingCushionings" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="cushionings.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in cushionings" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteCushioning(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} đệm giày</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveCushioning(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên đệm giày *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên đệm giày"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} đệm giày
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Weights -->
-      <div v-show="activeMainTab === 'weights'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách trọng lượng</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingWeights" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="weights.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in weights" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteWeight(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} trọng lượng</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveWeight(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên trọng lượng *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên trọng lượng"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} trọng lượng
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sports -->
-      <div v-show="activeMainTab === 'sports'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách môn thể thao</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingSports" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="sports.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in sports" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteSport(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} môn thể thao</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveSport(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên môn thể thao *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên môn thể thao"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} môn thể thao
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Seasons -->
-      <div v-show="activeMainTab === 'seasons'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách loại mùa</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingSeasons" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="seasons.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in seasons" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteSeason(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} loại mùa</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveSeason(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên loại mùa *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên loại mùa"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} loại mùa
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Durabilities -->
-      <div v-show="activeMainTab === 'durabilities'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách độ bền</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingDurabilities" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="durabilities.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in durabilities" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteDurability(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} độ bền</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveDurability(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên độ bền *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên độ bền"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} độ bền
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Waterproofs -->
-      <div v-show="activeMainTab === 'waterproofs'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách chống nước</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingWaterproofs" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="waterproofs.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Mã</th>
-                    <th>Tên</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in waterproofs" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ item.code || item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteWaterproof(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} chống nước</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveWaterproof(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tên chống nước *</label>
-                <input
-                  v-model="editingItem.name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập tên chống nước"
-                  required
-                />
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} chống nước
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Images -->
-      <div v-show="activeMainTab === 'images'" class="tab-panel">
-        <div v-if="activeSubTab === 'table'" class="table-view">
-          <div class="view-header">
-            <h3>Danh sách ảnh sản phẩm</h3>
-          </div>
-          <div class="view-content">
-            <div v-if="loadingImages" class="loading-state">
-              <div class="loading-spinner"></div>
-              <p>Đang tải...</p>
-            </div>
-            <div v-else-if="productImages.length === 0" class="empty-state">
-              <div class="empty-icon">📋</div>
-              <p>Chưa có dữ liệu</p>
-            </div>
-            <div v-else class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Ảnh</th>
-                    <th>Mô tả</th>
-                    <th>Loại</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in productImages" :key="item.id">
-                    <td>{{ index + 1 }}</td>
-                    <td>
-                      <img :src="item.url" :alt="item.description" class="table-image" />
-                    </td>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.type }}</td>
-                    <td>
-                      <span class="status-badge" :class="item.status ? 'status-active' : 'status-inactive'">
-                        {{ item.status ? 'HĐ' : 'Không HĐ' }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="action-btn edit-btn" @click="activeSubTab = 'form'; isEditing = true; editingItem = item" title="Chỉnh sửa">
-                          ✏️
-                        </button>
-                        <button class="action-btn delete-btn" @click="deleteImage(item)" title="Xóa">
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="activeSubTab === 'form'" class="form-view">
-          <div class="view-header">
-            <h3>{{ isEditing ? 'Sửa' : 'Thêm' }} ảnh sản phẩm</h3>
-            <div class="form-actions">
-              <button class="btn-secondary" @click="activeSubTab = 'table'; isEditing = false; editingItem = null">
-                <span class="btn-icon">❌</span>
-                Hủy
-              </button>
-            </div>
-          </div>
-          <div class="view-content">
-            <form @submit.prevent="handleSaveImage(editingItem || {})" class="attribute-form">
-              <div class="form-group">
-                <label class="form-label">Tải lên ảnh *</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  class="form-control"
-                  @change="handleSingleImageUpload"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Mô tả ảnh *</label>
-                <input
-                  v-model="editingItem.description"
-                  type="text"
-                  class="form-control"
-                  placeholder="Nhập mô tả ảnh"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Loại ảnh</label>
-                <select v-model="editingItem.type" class="form-control">
-                  <option value="main">Ảnh chính</option>
-                  <option value="gallery">Ảnh thư viện</option>
-                </select>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                  <span class="btn-icon">💾</span>
-                  {{ isEditing ? 'Cập nhật' : 'Lưu' }} ảnh
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Legacy Filter Section (for backward compatibility) -->
+    <!-- Modern Filter Section -->
     <div class="filter-section">
       <div class="filter-card">
         <div class="filter-header">
@@ -1282,10 +35,11 @@
             <h3>Tìm kiếm & Lọc chi tiết sản phẩm</h3>
           </div>
           <div class="filter-stats">
-            {{ filteredDetails.length }} / {{ productDetails.length }} chi tiết sản phẩm
+            {{ filteredDetails.length }} / {{ chiTietSanPhams.length }} chi tiết
+            sản phẩm
           </div>
         </div>
-        
+
         <div class="filter-content">
           <div class="search-section">
             <div class="input-group">
@@ -1296,35 +50,47 @@
                 placeholder="Tìm kiếm tên sản phẩm, màu sắc, kích thước..."
                 class="form-control search-input"
               />
-              <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">
+              <button
+                v-if="searchQuery"
+                @click="searchQuery = ''"
+                class="clear-btn"
+              >
                 <span>✕</span>
               </button>
             </div>
           </div>
-          
+
           <div class="filters-grid">
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">📦</span>
                 Sản phẩm
               </label>
-              <select v-model="selectedProduct" class="form-select">
+              <select v-model="selectedSanPham" class="form-select">
                 <option value="">Tất cả sản phẩm</option>
-                <option v-for="product in products" :key="product.id" :value="product.id">
-                  {{ product.ten_san_pham }}
+                <option
+                  v-for="product in sanPhams"
+                  :key="product.id"
+                  :value="product.id"
+                >
+                  {{ product.tenSanPham }}
                 </option>
               </select>
             </div>
-            
+
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">🎨</span>
                 Màu sắc
               </label>
-              <select v-model="selectedColor" class="form-select">
+              <select v-model="selectedMauSac" class="form-select">
                 <option value="">Tất cả màu sắc</option>
-                <option v-for="color in colors" :key="color.id" :value="color.id">
-                  {{ color.ten_mau_sac }}
+                <option
+                  v-for="color in mauSacs"
+                  :key="color.id"
+                  :value="color.id"
+                >
+                  {{ color.tenMauSac }}
                 </option>
               </select>
             </div>
@@ -1334,10 +100,146 @@
                 <span class="label-icon">📏</span>
                 Kích thước
               </label>
-              <select v-model="selectedSize" class="form-select">
+              <select v-model="selectedKichThuoc" class="form-select">
                 <option value="">Tất cả kích thước</option>
-                <option v-for="size in sizes" :key="size.id" :value="size.id">
-                  {{ size.ten_kich_thuoc }}
+                <option
+                  v-for="size in kichThuocs"
+                  :key="size.id"
+                  :value="size.id"
+                >
+                  {{ size.tenKichThuoc }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🧵</span>
+                Chất liệu
+              </label>
+              <select v-model="selectedChatLieu" class="form-select">
+                <option value="">Tất cả chất liệu</option>
+                <option
+                  v-for="material in chatLieus"
+                  :key="material.id"
+                  :value="material.id"
+                >
+                  {{ material.tenChatLieu }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">👟</span>
+                Đế giày
+              </label>
+              <select v-model="selectedDeGiay" class="form-select">
+                <option value="">Tất cả đế giày</option>
+                <option v-for="sole in deGiays" :key="sole.id" :value="sole.id">
+                  {{ sole.tenDeGiay }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🦶</span>
+                Đệm giày
+              </label>
+              <select v-model="selectedDemGiay" class="form-select">
+                <option value="">Tất cả đệm giày</option>
+                <option
+                  v-for="insole in demGiays"
+                  :key="insole.id"
+                  :value="insole.id"
+                >
+                  {{ insole.tenDemGiay }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">⚖️</span>
+                Trọng lượng
+              </label>
+              <select v-model="selectedTrongLuong" class="form-select">
+                <option value="">Tất cả trọng lượng</option>
+                <option
+                  v-for="weight in trongLuongs"
+                  :key="weight.id"
+                  :value="weight.id"
+                >
+                  {{ weight.tenTrongLuong }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🏃</span>
+                Môn thể thao
+              </label>
+              <select v-model="selectedMonTheThao" class="form-select">
+                <option value="">Tất cả môn thể thao</option>
+                <option
+                  v-for="sport in monTheThaos"
+                  :key="sport.id"
+                  :value="sport.id"
+                >
+                  {{ sport.tenMonTheThao }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🌤️</span>
+                Loại mùa
+              </label>
+              <select v-model="selectedLoaiMua" class="form-select">
+                <option value="">Tất cả loại mùa</option>
+                <option
+                  v-for="season in loaiMuas"
+                  :key="season.id"
+                  :value="season.id"
+                >
+                  {{ season.tenLoaiMua }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">🛡️</span>
+                Độ bền
+              </label>
+              <select v-model="selectedDoBen" class="form-select">
+                <option value="">Tất cả độ bền</option>
+                <option
+                  v-for="durability in doBens"
+                  :key="durability.id"
+                  :value="durability.id"
+                >
+                  {{ durability.tenDoBen }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">
+                <span class="label-icon">💧</span>
+                Chống nước
+              </label>
+              <select v-model="selectedChongNuoc" class="form-select">
+                <option value="">Tất cả chống nước</option>
+                <option
+                  v-for="waterproof in chongNuocs"
+                  :key="waterproof.id"
+                  :value="waterproof.id"
+                >
+                  {{ waterproof.tenChongNuoc }}
                 </option>
               </select>
             </div>
@@ -1353,15 +255,11 @@
                 <option value="0">❌ Ngừng hoạt động</option>
               </select>
             </div>
-            
+
             <div class="filter-actions">
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
                 Đặt lại
-              </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">🔍</span>
-                Áp dụng
               </button>
             </div>
           </div>
@@ -1372,236 +270,494 @@
     <!-- Product Details Table -->
     <div class="card">
       <div class="card-body">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Sản phẩm</th>
-              <th>Màu sắc</th>
-              <th>Kích thước</th>
-              <th>Chất liệu</th>
-              <th>Môn thể thao</th>
-              <th>Trọng lượng</th>
-              <th>Giá bán</th>
-              <th>Số lượng</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
-              <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td class="product-name">
-                <div class="product-info">
-                  <strong>{{ detail.product?.ten_san_pham || 'N/A' }}</strong>
-                  <small>{{ detail.product?.ma_san_pham || '' }}</small>
-                </div>
-              </td>
-              <td>
-                <span class="color-badge" :style="{ backgroundColor: getColorCode(detail.color?.ten_mau_sac) }">
-                  {{ detail.color?.ten_mau_sac || 'N/A' }}
-                </span>
-              </td>
-              <td class="size-info">{{ detail.size?.ten_kich_thuoc || 'N/A' }}</td>
-              <td>{{ detail.material?.ten_chat_lieu || 'N/A' }}</td>
-              <td>{{ detail.sport?.ten_mon_the_thao || 'N/A' }}</td>
-              <td>{{ detail.weight?.ten_trong_luong || 'N/A' }}</td>
-              <td class="price">{{ formatCurrency(detail.gia_ban) }}</td>
-              <td>
-                <span :class="['stock', { 'low-stock': detail.so_luong < 10 }]">
-                  {{ detail.so_luong }}
-                </span>
-              </td>
-              <td>
-                <span class="badge" :class="detail.trang_thai ? 'badge-success' : 'badge-danger'">
-                  {{ detail.trang_thai ? 'Hoạt động' : 'Ngừng hoạt động' }}
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="action-btn edit-btn" @click="editDetail(detail)" title="Chỉnh sửa">
-                    ✏️
-                  </button>
-                  <button class="action-btn view-btn" @click="viewDetail(detail)" title="Xem chi tiết">
-                    👁️
-                  </button>
-                  <button class="action-btn delete-btn" @click="deleteDetail(detail.id)" title="Xóa">
-                    🗑️
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="paginatedDetails.length === 0">
-              <td colspan="17" class="text-center">Không có dữ liệu</td>
-            </tr>
-          </tbody>
-        </table>
-        
+        <div class="table-container">
+          <table class="product-table">
+            <thead>
+              <tr>
+                <th class="stt-col">STT</th>
+                <th class="product-col">Tên Sản Phẩm</th>
+                <th class="ma-col">Mã SP</th>
+                <th class="nha-san-xuat-col">Nhà SX</th>
+                <th class="xuat-xu-col">Xuất xứ</th>
+                <th class="color-col">Màu sắc</th>
+                <th class="size-col">Kích thước</th>
+                <th class="sole-col">Đế giày</th>
+                <th class="material-col">Chất liệu</th>
+                <th class="insole-col">Đệm giày</th>
+                <th class="weight-col">Trọng lượng</th>
+                <th class="sport-col">Môn thể thao</th>
+                <th class="season-col">Loại mùa</th>
+                <th class="durability-col">Độ bền</th>
+                <th class="waterproof-col">Chống nước</th>
+                <th class="image-col">Ảnh sản phẩm</th>
+                <th class="quantity-col">Số lượng</th>
+                <th class="price-col">Giá bán</th>
+                <th class="giam-gia-col">Giảm giá</th>
+                <th class="gia-sau-giam-col">Giá sau giảm</th>
+                <th class="ghi-chu-col">Ghi chú</th>
+                <th class="status-col">Trạng thái</th>
+                <th class="action-col">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(detail, index) in paginatedDetails" :key="detail.id">
+                <td class="stt-col">
+                  {{ (currentPage - 1) * pageSize + index + 1 }}
+                </td>
+                <td class="product-col">
+                  <div class="product-info">
+                    <strong>{{
+                      detail.tenSanPham || detail.sanPham?.tenSanPham || "N/A"
+                    }}</strong>
+                  </div>
+                </td>
+                <td class="ma-col">
+                  <span class="ma-badge">{{
+                    detail.maSanPham || "N/A"
+                  }}</span>
+                </td>
+                <td class="nha-san-xuat-col">
+                  <span class="nha-san-xuat-text">{{
+                    detail.tenNhaSanXuat || "N/A"
+                  }}</span>
+                </td>
+                <td class="xuat-xu-col">
+                  <span class="xuat-xu-text">{{
+                    detail.tenXuatXu || "N/A"
+                  }}</span>
+                </td>
+                <td class="color-col">
+                  <span class="color-badge">
+                    {{ detail.tenMauSac || "N/A" }}
+                  </span>
+                </td>
+                <td class="size-col">
+                  <span class="size-badge">{{
+                    detail.tenKichThuoc ||
+                    detail.kichThuoc?.tenKichThuoc ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="sole-col">
+                  <span class="attribute-text">{{
+                    detail.tenDeGiay || detail.deGiay?.tenDeGiay || "N/A"
+                  }}</span>
+                </td>
+                <td class="material-col">
+                  <span class="attribute-text">{{
+                    detail.tenChatLieu || detail.chatLieu?.tenChatLieu || "N/A"
+                  }}</span>
+                </td>
+                <td class="insole-col">
+                  <span class="attribute-text">{{
+                    detail.tenDemGiay || detail.demGiay?.tenDemGiay || "N/A"
+                  }}</span>
+                </td>
+                <td class="weight-col">
+                  <span class="attribute-text">{{
+                    detail.tenTrongLuong ||
+                    detail.trongLuong?.tenTrongLuong ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="sport-col">
+                  <span class="attribute-text">{{
+                    detail.tenMonTheThao ||
+                    detail.monTheThao?.tenMonTheThao ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td class="season-col">
+                  <span class="attribute-text">{{
+                    detail.tenLoaiMua || detail.loaiMua?.tenLoaiMua || "N/A"
+                  }}</span>
+                </td>
+                <td class="durability-col">
+                  <span class="attribute-text">{{
+                    detail.tenDoBen || detail.doBen?.tenDoBen || "N/A"
+                  }}</span>
+                </td>
+                <td class="waterproof-col">
+                  <span class="attribute-text">{{
+                    detail.tenChongNuoc ||
+                    detail.chongNuoc?.tenChongNuoc ||
+                    "N/A"
+                  }}</span>
+                </td>
+                <td
+                  class="image-col"
+                  :key="`image-${detail.id}-${imageDataKey.timestamp}`"
+                >
+                  <div
+                    v-if="getImagesForChiTietSanPham(detail.id).length > 0"
+                    class="image-preview"
+                  >
+                    <img
+                      :src="
+                        getImageUrl(
+                          getImagesForChiTietSanPham(detail.id)[0].duongDanAnh
+                        )
+                      "
+                      :alt="detail.tenSanPham || detail.sanPham?.tenSanPham"
+                      class="product-image"
+                    />
+                    <span
+                      v-if="getImagesForChiTietSanPham(detail.id).length > 1"
+                      class="image-count"
+                      >+{{
+                        getImagesForChiTietSanPham(detail.id).length - 1
+                      }}</span
+                    >
+                  </div>
+                  <span v-else class="no-image">Không có ảnh</span>
+                </td>
+                <td class="quantity-col">
+                  <span
+                    :class="[
+                      'stock-badge',
+                      { 'low-stock': detail.soLuong < 10 },
+                    ]"
+                  >
+                    {{ detail.soLuong }}
+                  </span>
+                </td>
+                <td class="price-col">
+                  <span class="price-text">{{
+                    formatCurrency(detail.giaBan)
+                  }}</span>
+                </td>
+                <td class="giam-gia-col">
+                  <span class="giam-gia-text">{{
+                    detail.tenDotGiamGia || "Không có"
+                  }}</span>
+                  <br>
+                  <small v-if="detail.giaTriGiamGia > 0" class="giam-gia-value">
+                    {{ detail.giaTriGiamGia }}%
+                  </small>
+                </td>
+                <td class="gia-sau-giam-col">
+                  <span class="gia-sau-giam-text">{{
+                    formatCurrency(detail.giaSauGiam || detail.giaBan)
+                  }}</span>
+                </td>
+                <td class="ghi-chu-col">
+                  <span class="ghi-chu-text">{{
+                    detail.ghiChu || "Không có"
+                  }}</span>
+                </td>
+                <td class="status-col">
+                  <span
+                    class="status-badge"
+                    :class="
+                      !detail.deleted ? 'status-active' : 'status-inactive'
+                    "
+                  >
+                    {{ !detail.deleted ? "Hoạt động" : "Ngừng hoạt động" }}
+                  </span>
+                </td>
+                <td class="action-col">
+                  <div class="action-buttons">
+                    <button
+                      class="btn-edit"
+                      @click="editDetail(detail)"
+                      title="Sửa"
+                    >
+                      <span class="btn-icon">✏️</span>
+                    </button>
+                  </div>
+                  <br />
+                  <div class="action-buttons">
+                    <button
+                      class="btn-hide"
+                      @click="deleteDetail(detail.id)"
+                      title="Ẩn sản phẩm"
+                    >
+                      <span class="btn-icon">👁️</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="paginatedDetails.length === 0">
+                <td colspan="24" class="no-data">Không có dữ liệu</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <!-- Pagination -->
-        <div class="pagination-wrapper">
+        <div v-if="totalPages > 1" class="pagination-wrapper">
           <div class="pagination-info">
-            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của {{ filteredDetails.length }} chi tiết sản phẩm
+            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+            {{ filteredDetails.length }} chi tiết sản phẩm ({{ pageSize }} dòng/trang)
           </div>
           <div class="pagination">
-            <button 
-              class="btn-export" 
-              @click="previousPage" 
+            <button
+              @click="previousPage"
               :disabled="currentPage === 1"
+              class="btn btn-outline btn-sm"
             >
-              <span class="btn-icon">❮</span>
+              ❮ Trước
             </button>
             <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button 
-              class="btn-export" 
-              @click="nextPage" 
+            <button
+              @click="nextPage"
               :disabled="currentPage === totalPages"
+              class="btn btn-outline btn-sm"
             >
-              <span class="btn-icon">❯</span>
+              Sau ❯
             </button>
+          </div>
+        </div>
+        
+        <!-- Pagination Info khi chỉ có 1 trang -->
+        <div v-else-if="filteredDetails.length > 0" class="pagination-wrapper">
+          <div class="pagination-info">
+            Hiển thị tất cả {{ filteredDetails.length }} chi tiết sản phẩm
           </div>
         </div>
       </div>
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay" @click="closeModals">
+    <div
+      v-if="showAddModal || showEditModal"
+      class="modal-overlay"
+      @click="closeModals"
+    >
       <div class="modal-content large" @click.stop>
         <div class="modal-header">
-          <h3>{{ showAddModal ? 'Thêm chi tiết sản phẩm' : 'Cập nhật chi tiết sản phẩm' }}</h3>
+          <h3>
+            {{
+              showAddModal
+                ? "Thêm chi tiết sản phẩm"
+                : "Cập nhật chi tiết sản phẩm"
+            }}
+          </h3>
           <button class="modal-close" @click="closeModals">×</button>
         </div>
         <div class="modal-body">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Sản phẩm *</label>
+              <label class="form-label">
+                <span class="label-icon">📦</span>
+                Sản phẩm *
+              </label>
               <select
-                v-model="formData.id_san_pham"
+                v-model="newChiTietSanPham.idSanPham"
                 class="form-control"
                 required
               >
                 <option value="">Chọn sản phẩm</option>
-                <option v-for="product in products" :key="product.id" :value="product.id">
-                  {{ product.ten_san_pham }} ({{ product.ma_san_pham }})
+                <option
+                  v-for="product in sanPhams"
+                  :key="product.id"
+                  :value="product.id"
+                >
+                  {{ product.tenSanPham }} ({{ product.maSanPham }})
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Màu sắc *</label>
+              <label class="form-label">
+                <span class="label-icon">🎨</span>
+                Màu sắc *
+              </label>
               <select
-                v-model="formData.id_mau_sac"
+                v-model="newChiTietSanPham.idMauSac"
                 class="form-control"
                 required
               >
                 <option value="">Chọn màu sắc</option>
-                <option v-for="color in colors" :key="color.id" :value="color.id">
-                  {{ color.ten_mau_sac }}
+                <option
+                  v-for="color in mauSacs"
+                  :key="color.id"
+                  :value="color.id"
+                >
+                  {{ color.tenMauSac }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Kích thước *</label>
+              <label class="form-label">
+                <span class="label-icon">📏</span>
+                Kích thước *
+              </label>
               <select
-                v-model="formData.id_kich_thuoc"
+                v-model="newChiTietSanPham.idKichThuoc"
                 class="form-control"
                 required
               >
                 <option value="">Chọn kích thước</option>
-                <option v-for="size in sizes" :key="size.id" :value="size.id">
-                  {{ size.ten_kich_thuoc }}
+                <option
+                  v-for="size in kichThuocs"
+                  :key="size.id"
+                  :value="size.id"
+                >
+                  {{ size.tenKichThuoc }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Chất liệu *</label>
+              <label class="form-label">
+                <span class="label-icon">🧵</span>
+                Chất liệu *
+              </label>
               <select
-                v-model="formData.id_chat_lieu"
+                v-model="newChiTietSanPham.idChatLieu"
                 class="form-control"
                 required
               >
                 <option value="">Chọn chất liệu</option>
-                <option v-for="material in materials" :key="material.id" :value="material.id">
-                  {{ material.ten_chat_lieu }}
+                <option
+                  v-for="material in chatLieus"
+                  :key="material.id"
+                  :value="material.id"
+                >
+                  {{ material.tenChatLieu }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Đế giày</label>
-              <select v-model="formData.id_de_giay" class="form-control">
+              <label class="form-label">
+                <span class="label-icon">👟</span>
+                Đế giày
+              </label>
+              <select v-model="newChiTietSanPham.idDeGiay" class="form-control">
                 <option value="">Chọn đế giày</option>
-                <option v-for="sole in soles" :key="sole.id" :value="sole.id">
-                  {{ sole.ten_de_giay }}
+                <option v-for="sole in deGiays" :key="sole.id" :value="sole.id">
+                  {{ sole.tenDeGiay }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Đệm giày</label>
-              <select v-model="formData.id_dem_giay" class="form-control">
+              <label class="form-label">
+                <span class="label-icon">🦶</span>
+                Đệm giày
+              </label>
+              <select
+                v-model="newChiTietSanPham.idDemGiay"
+                class="form-control"
+              >
                 <option value="">Chọn đệm giày</option>
-                <option v-for="insole in insoles" :key="insole.id" :value="insole.id">
-                  {{ insole.ten_dem_giay }}
+                <option
+                  v-for="insole in demGiays"
+                  :key="insole.id"
+                  :value="insole.id"
+                >
+                  {{ insole.tenDemGiay }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Môn thể thao</label>
-              <select v-model="formData.id_mon_the_thao" class="form-control">
-                <option value="">Chọn môn thể thao</option>
-                <option v-for="sport in sports" :key="sport.id" :value="sport.id">
-                  {{ sport.ten_mon_the_thao }}
-                </option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Trọng lượng</label>
-              <select v-model="formData.id_trong_luong" class="form-control">
+              <label class="form-label">
+                <span class="label-icon">⚖️</span>
+                Trọng lượng
+              </label>
+              <select
+                v-model="newChiTietSanPham.idTrongLuong"
+                class="form-control"
+              >
                 <option value="">Chọn trọng lượng</option>
-                <option v-for="weight in weights" :key="weight.id" :value="weight.id">
-                  {{ weight.ten_trong_luong }}
+                <option
+                  v-for="weight in trongLuongs"
+                  :key="weight.id"
+                  :value="weight.id"
+                >
+                  {{ weight.tenTrongLuong }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Loại mùa</label>
-              <select v-model="formData.id_loai_mua" class="form-control">
+              <label class="form-label">
+                <span class="label-icon">🏃</span>
+                Môn thể thao
+              </label>
+              <select
+                v-model="newChiTietSanPham.idMonTheThao"
+                class="form-control"
+              >
+                <option value="">Chọn môn thể thao</option>
+                <option
+                  v-for="sport in monTheThaos"
+                  :key="sport.id"
+                  :value="sport.id"
+                >
+                  {{ sport.tenMonTheThao }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">🌤️</span>
+                Loại mùa
+              </label>
+              <select
+                v-model="newChiTietSanPham.idLoaiMua"
+                class="form-control"
+              >
                 <option value="">Chọn loại mùa</option>
-                <option v-for="season in seasons" :key="season.id" :value="season.id">
-                  {{ season.ten_loai_mua }}
+                <option
+                  v-for="season in loaiMuas"
+                  :key="season.id"
+                  :value="season.id"
+                >
+                  {{ season.tenLoaiMua }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Độ bền</label>
-              <select v-model="formData.id_do_ben" class="form-control">
+              <label class="form-label">
+                <span class="label-icon">🛡️</span>
+                Độ bền
+              </label>
+              <select v-model="newChiTietSanPham.idDoBen" class="form-control">
                 <option value="">Chọn độ bền</option>
-                <option v-for="durability in durabilities" :key="durability.id" :value="durability.id">
-                  {{ durability.ten_do_ben }}
+                <option
+                  v-for="durability in doBens"
+                  :key="durability.id"
+                  :value="durability.id"
+                >
+                  {{ durability.tenDoBen }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Chống nước</label>
-              <select v-model="formData.id_chong_nuoc" class="form-control">
-                <option value="">Chọn mức chống nước</option>
-                <option v-for="waterproof in waterproofs" :key="waterproof.id" :value="waterproof.id">
-                  {{ waterproof.ten_chong_nuoc }}
+              <label class="form-label">
+                <span class="label-icon">💧</span>
+                Chống nước
+              </label>
+              <select
+                v-model="newChiTietSanPham.idChongNuoc"
+                class="form-control"
+              >
+                <option value="">Chọn chống nước</option>
+                <option
+                  v-for="waterproof in chongNuocs"
+                  :key="waterproof.id"
+                  :value="waterproof.id"
+                >
+                  {{ waterproof.tenChongNuoc }}
                 </option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Giá bán *</label>
+              <label class="form-label">
+                <span class="label-icon">💰</span>
+                Giá bán *
+              </label>
               <input
-                v-model="formData.gia_ban"
+                v-model="newChiTietSanPham.giaBan"
                 type="number"
                 class="form-control"
                 placeholder="Nhập giá bán"
@@ -1612,9 +768,12 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Số lượng *</label>
+              <label class="form-label">
+                <span class="label-icon">📦</span>
+                Số lượng *
+              </label>
               <input
-                v-model="formData.so_luong"
+                v-model="newChiTietSanPham.soLuong"
                 type="number"
                 class="form-control"
                 placeholder="Nhập số lượng"
@@ -1623,40 +782,65 @@
               />
             </div>
 
-            <div class="form-group span-2">
-              <label class="form-label">Trạng thái</label>
-              <select v-model="formData.trang_thai" class="form-control">
-                <option :value="1">Hoạt động</option>
-                <option :value="0">Ngừng hoạt động</option>
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">⚡</span>
+                Trạng thái
+              </label>
+              <select
+                v-model="newChiTietSanPham.deleted"
+                class="form-control"
+              >
+                <option :value="false">✅ Hoạt động</option>
+                <option :value="true">❌ Ngừng hoạt động</option>
               </select>
             </div>
 
             <div class="form-group span-2">
-              <label class="form-label">Hình ảnh sản phẩm</label>
-              <div class="image-upload-container">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  @change="handleImageUpload"
-                  class="form-control"
-                  id="imageUpload"
-                />
-                <div class="image-preview-grid" v-if="selectedImages.length > 0">
-                  <div v-for="(image, index) in selectedImages" :key="index" class="image-preview-item">
-                    <img :src="image.url" :alt="`Preview ${index + 1}`" class="preview-image" />
-                    <button type="button" @click="removeImage(index)" class="remove-image-btn">
+              <label class="form-label">
+                <span class="label-icon">🖼️</span>
+                Ảnh sản phẩm
+              </label>
+              <div class="image-upload-section">
+                <div class="image-preview-grid">
+                  <div
+                    v-for="(image, index) in selectedImages"
+                    :key="index"
+                    class="image-preview-item"
+                  >
+                    <img
+                      :src="getImageUrl(image)"
+                      :alt="`Ảnh ${index + 1}`"
+                      class="preview-image"
+                    />
+                    <button
+                      type="button"
+                      @click="removeImage(index)"
+                      class="remove-image-btn"
+                    >
                       ×
                     </button>
                   </div>
+                  <div
+                    v-if="selectedImages.length < 5"
+                    class="image-upload-btn"
+                    @click="openImageSelector"
+                  >
+                    <span class="upload-icon">📷</span>
+                    <span class="upload-text">Thêm ảnh</span>
+                  </div>
                 </div>
+                <p class="image-help-text">Chọn tối đa 5 ảnh cho sản phẩm</p>
               </div>
             </div>
 
             <div class="form-group span-2">
-              <label class="form-label">Ghi chú</label>
+              <label class="form-label">
+                <span class="label-icon">📝</span>
+                Ghi chú
+              </label>
               <textarea
-                v-model="formData.ghi_chu"
+                v-model="newChiTietSanPham.ghiChu"
                 class="form-control"
                 rows="3"
                 placeholder="Nhập ghi chú..."
@@ -1665,897 +849,1810 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-export" @click="closeModals">
-            <span class="btn-icon">❌</span>
-            Hủy
-          </button>
-          <button class="btn-export" @click="saveDetail">
-            <span class="btn-icon">💾</span>
-            {{ showAddModal ? 'Thêm' : 'Cập nhật' }}
+          <button class="btn-save" @click="saveDetail">
+            <span class="btn-icon">{{ showAddModal ? "➕" : "💾" }}</span>
+            {{ showAddModal ? "Thêm" : "Cập nhật" }}
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Image Selector Modal -->
+    <div
+      v-if="showImageSelector"
+      class="modal-overlay"
+      @click="closeImageSelector"
+    >
+      <div class="modal-content image-selector" @click.stop>
+        <div class="modal-header">
+          <h3>Chọn ảnh sản phẩm</h3>
+          <button class="modal-close" @click="closeImageSelector">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="image-grid">
+            <div
+              v-for="image in availableImages"
+              :key="image.id"
+              class="image-item"
+              :class="{ selected: selectedImageIds.includes(image.id) }"
+              @click="toggleImageSelection(image.id)"
+            >
+              <img
+                :src="getImageUrl(image.duongDanAnh)"
+                :alt="image.loaiAnh || 'Ảnh sản phẩm'"
+                class="grid-image"
+              />
+              <div class="image-overlay">
+                <span class="check-icon">✓</span>
+              </div>
+              <div class="image-info">
+                <span class="image-type">{{ image.loaiAnh || "N/A" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-save" @click="confirmImageSelection">
+            <span class="btn-icon">✅</span>
+            Xác nhận
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup thông báo thành công -->
+  <div
+    v-if="showSuccessPopup"
+    class="success-popup-overlay"
+    @click="closeSuccessPopup"
+  >
+    <div class="success-popup" @click.stop>
+      <div class="success-popup-content">
+        <div class="success-icon">✅</div>
+        <h3 class="success-title">Thành công!</h3>
+        <p class="success-message">{{ successMessage }}</p>
+        <button class="success-btn" @click="closeSuccessPopup">Đóng</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import ButtonGroup from '@/components/ui/NhomNut.vue'
-import { productDetailsService } from '@/services/dichVuSanPham.js'
-import { manufacturerService, colorService, sizeService, materialService } from '@/services/dichVuThuocTinh.js'
+import { ref, computed, onMounted } from "vue";
+import {
+  fetchAllChiTietSanPham,
+  fetchCreateChiTietSanPham,
+  fetchUpdateChiTietSanPham,
+  fetchUpdateStatusChiTietSanPham
+} from "../../services/SanPham/ChiTietSanPhamService";
+import { fetchAllAnhSanPham } from "../../services/ThuocTinh/AnhSanPhamService";
+import {
+  fetchAllChiTietSanPhamAnh,
+  fetchCreateChiTietSanPhamAnh,
+  fetchCreateMultipleChiTietSanPhamAnh,
+  fetchDeleteChiTietSanPhamAnh,
+  fetchUpdateChiTietSanPhamAnh,
+} from "../../services/ThuocTinh/ChiTietSanPhamAnhService";
+import { fetchAllMauSac } from "../../services/ThuocTinh/MauSacService";
+import { fetchAllKichThuoc } from "../../services/ThuocTinh/KichThuocService";
+import { fetchAllDeGiay } from "../../services/ThuocTinh/DeGiayService";
+import { fetchAllChatLieu } from "../../services/ThuocTinh/ChatLieuService";
+import { fetchAllDemGiay } from "../../services/ThuocTinh/DemGiayService";
+import { fetchAllTrongLuong } from "../../services/ThuocTinh/TrongLuongService";
+import { fetchAllMonTheThao } from "../../services/ThuocTinh/MonTheThaoService";
+import { fetchAllLoaiMua } from "../../services/ThuocTinh/LoaiMuaService";
+import { fetchAllDoBen } from "../../services/ThuocTinh/DoBenService";
+import { fetchAllChongNuoc } from "../../services/ThuocTinh/ChongNuocService";
+import { fetchAllSanPham } from "../../services/SanPham/SanPhamService";
+// Reactive data
+const searchQuery = ref("");
+const selectedSanPham = ref("");
+const selectedMauSac = ref("");
+const selectedKichThuoc = ref("");
+const selectedChatLieu = ref("");
+const selectedDeGiay = ref("");
+const selectedDemGiay = ref("");
+const selectedTrongLuong = ref("");
+const selectedMonTheThao = ref("");
+const selectedLoaiMua = ref("");
+const selectedDoBen = ref("");
+const selectedChongNuoc = ref("");
+const statusFilter = ref("");
+const showAddModal = ref(false);
+const showEditModal = ref(false);
+const showImageSelector = ref(false);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const selectedImages = ref([]);
+const selectedImageIds = ref([]);
+const availableImages = ref([]);
+const showSuccessPopup = ref(false);
+const successMessage = ref("");
+// ... existing code ...
+const newChiTietSanPham = ref({
+  id: "",
+  idSanPham: "",
+  idMauSac: "",
+  idKichThuoc: "",
+  idChatLieu: "",
+  idDeGiay: "",
+  idDemGiay: "",
+  idTrongLuong: "",
+  idMonTheThao: "",
+  idLoaiMua: "",
+  idDoBen: "",
+  idChongNuoc: "",
+  soLuong: 0,
+  giaBan: 0,
+  trangThai: true,
+  ghiChu: "",
+});
+// ... existing code ...
+// Data for dropdowns
+const sanPhams = ref([]);
+const anhSanPhams = ref([]);
+const chiTietSanPhams = ref([]);
+const chiTietSanPhamAnhs = ref([]);
+const mauSacs = ref([]);
+const kichThuocs = ref([]);
+const chatLieus = ref([]);
+const deGiays = ref([]);
+const demGiays = ref([]);
+const trongLuongs = ref([]);
+const monTheThaos = ref([]);
+const loaiMuas = ref([]);
+const doBens = ref([]);
+const chongNuocs = ref([]);
+// API call
+// Fetch all
+const fetchChiTietSanPham = async () => {
+  try {
+    console.log("Bắt đầu fetch chi tiết sản phẩm");
+    const response = await fetchAllChiTietSanPham();
+    console.log("Response từ API:", response);
+    
+    if (response && response.data) {
+      chiTietSanPhams.value = response.data;
+      console.log("Đã cập nhật chiTietSanPhams:", chiTietSanPhams.value.length);
+    } else {
+      console.warn("Response không có data hoặc data rỗng");
+      chiTietSanPhams.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching product details:", error);
+    // Hiển thị thông báo lỗi cho user
+    alert("Có lỗi khi tải dữ liệu chi tiết sản phẩm: " + error.message);
+    chiTietSanPhams.value = [];
+  }
+};
 
-// Tab Management
-const activeMainTab = ref('details')
-const activeSubTab = ref('table')
-const isEditing = ref(false)
-const editingItem = ref(null)
+const fetchAllThuocTinh = async () => {
+  try {
+    let res = await fetchAllAnhSanPham();
+    anhSanPhams.value = res.data;
+    let res2 = await fetchAllMauSac();
+    mauSacs.value = res2.data;
+    let res3 = await fetchAllKichThuoc();
+    kichThuocs.value = res3.data;
+    let res4 = await fetchAllDeGiay();
+    deGiays.value = res4.data;
+    let res5 = await fetchAllChatLieu();
+    chatLieus.value = res5.data;
+    let res6 = await fetchAllDemGiay();
+    demGiays.value = res6.data;
+    let res7 = await fetchAllTrongLuong();
+    trongLuongs.value = res7.data;
+    let res8 = await fetchAllMonTheThao();
+    monTheThaos.value = res8.data;
+    let res9 = await fetchAllLoaiMua();
+    loaiMuas.value = res9.data;
+    let res10 = await fetchAllDoBen();
+    doBens.value = res10.data;
+    let res11 = await fetchAllChongNuoc();
+    chongNuocs.value = res11.data;
+    let res12 = await fetchAllSanPham();
+    sanPhams.value = res12.data;
+    let res13 = await fetchAllChiTietSanPhamAnh();
+    chiTietSanPhamAnhs.value = res13.data;
 
-const mainTabs = ref([
-  { id: 'details', icon: '📦', label: 'Chi tiết sản phẩm' },
-  { id: 'manufacturers', icon: '🏭', label: 'Nhà sản xuất' },
-  { id: 'origins', icon: '🌍', label: 'Xuất xứ' },
-  { id: 'colors', icon: '🎨', label: 'Màu sắc' },
-  { id: 'sizes', icon: '📏', label: 'Kích thước' },
-  { id: 'soles', icon: '👞', label: 'Đế giày' },
-  { id: 'materials', icon: '🧵', label: 'Chất liệu' },
-  { id: 'cushionings', icon: '🛏️', label: 'Đệm giày' },
-  { id: 'weights', icon: '⚖️', label: 'Trọng lượng' },
-  { id: 'sports', icon: '⚽', label: 'Môn thể thao' },
-  { id: 'seasons', icon: '🌤️', label: 'Loại mùa' },
-  { id: 'durabilities', icon: '💪', label: 'Độ bền' },
-  { id: 'waterproofs', icon: '💧', label: 'Chống nước' },
-  { id: 'images', icon: '📷', label: 'Ảnh sản phẩm' }
-])
-
-const subTabs = ref({
-  details: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  manufacturers: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  origins: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  colors: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  sizes: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  soles: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  materials: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  cushionings: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  weights: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  sports: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  seasons: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sửa' }
-  ],
-  durabilities: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sừa' }
-  ],
-  waterproofs: [
-    { id: 'table', icon: '📋', label: 'Danh sách' },
-    { id: 'form', icon: '➕', label: 'Thêm/Sừa' }
-  ],
-  images: [
-    { id: 'table', icon: '📋', label: 'Danh sách ảnh' },
-    { id: 'form', icon: '🖼️', label: 'Quản lý ảnh' }
-  ]
-})
-
-// Product Details Data
-const searchQuery = ref('')
-const selectedProduct = ref('')
-const selectedColor = ref('')
-const selectedSize = ref('')
-const statusFilter = ref('')
-const showAddDetailModal = ref(false)
-const showAddModal = ref(false)
-const showEditModal = ref(false)
-const editingDetail = ref(null)
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
-
-// Attributes Data
-const manufacturers = ref([])
-const origins = ref([])
-const brands = ref([])
-const colors = ref([])
-const sizes = ref([])
-const soles = ref([])
-const materials = ref([])
-const cushionings = ref([])
-const weights = ref([])
-const sports = ref([])
-const seasons = ref([])
-const durabilities = ref([])
-const waterproofs = ref([])
-const productImages = ref([])
-
-// Loading states
-const loading = ref(false)
-const loadingManufacturers = ref(false)
-const loadingOrigins = ref(false)
-const loadingBrands = ref(false)
-const loadingColors = ref(false)
-const loadingSizes = ref(false)
-const loadingSoles = ref(false)
-const loadingMaterials = ref(false)
-const loadingCushionings = ref(false)
-const loadingWeights = ref(false)
-const loadingSports = ref(false)
-const loadingSeasons = ref(false)
-const loadingDurabilities = ref(false)
-const loadingWaterproofs = ref(false)
-const loadingImages = ref(false)
-
-// Modal states for attributes
-const showAddBrandModal = ref(false)
-const showAddColorModal = ref(false)
-const showAddSizeModal = ref(false)
-const showAddMaterialModal = ref(false)
-
-const formData = ref({
-  id_san_pham: '',
-  id_mau_sac: '',
-  id_kich_thuoc: '',
-  id_chat_lieu: '',
-  id_de_giay: '',
-  id_dem_giay: '',
-  id_trong_luong: '',
-  id_mon_the_thao: '',
-  id_loai_mua: '',
-  id_do_ben: '',
-  id_chong_nuoc: '',
-  so_luong: 0,
-  gia_ban: 0,
-  trang_thai: 1,
-  ghi_chu: ''
-})
-
-// Image handling
-const selectedImages = ref([])
-const maxImages = 5
-
-// Data arrays (cleaned up duplicates)
-const productDetails = ref([])
-const products = ref([])
-const insoles = ref([])
+    // Cập nhật imageDataKey để đảm bảo table re-render
+    imageDataKey.value = {
+      chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+      anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      timestamp: Date.now(),
+    };
+  } catch (error) {
+    console.error("Error fetching product details:", error);
+  }
+};
 
 // Computed
 const filteredDetails = computed(() => {
-  return productDetails.value.filter(detail => {
-    const matchesSearch = !searchQuery.value || 
-      detail.product?.ten_san_pham?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      detail.color?.ten_mau_sac?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      detail.size?.ten_kich_thuoc?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesProduct = !selectedProduct.value || detail.id_san_pham == selectedProduct.value
-    const matchesColor = !selectedColor.value || detail.id_mau_sac == selectedColor.value
-    const matchesSize = !selectedSize.value || detail.id_kich_thuoc == selectedSize.value
-    const matchesStatus = statusFilter.value === '' || detail.trang_thai == statusFilter.value
-    
-    return matchesSearch && matchesProduct && matchesColor && matchesSize && matchesStatus
-  })
-})
+  return chiTietSanPhams.value.filter((detail) => {
+    const matchesSearch =
+      !searchQuery.value ||
+      (detail.tenSanPham || detail.sanPham?.tenSanPham || "")
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (detail.tenMauSac || detail.mauSac?.tenMauSac || "")
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      (detail.tenKichThuoc || detail.kichThuoc?.tenKichThuoc || "")
+        ?.toLowerCase()
+        .includes(searchQuery.value.toLowerCase());
 
-const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value))
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
-const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, filteredDetails.value.length))
+    // Sử dụng logic tìm kiếm dựa trên tên thay vì ID để nhất quán với hiển thị
+    const matchesProduct =
+      !selectedSanPham.value ||
+      detail.tenSanPham ===
+        sanPhams.value.find((p) => p.id === selectedSanPham.value)
+          ?.tenSanPham ||
+      detail.sanPham?.tenSanPham ===
+        sanPhams.value.find((p) => p.id === selectedSanPham.value)?.tenSanPham;
+
+    const matchesColor =
+      !selectedMauSac.value ||
+      detail.tenMauSac ===
+        mauSacs.value.find((m) => m.id === selectedMauSac.value)?.tenMauSac ||
+      detail.mauSac?.tenMauSac ===
+        mauSacs.value.find((m) => m.id === selectedMauSac.value)?.tenMauSac;
+
+    const matchesSize =
+      !selectedKichThuoc.value ||
+      detail.tenKichThuoc ===
+        kichThuocs.value.find((k) => k.id === selectedKichThuoc.value)
+          ?.tenKichThuoc ||
+      detail.kichThuoc?.tenKichThuoc ===
+        kichThuocs.value.find((k) => k.id === selectedKichThuoc.value)
+          ?.tenKichThuoc;
+
+    const matchesChatLieu =
+      !selectedChatLieu.value ||
+      detail.tenChatLieu ===
+        chatLieus.value.find((c) => c.id === selectedChatLieu.value)
+          ?.tenChatLieu ||
+      detail.chatLieu?.tenChatLieu ===
+        chatLieus.value.find((c) => c.id === selectedChatLieu.value)
+          ?.tenChatLieu;
+
+    const matchesDeGiay =
+      !selectedDeGiay.value ||
+      detail.tenDeGiay ===
+        deGiays.value.find((d) => d.id === selectedDeGiay.value)?.tenDeGiay ||
+      detail.deGiay?.tenDeGiay ===
+        deGiays.value.find((d) => d.id === selectedDeGiay.value)?.tenDeGiay;
+
+    const matchesDemGiay =
+      !selectedDemGiay.value ||
+      detail.tenDemGiay ===
+        demGiays.value.find((d) => d.id === selectedDemGiay.value)
+          ?.tenDemGiay ||
+      detail.demGiay?.tenDemGiay ===
+        demGiays.value.find((d) => d.id === selectedDemGiay.value)?.tenDemGiay;
+
+    const matchesTrongLuong =
+      !selectedTrongLuong.value ||
+      detail.tenTrongLuong ===
+        trongLuongs.value.find((t) => t.id === selectedTrongLuong.value)
+          ?.tenTrongLuong ||
+      detail.trongLuong?.tenTrongLuong ===
+        trongLuongs.value.find((t) => t.id === selectedTrongLuong.value)
+          ?.tenTrongLuong;
+
+    const matchesMonTheThao =
+      !selectedMonTheThao.value ||
+      detail.tenMonTheThao ===
+        monTheThaos.value.find((m) => m.id === selectedMonTheThao.value)
+          ?.tenMonTheThao ||
+      detail.monTheThao?.tenMonTheThao ===
+        monTheThaos.value.find((m) => m.id === selectedMonTheThao.value)
+          ?.tenMonTheThao;
+
+    const matchesLoaiMua =
+      !selectedLoaiMua.value ||
+      detail.tenLoaiMua ===
+        loaiMuas.value.find((l) => l.id === selectedLoaiMua.value)
+          ?.tenLoaiMua ||
+      detail.loaiMua?.tenLoaiMua ===
+        loaiMuas.value.find((l) => l.id === selectedLoaiMua.value)?.tenLoaiMua;
+
+    const matchesDoBen =
+      !selectedDoBen.value ||
+      detail.tenDoBen ===
+        doBens.value.find((d) => d.id === selectedDoBen.value)?.tenDoBen ||
+      detail.doBen?.tenDoBen ===
+        doBens.value.find((d) => d.id === selectedDoBen.value)?.tenDoBen;
+
+    const matchesChongNuoc =
+      !selectedChongNuoc.value ||
+      detail.tenChongNuoc ===
+        chongNuocs.value.find((c) => c.id === selectedChongNuoc.value)
+          ?.tenChongNuoc ||
+      detail.chongNuoc?.tenChongNuoc ===
+        chongNuocs.value.find((c) => c.id === selectedChongNuoc.value)
+          ?.tenChongNuoc;
+
+    const matchesStatus =
+      statusFilter.value === "" || detail.trangThai == statusFilter.value;
+
+    return (
+      matchesSearch &&
+      matchesProduct &&
+      matchesColor &&
+      matchesSize &&
+      matchesChatLieu &&
+      matchesDeGiay &&
+      matchesDemGiay &&
+      matchesTrongLuong &&
+      matchesMonTheThao &&
+      matchesLoaiMua &&
+      matchesDoBen &&
+      matchesChongNuoc &&
+      matchesStatus
+    );
+  });
+});
+
+const totalPages = computed(() =>
+  Math.ceil(filteredDetails.value.length / pageSize.value)
+);
+const startIndex = computed(() => (currentPage.value - 1) * pageSize.value);
+const endIndex = computed(() =>
+  Math.min(startIndex.value + pageSize.value, filteredDetails.value.length)
+);
 
 const paginatedDetails = computed(() => {
-  return filteredDetails.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
-})
+  return filteredDetails.value.slice(
+    startIndex.value,
+    startIndex.value + pageSize.value
+  );
+});
 
-// Tab navigation methods
-const selectMainTab = (tabId) => {
-  activeMainTab.value = tabId
-  // Reset to first sub tab when switching main tab
-  const subTabsForTab = getSubTabs(tabId)
-  if (subTabsForTab.length > 0) {
-    activeSubTab.value = subTabsForTab[0].id
-  }
-}
-
-const getSubTabs = (mainTabId) => {
-  return subTabs.value[mainTabId] || []
-}
-
-// Tab count function
-const getMainTabCount = (tabId) => {
-  switch (tabId) {
-    case 'details': return productDetails.value.length
-    case 'manufacturers': return manufacturers.value.length
-    case 'origins': return origins.value.length
-    case 'brands': return brands.value.length
-    case 'colors': return colors.value.length
-    case 'sizes': return sizes.value.length
-    case 'soles': return soles.value.length
-    case 'materials': return materials.value.length
-    case 'cushionings': return cushionings.value.length
-    case 'weights': return weights.value.length
-    case 'sports': return sports.value.length
-    case 'seasons': return seasons.value.length
-    case 'durabilities': return durabilities.value.length
-    case 'waterproofs': return waterproofs.value.length
-    case 'images': return productImages.value.length
-    default: return 0
-  }
-}
-
-// Data loading functions
-const loadBrands = async () => {
-  loadingBrands.value = true
+const deleteDetail = async (id) => {
   try {
-    const response = await manufacturerService.getAll()
-    brands.value = response.data || response || []
-  } catch (error) {
-    console.error('Error loading brands:', error)
-    brands.value = []
-  } finally {
-    loadingBrands.value = false
-  }
-}
+    console.log("Bắt đầu ẩn chi tiết sản phẩm với ID:", id);
+    
+    // Hiển thị confirm trước khi xóa mềm
+    if (
+      !confirm(
+        "Bạn có chắc chắn muốn ẩn chi tiết sản phẩm này không? Sản phẩm sẽ không hiển thị nhưng vẫn được lưu trong hệ thống."
+      )
+    ) {
+      console.log("Người dùng hủy bỏ việc ẩn sản phẩm");
+      return;
+    }
 
-const loadColors = async () => {
-  loadingColors.value = true
-  try {
-    const response = await colorService.getAll()
-    colors.value = response.data || response || []
-  } catch (error) {
-    console.error('Error loading colors:', error)
-    colors.value = []
-  } finally {
-    loadingColors.value = false
-  }
-}
+    console.log("Gọi API cập nhật trạng thái (xóa mềm) cho ID:", id);
+    // Gọi API cập nhật trạng thái (xóa mềm)
+    await fetchUpdateStatusChiTietSanPham(id);
 
-const loadSizes = async () => {
-  loadingSizes.value = true
-  try {
-    const response = await sizeService.getAll()
-    sizes.value = response.data || response || []
-  } catch (error) {
-    console.error('Error loading sizes:', error)
-    sizes.value = []
-  } finally {
-    loadingSizes.value = false
-  }
-}
+    console.log("Cập nhật trạng thái thành công, đang refresh danh sách...");
+    // Refresh lại danh sách
+    await fetchChiTietSanPham();
 
-const loadMaterials = async () => {
-  loadingMaterials.value = true
-  try {
-    const response = await materialService.getAll()
-    materials.value = response.data || response || []
+    console.log("Refresh danh sách thành công, hiển thị thông báo...");
+    // Hiển thị thông báo thành công
+    showSuccessNotification("Ẩn chi tiết sản phẩm thành công!");
   } catch (error) {
-    console.error('Error loading materials:', error)
-    materials.value = []
-  } finally {
-    loadingMaterials.value = false
+    console.error("Error hiding product detail:", error);
+    alert("Có lỗi xảy ra khi ẩn chi tiết sản phẩm!");
   }
-}
+};
+
+// Ref để theo dõi thay đổi dữ liệu ảnh và đảm bảo table re-render
+const imageDataKey = ref({
+  chiTietSanPhamAnhsLength: 0,
+  anhSanPhamsLength: 0,
+  timestamp: Date.now(),
+});
 
 // Methods
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(amount).replace('₫', ' VND')
-}
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    minimumFractionDigits: 0,
+  })
+    .format(amount)
+    .replace("₫", " VND");
+};
 
 const getColorCode = (colorName) => {
+  if (!colorName) return "#E5E7EB";
+
   const colorMap = {
-    'Đen': '#000000',
-    'Trắng': '#FFFFFF',
-    'Đỏ': '#FF0000',
-    'Xanh': '#0000FF',
-    'Vàng': '#FFFF00',
-    'Xám': '#808080',
-    'Nâu': '#8B4513',
-    'Hồng': '#FFC0CB'
-  }
-  return colorMap[colorName] || '#E5E7EB'
-}
+    Đen: "#000000",
+    Trắng: "#FFFFFF",
+    Đỏ: "#FF0000",
+    Xanh: "#0000FF",
+    Vàng: "#FFFF00",
+    Xám: "#808080",
+    Nâu: "#8B4513",
+    Hồng: "#FFC0CB",
+    "Xanh dương": "#0066CC",
+    "Xanh lá": "#00CC00",
+    Cam: "#FF8C00",
+    Tím: "#800080",
+    "Xanh ngọc": "#00CED1",
+    "Xanh navy": "#000080",
+    "Xanh lá cây": "#228B22",
+  };
 
-const editDetail = (detail) => {
-  editingDetail.value = detail
-  formData.value = { 
-    ...detail,
-    id_san_pham: detail.id_san_pham,
-    id_mau_sac: detail.id_mau_sac,
-    id_kich_thuoc: detail.id_kich_thuoc,
-    id_chat_lieu: detail.id_chat_lieu,
-    id_de_giay: detail.id_de_giay,
-    id_dem_giay: detail.id_dem_giay
+  // Exact match first
+  if (colorMap[colorName]) {
+    return colorMap[colorName];
   }
-  showEditModal.value = true
-}
 
-const deleteDetail = (id) => {
-  if (confirm('Bạn có chắc chắn muốn xóa chi tiết sản phẩm này?')) {
-    const index = productDetails.value.findIndex(d => d.id === id)
-    if (index > -1) {
-      productDetails.value.splice(index, 1)
+  // Fuzzy matching for similar names
+  const normalizedColorName = colorName.toLowerCase();
+  for (const [key, value] of Object.entries(colorMap)) {
+    if (
+      normalizedColorName.includes(key.toLowerCase()) ||
+      key.toLowerCase().includes(normalizedColorName)
+    ) {
+      return value;
     }
   }
-}
 
-const saveDetail = () => {
-  if (!formData.value.id_san_pham || !formData.value.id_mau_sac || !formData.value.id_kich_thuoc) {
-    alert('Vui lòng nhập đầy đủ thông tin bắt buộc')
-    return
-  }
+  return "#E5E7EB"; // Default color
+};
 
-  if (showAddModal.value) {
-    const newDetail = {
-      ...formData.value,
-      id: Date.now(),
-      product: products.value.find(p => p.id == formData.value.id_san_pham),
-      color: colors.value.find(c => c.id == formData.value.id_mau_sac),
-      size: sizes.value.find(s => s.id == formData.value.id_kich_thuoc),
-      material: materials.value.find(m => m.id == formData.value.id_chat_lieu)
+const editDetail = async (data) => {
+  try {
+    // Đảm bảo dữ liệu dropdown đã được load
+    if (
+      sanPhams.value.length === 0 ||
+      mauSacs.value.length === 0 ||
+      kichThuocs.value.length === 0 ||
+      chatLieus.value.length === 0
+    ) {
+      await fetchAllThuocTinh();
     }
-    productDetails.value.unshift(newDetail)
-  } else if (showEditModal.value && editingDetail.value) {
-    const index = productDetails.value.findIndex(d => d.id === editingDetail.value.id)
-    if (index > -1) {
-      productDetails.value[index] = {
-        ...editingDetail.value,
-        ...formData.value,
-        product: products.value.find(p => p.id == formData.value.id_san_pham),
-        color: colors.value.find(c => c.id == formData.value.id_mau_sac),
-        size: sizes.value.find(s => s.id == formData.value.id_kich_thuoc),
-        material: materials.value.find(m => m.id == formData.value.id_chat_lieu)
+
+    // Tìm ID tương ứng từ các mảng dropdown
+    const productId =
+      sanPhams.value.find(
+        (p) =>
+          p.tenSanPham === data.tenSanPham ||
+          p.tenSanPham === data.sanPham?.tenSanPham
+      )?.id || "";
+    const mauSacId =
+      mauSacs.value.find(
+        (m) =>
+          m.tenMauSac === data.tenMauSac ||
+          m.tenMauSac === data.mauSac?.tenMauSac
+      )?.id || "";
+    const kichThuocId =
+      kichThuocs.value.find(
+        (k) =>
+          k.tenKichThuoc === data.tenKichThuoc ||
+          k.tenKichThuoc === data.kichThuoc?.tenKichThuoc
+      )?.id || "";
+    const chatLieuId =
+      chatLieus.value.find(
+        (c) =>
+          c.tenChatLieu === data.tenChatLieu ||
+          c.tenChatLieu === data.chatLieu?.tenChatLieu
+      )?.id || "";
+    const deGiayId =
+      deGiays.value.find(
+        (d) =>
+          d.tenDeGiay === data.tenDeGiay ||
+          d.tenDeGiay === data.deGiay?.tenDeGiay
+      )?.id || "";
+    const demGiayId =
+      demGiays.value.find(
+        (d) =>
+          d.tenDemGiay === data.tenDemGiay ||
+          d.tenDemGiay === data.demGiay?.tenDemGiay
+      )?.id || "";
+    const trongLuongId =
+      trongLuongs.value.find(
+        (t) =>
+          t.tenTrongLuong === data.tenTrongLuong ||
+          t.tenTrongLuong === data.trongLuong?.tenTrongLuong
+      )?.id || "";
+    const monTheThaoId =
+      monTheThaos.value.find(
+        (m) =>
+          m.tenMonTheThao === data.tenMonTheThao ||
+          m.tenMonTheThao === data.monTheThao?.tenMonTheThao
+      )?.id || "";
+    const loaiMuaId =
+      loaiMuas.value.find(
+        (l) =>
+          l.tenLoaiMua === data.tenLoaiMua ||
+          l.tenLoaiMua === data.loaiMua?.tenLoaiMua
+      )?.id || "";
+    const doBenId =
+      doBens.value.find(
+        (d) =>
+          d.tenDoBen === data.tenDoBen || d.tenDoBen === data.doBen?.tenDoBen
+      )?.id || "";
+    const chongNuocId =
+      chongNuocs.value.find(
+        (c) =>
+          c.tenChongNuoc === data.tenChongNuoc ||
+          c.tenChongNuoc === data.chongNuoc?.tenChongNuoc
+      )?.id || "";
+
+    newChiTietSanPham.value = {
+      id: data.id,
+      idSanPham: productId,
+      idMauSac: mauSacId,
+      idKichThuoc: kichThuocId,
+      idChatLieu: chatLieuId,
+      idDeGiay: deGiayId,
+      idDemGiay: demGiayId,
+      idTrongLuong: trongLuongId,
+      idMonTheThao: monTheThaoId,
+      idLoaiMua: loaiMuaId,
+      idDoBen: doBenId,
+      idChongNuoc: chongNuocId,
+      soLuong: data.soLuong || 0,
+      giaBan: data.giaBan || 0,
+      trangThai: data.trangThai,
+      ghiChu: data.ghiChu || "",
+    };
+    // Load ảnh sản phẩm từ AnhSanPham
+    const images = getImagesForChiTietSanPham(data.id);
+    if (images.length > 0) {
+      selectedImages.value = images.map((img) => img.duongDanAnh);
+      selectedImageIds.value = images.map((img) => img.id);
+    } else {
+      selectedImages.value = [];
+      selectedImageIds.value = [];
+    }
+
+    showEditModal.value = true;
+  } catch (error) {
+    console.error("Error in editDetail:", error);
+    alert("Có lỗi xảy ra khi mở form chỉnh sửa!");
+  }
+};
+
+const saveDetail = async () => {
+  try {
+    // Validate required fields
+    if (
+      !newChiTietSanPham.value.idSanPham ||
+      !newChiTietSanPham.value.idMauSac ||
+      !newChiTietSanPham.value.idKichThuoc ||
+      !newChiTietSanPham.value.idChatLieu ||
+      !newChiTietSanPham.value.giaBan ||
+      !newChiTietSanPham.value.soLuong
+    ) {
+      alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+      return;
+    }
+
+    // Chuẩn bị dữ liệu để gửi, đảm bảo trạng thái đúng định dạng
+    const dataToSend = {
+      ...newChiTietSanPham.value,
+      trangThai: newChiTietSanPham.value.trangThai ? 1 : 0,
+    };
+
+    let chiTietSanPhamId = null;
+
+    if (showAddModal.value) {
+      // Create new
+      const response = await fetchCreateChiTietSanPham(dataToSend);
+      showSuccessNotification("Thêm chi tiết sản phẩm thành công!");
+      // Lấy ID của chi tiết sản phẩm vừa tạo từ response.data
+      chiTietSanPhamId = response?.data;
+      console.log("Created chiTietSanPham with ID:", chiTietSanPhamId);
+    } else if (showEditModal.value) {
+      // Update existing
+      await fetchUpdateChiTietSanPham(dataToSend.id, dataToSend);
+      showSuccessNotification("Cập nhật chi tiết sản phẩm thành công!");
+      chiTietSanPhamId = dataToSend.id;
+      console.log("Updated chiTietSanPham with ID:", chiTietSanPhamId);
+    }
+
+    // Xử lý ảnh sản phẩm
+    if (chiTietSanPhamId && selectedImageIds.value.length > 0) {
+      try {
+        // Xóa tất cả liên kết ảnh cũ
+        const existingImages = chiTietSanPhamAnhs.value.filter(
+          (item) => item.idChiTietSanPham === chiTietSanPhamId
+        );
+
+        console.log("Existing images to delete:", existingImages);
+
+        for (const existingImage of existingImages) {
+          if (existingImage.id) {
+            console.log("Deleting image link with ID:", existingImage.id);
+            await fetchDeleteChiTietSanPhamAnh(existingImage.id);
+          } else {
+            console.warn("Skipping image with undefined ID:", existingImage);
+          }
+        }
+
+        // Tạo liên kết ảnh mới - sử dụng method tạo nhiều ảnh cùng lúc
+        console.log(
+          "Creating multiple image links for image IDs:",
+          selectedImageIds.value
+        );
+        await fetchCreateMultipleChiTietSanPhamAnh({
+          idChiTietSanPham: chiTietSanPhamId,
+          idAnhSanPhamList: selectedImageIds.value,
+          deleted: false,
+        });
+      } catch (imageError) {
+        console.error("Error handling images:", imageError);
       }
     }
-  }
 
-  closeModals()
-}
+    // Refresh data từ server để đảm bảo đồng bộ
+    console.log("Bắt đầu refresh dữ liệu...");
+
+    // Đảm bảo thứ tự refresh để dữ liệu ảnh được cập nhật đúng
+    await fetchChiTietSanPham();
+    console.log(
+      "Đã refresh chiTietSanPham, số lượng:",
+      chiTietSanPhams.value.length
+    );
+
+    // Force refresh dữ liệu ảnh để đảm bảo table được cập nhật
+    await forceRefreshImageData();
+
+    console.log("Hoàn thành refresh dữ liệu");
+    closeModals();
+  } catch (error) {
+    console.error("Error saving product details:", error);
+    alert("Có lỗi xảy ra khi lưu dữ liệu!");
+  }
+};
 
 const closeModals = () => {
-  showAddDetailModal.value = false
-  showAddModal.value = false
-  showEditModal.value = false
-  showAddBrandModal.value = false
-  showAddColorModal.value = false
-  showAddSizeModal.value = false
-  showAddMaterialModal.value = false
-  editingDetail.value = null
-  selectedImages.value = []
-  formData.value = {
-    id_san_pham: '',
-    id_mau_sac: '',
-    id_kich_thuoc: '',
-    id_chat_lieu: '',
-    id_de_giay: '',
-    id_dem_giay: '',
-    id_trong_luong: '',
-    id_mon_the_thao: '',
-    id_loai_mua: '',
-    id_do_ben: '',
-    id_chong_nuoc: '',
-    so_luong: 0,
-    gia_ban: 0,
-    trang_thai: 1,
-    ghi_chu: ''
-  }
-}
+  showAddModal.value = false;
+  showEditModal.value = false;
+  // Reset form về trạng thái ban đầu
+  newChiTietSanPham.value = {
+    id: "",
+    idSanPham: "",
+    idMauSac: "",
+    idKichThuoc: "",
+    idChatLieu: "",
+    idDeGiay: "",
+    idDemGiay: "",
+    idTrongLuong: "",
+    idMonTheThao: "",
+    idLoaiMua: "",
+    idDoBen: "",
+    idChongNuoc: "",
+    soLuong: 0,
+    giaBan: 0,
+    trangThai: false,
+    ghiChu: "",
+  };
+  selectedImages.value = [];
+  selectedImageIds.value = [];
+  console.log("Đã đóng modal và reset form");
+};
+
+// Hàm hiển thị popup thành công
+const showSuccessNotification = (message) => {
+  successMessage.value = message;
+  showSuccessPopup.value = true;
+  // Tự động đóng popup sau 3 giây
+  setTimeout(() => {
+    showSuccessPopup.value = false;
+  }, 3000);
+};
+
+// Hàm đóng popup thành công
+const closeSuccessPopup = () => {
+  showSuccessPopup.value = false;
+};
 
 const clearFilters = () => {
-  searchQuery.value = ''
-  selectedProduct.value = ''
-  selectedColor.value = ''
-  selectedSize.value = ''
-  statusFilter.value = ''
-  currentPage.value = 1
-}
+  searchQuery.value = "";
+  selectedSanPham.value = "";
+  selectedMauSac.value = "";
+  selectedKichThuoc.value = "";
+  selectedChatLieu.value = "";
+  selectedDeGiay.value = "";
+  selectedDemGiay.value = "";
+  selectedTrongLuong.value = "";
+  selectedMonTheThao.value = "";
+  selectedLoaiMua.value = "";
+  selectedDoBen.value = "";
+  selectedChongNuoc.value = "";
+  statusFilter.value = "";
+  currentPage.value = 1;
+};
 
 const applyFilters = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const previousPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
+    currentPage.value--;
   }
-}
+};
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
+    currentPage.value++;
   }
-}
-
-const refreshData = async () => {
-  console.log('Refreshing all data...')
-  loading.value = true
-  try {
-    await Promise.all([
-      loadBrands(),
-      loadColors(), 
-      loadSizes(),
-      loadMaterials()
-    ])
-  } finally {
-    loading.value = false
-  }
-}
+};
 
 const exportData = () => {
-  console.log('Exporting product details report...')
-  alert('Xuất báo cáo thành công! (Chức năng đang được phát triển)')
-}
+  alert("Xuất báo cáo thành công! (Chức năng đang được phát triển)");
+};
 
-const exportToExcel = () => {
-  console.log('Exporting product details to Excel...')
-  alert('Xuất Excel thành công! (Chức năng đang được phát triển)')
-}
+const exportDetailsToExcel = () => {
+  alert("Xuất Excel thành công! (Chức năng đang được phát triển)");
+};
+
+const refreshData = async () => {
+  try {
+    // Reset về trang đầu tiên
+    currentPage.value = 1;
+
+    // Load lại dữ liệu
+    await Promise.all([fetchChiTietSanPham(), fetchAllThuocTinh()]);
+
+    // Clear các filter
+    clearFilters();
+
+    alert("Làm mới dữ liệu thành công!");
+    console.log("Đã refresh dữ liệu thành công");
+  } catch (error) {
+    console.error("Error refreshing data:", error);
+    alert("Có lỗi xảy ra khi làm mới dữ liệu!");
+  }
+};
+
+const openAddModal = () => {
+  // Reset form về trạng thái ban đầu
+  newChiTietSanPham.value = {
+    id: "",
+    idSanPham: "",
+    idMauSac: "",
+    idKichThuoc: "",
+    idChatLieu: "",
+    idDeGiay: "",
+    idDemGiay: "",
+    idTrongLuong: "",
+    idMonTheThao: "",
+    idLoaiMua: "",
+    idDoBen: "",
+    idChongNuoc: "",
+    soLuong: 0,
+    giaBan: 0,
+    trangThai: true,
+    ghiChu: "",
+  };
+  selectedImages.value = [];
+  selectedImageIds.value = [];
+  showAddModal.value = true;
+  console.log("Đã mở modal thêm mới");
+};
+
+const openImageSelector = () => {
+  try {
+    // Chỉ hiển thị những ảnh chưa bị xóa
+    availableImages.value = anhSanPhams.value.filter((img) => !img.deleted);
+    showImageSelector.value = true;
+    console.log(
+      "Đã mở image selector với",
+      availableImages.value.length,
+      "ảnh"
+    );
+  } catch (error) {
+    console.error("Error opening image selector:", error);
+    alert("Có lỗi khi mở image selector!");
+  }
+};
+
+const closeImageSelector = () => {
+  showImageSelector.value = false;
+};
+
+const toggleImageSelection = (imageId) => {
+  const index = selectedImageIds.value.indexOf(imageId);
+  if (index > -1) {
+    // Bỏ chọn ảnh
+    selectedImageIds.value.splice(index, 1);
+    selectedImages.value.splice(index, 1);
+  } else {
+    // Chọn ảnh mới
+    if (selectedImageIds.value.length < 5) {
+      const image = anhSanPhams.value.find((img) => img.id === imageId);
+      if (image) {
+        selectedImageIds.value.push(imageId);
+        selectedImages.value.push(image.duongDanAnh);
+      }
+    } else {
+      alert("Chỉ được chọn tối đa 5 ảnh!");
+    }
+  }
+};
+
+const confirmImageSelection = () => {
+  showImageSelector.value = false;
+};
+
+// Method để lấy ảnh cho một chi tiết sản phẩm
+const getImagesForChiTietSanPham = (chiTietSanPhamId) => {
+  try {
+    // Đảm bảo dữ liệu đã được load
+    if (!chiTietSanPhamAnhs.value || !anhSanPhams.value) {
+      console.log("Dữ liệu chưa sẵn sàng, đang chờ...");
+      return [];
+    }
+
+    // Lọc các liên kết ảnh cho chi tiết sản phẩm này
+    const imageLinks = chiTietSanPhamAnhs.value.filter(
+      (item) => item.idChiTietSanPham === chiTietSanPhamId && !item.deleted
+    );
+
+    // Map để lấy thông tin ảnh đầy đủ
+    const images = imageLinks
+      .map((item) => {
+        const anhSanPham = anhSanPhams.value.find(
+          (anh) => anh.id === item.idAnhSanPham
+        );
+        if (anhSanPham) {
+          return {
+            id: anhSanPham.id,
+            duongDanAnh: anhSanPham.duongDanAnh,
+            loaiAnh: anhSanPham.loaiAnh,
+            moTa: anhSanPham.moTa,
+          };
+        } else {
+          console.log(`Không tìm thấy ảnh với ID: ${item.idAnhSanPham}`);
+          return null;
+        }
+      })
+      .filter((img) => img !== null);
+
+    return images;
+  } catch (error) {
+    console.error("Error getting images for chi tiet san pham:", error);
+    return [];
+  }
+};
+
+// Method để tạo URL đầy đủ cho ảnh
+const getImageUrl = (imagePath) => {
+  try {
+    if (!imagePath) return "";
+
+    // Nếu đã là URL đầy đủ thì trả về nguyên
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+
+    // Nếu là đường dẫn tương đối, thêm base URL của backend
+    if (imagePath.startsWith("uploads/")) {
+      return `http://localhost:8080/${imagePath}`;
+    }
+
+    // Nếu bắt đầu bằng / thì thêm base URL
+    if (imagePath.startsWith("/")) {
+      return `http://localhost:8080${imagePath}`;
+    }
+
+    return imagePath;
+  } catch (error) {
+    console.error("Error getting image URL:", error);
+    return "";
+  }
+};
+
+// Method để force refresh dữ liệu ảnh
+const forceRefreshImageData = async () => {
+  try {
+    console.log("Force refresh dữ liệu ảnh...");
+
+    // Refresh dữ liệu ảnh
+    await fetchAllThuocTinh();
+
+    // Force Vue re-render bằng cách thay đổi timestamp
+    imageDataKey.value = {
+      chiTietSanPhamAnhsLength: chiTietSanPhamAnhs.value?.length || 0,
+      anhSanPhamsLength: anhSanPhams.value?.length || 0,
+      timestamp: Date.now(),
+    };
+
+    console.log("Đã force refresh dữ liệu ảnh thành công");
+  } catch (error) {
+    console.error("Error force refreshing image data:", error);
+  }
+};
 
 onMounted(async () => {
-  console.log('Loading initial data...')
-  loading.value = true
-  
   try {
-    // Load all attribute data in parallel
-    await Promise.all([
-      loadBrands(),
-      loadColors(),
-      loadSizes(), 
-      loadMaterials()
-    ])
-    
-    // Load additional data
-    await loadAdditionalData()
+    console.log("Component mounted, bắt đầu load dữ liệu ban đầu...");
+    // Load dữ liệu song song để tăng tốc độ
+    await Promise.all([fetchChiTietSanPham(), fetchAllThuocTinh()]);
+    console.log("Đã load dữ liệu ban đầu thành công");
   } catch (error) {
-    console.error('Error loading initial data:', error)
-  } finally {
-    loading.value = false
+    console.error("Error loading initial data:", error);
+    alert("Có lỗi xảy ra khi tải dữ liệu ban đầu!");
   }
-})
-
-// Handler methods for new tab structure
-const handleSaveProductDetail = (formData) => {
-  console.log('Saving product detail:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveManufacturer = (formData) => {
-  console.log('Saving manufacturer:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveOrigin = (formData) => {
-  console.log('Saving origin:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveColor = (formData) => {
-  console.log('Saving color:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveSize = (formData) => {
-  console.log('Saving size:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveMaterial = (formData) => {
-  console.log('Saving material:', formData)
-  activeSubTab.value = 'table'
-}
-
-// Additional handler methods for remaining attributes
-const handleSaveSole = (formData) => {
-  console.log('Saving sole:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveCushioning = (formData) => {
-  console.log('Saving cushioning:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveWeight = (formData) => {
-  console.log('Saving weight:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveSport = (formData) => {
-  console.log('Saving sport:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveSeason = (formData) => {
-  console.log('Saving season:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveDurability = (formData) => {
-  console.log('Saving durability:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveWaterproof = (formData) => {
-  console.log('Saving waterproof:', formData)
-  activeSubTab.value = 'table'
-}
-
-const handleSaveImage = (formData) => {
-  console.log('Saving image:', formData)
-  activeSubTab.value = 'table'
-}
-
-// Delete methods
-const deleteProductDetail = (item) => {
-  if (confirm('Bạn có chắc muốn xóa chi tiết sản phẩm này?')) {
-    console.log('Deleting product detail:', item)
-  }
-}
-
-const deleteManufacturer = (item) => {
-  if (confirm('Bạn có chắc muốn xóa nhà sản xuất này?')) {
-    console.log('Deleting manufacturer:', item)
-  }
-}
-
-const deleteOrigin = (item) => {
-  if (confirm('Bạn có chắc muốn xóa xuất xứ này?')) {
-    console.log('Deleting origin:', item)
-  }
-}
-
-const deleteColor = (item) => {
-  if (confirm('Bạn có chắc muốn xóa màu sắc này?')) {
-    console.log('Deleting color:', item)
-  }
-}
-
-const deleteSize = (item) => {
-  if (confirm('Bạn có chắc muốn xóa kích thước này?')) {
-    console.log('Deleting size:', item)
-  }
-}
-
-const deleteSole = (item) => {
-  if (confirm('Bạn có chắc muốn xóa đế giày này?')) {
-    console.log('Deleting sole:', item)
-  }
-}
-
-const deleteMaterial = (item) => {
-  if (confirm('Bạn có chắc muốn xóa chất liệu này?')) {
-    console.log('Deleting material:', item)
-  }
-}
-
-const deleteCushioning = (item) => {
-  if (confirm('Bạn có chắc muốn xóa đệm giày này?')) {
-    console.log('Deleting cushioning:', item)
-  }
-}
-
-const deleteWeight = (item) => {
-  if (confirm('Bạn có chắc muốn xóa trọng lượng này?')) {
-    console.log('Deleting weight:', item)
-  }
-}
-
-const deleteSport = (item) => {
-  if (confirm('Bạn có chắc muốn xóa môn thể thao này?')) {
-    console.log('Deleting sport:', item)
-  }
-}
-
-const deleteSeason = (item) => {
-  if (confirm('Bạn có chắc muốn xóa loại mùa này?')) {
-    console.log('Deleting season:', item)
-  }
-}
-
-const deleteDurability = (item) => {
-  if (confirm('Bạn có chắc muốn xóa độ bền này?')) {
-    console.log('Deleting durability:', item)
-  }
-}
-
-const deleteWaterproof = (item) => {
-  if (confirm('Bạn có chắc muốn xóa chống nước này?')) {
-    console.log('Deleting waterproof:', item)
-  }
-}
-
-const deleteImage = (item) => {
-  if (confirm('Bạn có chắc muốn xóa ảnh này?')) {
-    console.log('Deleting image:', item)
-  }
-}
-
-// Load additional data that's not covered by the main attribute services
-const loadAdditionalData = async () => {
-  // Initialize all arrays as empty - no sample data
-  manufacturers.value = []
-  origins.value = []
-  soles.value = []
-  cushionings.value = []
-  weights.value = []
-  sports.value = []
-  seasons.value = []
-  durabilities.value = []
-  waterproofs.value = []
-  productImages.value = []
-  products.value = []
-  insoles.value = []
-  productDetails.value = []
-}
-
-// Image handling functions
-const handleImageUpload = (event) => {
-  const files = Array.from(event.target.files)
-  
-  if (selectedImages.value.length + files.length > maxImages) {
-    alert(`Bạn chỉ có thể tải lên tối đa ${maxImages} hình ảnh`)
-    return
-  }
-  
-  files.forEach(file => {
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        selectedImages.value.push({
-          file: file,
-          url: e.target.result,
-          name: file.name
-        })
-      }
-      reader.readAsDataURL(file)
-    }
-  })
-}
-
-const removeImage = (index) => {
-  selectedImages.value.splice(index, 1)
-}
-
-const handleSingleImageUpload = (event) => {
-  const file = event.target.files[0]
-  if (file && file.type.startsWith('image/')) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      if (editingItem.value) {
-        editingItem.value.url = e.target.result
-      }
-    }
-    reader.readAsDataURL(file)
-  }
-}
+});
 </script>
 
-
 <style scoped>
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* Global font settings */
+* {
+  font-family: "Inter", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+}
+
+/* CSS Custom Properties */
+:root {
+  --border-color: #e5e7eb;
+  --secondary-color: #1e293b;
+  --light-gray: #f3f4f6;
+  --medium-gray: #6b7280;
+}
+
 .product-details {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0 1rem;
 }
 
-/* Filter Section */
-.filter-section {
-  background: white;
+.page-header {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow);
-}
-
-/* Main Tab Styles */
-.main-tab-navigation {
-  background: white;
-  border-radius: 12px 12px 0 0;
-  margin-bottom: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow-x: auto;
-}
-
-.main-tab-container {
-  display: flex;
-  padding: 1rem;
-  gap: 0.5rem;
-  min-width: max-content;
-}
-
-.main-tab-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  background: #f8f9fa;
-  color: #666;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.main-tab-button:hover {
-  background: #e9ecef;
-  color: #333;
-}
-
-.main-tab-button.active {
-  background: #4ade80;
   color: white;
-  border-color: #22c55e;
+  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.3);
 }
 
-.main-tab-button.active .tab-count {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Sub Tab Styles */
-.sub-tab-navigation {
-  background: white;
-  border-top: 1px solid #e5e5e5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.sub-tab-container {
+.header-content {
   display: flex;
-  justify-content: center;
-  padding: 0.75rem 1rem;
-  gap: 0.5rem;
-}
-
-.sub-tab-button {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 6px;
-  background: white;
-  color: #666;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.sub-tab-button:hover {
-  background: #f8f9fa;
-  border-color: #22c55e;
+.header-text {
+  flex: 1;
 }
 
-.sub-tab-button.active {
-  background: #22c55e;
-  color: white;
-  border-color: #22c55e;
+.page-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
-.sub-tab-icon {
+.page-subtitle {
+  margin: 0;
+  opacity: 0.9;
   font-size: 1rem;
 }
 
-/* Table Styles */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0;
-  table-layout: auto;
-  position: relative;
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.table th {
-  background-color: #4ade80;
+.btn-refresh,
+.btn-export {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+.btn-add {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+.btn-refresh:hover,
+.btn-export:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn-add:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+/* Filter Section - Enhanced */
+.filter-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 4px 6px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-title h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.filter-icon {
+  font-size: 2rem;
+  opacity: 0.9;
+}
+
+.filter-stats {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.filter-content {
+  padding-top: 1rem;
+}
+
+.search-section {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.input-group {
+  position: relative;
+  max-width: 100%;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1.25rem 1rem 1.25rem 4rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  background: white;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #374151;
+  min-height: 64px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.search-input:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.input-icon {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.5rem;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f3f4f6;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.clear-btn:hover {
+  background: #e5e7eb;
+  color: #374151;
+  transform: scale(1.1);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.label-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.form-select {
+  padding: 0.875rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
+}
+
+.form-select:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  grid-column: span 4;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-outline {
+  background: white;
+  color: #475569;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.btn-outline:hover {
+  background: #f8fafc;
+  border-color: #4ade80;
+  color: #4ade80;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Container - With horizontal scrollbar */
+.table-container {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background: white;
+  overflow: hidden;
+  overflow-x: auto;
+  position: relative;
+  border: 1px solid #e2e8f0;
+}
+
+/* Product Table - With horizontal scrollbar */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 0.6rem;
+  /* Further reduced font size for compact display */
+  table-layout: auto;
+  /* Auto table layout to allow natural column sizing */
+  min-width: 1200px;
+  /* Minimum width to ensure all columns are visible */
+  overflow-x: visible;
+  /* Show horizontal scrollbar when needed */
+}
+
+.product-table th {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
   font-weight: 600;
-  padding: 1rem;
+  padding: 0.5rem 0.3rem;
+  /* Reduced padding for compact display */
   text-align: center;
-  font-size: 0.875rem;
   white-space: nowrap;
+  /* Prevent text wrapping in headers */
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 10;
+  font-size: 0.55rem;
+  /* Further reduced font size for headers */
 }
 
-.table td {
-  padding: 1rem;
+.product-table th:last-child {
+  border-right: none;
+}
+
+.product-table td {
+  padding: 0.5rem 0.3rem;
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.875rem;
+  border-bottom: 2px solid #e2e8f0;
+  border-right: 2px solid #e2e8f0;
+  background: white;
+  white-space: normal;
+  /* Allow text wrapping for long content */
+  overflow: visible;
+  /* Show overflow to allow text wrapping */
+  text-overflow: clip;
+  /* Don't show ellipsis, allow full text */
+  font-size: 0.55rem;
+  font-weight: 500;
+  color: #374151;
+  word-wrap: break-word;
+  /* Break long words if necessary */
+  hyphens: auto;
+  /* Enable automatic hyphenation */
 }
 
-.product-name {
-  text-align: left;
+.product-table td:last-child {
+  border-right: none;
+}
+
+.product-table tbody tr:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.product-table tbody tr:hover td {
+  border-color: #cbd5e1;
+  background: transparent;
+}
+
+.no-data {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+/* Column Widths - Optimized for 100% screen without horizontal scrollbar */
+/* Total width: 35+60+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50+50 = 1165px */
+/* Reduced from 1200px to 1165px after removing ID column */
+.stt-col {
+  width: 35px;
+  min-width: 35px;
+  max-width: 35px;
+}
+  
+
+
+.product-col {
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
+}
+
+.ma-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.color-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.size-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.sole-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.material-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.insole-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.weight-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.sport-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.season-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.durability-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.waterproof-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.image-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.quantity-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.price-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.nha-san-xuat-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.xuat-xu-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.giam-gia-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.gia-sau-giam-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.ghi-chu-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.status-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+.action-col {
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+
+/* Product Info - Optimized text size */
+.product-col {
+  text-align: left !important;
 }
 
 .product-info strong {
   display: block;
   margin-bottom: 0.25rem;
+  font-size: 0.6rem;
+  /* Further reduced font size for compact display */
+  color: #1e293b;
+  line-height: 1.2;
 }
 
-.product-info small {
-  color: var(--medium-gray);
-  font-size: 0.75rem;
-}
-
+/* Color Badge - Enhanced */
 .color-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  color: white;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  color: black;
   font-weight: 500;
-  font-size: 0.75rem;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  border: 1px solid rgba(0,0,0,0.1);
+  font-size: 0.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  min-width: 40px;
+  max-width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.size-info {
+/* Special color adjustments for light backgrounds */
+.color-badge[style*="background-color: #FFFFFF"],
+.color-badge[style*="background-color: #FFFF00"],
+.color-badge[style*="background-color: #FFC0CB"] {
+  color: #000000;
+  text-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Size Badge - Optimized size */
+.size-badge {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
   font-weight: 600;
-  color: #4ade80;
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
+  display: inline-block;
+  min-width: 30px;
+  max-width: 100%;
 }
 
-.price {
+/* Attribute Text - Optimized for compact display */
+.attribute-text {
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
+  color: #475569;
+  font-weight: 500;
+  display: block;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Stock Badge - Optimized size */
+.stock-badge {
+  background: #10b981;
+  color: white;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
+  display: inline-block;
+  min-width: 30px;
+  max-width: 100%;
+}
+
+.stock-badge.low-stock {
+  background: #ef4444;
+}
+
+/* Price Text - Optimized size */
+.price-text {
   font-weight: 600;
-  color: #4ade80;
+  color: #059669;
+  font-size: 0.55rem;
+  /* Further reduced font size for compact display */
+  white-space: nowrap;
 }
 
-.stock {
+/* Status Badge - Optimized size */
+.status-badge {
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.5rem;
+  /* Further reduced font size for compact display */
+  display: inline-block;
+  min-width: 60px;
+  max-width: 100%;
+}
+
+.status-active {
+  background: #10b981;
+  color: white;
+}
+
+.status-inactive {
+  background: #ef4444;
+  color: white;
+}
+
+/* Product Images - Optimized size */
+.image-col {
+  text-align: center;
+}
+
+.image-preview {
+  position: relative;
+  display: inline-block;
+}
+
+.product-image {
+  width: 25px;
+  /* Reduced image size for compact display */
+  height: 25px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.image-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
   font-weight: 600;
+  border: 1px solid white;
 }
 
-.stock.low-stock {
-  color: var(--danger-color);
+.no-image {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-style: italic;
 }
 
-/* Pagination */
+/* Action Buttons - Optimized size */
+.action-buttons {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.btn-edit,
+.btn-hide {
+  border: none;
+  border-radius: 4px;
+  padding: 0.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+}
+
+.btn-edit {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-hide {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-hide:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: 0.7rem;
+}
+
+/* Pagination enhancements */
 .pagination-wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  gap: 20px;
+}
+
+.pagination-info {
+  display: block;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 20px;
 }
 
 .page-info {
   font-weight: 600;
-  color: var(--secondary-color);
+  color: #495057;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-width: 80px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.btn-outline {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 8px;
+  min-width: 80px;
+  height: 40px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #495057;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.btn-outline:focus {
+  outline: none;
+  border: 1px solid #dee2e6;
+  box-shadow: none;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  border-color: #9ca3af;
+  color: #9ca3af;
 }
 
 /* Modal Styles */
@@ -2565,22 +2662,36 @@ const handleSingleImageUpload = (event) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-content.large {
@@ -2591,55 +2702,113 @@ const handleSingleImageUpload = (event) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 2rem 2rem 1.5rem 2rem;
+  border-bottom: 2px solid #f3f4f6;
+  background: #22c55e;
+  border-radius: 16px 16px 0 0;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--secondary-color);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
 }
 
 .modal-close {
-  background: none;
+  background: rgba(239, 68, 68, 0.1);
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
+  color: #ef4444;
 }
 
 .modal-close:hover {
-  background-color: var(--light-gray);
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
+  background: white;
 }
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  padding: 1.5rem 2rem 2rem 2rem;
+  border-top: 2px solid #f3f4f6;
+  background: #f8fafc;
+  border-radius: 0 0 16px 16px;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-save:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+.btn-save:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-save .btn-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-save:hover .btn-icon {
+  transform: scale(1.1);
 }
 
 /* Form styles */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.form-grid .form-group:nth-child(13),
+.form-grid .form-group:nth-child(14) {
+  grid-column: span 2;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .form-group.span-2 {
@@ -2647,585 +2816,1202 @@ const handleSingleImageUpload = (event) => {
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--secondary-color);
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .product-details {
-    padding: 0 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .search-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filters-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .table {
-    font-size: 0.8125rem;
-  }
-  
-  .table th, .table td {
-    padding: 0.5rem 0.25rem;
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-overlay {
-    padding: 1rem;
-  }
-  
-  /* Hide less important columns on mobile */
-  .table th:nth-child(5),
-  .table td:nth-child(5),
-  .table th:nth-child(8),
-  .table td:nth-child(8) {
-    display: none;
-  }
-}
-
-/* Dynamic Component Styles */
-.table-view, .form-view {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.view-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.view-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
-  text-transform: capitalize;
-}
-
-.view-content {
-  padding: 2rem;
-}
-
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #f3f4f6;
-  border-top: 3px solid #4ade80;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.empty-state .empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.3;
-}
-
-.table-container {
-  overflow-x: auto;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-}
-
-.data-table th {
-  background: #4ade80;
-  color: white;
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border-bottom: 1px solid #22c55e;
-}
-
-.data-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 0.875rem;
-}
-
-.data-table tr:hover {
-  background: #f9fafb;
-}
-
-.attribute-form {
-  max-width: 600px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Tab Content Styles */
-.tab-content {
-  min-height: 600px;
-  margin-top: 2rem;
-}
-
-.tab-content > div {
-  min-height: 500px;
-}
-
-/* State Styles */
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-/* Data Grid for Attributes */
-.data-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
-.item-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.item-card:hover {
-  border-color: var(--primary-300);
-  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.1);
-  transform: translateY(-2px);
-}
-
-.color-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.color-preview {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-}
-
-.item-info h4 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.item-info p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.item-actions {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.item-card:hover .item-actions {
-  opacity: 1;
-}
-
-.btn-edit, .btn-delete {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-
-.btn-edit {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-
-.btn-edit:hover {
-  background: rgba(59, 130, 246, 0.2);
-  transform: scale(1.1);
-}
-
-.btn-delete {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
-.btn-delete:hover {
-  background: rgba(239, 68, 68, 0.2);
-  transform: scale(1.1);
-}
-
-/* Image Upload Styles */
-.image-upload-container {
-  width: 100%;
-}
-
-.image-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-md);
-  background: var(--gray-50);
-}
-
-.image-preview-item {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.image-preview-item:hover {
-  transform: scale(1.02);
-}
-
-.preview-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-}
-
-.remove-image-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.9);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  line-height: 1;
-}
-
-.remove-image-btn:hover {
-  background: rgba(239, 68, 68, 1);
-  transform: scale(1.1);
-}
-
-/* Button Styles */
-.btn-primary, .btn-secondary {
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
+  color: #374151;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
 }
 
-.btn-primary {
-  background: #4ade80;
-  color: white;
+.label-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
 }
 
-.btn-primary:hover {
-  background: #22c55e;
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background: #6b7280;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #4b5563;
-}
-
-.btn-icon {
-  font-size: 1rem;
-}
-
-/* Form control styles */
 .form-control {
-  width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem;
   border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.875rem;
+  background: white;
   transition: all 0.2s ease;
+  font-weight: 500;
+  color: #374151;
+  min-height: 48px;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #4ade80;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+  transform: translateY(-1px);
 }
 
-/* Table image styles */
-.table-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #e5e7eb;
+.form-control:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Form grid adjustments for new fields */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
+.form-control::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
 }
 
-.form-group.span-2 {
-  grid-column: span 2;
-}
-
-.form-group.span-3 {
-  grid-column: span 3;
-}
-
-/* Product Details Table Specific Styles */
-.product-images {
-  text-align: center;
-}
-
-.image-thumbnails {
-  display: flex;
-  gap: 2px;
-  justify-content: center;
-  align-items: center;
-}
-
-.thumbnail {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  object-fit: cover;
-  border: 1px solid #ddd;
-}
-
-.more-count {
-  font-size: 0.75rem;
-  color: #666;
-  background: #f0f0f0;
-  padding: 2px 4px;
-  border-radius: 4px;
-}
-
-.no-image {
-  color: #ccc;
-  font-size: 1.2rem;
-}
-
-/* Status Badge Styles for Product Details */
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-active {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.status-inactive {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-/* Action Buttons Styles for Product Details */
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-}
-
-.action-btn {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 0.25rem;
+/* Enhanced form controls */
+.form-control select {
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1rem;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
 }
 
-.edit-btn {
-  background-color: #3b82f6;
-  color: white;
+.form-control textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
 }
 
-.edit-btn:hover {
-  background-color: #2563eb;
-}
+/* Responsive Design - Optimized for 100% screen */
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .product-table {
+    font-size: 0.5rem;
+  }
 
-.view-btn {
-  background-color: #6b7280;
-  color: white;
-}
+  .product-table th,
+  .product-table td {
+    padding: 0.5rem 0.3rem;
+  }
 
-.view-btn:hover {
-  background-color: #4b5563;
-}
+  /* Adjust column widths for medium screens */
+  .stt-col {
+    width: 40px;
+    min-width: 40px;
+  }
 
-.delete-btn {
-  background-color: #ef4444;
-  color: white;
-}
 
-.delete-btn:hover {
-  background-color: #dc2626;
-}
 
-/* Table responsive adjustments */
-@media (max-width: 1600px) {
-  .table th:nth-child(8),
-  .table td:nth-child(8),
-  .table th:nth-child(9),
-  .table td:nth-child(9),
-  .table th:nth-child(10),
-  .table td:nth-child(10) {
-    display: none;
+  .product-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .ma-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .color-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .size-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .sole-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .material-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .insole-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .weight-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .sport-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .season-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .durability-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .waterproof-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .image-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .quantity-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .price-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .nha-san-xuat-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .xuat-xu-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .giam-gia-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .gia-sau-giam-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .ghi-chu-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .status-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .action-col {
+    width: 55px;
+    min-width: 55px;
   }
 }
 
-@media (max-width: 1200px) {
-  .table th:nth-child(5),
-  .table td:nth-child(5),
-  .table th:nth-child(6),
-  .table td:nth-child(6),
-  .table th:nth-child(7),
-  .table td:nth-child(7) {
-    display: none;
+@media (min-width: 1601px) {
+  /* For very large screens, increase font size slightly */
+  .product-table {
+    font-size: 0.7rem;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 0.7rem 0.5rem;
+  }
+
+  /* Slightly larger column widths for better readability */
+  .stt-col {
+    width: 50px;
+    min-width: 50px;
+  }
+
+
+
+  .product-col {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .ma-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .color-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .size-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .sole-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .material-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .insole-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .weight-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .sport-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .season-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .durability-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .waterproof-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .image-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .quantity-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .price-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .nha-san-xuat-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .xuat-xu-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .giam-gia-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .gia-sau-giam-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .ghi-chu-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .status-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .action-col {
+    width: 70px;
+    min-width: 70px;
   }
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .tab-button {
-    padding: 0.75rem 1rem;
-    font-size: 0.8rem;
+@media (max-width: 1400px) {
+  .filters-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
   }
   
-  .tab-icon {
-    font-size: 1rem;
-  }
-  
-  .data-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .panel-header {
+  .pagination-wrapper {
     flex-direction: column;
     gap: 1rem;
-    align-items: stretch;
+    align-items: center;
   }
   
+  .pagination-info {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 1000px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 1rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .search-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-section {
+    margin: 0 1rem 2rem 1rem;
+  }
+
+  .input-group {
+    max-width: 100%;
+  }
+
+  .search-input {
+    min-height: 56px;
+    font-size: 1rem;
+    padding: 1rem 1rem 1rem 3.5rem;
+  }
+
+  .input-icon {
+    left: 1.25rem;
+    font-size: 1.25rem;
+  }
+
+  .clear-btn {
+    right: 1rem;
+    padding: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  .table-container {
+    margin: 0 -1rem;
+    border-radius: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Ensure horizontal scrollbar is visible on mobile */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Responsive table cho mobile */
+  .product-table {
+    font-size: 0.65rem;
+    min-width: 1200px;
+    /* Ensure all columns are visible on mobile */
+    table-layout: auto;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 0.4rem 0.2rem;
+  }
+
+  /* Giảm width các cột trên mobile */
+  .stt-col {
+    width: 35px;
+    min-width: 35px;
+  }
+
+  .product-col {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .color-col {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .size-col {
+    width: 45px;
+    min-width: 45px;
+  }
+
+  .sole-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .material-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .insole-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .weight-col {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .sport-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .season-col {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .durability-col {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .waterproof-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .image-col {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .quantity-col {
+    width: 45px;
+    min-width: 45px;
+  }
+
+  .price-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .status-col {
+    width: 70px;
+    min-width: 70px;
+  }
+
+  .action-col {
+    width: 60px;
+    min-width: 60px;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
-  .image-preview-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 0.5rem;
-    padding: 0.5rem;
+
+  .form-grid .form-group:nth-child(13),
+  .form-grid .form-group:nth-child(14) {
+    grid-column: span 1;
   }
-  
-  /* Hide more columns on mobile */
-  .table th:nth-child(5),
-  .table td:nth-child(5),
-  .table th:nth-child(6),
-  .table td:nth-child(6),
-  .table th:nth-child(7),
-  .table td:nth-child(7),
-  .table th:nth-child(8),
-  .table td:nth-child(8) {
-    display: none;
+
+  .modal-overlay {
+    padding: 1rem;
+  }
+
+  .no-data {
+    font-size: 0.875rem;
+    color: var(--medium-gray);
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Responsive table cho mobile nhỏ */
+  .product-table {
+    font-size: 0.6rem;
+    min-width: 1100px;
+    /* Even smaller minimum width for very small screens */
+    table-layout: auto;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 0.3rem 0.15rem;
+  }
+
+  .search-section {
+    margin: 0 0.5rem 1.5rem 0.5rem;
+  }
+
+  .search-input {
+    min-height: 52px;
+    font-size: 0.95rem;
+    padding: 0.875rem 0.875rem 0.875rem 3rem;
+    border-radius: 12px;
+  }
+
+  .input-icon {
+    left: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .clear-btn {
+    right: 0.75rem;
+    padding: 0.4rem;
+    font-size: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .filter-toggle {
+    align-self: flex-end;
+  }
+
+  /* Giảm width các cột trên mobile nhỏ */
+  .stt-col {
+    width: 30px;
+    min-width: 30px;
+  }
+
+  .product-col {
+    width: 90px;
+    min-width: 90px;
+  }
+
+  .color-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .size-col {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .sole-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .material-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .insole-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .weight-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .sport-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .season-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .durability-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .waterproof-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .image-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .quantity-col {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .price-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .status-col {
+    width: 65px;
+    min-width: 65px;
+  }
+
+  .action-col {
+    width: 55px;
+    min-width: 55px;
+  }
+
+  .color-badge,
+  .size-badge,
+  .stock-badge,
+  .status-badge {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .attribute-text {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.65rem;
+    min-height: 24px;
+  }
+
+  .product-image {
+    width: 25px;
+    height: 25px;
+  }
+
+  .btn-edit,
+  .btn-hide {
+    min-width: 24px;
+    height: 24px;
+  }
+
+  /* Ensure horizontal scrollbar is visible on very small screens */
+  .table-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+
+/* Image Upload Styles */
+.image-upload-section {
+  margin-top: 0.5rem;
+}
+
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.remove-image-btn:hover {
+  background: #ef4444;
+  transform: scale(1.1);
+}
+
+.image-upload-btn {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f9fafb;
+}
+
+.image-upload-btn:hover {
+  border-color: #4ade80;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  color: #6b7280;
+}
+
+.upload-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.image-help-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+  text-align: center;
+}
+
+/* Image Selector Modal */
+.modal-content.image-selector {
+  max-width: 800px;
+  max-height: 80vh;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.image-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-item:hover {
+  border-color: #4ade80;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-item.selected {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.3);
+}
+
+.grid-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-item.selected .image-overlay {
+  opacity: 1;
+}
+
+.check-icon {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.image-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.image-type {
+  font-weight: 500;
+}
+
+/* Styles cho các cột mới */
+.id-badge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.ma-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.nha-san-xuat-text,
+.xuat-xu-text {
+  font-size: 0.8rem;
+  color: #6b7280;
+  display: block;
+}
+
+.giam-gia-text {
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 500;
+  display: block;
+}
+
+.giam-gia-value {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.gia-sau-giam-text {
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.ghi-chu-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* Tối ưu hóa hiển thị cho các cột mới */
+.ma-col,
+.nha-san-xuat-col,
+.xuat-xu-col,
+.giam-gia-col,
+.gia-sau-giam-col,
+.ghi-chu-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive text size cho các cột mới */
+@media (max-width: 1400px) {
+  .ma-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .ma-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col {
+    font-size: 0.55rem;
+  }
+}
+
+/* Responsive Design for Table */
+@media (max-width: 1400px) {
+  .product-table {
+    font-size: 0.65rem;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 0.4rem 0.25rem;
+  }
+
+  .stt-col {
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
+  }
+
+
+
+  .product-col {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+  }
+
+  .ma-col {
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+  }
+
+  .color-col,
+  .sole-col,
+  .material-col,
+  .insole-col,
+  .sport-col,
+  .waterproof-col,
+  .price-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col,
+  .status-col,
+  .action-col {
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+  }
+
+  .size-col,
+  .weight-col,
+  .season-col,
+  .durability-col,
+  .image-col,
+  .quantity-col {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .product-table {
+    font-size: 0.6rem;
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 0.3rem 0.2rem;
+  }
+
+  .stt-col {
+    width: 25px;
+    min-width: 25px;
+    max-width: 25px;
+  }
+
+
+
+  .product-col {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+  }
+
+  .ma-col {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+  }
+
+  .color-col,
+  .sole-col,
+  .material-col,
+  .insole-col,
+  .sport-col,
+  .waterproof-col,
+  .price-col,
+  .nha-san-xuat-col,
+  .xuat-xu-col,
+  .giam-gia-col,
+  .gia-sau-giam-col,
+  .ghi-chu-col,
+  .status-col,
+  .action-col {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+  }
+
+  .size-col,
+  .weight-col,
+  .season-col,
+  .durability-col,
+  .image-col,
+  .quantity-col {
+    width: 35px;
+    min-width: 35px;
+    max-width: 35px;
+  }
+}
+
+/* Popup thông báo thành công */
+.success-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.success-popup {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-popup-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #10b981;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.success-title {
+  color: #10b981;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.success-message {
+  color: #374151;
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.success-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.success-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
   }
 }
 </style>

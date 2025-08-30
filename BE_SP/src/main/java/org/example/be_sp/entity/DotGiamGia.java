@@ -24,7 +24,7 @@ public class DotGiamGia {
 
     @ColumnDefault("'DGG'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Generated(GenerationTime.ALWAYS)
-    @Column(name = "ma_dot_giam_gia", length = 8)
+    @Column(name = "ma_dot_giam_gia", length = 8, updatable = false, insertable = false)
     private String maDotGiamGia;
 
     @Nationalized

@@ -22,8 +22,7 @@ public class PhieuGiamGia {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @ColumnDefault("'PGG'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_phieu_giam_gia", length = 8)
+    @Column(name = "ma_phieu_giam_gia", length = 8, updatable = false, insertable = false)
     private String maPhieuGiamGia;
 
     @Nationalized

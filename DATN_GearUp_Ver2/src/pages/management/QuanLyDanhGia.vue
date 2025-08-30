@@ -503,9 +503,12 @@ const exportToExcel = () => {
 }
 
 onMounted(() => {
-  // Initialize with empty date values
-  fromDate.value = ''
-  toDate.value = ''
+  // Set default dates
+  const today = new Date()
+  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate())
+  
+  toDate.value = today.toISOString().split('T')[0]
+  fromDate.value = lastMonth.toISOString().split('T')[0]
 })
 </script>
 

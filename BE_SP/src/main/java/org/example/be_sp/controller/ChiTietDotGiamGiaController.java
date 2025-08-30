@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chi-tiet-dot-giam-gia-management")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 public class ChiTietDotGiamGiaController {
     @Autowired
     ChiTietDotGiamGiaService service;
@@ -39,5 +39,29 @@ public class ChiTietDotGiamGiaController {
     public ResponseObject<?> update(@RequestBody ChiTietDotGiamGiaRequest request, @PathVariable Integer id) {
         service.update(id, request);
         return new ResponseObject<>(null, "Cập nhật chi tiết đợt giảm giá thành công");
+    }
+
+    @PutMapping("/update/status/{id}")
+    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
+        try {
+            service.updateStatus(id);
+            return new ResponseObject<>(null, "Cập nhật trạng thái chi tiết đợt giảm giá thành công");
+        } catch (Exception e) {
+            System.err.println("Error updating chi tiet dot giam gia status: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseObject.error("Lỗi khi cập nhật trạng thái chi tiết đợt giảm giá: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseObject<?> delete(@PathVariable Integer id) {
+        try {
+            service.delete(id);
+            return new ResponseObject<>(null, "Xóa chi tiết đợt giảm giá thành công");
+        } catch (Exception e) {
+            System.err.println("Error deleting chi tiet dot giam gia: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseObject.error("Lỗi khi xóa chi tiết đợt giảm giá: " + e.getMessage());
+        }
     }
 }

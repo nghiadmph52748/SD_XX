@@ -5,25 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 DATN GearUp Ver2 is a full-stack e-commerce management system for a sporting goods store. It consists of a Vue.js 3 frontend with a Spring Boot backend using SQL Server as the database.
 
-## Development Commands
-
-### Frontend (Vue.js + Vite)
-- `npm run dev` - Start development server (frontend only) (No need to run the project because when working with the project the user is already run it)
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-
-
-### Backend (Spring Boot + Maven)
-The backend is located in a separate project at `/Users/s0icodocslashdot/code/BE_SP/`
-- `./mvnw spring-boot:run` - Start Spring Boot application (No need to run)
-- `./mvnw clean install` - Build the project
-
-
-### Full Development
-Run both frontend and backend simultaneously:
-1. Terminal 1: `npm run dev` (frontend in DATN_GearUp_Ver2)
-2. Terminal 2: `./mvnw spring-boot:run` (backend in BE_SP)
-
 ## Architecture
 
 ### Backend Structure (Spring Boot - BE_SP)

@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,4 +21,5 @@ public class PhieuGiamGiaRequest {
     private LocalDate ngayKetThuc;
     private Boolean trangThai;
     private String moTa;
+    private List<Integer> idKhachHang; // Customer IDs for personal coupons
 }

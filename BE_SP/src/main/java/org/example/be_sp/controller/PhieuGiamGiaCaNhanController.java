@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/phieu-giam-gia-ca-nhan")
+@RequestMapping("/api/phieu-giam-gia-ca-nhan-management")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 public class PhieuGiamGiaCaNhanController {
 

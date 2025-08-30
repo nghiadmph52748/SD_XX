@@ -228,7 +228,7 @@ import {
   notifyOrderUpdated, 
   triggerCustomNotification,
   notifySystemReport 
-} from '../../services/dichVuThongBao.js'
+} from '../../services/response/dichVuThongBao.js'
 
 // Data
 const searchQuery = ref('')

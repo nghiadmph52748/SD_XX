@@ -23,12 +23,7 @@ public class ChiTietSanPhamResponse {
     String tenKichThuoc;
     String tenDeGiay;
     String tenChatLieu;
-    String tenDemGiay;
     String tenTrongLuong;
-    String tenMonTheThao;
-    String tenLoaiMua;
-    String tenDoBen;
-    String tenChongNuoc;
     Integer soLuong;
     BigDecimal giaBan;
     Boolean trangThai;
@@ -49,12 +44,7 @@ public class ChiTietSanPhamResponse {
         this.tenKichThuoc = s.getIdKichThuoc().getTenKichThuoc();
         this.tenDeGiay = s.getIdDeGiay().getTenDeGiay();
         this.tenChatLieu = s.getIdChatLieu().getTenChatLieu();
-        this.tenDemGiay = s.getIdDemGiay().getTenDemGiay();
         this.tenTrongLuong = s.getIdTrongLuong().getTenTrongLuong();
-        this.tenMonTheThao = s.getIdMonTheThao().getTenMonTheThao();
-        this.tenLoaiMua = s.getIdLoaiMua().getTenLoaiMua();
-        this.tenDoBen = s.getIdDoBen().getTenDoBen();
-        this.tenChongNuoc = s.getIdChongNuoc().getTenChongNuoc();
         this.soLuong = s.getSoLuong();
         this.giaBan = s.getGiaBan();
         this.trangThai = s.getTrangThai();

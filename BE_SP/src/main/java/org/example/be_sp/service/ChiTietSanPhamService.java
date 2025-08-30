@@ -28,17 +28,7 @@ public class ChiTietSanPhamService {
     @Autowired
     ChatLieuRepository chatLieu;
     @Autowired
-    DemGiayRepository demGiay;
-    @Autowired
     TrongLuongRepository trongLuong;
-    @Autowired
-    MonTheThaoRepository monTheThao;
-    @Autowired
-    LoaiMuaRepository loaiMua;
-    @Autowired
-    DoBenRepository doBen;
-    @Autowired
-    ChongNuocRepository chongNuoc;
 
     public List<ChiTietSanPhamResponse> getAll() {
         return repository.findAll().stream().map(ChiTietSanPhamResponse::new).toList();
@@ -59,12 +49,7 @@ public class ChiTietSanPhamService {
         c.setIdKichThuoc(kichThuoc.findKichThuocById(request.getIdKichThuoc()));
         c.setIdDeGiay(deGiay.findDeGiayById(request.getIdDeGiay()));
         c.setIdChatLieu(chatLieu.findChatLieuById(request.getIdChatLieu()));
-        c.setIdDemGiay(demGiay.findDemGiayById(request.getIdDemGiay()));
         c.setIdTrongLuong(trongLuong.findTrongLuongById(request.getIdTrongLuong()));
-        c.setIdMonTheThao(monTheThao.findMonTheThaoById(request.getIdMonTheThao()));
-        c.setIdLoaiMua(loaiMua.findLoaiMuaById(request.getIdLoaiMua()));
-        c.setIdDoBen(doBen.findDoBenById(request.getIdDoBen()));
-        c.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
         repository.save(c);
     }
 
@@ -76,12 +61,14 @@ public class ChiTietSanPhamService {
         e.setIdKichThuoc(kichThuoc.findKichThuocById(request.getIdKichThuoc()));
         e.setIdDeGiay(deGiay.findDeGiayById(request.getIdDeGiay()));
         e.setIdChatLieu(chatLieu.findChatLieuById(request.getIdChatLieu()));
-        e.setIdDemGiay(demGiay.findDemGiayById(request.getIdDemGiay()));
         e.setIdTrongLuong(trongLuong.findTrongLuongById(request.getIdTrongLuong()));
-        e.setIdMonTheThao(monTheThao.findMonTheThaoById(request.getIdMonTheThao()));
-        e.setIdLoaiMua(loaiMua.findLoaiMuaById(request.getIdLoaiMua()));
-        e.setIdDoBen(doBen.findDoBenById(request.getIdDoBen()));
-        e.setIdChongNuoc(chongNuoc.findChongNuocById(request.getIdChongNuoc()));
         repository.save(e);
+    }
+
+    public void delete(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new ApiException("Chi tiết sản phẩm không tồn tại", "404");
+        }
+        repository.deleteById(id);
     }
 }

@@ -12,6 +12,7 @@ import org.example.be_sp.util.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -49,5 +50,24 @@ public class ChiTietDotGiamGiaService {
         e.setIdChiTietSanPham(chiTietSanPhamRepository.findChiTietSanPhamById(chiTietDotGiamGiaResponse.getIdChiTietSanPham()));
         e.setIdDotGiamGia(dotGiamGiaRepository.findDotGiamGiaById(chiTietDotGiamGiaResponse.getIdDotGiamGia()));
         repository.save(e);
+    }
+    
+    @Transactional
+    public void updateStatus(Integer id) {
+        ChiTietDotGiamGia existing = repository.findById(id).orElseThrow(() -> 
+            new ApiException("Chi tiết đợt giảm giá không tồn tại", "404"));
+        
+        // Since this entity doesn't have trangThai field, we'll toggle deleted status
+        existing.setDeleted(!existing.getDeleted());
+        repository.save(existing);
+    }
+    
+    @Transactional
+    public void delete(Integer id) {
+        ChiTietDotGiamGia existing = repository.findById(id).orElseThrow(() -> 
+            new ApiException("Chi tiết đợt giảm giá không tồn tại", "404"));
+        
+        existing.setDeleted(true);
+        repository.save(existing);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chi-tiet-san-pham-management")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 public class ChiTietSanPhamController {
     @Autowired
     private ChiTietSanPhamService service;
@@ -20,7 +20,7 @@ public class ChiTietSanPhamController {
 
     @GetMapping("/paging")
     public ResponseObject<?> paging(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
-        return new ResponseObject<>(service.phanTrang(page, size));
+        return new ResponseObject<>(service.paging(page, size));
     }
 
     @GetMapping("/{id}")
@@ -36,7 +36,7 @@ public class ChiTietSanPhamController {
 
     @PutMapping("/update/{id}")
     public ResponseObject<?> update(@PathVariable Integer id, @RequestBody ChiTietSanPhamRequest request) {
-        service.update(id, request);
+        service.update(request, id);
         return new ResponseObject<>(null, "Cập nhật chi tiết sản phẩm thành công");
     }
 
