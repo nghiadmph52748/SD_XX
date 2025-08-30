@@ -19,47 +19,47 @@ import java.util.List;
 @Service
 public class SanPhamService {
     @Autowired
-    private SanPhamRepository sanPhamRepository;
+    private SanPhamRepository repository;
     @Autowired
-    private NhaSanXuatRepository nhaSanXuatService;
+    private NhaSanXuatRepository nsxService;
     @Autowired
-    private XuatXuRepository xuatXuService;
+    private XuatXuRepository xxService;
 
+    public void add(SanPhamRequest sanPhamRequest) {
+        SanPham sp = MapperUtils.map(sanPhamRequest, SanPham.class);
+        sp.setIdXuatXu(xxService.findXuatXuById(sanPhamRequest.getIdXuatXu()));
+        sp.setIdNhaSanXuat(nsxService.findNhaSanXuatById(sanPhamRequest.getIdNhaSanXuat()));
+        repository.save(sp);
+    }
+
+    public void update(SanPhamRequest sanPhamRequest, Integer id) {
+        SanPham existing = repository.findById(id).orElseThrow(() -> new ApiException("SanPham not found", "404"));
+        MapperUtils.mapToExisting(sanPhamRequest, existing);
+        existing.setId(id);
+        existing.setIdXuatXu(xxService.findXuatXuById(sanPhamRequest.getIdXuatXu()));
+        existing.setIdNhaSanXuat(nsxService.findNhaSanXuatById(sanPhamRequest.getIdNhaSanXuat()));
+        repository.save(existing);
+    }
+    
     public List<SanPhamResponse> getAll() {
-        return sanPhamRepository.findAll().stream()
+        return repository.findAllByDeleted(false).stream()
                 .map(SanPhamResponse::new)
                 .toList();
     }
 
     public PagingResponse<SanPhamResponse> paging(Integer no, Integer size) {
         Pageable page = PageRequest.of(no, size);
-        return new PagingResponse<>(sanPhamRepository.findAll(page).map(SanPhamResponse::new), no);
+        return new PagingResponse<>(repository.findAll(page).map(SanPhamResponse::new), no);
     }
 
     public SanPhamResponse getById(Integer id) {
-        SanPham sanPham = sanPhamRepository.findSanPhamById(id);
+        SanPham sanPham = repository.findSanPhamById(id);
         return new SanPhamResponse(sanPham);
     }
 
-    public void add(SanPhamRequest sanPhamRequest) {
-        SanPham sp = MapperUtils.map(sanPhamRequest, SanPham.class);
-        sp.setIdXuatXu(xuatXuService.findXuatXuById(sanPhamRequest.getIdXuatXu()));
-        sp.setIdNhaSanXuat(nhaSanXuatService.findNhaSanXuatById(sanPhamRequest.getIdNhaSanXuat()));
-        sanPhamRepository.save(sp);
-
-    }
-
-    public void update(SanPhamRequest sanPhamRequest, Integer id) {
-        SanPham existing = MapperUtils.map(sanPhamRequest, SanPham.class);
-        existing.setId(id);
-        existing.setIdXuatXu(xuatXuService.findXuatXuById(sanPhamRequest.getIdXuatXu()));
-        existing.setIdNhaSanXuat(nhaSanXuatService.findNhaSanXuatById(sanPhamRequest.getIdNhaSanXuat()));
-        sanPhamRepository.save(existing);
-    }
-
     public void updateStatus(Integer id) {
-        SanPham sanPham = sanPhamRepository.findById(id).orElseThrow(()-> new ApiException("SanPham not found", "404"));
+        SanPham sanPham = repository.findById(id).orElseThrow(()-> new ApiException("SanPham not found", "404"));
         sanPham.setDeleted(true);
-        sanPhamRepository.save(sanPham);
+        repository.save(sanPham);
     }
 }

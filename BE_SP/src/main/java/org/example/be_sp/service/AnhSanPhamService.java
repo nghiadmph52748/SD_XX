@@ -46,24 +46,6 @@ public class AnhSanPhamService extends GenericCrudService<AnhSanPham, Integer, A
         return anhSanPhamRepository.findById(id).map(AnhSanPhamResponse::new).orElseThrow(() -> new ApiException("Không tìm thấy ảnh sản phẩm với id: " + id, "404"));
     }
 
-    public void deleteAnhSanPhamById(int id) {
-        if (!anhSanPhamRepository.existsById(id)) {
-            throw new ApiException("Không tìm thấy ảnh sản phẩm với id: " + id, "404");
-        }
-        anhSanPhamRepository.deleteById(id);
-    }
-
-    public void addAnhSanPham(AnhSanPhamRequest anhSanPhamRequest) {
-        AnhSanPham anhSanPham = MapperUtils.map(anhSanPhamRequest, AnhSanPham.class);
-        anhSanPhamRepository.save(anhSanPham);
-    }
-
-    public void updateAnhSanPham(AnhSanPhamRequest anhSanPhamRequest, int id) {
-        AnhSanPham existing = anhSanPhamRepository.findById(id).orElseThrow(() -> new ApiException("Không tìm thấy ảnh sản phẩm với id: " + id, "404"));
-        MapperUtils.mapToExisting(anhSanPhamRequest, existing);
-        anhSanPhamRepository.save(existing);
-    }
-
     public void updateStatus(int id) {
         AnhSanPham existing = anhSanPhamRepository.findById(id).orElseThrow(() -> new ApiException("Không tìm thấy ảnh sản phẩm với id: " + id, "404"));
         existing.setDeleted(true);
@@ -71,10 +53,36 @@ public class AnhSanPhamService extends GenericCrudService<AnhSanPham, Integer, A
     }
 
     /**
+     * Thêm ảnh sản phẩm mới và trả về entity đã lưu
+     */
+    public AnhSanPham addAnhSanPham(AnhSanPhamRequest request) {
+        try {
+            AnhSanPham entity = MapperUtils.map(request, AnhSanPham.class);
+            AnhSanPham savedEntity = anhSanPhamRepository.save(entity);
+            System.out.println("✅ Đã tạo ảnh sản phẩm với ID: " + savedEntity.getId());
+            return savedEntity;
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi tạo ảnh sản phẩm: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Cập nhật ảnh sản phẩm và trả về entity đã cập nhật
+     */
+    public AnhSanPham updateAnhSanPham(int id, AnhSanPhamRequest request) {
+        AnhSanPham entity = MapperUtils.map(request, AnhSanPham.class);
+        if (!anhSanPhamRepository.existsById(id)) {
+            throw new ApiException("Không tìm thấy ảnh sản phẩm với id: " + id, "404");
+        }
+        entity.setId(id);
+        return anhSanPhamRepository.save(entity);
+    }
+
+    /**
      * Upload file và trả về đường dẫn
      */
     public String uploadFile(MultipartFile file) throws IOException {
-        // Tạo thư mục uploads nếu chưa tồn tại
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();

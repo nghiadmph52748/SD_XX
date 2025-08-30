@@ -32,6 +32,7 @@ export const fetchCreateKichThuoc = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create size");
     }
+    return res.json();
 }
 export const fetchUpdateKichThuoc = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

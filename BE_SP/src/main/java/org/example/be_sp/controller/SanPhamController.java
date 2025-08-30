@@ -32,7 +32,7 @@ public class SanPhamController {
     @PostMapping("/add")
     public ResponseObject<?> add(@RequestBody SanPhamRequest request) {
         sanPhamService.add(request);
-        return new ResponseObject<>(null, "Them moi thanh cong");
+        return new ResponseObject<>(true, "Them moi thanh cong", null);
     }
 
     @PutMapping("/update/{id}")

@@ -33,6 +33,7 @@ export const fetchCreateNhaSanXuat = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create manufacturer");
     }
+    return res.json();
 }
 export const fetchUpdateNhaSanXuat = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

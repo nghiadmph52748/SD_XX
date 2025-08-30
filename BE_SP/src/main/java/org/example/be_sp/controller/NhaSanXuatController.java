@@ -15,7 +15,7 @@ public class NhaSanXuatController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(nhaSanXuatService.getAll(), "Hien thi thanh cong");
+        return new ResponseObject<>(nhaSanXuatService.getAllNhaSanXuat(), "Hien thi thanh cong");
     }
 
     @GetMapping("/paging")

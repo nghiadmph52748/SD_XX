@@ -32,6 +32,7 @@ export const fetchCreateMauSac = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create color");
     }
+    return res.json();
 }
 export const fetchUpdateMauSac = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

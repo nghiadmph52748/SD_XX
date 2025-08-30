@@ -39,6 +39,10 @@ public class SanPham {
     @Column(name = "ten_san_pham")
     private String tenSanPham;
 
+    @ColumnDefault("1")
+    @Column(name = "trang_thai")
+    private Boolean trangThai;
+
     @ColumnDefault("0")
     @Column(name = "deleted")
     private Boolean deleted;

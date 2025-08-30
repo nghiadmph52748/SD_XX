@@ -1,0 +1,283 @@
+/* CSS cho trang Quản lý sản phẩm - Search và Actions cùng dòng */
+
+/* Container chính cho search và actions */
+.search-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+/* Phần search input */
+.search-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0 !important;
+}
+
+.search-input {
+  width: 100% !important;
+  min-width: 60% !important;
+  padding: 12px 16px !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  transition: border-color 0.3s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.input-icon {
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Phần 2 button cùng dòng với search */
+.header-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-right: 2%;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* Responsive - chỉ khi màn hình nhỏ mới chuyển dọc */
+@media (max-width: 768px) {
+  .search-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    white-space: normal;
+  }
+}
+
+/* Confirm Modal Styles */
+.confirm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  /* Ensure visibility */
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* Animation */
+  animation: fadeIn 0.3s ease-out;
+}
+
+.confirm-modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 450px;
+  width: 90%;
+  overflow: hidden;
+  /* Ensure visibility */
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* Ensure it's above everything */
+  position: relative;
+  z-index: 10000;
+  /* Animation */
+  animation: slideIn 0.3s ease-out;
+  transform: translateY(0);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirm-header {
+  background-color: #007bff;
+  padding: 20px;
+  text-align: center;
+}
+
+.confirm-title {
+  color: white;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.confirm-body {
+  padding: 25px 20px;
+  text-align: center;
+}
+
+.confirm-body p {
+  margin: 0;
+  color: #495057;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background-color: #ffffff;
+  color: #6c757d;
+  border: 2px solid #dee2e6;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover effects cho buttons */
+.btn-cancel:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-confirm {
+  background-color: #28a745;
+  color: white;
+  border: 2px solid #28a745;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Transition cho buttons */
+.btn-cancel,
+.btn-confirm {
+  transition: all 0.2s ease;
+}
+
+.btn-confirm:hover {
+  background-color: #218838;
+  border-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Header checkbox styling */
+thead th:first-child input[type="checkbox"] {
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+/* Indeterminate state styling */
+thead th:first-child input[type="checkbox"]:indeterminate {
+  background-color: #007bff;
+  border-color: #007bff;
+  position: relative;
+}
+
+thead th:first-child input[type="checkbox"]:indeterminate::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 2px;
+  background-color: white;
+  border-radius: 1px;
+}
+
+/* Product cell styling */
+.product-cell {
+  width: 159.137px;
+}
+
+/* Inline edit styling - COMMENTED OUT TO AVOID CSS OVERRIDE */
+/*
+.inline-edit {
+  width: 100%;
+  min-width: 159.137px;
+}
+
+.inline-edit input,
+.inline-edit select {
+  width: 100%;
+  min-width: 159.137px;
+  max-width: 159.137px;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.inline-edit input:focus,
+.inline-edit select:focus {
+  outline: none;
+  border-color: #0056b3;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+*/

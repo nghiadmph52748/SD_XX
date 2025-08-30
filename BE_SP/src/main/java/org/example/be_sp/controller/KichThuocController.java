@@ -15,7 +15,7 @@ public class KichThuocController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(kichThuocService.getAll());
+        return new ResponseObject<>(kichThuocService.getAllKichThuoc());
     }
 
     @GetMapping("/paging")

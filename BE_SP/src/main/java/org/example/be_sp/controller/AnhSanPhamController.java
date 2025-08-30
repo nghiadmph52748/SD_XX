@@ -2,6 +2,7 @@ package org.example.be_sp.controller;
 
 import java.io.File;
 
+import org.example.be_sp.entity.AnhSanPham;
 import org.example.be_sp.model.request.AnhSanPhamRequest;
 import org.example.be_sp.model.response.AnhSanPhamResponse;
 import org.example.be_sp.model.response.ResponseObject;
@@ -26,7 +27,7 @@ public class AnhSanPhamController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(anhSanPhamService.getAll());
+        return new ResponseObject<>(anhSanPhamService.getAllAnhSanPham());
     }
 
     @GetMapping("/paging")
@@ -56,8 +57,9 @@ public class AnhSanPhamController {
             String filePath = anhSanPhamService.uploadFile(file);
             request.setDuongDanAnh(filePath);
 
-            anhSanPhamService.add(request);
-            return new ResponseObject<>(null, "Thêm ảnh sản phẩm thành công");
+            AnhSanPham savedAnhSanPham = anhSanPhamService.addAnhSanPham(request);
+            System.out.println("✅ Controller trả về ID ảnh: " + savedAnhSanPham.getId());
+            return new ResponseObject<>(savedAnhSanPham.getId(), "Thêm ảnh sản phẩm thành công");
         } catch (Exception e) {
             return new ResponseObject<>(null, "Lỗi khi thêm ảnh sản phẩm: " + e.getMessage());
         }
@@ -86,8 +88,8 @@ public class AnhSanPhamController {
                 request.setDuongDanAnh(existing.getDuongDanAnh());
             }
 
-            anhSanPhamService.update(id, request);
-            return new ResponseObject<>(null, "Cập nhật ảnh sản phẩm thành công");
+            AnhSanPham updatedAnhSanPham = anhSanPhamService.updateAnhSanPham(id, request);
+            return new ResponseObject<>(updatedAnhSanPham.getId(), "Cập nhật ảnh sản phẩm thành công");
         } catch (Exception e) {
             return new ResponseObject<>(null, "Lỗi khi cập nhật ảnh sản phẩm: " + e.getMessage());
         }

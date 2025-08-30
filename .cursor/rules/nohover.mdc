@@ -1,0 +1,10 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+không sử dụng các effect như hover.
+không được thêm hay sủa css của .breadcrumb-nav.
+nói gì làm nấy, không làm thừa, không làm thiếu.
+không override css, nếu trùng thì tạo class mới để css.
+không sử dụng icon để console hay debug.

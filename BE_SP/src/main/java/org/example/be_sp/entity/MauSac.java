@@ -8,6 +8,7 @@ import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -30,9 +31,25 @@ public class MauSac {
     @Column(name = "ten_mau_sac")
     private String tenMauSac;
 
+    @ColumnDefault("1")
+    @Column(name = "trang_thai")
+    private Boolean trangThai;
+
     @ColumnDefault("0")
     @Column(name = "deleted")
     private Boolean deleted;
+
+    @Column(name = "create_at")
+    private LocalDate createAt;
+
+    @Column(name = "create_by")
+    private Integer createBy;
+
+    @Column(name = "update_at")
+    private LocalDate updateAt;
+
+    @Column(name = "update_by")
+    private Integer updateBy;
 
     @OneToMany(mappedBy = "idMauSac")
     private Set<ChiTietSanPham> chiTietSanPhams = new LinkedHashSet<>();

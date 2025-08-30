@@ -32,6 +32,7 @@ export const fetchCreateChatLieu = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create material");
     }
+    return res.json();
 }
 export const fetchUpdateChatLieu = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

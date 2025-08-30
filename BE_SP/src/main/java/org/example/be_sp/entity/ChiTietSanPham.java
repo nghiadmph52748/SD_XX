@@ -55,28 +55,8 @@ public class ChiTietSanPham {
     private ChatLieu idChatLieu;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_dem_giay", nullable = false)
-    private DemGiay idDemGiay;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_trong_luong", nullable = false)
     private TrongLuong idTrongLuong;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_mon_the_thao", nullable = false)
-    private MonTheThao idMonTheThao;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_loai_mua", nullable = false)
-    private LoaiMua idLoaiMua;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_do_ben", nullable = false)
-    private DoBen idDoBen;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_chong_nuoc", nullable = false)
-    private ChongNuoc idChongNuoc;
 
     @ColumnDefault("0")
     @Column(name = "so_luong")

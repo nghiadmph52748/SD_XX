@@ -19,8 +19,8 @@ public class ChiTietSanPhamAnhResponse {
 
     public ChiTietSanPhamAnhResponse(ChiTietSanPhamAnh d) {
         this.id = d.getId();
-        this.idChiTietSanPham = d.getIdChiTietSanPham().getId();
-        this.idAnhSanPham = d.getIdAnhSanPham().getId();
+        this.idChiTietSanPham = d.getIdChiTietSanPham() != null ? d.getIdChiTietSanPham().getId() : null;
+        this.idAnhSanPham = d.getIdAnhSanPham() != null ? d.getIdAnhSanPham().getId() : null;
         this.deleted = d.getDeleted();
     }
 }

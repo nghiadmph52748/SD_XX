@@ -32,6 +32,7 @@ export const fetchCreateDeGiay = async (data) => {
     if (!res.ok) {
         throw new Error("Failed to create insole");
     }
+    return res.json();
 }
 export const fetchUpdateDeGiay = async (id, data) => {
     const res = await fetch(`${API}/update/${id}`, {

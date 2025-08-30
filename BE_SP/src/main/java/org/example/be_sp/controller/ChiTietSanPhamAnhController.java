@@ -1,10 +1,6 @@
 package org.example.be_sp.controller;
 
-import java.util.List;
-
-import org.example.be_sp.entity.ChiTietSanPhamAnh;
 import org.example.be_sp.model.request.ChiTietSanPhamAnhListRequest;
-import org.example.be_sp.model.request.ChiTietSanPhamAnhRequest;
 import org.example.be_sp.model.response.ResponseObject;
 import org.example.be_sp.service.ChiTietSanPhamAnhService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +21,7 @@ public class ChiTietSanPhamAnhController {
     @Autowired
     ChiTietSanPhamAnhService service;
 
-    @GetMapping("/playlist")
+    @GetMapping({"/playlist", "/playlist.", "/playlist/"})
     public ResponseObject<?> getAll() {
         return new ResponseObject<>(service.getAll());
     }
@@ -42,26 +38,30 @@ public class ChiTietSanPhamAnhController {
     }
 
     @PostMapping("/add")
-    public ResponseObject<?> add(@RequestBody ChiTietSanPhamAnhRequest request) {
-        ChiTietSanPhamAnh result = service.add(request);
-        return new ResponseObject<>(result, "Thêm thành công");
+    public ResponseObject<?> add(@RequestBody ChiTietSanPhamAnhListRequest request) {
+        service.add(request);
+        return new ResponseObject<>(true, "Thêm mới thành công", null);
     }
 
     @PostMapping("/add-multiple")
     public ResponseObject<?> addMultiple(@RequestBody ChiTietSanPhamAnhListRequest request) {
-        List<ChiTietSanPhamAnh> result = service.addMultiple(request);
-        return new ResponseObject<>(result, "Thêm nhiều ảnh thành công");
+        try {
+            service.add(request);
+            return new ResponseObject<>(true, "Thêm nhiều liên kết ảnh thành công", null);
+        } catch (Exception e) {
+            return new ResponseObject<>(false, "Lỗi khi thêm nhiều liên kết ảnh: " + e.getMessage(), null);
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseObject<?> update(@RequestBody ChiTietSanPhamAnhRequest request, @PathVariable Integer id) {
+    public ResponseObject<?> update(@RequestBody ChiTietSanPhamAnhListRequest request, @PathVariable Integer id) {
         service.update(id, request);
-        return new ResponseObject<>(null, "Cập nhật thành công");
+        return new ResponseObject<>(true, "Cập nhật thành công", null);
     }
 
     @PutMapping("/update/status/{id}")
     public ResponseObject<?> updateStatus(@PathVariable Integer id) {
         service.updateStatus(id);
-        return new ResponseObject<>(null, "Xoá thành công");
+        return new ResponseObject<>(true, "Xoá thành công", null);
     }
 }

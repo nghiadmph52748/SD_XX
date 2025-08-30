@@ -15,7 +15,7 @@ public class DeGiayController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(deGiayService.getAll());
+        return new ResponseObject<>(deGiayService.getAllDeGiay());
     }
 
     @GetMapping("/paging")

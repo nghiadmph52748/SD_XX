@@ -1,0 +1,84 @@
+{
+  // Font size và zoom level
+  "window.zoomLevel": 0,
+  "editor.fontSize": 14,
+  "terminal.integrated.fontSize": 14,
+  "debug.console.fontSize": 14,
+  "output.smartScroll.enabled": true,
+
+  // Panel sizes
+  "workbench.panel.defaultLocation": "bottom",
+  "workbench.sideBar.location": "left",
+
+  // Terminal size
+  "terminal.integrated.defaultLocation": "panel",
+  "terminal.integrated.panelHeight": 300,
+
+  // Output panel size
+  "output.smartScroll.enabled": true,
+
+  // Problems panel
+  "problems.defaultViewMode": "table",
+
+  // Explorer panel
+  "explorer.openEditors.visible": 10,
+
+  // Minimap
+  "editor.minimap.enabled": true,
+  "editor.minimap.maxColumn": 120,
+
+  // Line numbers
+  "editor.lineNumbers": "on",
+
+  // Word wrap
+  "editor.wordWrap": "off",
+
+  // Rulers - đã xóa
+  // "editor.rulers": [80, 120],
+
+  // Bracket pair colorization
+  "editor.bracketPairColorization.enabled": true,
+
+  // Indent guides
+  "editor.guides.bracketPairs": true,
+
+  // Smooth scrolling
+  "editor.smoothScrolling": true,
+
+  // Cursor style
+  "editor.cursorStyle": "line",
+  "editor.cursorWidth": 2,
+
+  // Tab size
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+
+  // Auto save
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // File associations
+  "files.associations": {
+    "*.vue": "vue",
+    "*.js": "javascript",
+    "*.jsx": "javascriptreact",
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact"
+  },
+
+  // Emmet
+  "emmet.includeLanguages": {
+    "vue": "html",
+    "vue-html": "html"
+  },
+
+  // Format on save
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+
+  // Code actions on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  }
+}
