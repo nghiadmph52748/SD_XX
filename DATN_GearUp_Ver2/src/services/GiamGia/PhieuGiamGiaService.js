@@ -1,50 +1,38 @@
-const API = "http://localhost:8080/api/phieu-giam-gia-management";
+import api from '../response/api.js'
+
+const API = "/phieu-giam-gia-management";
 
 export const fetchAllPhieuGiamGia = async () => {
-    const response = await fetch(`${API}/playlist`);
-    if (!response.ok) {
-        throw new Error("Failed to fetch phieu giam gia");
-    }
-    return response.json();
+    const response = await api.get(`${API}/playlist`);
+    return { data: response };
 }
+
 export const fetchPhieuGiamGiaById = async (id) => {
-    const response = await fetch(`${API}/detail/${id}`);
-    if (!response.ok) {
-        throw new Error("Failed to fetch phieu giam gia");
-    }
-    return response.json();
+    const response = await api.get(`${API}/detail/${id}`);
+    return { data: response };
 }
+
 export const fetchCreatePhieuGiamGia = async (phieuGiamGia) => {
-    await fetch(`${API}/add`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(phieuGiamGia)
-    });
+    const response = await api.post(`${API}/add`, phieuGiamGia);
+    return response;
 }
+
 export const fetchUpdatePhieuGiamGia = async (id, phieuGiamGia) => {
-    await fetch(`${API}/update/${id}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(phieuGiamGia)
-    });
+    const response = await api.put(`${API}/update/${id}`, phieuGiamGia);
+    return response;
 }
+
 export const fetchUpdateStatusPhieuGiamGia = async (id) => {
-    await fetch(`${API}/update/status/${id}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-    });
+    const response = await api.put(`${API}/update/status/${id}`);
+    return response;
+}
+
+export const fetchDeletePhieuGiamGia = async (id) => {
+    const response = await api.delete(`${API}/delete/${id}`);
+    return response;
 }
 
 export const fetchActivePhieuGiamGiaForCustomer = async (customerId) => {
-    const response = await fetch(`${API}/list/khach-hang/active/${customerId}`);
-    if (!response.ok) {
-        throw new Error("Failed to fetch active phieu giam gia");
-    }
-    return response.json();
+    const response = await api.get(`${API}/list/khach-hang/active/${customerId}`);
+    return { data: response };
 }

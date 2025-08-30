@@ -84,6 +84,36 @@ public class EntityBean {
     }
 
     @Bean
+    public Class<DemGiay> demGiayClass() {
+        return DemGiay.class;
+    }
+
+    @Bean
+    public Class<DemGiayRequest> demGiayRequestClass() {
+        return DemGiayRequest.class;
+    }
+
+    @Bean
+    public Class<DemGiayResponse> demGiayResponseClass() {
+        return DemGiayResponse.class;
+    }
+
+    @Bean
+    public Class<ChongNuoc> chongNuocClass() {
+        return ChongNuoc.class;
+    }
+
+    @Bean
+    public Class<ChongNuocRequest> chongNuocRequestClass() {
+        return ChongNuocRequest.class;
+    }
+
+    @Bean
+    public Class<ChongNuocResponse> chongNuocResponseClass() {
+        return ChongNuocResponse.class;
+    }
+
+    @Bean
     public Class<TrongLuong> trongLuongClass() {
         return TrongLuong.class;
     }
@@ -96,6 +126,49 @@ public class EntityBean {
     @Bean
     public Class<TrongLuongResponse> trongLuongResponseClass() {
         return TrongLuongResponse.class;
+    }
+
+    @Bean
+    public Class<DoBen> doBenClass() {
+        return DoBen.class;
+    }
+
+    @Bean
+    public Class<DoBenResponse> doBenResponseClass() {
+        return DoBenResponse.class;
+    }
+
+    @Bean
+    public Class<DobenRequest> doBenRequestClass() {
+        return DobenRequest.class;
+    }
+
+    @Bean
+    public Class<MonTheThao> monTheThaoClass() {
+        return MonTheThao.class;
+    }
+
+    @Bean
+    public Class<MonTheThaoResponse> monTheThaoResponseClass() {
+        return MonTheThaoResponse.class;
+    }
+
+    @Bean
+    public Class<MonTheThaoRequest> monTheThaoRequestClass() {
+        return MonTheThaoRequest.class;
+    }
+
+    @Bean
+    public Class<LoaiMua> loaiMuaClass() {
+        return LoaiMua.class;
+    }
+    @Bean
+    public Class<LoaiMuaResponse> loaiMuaResponseClass() {
+        return LoaiMuaResponse.class;
+    }
+    @Bean
+    public Class<LoaiMuaRequest> loaiMuaRequestClass() {
+        return LoaiMuaRequest.class;
     }
 
     @Bean
@@ -127,17 +200,14 @@ public class EntityBean {
     public Class<DotGiamGiaResponse> dotGiamGiaResponseClass() {
         return DotGiamGiaResponse.class;
     }
-
     @Bean
     public Class<NhaSanXuat> nhaSanXuatClass() {
         return NhaSanXuat.class;
     }
-
     @Bean
     public Class<NhaSanXuatResponse> nhaSanXuatResponseClass() {
         return NhaSanXuatResponse.class;
     }
-
     @Bean
     public Class<NhaSanXuatRequest> nhaSanXuatRequestClass() {
         return NhaSanXuatRequest.class;
@@ -149,59 +219,12 @@ public class EntityBean {
     }
 
     @Bean
-    public Class<ChiTietSanPhamFullResponse> chiTietSanPhamResponseClass() {
-        return ChiTietSanPhamFullResponse.class;
+    public Class<ChiTietSanPhamResponse> chiTietSanPhamResponseClass() {
+        return ChiTietSanPhamResponse.class;
     }
 
     @Bean
     public Class<ChiTietSanPhamRequest> chiTietSanPhamRequestClass() {
         return ChiTietSanPhamRequest.class;
     }
-
-    @Bean
-    public Class<QuyenHan> quyenHanClass() {
-        return QuyenHan.class;
-    }
-
-    @Bean
-    public Class<QuyenHanResponse> quyenHanResponseClass() {
-        return QuyenHanResponse.class;
-    }
-
-    @Bean
-    public Class<QuyenHanRequest> quyenHanRequestClass() {
-        return QuyenHanRequest.class;
-    }
-
-    @Bean
-    public Class<PhuongThucThanhToan> phuongThucThanhToanClass() {
-        return PhuongThucThanhToan.class;
-    }
-
-    @Bean
-    public Class<PhuongThucThanhToanResponse> phuongThucThanhToanResponseClass() {
-        return PhuongThucThanhToanResponse.class;
-    }
-
-    @Bean
-    public Class<PhuongThucThanhToanRequest> phuongThucThanhToanRequestClass() {
-        return PhuongThucThanhToanRequest.class;
-    }
-
-    @Bean
-    public Class<TrangThaiDonHang> trangThaiDonHangClass() {
-        return TrangThaiDonHang.class;
-    }
-
-    @Bean
-    public Class<TrangThaiDonHangResponse> trangThaiDonHangResponseClass() {
-        return TrangThaiDonHangResponse.class;
-    }
-
-    @Bean
-    public Class<TrangThaiDonHangRequest> trangThaiDonHangRequestClass() {
-        return TrangThaiDonHangRequest.class;
-    }
-
-
 }

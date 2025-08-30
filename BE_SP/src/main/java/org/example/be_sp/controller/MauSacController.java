@@ -16,7 +16,7 @@ public class MauSacController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(mauSacService.getAllMauSac());
+        return new ResponseObject<>(mauSacService.getAll());
     }
 
     @GetMapping("/paging")
@@ -39,10 +39,5 @@ public class MauSacController {
     public ResponseObject<?> update(@PathVariable Integer id, @RequestBody MauSacRequest mauSacRequest) {
         mauSacService.update(id, mauSacRequest);
         return new ResponseObject<>(null, "Cập nhật màu sắc thành công");
-    }
-    @PutMapping("/update/status/{id}")
-    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
-        mauSacService.updateStatus(id);
-        return new ResponseObject<>(null, "Cập nhật trạng thái màu sắc thành công");
     }
 }

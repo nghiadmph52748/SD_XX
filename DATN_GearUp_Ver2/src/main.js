@@ -2,10 +2,9 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './styles/style.css'
 import './styles/globals.css'
-import './styles/cssSanPham/productsUnified.css'
-import { addProductsPageClass } from './utils/productsPageClass.js'
 import App from './App.vue'
 
+// Import pages
 import Login from './pages/DangNhap.vue'
 import Dashboard from './pages/BangDieuKhien.vue'
 
@@ -124,8 +123,4 @@ const router = createRouter({
 
 const app = createApp(App)
 app.use(router)
-
-// Khởi tạo products page class manager
-addProductsPageClass()
-
 app.mount('#app')

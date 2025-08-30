@@ -1,33 +1,5 @@
 <template>
   <div class="discount-coupons">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="page-title">Quản lý Phiếu giảm giá</h1>
-          <p class="page-subtitle">Tạo và quản lý các phiếu giảm giá</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-export" @click="exportData">
-            <span class="btn-icon">📊</span>
-            Xuất báo cáo
-          </button>
-          <button class="btn-export" @click="exportToExcel">
-            <span class="btn-icon">📗</span>
-            Xuất Excel
-          </button>
-          <button class="btn-export" @click="validateAllCoupons">
-            <span class="btn-icon">🔄</span>
-            Validate trạng thái
-          </button>
-          <button class="btn-export" @click="openAddModal">
-            <span class="btn-icon">➕</span>
-            Tạo mới
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Modern Filter Section -->
     <div class="filter-section">
       <div class="filter-card">
@@ -42,34 +14,35 @@
                 color: #4ade80;
               "
             >
-              Tìm kiếm phiếu giảm giá
+              Mã giảm giá
             </h3>
-          </div>
-          <div class="filter-stats">
-            {{ filteredCoupons.length }} / {{ coupons.length }} phiếu
           </div>
         </div>
 
         <div class="filter-content">
+          <!-- Search Section -->
           <div class="search-section">
-            <div class="input-group">
-              <span class="input-icon">🔍</span>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Tìm kiếm theo mã hoặc tên phiếu giảm giá..."
-                class="form-control search-input"
-              />
-              <button
-                v-if="searchQuery"
-                @click="searchQuery = ''"
-                class="clear-btn"
-              >
-                <span>✕</span>
-              </button>
+            <div class="filter-group">
+              <div class="input-group">
+                <span class="input-icon">🔍</span>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Tìm kiếm theo mã hoặc tên phiếu giảm giá..."
+                  class="form-select search-input"
+                />
+                <button
+                  v-if="searchQuery"
+                  @click="searchQuery = ''"
+                  class="clear-btn"
+                >
+                  <span>✕</span>
+                </button>
+              </div>
             </div>
           </div>
 
+          <!-- Filter Grid -->
           <div class="filters-grid">
             <div class="filter-group">
               <label class="filter-label">
@@ -86,60 +59,85 @@
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">🏷️</span>
-                Loại phiếu
+                Đối tượng
               </label>
               <select v-model="selectedType2" class="form-select">
-                <option value="">Tất cả loại</option>
-                <option value="public">🌐 Công khai</option>
-                <option value="private">🔒 Cá nhân</option>
+                <option value="">Tất cả đối tượng</option>
+                <option value="public">🌐 Mọi người</option>
+                <option value="private">🔒 Khách hàng cụ thể</option>
               </select>
             </div>
 
             <div class="filter-group">
               <label class="filter-label">
                 <span class="label-icon">📈</span>
-                Trạng thái
+                Hiện trạng
               </label>
               <select v-model="selectedStatus" class="form-select">
-                <option value="">Tất cả trạng thái</option>
+                <option value="">Tất cả hiện trạng</option>
                 <option value="active">✅ Đang diễn ra</option>
                 <option value="expired">❌ Hết hạn</option>
                 <option value="upcoming">⏰ Sắp diễn ra</option>
+                <option value="deleted">🗑️ Đã xóa</option>
               </select>
             </div>
 
             <div class="filter-group">
               <label class="filter-label">
-                <span class="label-icon">📅</span>
-                Từ ngày
+                <span class="label-icon">⚙️</span>
+                Trạng thái
               </label>
-              <input
-                type="date"
-                v-model="fromDate"
-                class="form-control date-input"
-              />
+              <select v-model="selectedActiveStatus" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">✅ Hoạt động</option>
+                <option value="inactive">❌ Ngừng hoạt động</option>
+              </select>
             </div>
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">📅</span>
-                Đến ngày
-              </label>
-              <input
-                type="date"
-                v-model="toDate"
-                class="form-control date-input"
-              />
-            </div>
+          </div>
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">🔄</span>
-                Làm mới
-              </label>
+          <!-- Date Range Section -->
+          <div class="date-section">
+            <div class="section-title">
+              <span class="section-icon">📅</span>
+              <h4>Khoảng thời gian</h4>
+            </div>
+            <div class="date-grid">
+              <div class="filter-group">
+                <label class="filter-label">Từ ngày</label>
+                <input
+                  type="date"
+                  v-model="fromDate"
+                  class="form-control date-input"
+                />
+              </div>
+              <div class="filter-group">
+                <label class="filter-label">Đến ngày</label>
+                <input
+                  type="date"
+                  v-model="toDate"
+                  class="form-control date-input"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons Section -->
+          <div class="actions-section">
+            <div class="actions-left">
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
-                Làm mới
+                Đặt lại bộ lọc
+              </button>
+            </div>
+            <div class="actions-right">
+              <button class="btn-action-primary" @click="exportData">
+                <span class="btn-icon">📊</span>
+                Xuất báo cáo
+              </button>
+              <button class="btn-action-secondary" @click="openAddModal">
+                <span class="btn-icon">➕</span>
+                Tạo mới
               </button>
             </div>
           </div>
@@ -149,6 +147,11 @@
 
     <!-- Coupons Table -->
     <div class="card">
+      <!-- Table scroll hint for MacBook users -->
+      <div class="table-scroll-hint">
+        <span class="scroll-icon">↔️</span>
+        <span class="hint-text">Cuộn ngang để xem tất cả cột</span>
+      </div>
       <div class="card-body">
         <table class="table">
           <thead>
@@ -174,8 +177,8 @@
               <td class="coupon-code">{{ coupon.tenPhieuGiamGia }}</td>
               <td class="coupon-name">
                 {{
-                  coupon.idKhachHang && coupon.idKhachHang.length > 0
-                    ? `${coupon.idKhachHang.length} khách hàng`
+                  getCustomerCountForCoupon(coupon.id) > 0
+                    ? `${getCustomerCountForCoupon(coupon.id)} khách hàng`
                     : "Mọi người"
                 }}
               </td>
@@ -200,18 +203,19 @@
               <td
                 :class="[
                   'status-text',
-                  coupon.trangThai ? 'text-green' : 'text-red',
+                  coupon.deleted ? 'text-gray' : (getDetailedStatus(coupon) === 'Đang diễn ra' ? 'text-green' : (getDetailedStatus(coupon) === 'Sắp diễn ra' ? 'text-blue' : 'text-red')),
                 ]"
               >
-                {{ coupon.trangThai ? "Đang hoạt động" : "Đã kết thúc" }}
+                {{ getDetailedStatus(coupon) }}
+                <!-- Debug: {{coupon.trangThai}} ({{typeof coupon.trangThai}}) -->
               </td>
               <td
                 :class="[
                   'status-text',
-                  !coupon.deleted ? 'text-green' : 'text-red',
+                  coupon.deleted ? 'text-gray' : (coupon.trangThai ? 'text-green' : 'text-red'),
                 ]"
               >
-                {{ !coupon.deleted ? "Hoạt động" : "Không hoạt động" }}
+                {{ getSimpleStatus(coupon) }}
               </td>
               <td>
                 <div class="action-buttons">
@@ -233,6 +237,8 @@
                     class="btn-action"
                     @click="fetchUpdateStatusPGG(coupon.id)"
                     title="Xóa"
+                    :disabled="coupon.deleted"
+                    :style="{ opacity: coupon.deleted ? 0.3 : 1 }"
                   >
                     🗑️
                   </button>
@@ -241,31 +247,31 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
 
-        <!-- Pagination -->
-        <div class="pagination-wrapper">
-          <div class="pagination-info">
-            Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
-            {{ totalCoupons }} phiếu giảm giá
-          </div>
-          <div class="pagination">
-            <button
-              class="btn btn-outline btn-sm"
-              @click="previousPage"
-              :disabled="currentPage === 1"
-            >
-              ❮ Trước
-            </button>
-            <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-            <button
-              class="btn btn-outline btn-sm"
-              @click="nextPage"
-              :disabled="currentPage === totalPages"
-            >
-              Sau ❯
-            </button>
-          </div>
-        </div>
+    <!-- Separate Pagination Section -->
+    <div class="pagination-wrapper">
+      <div class="pagination-info">
+        Hiển thị {{ startIndex + 1 }} - {{ endIndex }} của
+        {{ totalCoupons }} phiếu giảm giá
+      </div>
+      <div class="pagination">
+        <button
+          class="btn btn-outline btn-sm"
+          @click="previousPage"
+          :disabled="currentPage === 1"
+        >
+          ❮ Trước
+        </button>
+        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+        <button
+          class="btn btn-outline btn-sm"
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+        >
+          Sau ❯
+        </button>
       </div>
     </div>
 
@@ -351,6 +357,7 @@
                       type="number"
                       v-model="couponForm.giaTriGiamGia"
                       class="form-control edit-input"
+                      :class="{ 'input-error': showDiscountError }"
                       :placeholder="
                         !couponForm.loaiPhieuGiamGia
                           ? 'Nhập % giảm (1-100)'
@@ -358,8 +365,12 @@
                       "
                       :min="!couponForm.loaiPhieuGiamGia ? 1 : 1000"
                       :max="!couponForm.loaiPhieuGiamGia ? 100 : undefined"
+                      @input="validateDiscountValue"
                       required
                     />
+                    <div v-if="showDiscountError" class="error-message">
+                      ⚠️ Giảm giá phần trăm không được vượt quá 100%
+                    </div>
                   </div>
                   <div class="info-item">
                     <label>Hóa đơn tối thiểu</label>
@@ -542,6 +553,7 @@
                     <input
                       type="date"
                       v-model="couponForm.ngayBatDau"
+                      :min="minStartDate"
                       class="form-control edit-input"
                       required
                     />
@@ -551,6 +563,7 @@
                     <input
                       type="date"
                       v-model="couponForm.ngayKetThuc"
+                      :min="minEndDate"
                       class="form-control edit-input"
                       required
                     />
@@ -968,6 +981,15 @@
                   notificationData.details.trangThai
                 }}</span>
               </div>
+              <div
+                class="detail-item"
+                v-if="notificationData.details.appliedCustomers !== undefined"
+              >
+                <span class="detail-label">Khách hàng áp dụng:</span>
+                <span class="detail-value">
+                  {{ notificationData.details.appliedCustomers }} khách hàng
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1074,9 +1096,12 @@ import {
   fetchCreatePhieuGiamGia,
   fetchUpdatePhieuGiamGia,
   fetchUpdateStatusPhieuGiamGia,
-} from "../../services/GiamGia/PhieuGiamGiaService";
-import { fetchAllPhieuGiamGiaCaNhan } from "../../services/GiamGia/PhieuGiamGiaCaNhanService";
-import { fetchAllKhachHang } from "../../services/KhachHang/KhachHangService";
+  fetchDeletePhieuGiamGia,
+} from "../../services/GiamGia/PhieuGiamGiaService.js";
+import { dichVuPhieuGiamGia } from "../../services/GiamGia/dichVuPhieuGiamGia.js";
+import { fetchAllPhieuGiamGiaCaNhan } from "../../services/GiamGia/PhieuGiamGiaCaNhanService.js";
+import { fetchAllKhachHang } from "../../services/KhachHang/KhachHangService.js";
+import { exportToExcel, formatDataForExcel } from "../../utils/xuatExcel.js";
 
 // ===== REACTIVE DATA =====
 // Search and filter data
@@ -1086,6 +1111,7 @@ const toDate = ref("");
 const selectedType = ref("");
 const selectedType2 = ref("");
 const selectedStatus = ref("");
+const selectedActiveStatus = ref("");
 
 // Modal control data
 const showAddModal = ref(false);
@@ -1106,6 +1132,9 @@ const notificationData = ref({
   message: "",
   details: null,
 });
+
+// Validation data
+const showDiscountError = ref(false);
 
 // Pagination data
 const currentPage = ref(1);
@@ -1140,12 +1169,31 @@ const selectedCustomers = ref([]);
 // ===== FETCH FUNCTIONS =====
 const fetchPGG = async () => {
   try {
-    const res = await fetchAllPhieuGiamGia();
-    coupons.value = res.data;
+    console.log("🔄 Fetching fresh coupon data from backend...");
+    console.log("Before fetch - coupons.value:", JSON.parse(JSON.stringify(coupons.value)));
+    
+    // Use the working version's approach
+    const response = await dichVuPhieuGiamGia.layTatCa();
+    console.log("📥 Received raw coupon data:", response);
+    console.log("📋 Sample item structure:", response[0]);
+    console.log("🔍 Debug trangThai field:", response[0]?.trangThai, typeof response[0]?.trangThai);
+    console.log("🔍 All fields with 'trang' in name:", Object.keys(response[0] || {}).filter(key => key.toLowerCase().includes('trang')));
+    
+    // Convert trangThai to proper boolean if it's coming as 0/1
+    const processedResponse = response.map(coupon => ({
+      ...coupon,
+      trangThai: Boolean(coupon.trangThai) // This will convert 0 -> false, 1 -> true
+    }));
+    
+    coupons.value = [...processedResponse];
+    console.log("After assignment - coupons.value:", JSON.parse(JSON.stringify(coupons.value)));
+    console.log("Vue reactive state changed:", coupons.value.length, "items");
+    
     // Validate và cập nhật trạng thái sau khi fetch dữ liệu
     await validateAllCoupons();
+    console.log("✅ Coupons data updated successfully");
   } catch (error) {
-    console.error("Error fetching phieu giam gia: ", error);
+    console.error("❌ Error fetching phieu giam gia: ", error);
   }
 };
 
@@ -1172,17 +1220,125 @@ const fetchAll = async () => {
   await fetchCustomers();
   await fetchPersonalPGG();
 };
+// ===== UTILITY FUNCTIONS =====
+/**
+ * Get detailed status text based on dates and trangThai
+ */
+const getDetailedStatus = (coupon) => {
+  if (coupon.deleted) return "Đã xóa";
+  
+  const now = new Date();
+  const startDate = new Date(coupon.ngayBatDau);
+  const endDate = new Date(coupon.ngayKetThuc);
+  
+  if (now < startDate) {
+    return "Sắp diễn ra";
+  } else if (now > endDate) {
+    return "Hết hạn";
+  } else if (coupon.trangThai === true) {
+    return "Đang diễn ra";
+  } else {
+    return "Tạm dừng";
+  }
+};
+
+/**
+ * Get simple status text based on trangThai only
+ */
+const getSimpleStatus = (coupon) => {
+  if (coupon.deleted) return "Đã xóa";
+  return coupon.trangThai === true ? "Hoạt động" : "Ngừng hoạt động";
+};
+
 // ===== COMPUTED PROPERTIES =====
 // Apply all filters first
 const allFilteredCoupons = computed(() => {
+  console.log("🔄 Computing allFilteredCoupons...");
+  console.log("coupons.value in computed:", coupons.value.length, "items");
+  
   let filtered = coupons.value;
 
+  // Filter by search query
   if (searchQuery.value) {
     filtered = filtered.filter((coupon) =>
       coupon.tenPhieuGiamGia
         ?.toLowerCase()
         .includes(searchQuery.value.toLowerCase())
     );
+  }
+
+  // Filter by discount type (Kiểu giảm giá)
+  if (selectedType.value) {
+    filtered = filtered.filter((coupon) => {
+      if (selectedType.value === "percent") {
+        return !coupon.loaiPhieuGiamGia; // false = Phần trăm (%)
+      } else if (selectedType.value === "fixed") {
+        return coupon.loaiPhieuGiamGia; // true = VND
+      }
+      return true;
+    });
+  }
+
+  // Filter by target audience (Đối tượng)
+  if (selectedType2.value) {
+    filtered = filtered.filter((coupon) => {
+      const customerCount = getAppliedCustomers(coupon.id).length;
+      const isPublic = customerCount === 0;
+      const isPrivate = customerCount > 0;
+      
+      if (selectedType2.value === "public") {
+        return isPublic; // Mọi người
+      } else if (selectedType2.value === "private") {
+        return isPrivate; // Khách hàng cụ thể
+      }
+      return true;
+    });
+  }
+
+  // Filter by detailed status (Hiện trạng)
+  if (selectedStatus.value) {
+    filtered = filtered.filter((coupon) => {
+      const detailedStatus = getDetailedStatus(coupon);
+      const matches = selectedStatus.value === "deleted" ? detailedStatus === "Đã xóa" :
+                     selectedStatus.value === "active" ? detailedStatus === "Đang diễn ra" :
+                     selectedStatus.value === "expired" ? detailedStatus === "Hết hạn" :
+                     selectedStatus.value === "upcoming" ? detailedStatus === "Sắp diễn ra" : true;
+      
+      return matches;
+    });
+  }
+
+  // Filter by active status (Trạng thái hoạt động)
+  if (selectedActiveStatus.value) {
+    filtered = filtered.filter((coupon) => {
+      const simpleStatus = getSimpleStatus(coupon);
+      const matches = selectedActiveStatus.value === "active" ? simpleStatus === "Hoạt động" :
+                     selectedActiveStatus.value === "inactive" ? simpleStatus === "Ngừng hoạt động" : true;
+      
+      return matches;
+    });
+  }
+
+  // Filter by date range
+  if (fromDate.value || toDate.value) {
+    filtered = filtered.filter((coupon) => {
+      const couponStartDate = new Date(coupon.ngayBatDau);
+      const couponEndDate = new Date(coupon.ngayKetThuc);
+      
+      let passesDateFilter = true;
+      
+      if (fromDate.value) {
+        const filterFromDate = new Date(fromDate.value);
+        passesDateFilter = passesDateFilter && couponEndDate >= filterFromDate;
+      }
+      
+      if (toDate.value) {
+        const filterToDate = new Date(toDate.value);
+        passesDateFilter = passesDateFilter && couponStartDate <= filterToDate;
+      }
+      
+      return passesDateFilter;
+    });
   }
 
   // Sort by discount type (LoaiGiam) - Phần trăm (%) first, then VND
@@ -1195,12 +1351,16 @@ const allFilteredCoupons = computed(() => {
     return a.loaiPhieuGiamGia ? 1 : -1;
   });
 
+  console.log("🎯 Computed allFilteredCoupons result:", filtered.length, "items");
   return filtered;
 });
 
 // Paginated results from filtered data
 const filteredCoupons = computed(() => {
-  return allFilteredCoupons.value.slice(startIndex.value, endIndex.value);
+  console.log("🔄 Computing filteredCoupons...");
+  const result = allFilteredCoupons.value.slice(startIndex.value, endIndex.value);
+  console.log("🎯 Final filteredCoupons for table:", result.length, "items");
+  return result;
 });
 
 // Total coupons after filtering (for pagination)
@@ -1238,6 +1398,11 @@ const availableCustomers = computed(() => {
 
   return filtered;
 });
+
+// Computed property to get customer count for each coupon (for table display)
+const getCustomerCountForCoupon = (couponId) => {
+  return getAppliedCustomers(couponId).length;
+};
 
 // ===== UTILITY METHODS =====
 const formatCurrency = (amount) => {
@@ -1365,22 +1530,11 @@ const validateAllCoupons = async () => {
   try {
     await Promise.all(updatePromises);
 
-    // Hiển thị thông báo kết quả validate
+    // Log kết quả validate thay vì hiển thị notification
     if (updatedCount > 0) {
-      showSuccessNotification(
-        `Đã cập nhật trạng thái ${updatedCount} phiếu giảm giá!`,
-        {
-          message: `Hệ thống đã tự động cập nhật trạng thái của ${updatedCount} phiếu giảm giá dựa trên thời gian hiệu lực`,
-          updatedCount: updatedCount,
-          totalCoupons: coupons.value.length,
-        }
-      );
+      console.log(`Đã cập nhật trạng thái ${updatedCount} phiếu giảm giá!`);
     } else {
-      showSuccessNotification("Validate hoàn tất!", {
-        message: "Tất cả phiếu giảm giá đều có trạng thái chính xác",
-        updatedCount: 0,
-        totalCoupons: coupons.value.length,
-      });
+      console.log("Validate hoàn tất! Tất cả phiếu giảm giá đều có trạng thái chính xác");
     }
   } catch (error) {
     console.error("Lỗi khi validate phiếu giảm giá:", error);
@@ -1402,11 +1556,7 @@ const validateSingleCoupon = async (couponId) => {
     try {
       const wasUpdated = await validateAndUpdateStatus(coupon);
       if (wasUpdated) {
-        showSuccessNotification("Cập nhật trạng thái thành công!", {
-          message: `Phiếu giảm giá "${coupon.tenPhieuGiamGia}" đã được cập nhật trạng thái`,
-          tenPhieuGiamGia: coupon.tenPhieuGiamGia,
-          trangThai: "Tạm dừng",
-        });
+        console.log(`Cập nhật trạng thái thành công cho phiếu giảm giá: ${coupon.tenPhieuGiamGia}`);
       }
     } catch (error) {
       console.error("Lỗi khi validate phiếu giảm giá:", error);
@@ -1429,6 +1579,25 @@ const viewCoupon = (coupon) => {
 };
 
 /**
+ * Toggle trạng thái của phiếu giảm giá
+ * @param {Object} coupon - Phiếu giảm giá cần thay đổi trạng thái
+ */
+const toggleCouponStatus = async (coupon) => {
+  try {
+    await fetchUpdateStatusPhieuGiamGia(coupon.id);
+    // Refresh data from server to ensure we have the latest state
+    await fetchAll();
+    console.log(`Đã cập nhật trạng thái phiếu giảm giá: ${coupon.tenPhieuGiamGia}`);
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái:", error);
+    showErrorNotification(
+      "Có lỗi xảy ra khi cập nhật trạng thái phiếu giảm giá",
+      error.message
+    );
+  }
+};
+
+/**
  * Chỉnh sửa phiếu giảm giá
  * @param {Object} coupon - Phiếu giảm giá cần chỉnh sửa
  */
@@ -1446,6 +1615,30 @@ const editCoupon = (coupon) => {
 
   // Tái sử dụng hàm resetForm và cập nhật với dữ liệu mới
   resetForm();
+  // Reset selectedCustomers first
+  selectedCustomers.value = [];
+
+  // Determine if this is a personal coupon (has specific customers)
+  let isPersonalCoupon = false;
+  let customerIds = [];
+
+  if (coupon.idKhachHang && coupon.idKhachHang.length > 0) {
+    // Primary: Has specific customers in idKhachHang array
+    isPersonalCoupon = true;
+    customerIds = [...coupon.idKhachHang];
+  } else {
+    // Check legacy personal coupons table
+    const appliedCustomers = personalCoupons.value
+      .filter((pc) => pc.idPhieuGiamGia === coupon.id && !pc.deleted)
+      .map((pc) => pc.idKhachHang);
+    
+    if (appliedCustomers.length > 0) {
+      isPersonalCoupon = true;
+      customerIds = appliedCustomers;
+    }
+  }
+
+  // Set form values
   couponForm.value = {
     ...couponForm.value, // Giữ lại cấu trúc form
     maPhieuGiamGia: coupon.maPhieuGiamGia || "",
@@ -1459,33 +1652,13 @@ const editCoupon = (coupon) => {
     ngayBatDau: coupon.ngayBatDau ? coupon.ngayBatDau.split("T")[0] : "",
     ngayKetThuc: coupon.ngayKetThuc ? coupon.ngayKetThuc.split("T")[0] : "",
     trangThai: coupon.trangThai !== undefined ? coupon.trangThai : true,
-    deleted: coupon.deleted || false,
-    idKhachHang: coupon.idKhachHang || [], // Changed to match API structure
+    deleted: false, // Always set to false for edits - we don't want to soft delete when editing
+    idKhachHang: isPersonalCoupon ? "personal" : null, // Set dropdown value correctly
   };
 
-  // Reset selectedCustomers first
-  selectedCustomers.value = [];
-
-  // Set form type and load customers based on coupon type
-  if (coupon.idKhachHang && coupon.idKhachHang.length > 0) {
-    // Primary: Has specific customers in idKhachHang array
-    couponForm.value.idKhachHang = "personal";
-    selectedCustomers.value = [...coupon.idKhachHang];
-  } else {
-    // Check legacy personal coupons table
-    const appliedCustomers = personalCoupons.value
-      .filter((pc) => pc.idPhieuGiamGia === coupon.id && !pc.deleted)
-      .map((pc) => pc.idKhachHang)
-      .filter((id) => id !== null);
-
-    if (appliedCustomers.length > 0) {
-      // Legacy: customers applied via personal coupons table
-      couponForm.value.idKhachHang = "personal";
-      selectedCustomers.value = [...appliedCustomers];
-    } else {
-      // Public coupon
-      couponForm.value.idKhachHang = null;
-    }
+  // Set selected customers if personal coupon
+  if (isPersonalCoupon) {
+    selectedCustomers.value = customerIds;
   }
 
   searchCustomerQuery.value = "";
@@ -1495,11 +1668,14 @@ const editCoupon = (coupon) => {
     originalCoupon: coupon,
     couponIdKhachHang: coupon.idKhachHang,
     formType: couponForm.value.idKhachHang,
+    isPersonalCoupon: isPersonalCoupon,
+    customerIds: customerIds,
     selectedCustomers: selectedCustomers.value,
     customersData: customers.value.filter((c) =>
       selectedCustomers.value.includes(c.id)
     ),
   });
+
 
   showEditModal.value = true;
 };
@@ -1524,6 +1700,14 @@ const fetchUpdateStatusPGG = async (id) => {
   // Tìm thông tin phiếu giảm giá để hiển thị trong popup
   const coupon = coupons.value.find((c) => c.id === id);
   if (coupon) {
+    // Prevent deleting already deleted coupons
+    if (coupon.deleted) {
+      showErrorNotification(
+        "Không thể xóa phiếu giảm giá",
+        "Phiếu giảm giá này đã được xóa trước đó"
+      );
+      return;
+    }
     deleteCouponData.value = coupon;
     showDeleteModal.value = true;
   }
@@ -1536,8 +1720,11 @@ const fetchUpdateStatusPGG = async (id) => {
 const confirmDelete = async () => {
   if (!deleteCouponData.value) return;
 
+  // Store coupon data before closing modal to avoid null reference
+  const couponToDelete = { ...deleteCouponData.value };
+
   try {
-    await fetchUpdateStatusPhieuGiamGia(deleteCouponData.value.id);
+    await fetchDeletePhieuGiamGia(couponToDelete.id);
     await fetchPGG(); // Reload data after delete
     closeDeleteModal();
 
@@ -1546,13 +1733,13 @@ const confirmDelete = async () => {
 
     showSuccessNotification("Xóa phiếu giảm giá thành công!", {
       message: "Phiếu giảm giá đã được xóa khỏi hệ thống",
-      tenPhieuGiamGia: deleteCouponData.value.tenPhieuGiamGia,
-      loaiPhieuGiamGia: !deleteCouponData.value.loaiPhieuGiamGia
+      tenPhieuGiamGia: couponToDelete.tenPhieuGiamGia,
+      loaiPhieuGiamGia: !couponToDelete.loaiPhieuGiamGia
         ? "Phần trăm"
         : "Số tiền cố định",
-      giaTriGiamGia: deleteCouponData.value.giaTriGiamGia,
-      ngayBatDau: deleteCouponData.value.ngayBatDau,
-      ngayKetThuc: deleteCouponData.value.ngayKetThuc,
+      giaTriGiamGia: couponToDelete.giaTriGiamGia,
+      ngayBatDau: couponToDelete.ngayBatDau,
+      ngayKetThuc: couponToDelete.ngayKetThuc,
     });
   } catch (error) {
     console.error("Lỗi khi xóa phiếu giảm giá:", error);
@@ -1616,9 +1803,18 @@ const fetchUpdatePGG = async (id) => {
       couponData.idKhachHang = [];
     }
 
-    console.log("Updating coupon with data:", couponData);
+    // CRITICAL FIX: Ensure deleted is always false for updates
+    couponData.deleted = false;
+    
+    console.log("🔄 Updating coupon ID:", id);
+    console.log("📤 Sending coupon data to backend:", JSON.stringify(couponData, null, 2));
+    
     await fetchUpdatePhieuGiamGia(id, couponData);
-    console.log("Update successful");
+    console.log("✅ Backend update API call successful");
+    
+    // Add a small delay to ensure database transaction completes
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("⏱️ Waited 500ms for database transaction");
   } catch (error) {
     console.error("Error updating phieu giam gia: ", error);
     throw error; // Re-throw to handle in saveCoupon
@@ -1632,7 +1828,7 @@ const saveCoupon = async () => {
   try {
     // ===== VALIDATION =====
     if (!couponForm.value.tenPhieuGiamGia.trim()) {
-      alert("Vui lòng nhập tên phiếu giảm giá");
+      showErrorNotification("Thông tin thiếu", "Vui lòng nhập tên phiếu giảm giá");
       return;
     }
 
@@ -1640,12 +1836,18 @@ const saveCoupon = async () => {
       !couponForm.value.giaTriGiamGia ||
       couponForm.value.giaTriGiamGia <= 0
     ) {
-      alert("Vui lòng nhập giá trị giảm giá hợp lệ");
+      showErrorNotification("Thông tin thiếu", "Vui lòng nhập giá trị giảm giá hợp lệ");
+      return;
+    }
+
+    // Validate percentage discount maximum 100%
+    if (!couponForm.value.loaiPhieuGiamGia && couponForm.value.giaTriGiamGia > 100) {
+      showErrorNotification("Giá trị giảm giá không hợp lệ", "Giảm giá phần trăm không được vượt quá 100%");
       return;
     }
 
     if (!couponForm.value.ngayBatDau || !couponForm.value.ngayKetThuc) {
-      alert("Vui lòng chọn ngày bắt đầu và kết thúc");
+      showErrorNotification("Thông tin thiếu", "Vui lòng chọn ngày bắt đầu và kết thúc");
       return;
     }
 
@@ -1653,7 +1855,7 @@ const saveCoupon = async () => {
       new Date(couponForm.value.ngayBatDau) >=
       new Date(couponForm.value.ngayKetThuc)
     ) {
-      alert("Ngày kết thúc phải sau ngày bắt đầu");
+      showErrorNotification("Ngày không hợp lệ", "Ngày kết thúc phải sau ngày bắt đầu");
       return;
     }
 
@@ -1662,11 +1864,32 @@ const saveCoupon = async () => {
       couponForm.value.idKhachHang === "personal" &&
       selectedCustomers.value.length === 0
     ) {
-      alert("Vui lòng chọn ít nhất một khách hàng cho phiếu giảm giá cá nhân");
+      showErrorNotification("Thông tin thiếu", "Vui lòng chọn ít nhất một khách hàng cho phiếu giảm giá cá nhân");
       return;
     }
 
     if (showAddModal.value) {
+      // Calculate customer count for notification BEFORE closing modals
+      const customerCount = couponForm.value.idKhachHang === "personal" 
+        ? selectedCustomers.value.length 
+        : 0;
+
+      console.log("🎯 Customer count for notification:", customerCount);
+      console.log("🎯 Form idKhachHang:", couponForm.value.idKhachHang);
+      console.log("🎯 Selected customers length:", selectedCustomers.value.length);
+
+      // Store form data for notification BEFORE closing modals
+      const formDataForNotification = {
+        tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
+        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia
+          ? "Phần trăm"
+          : "Số tiền cố định",
+        giaTriGiamGia: couponForm.value.giaTriGiamGia,
+        ngayBatDau: couponForm.value.ngayBatDau,
+        ngayKetThuc: couponForm.value.ngayKetThuc,
+        appliedCustomers: customerCount,
+      };
+
       // Call create API
       await fetchCreatePGG();
       currentPage.value = 1; // Reset to first page
@@ -1677,28 +1900,16 @@ const saveCoupon = async () => {
       // Validate và cập nhật trạng thái sau khi tạo mới
       await validateAllCoupons();
 
-      // Show success notification
-      showSuccessNotification("Thêm phiếu giảm giá thành công!", {
-        tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
-        loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia
-          ? "Phần trăm"
-          : "Số tiền cố định",
-        giaTriGiamGia: couponForm.value.giaTriGiamGia,
-        ngayBatDau: couponForm.value.ngayBatDau,
-        ngayKetThuc: couponForm.value.ngayKetThuc,
-      });
+      // Show success notification with preserved data
+      showSuccessNotification("Thêm phiếu giảm giá thành công!", formDataForNotification);
     } else if (showEditModal.value && editingCoupon.value) {
-      // Call update API
-      await fetchUpdatePGG(editingCoupon.value.id);
-      // Close modals and reset form
-      closeModals();
-      await fetchAll(); // Refresh data
+      // Calculate customer count for notification BEFORE closing modals
+      const customerCount = couponForm.value.idKhachHang === "personal" 
+        ? selectedCustomers.value.length 
+        : 0;
 
-      // Validate và cập nhật trạng thái sau khi cập nhật
-      await validateAllCoupons();
-
-      // Show success notification
-      showSuccessNotification("Cập nhật phiếu giảm giá thành công!", {
+      // Store form data for notification BEFORE closing modals
+      const formDataForNotification = {
         tenPhieuGiamGia: couponForm.value.tenPhieuGiamGia,
         loaiPhieuGiamGia: !couponForm.value.loaiPhieuGiamGia
           ? "Phần trăm"
@@ -1707,7 +1918,44 @@ const saveCoupon = async () => {
         ngayBatDau: couponForm.value.ngayBatDau,
         ngayKetThuc: couponForm.value.ngayKetThuc,
         trangThai: couponForm.value.trangThai ? "Đang hoạt động" : "Tạm dừng",
-      });
+        appliedCustomers: customerCount,
+      };
+
+      // Call update API using the original approach with new API
+      console.log("🔄 Starting coupon update process...");
+      console.log("Editing coupon:", editingCoupon.value);
+      console.log("Form data:", couponForm.value);
+      
+      await fetchUpdatePGG(editingCoupon.value.id);
+      console.log("✅ Update API call completed");
+      
+      // Store current selected coupon ID for refresh
+      const selectedCouponId = selectedCoupon.value ? selectedCoupon.value.id : null;
+      const wasDetailModalOpen = showDetailModal.value;
+      
+      // Close modals and reset form
+      closeModals();
+      
+      // Force refresh data
+      console.log("🔄 Refreshing all data after update...");
+      await fetchAll(); // Refresh all data consistently
+
+      // Refresh selectedCoupon if view modal was open
+      if (selectedCouponId && wasDetailModalOpen) {
+        const updatedCoupon = coupons.value.find(c => c.id === selectedCouponId);
+        if (updatedCoupon) {
+          selectedCoupon.value = updatedCoupon;
+          showDetailModal.value = true; // Reopen the detail modal
+          console.log("🔄 Updated selectedCoupon with fresh data:", updatedCoupon);
+        }
+      }
+
+      // Validate và cập nhật trạng thái sau khi cập nhật
+      await validateAllCoupons();
+      console.log("✅ All data refreshed and validated");
+
+      // Show success notification with preserved data
+      showSuccessNotification("Cập nhật phiếu giảm giá thành công!", formDataForNotification);
     }
   } catch (error) {
     console.error("Lỗi khi lưu phiếu giảm giá:", error);
@@ -1731,6 +1979,7 @@ const closeModals = () => {
   deleteCouponData.value = null;
   selectedCustomers.value = [];
   searchCustomerQuery.value = "";
+  showDiscountError.value = false; // Reset validation error
   resetForm();
 };
 
@@ -1926,10 +2175,31 @@ const formDebugInfo = computed(() => {
   };
 });
 
+// Minimum start date (today)
+const minStartDate = computed(() => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+});
+
+// Minimum end date (day after start date)
+const minEndDate = computed(() => {
+  if (!couponForm.value.ngayBatDau) {
+    return minStartDate.value;
+  }
+  const startDate = new Date(couponForm.value.ngayBatDau);
+  const minEnd = new Date(startDate);
+  minEnd.setDate(startDate.getDate() + 1);
+  return minEnd.toISOString().split('T')[0];
+});
+
 /**
  * Reset form về trạng thái ban đầu
  */
 const resetForm = () => {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  
   couponForm.value = {
     maPhieuGiamGia: "",
     tenPhieuGiamGia: "",
@@ -1939,8 +2209,8 @@ const resetForm = () => {
     hoaDonToiThieu: 0,
     soTienToiDa: 0,
     soLuongDung: 1,
-    ngayBatDau: "",
-    ngayKetThuc: "",
+    ngayBatDau: today.toISOString().split('T')[0], // Set to today
+    ngayKetThuc: tomorrow.toISOString().split('T')[0], // Set to tomorrow
     trangThai: true,
     deleted: false,
     idKhachHang: null, // This will be set to array in API calls
@@ -1973,6 +2243,7 @@ const clearFilters = () => {
   selectedType.value = "";
   selectedType2.value = "";
   selectedStatus.value = "";
+  selectedActiveStatus.value = "";
   fromDate.value = "";
   toDate.value = "";
 };
@@ -1994,68 +2265,83 @@ const refreshData = () => {
 };
 
 /**
- * Xuất báo cáo phiếu giảm giá
+ * Validate discount value in real-time
  */
-const exportData = () => {
-  alert("Xuất báo cáo phiếu giảm giá");
+const validateDiscountValue = () => {
+  if (!couponForm.value.loaiPhieuGiamGia && couponForm.value.giaTriGiamGia > 100) {
+    showDiscountError.value = true;
+  } else {
+    showDiscountError.value = false;
+  }
 };
 
 /**
- * Xuất dữ liệu ra file Excel
+ * Xuất báo cáo phiếu giảm giá ra file Excel
  */
-const exportToExcel = () => {
+const exportData = () => {
   try {
     const headerMapping = {
       id: "ID",
-      ma_phieu: "Mã phiếu",
-      ten_phieu: "Tên phiếu",
-      loai_giam_gia: "Loại giảm giá",
-      gia_tri: "Giá trị",
-      so_luong: "Số lượng",
-      da_su_dung: "Đã sử dụng",
-      ngay_bat_dau: "Ngày bắt đầu",
-      ngay_ket_thuc: "Ngày kết thúc",
-      trang_thai: "Trạng thái",
+      tenPhieuGiamGia: "Tên phiếu giảm giá",
+      maPhieuGiamGia: "Mã phiếu",
+      loaiPhieuGiamGia: "Loại giảm giá",
+      giaTriGiamGia: "Giá trị giảm",
+      hoaDonToiThieu: "Hóa đơn tối thiểu",
+      soTienToiDa: "Số tiền tối đa",
+      soLuongDung: "Số lượng",
+      soLuongDaDung: "Đã sử dụng",
+      ngayBatDau: "Ngày bắt đầu",
+      ngayKetThuc: "Ngày kết thúc",
+      trangThai: "Trạng thái",
+      moTa: "Mô tả",
     };
 
-    const filteredData = filteredCoupons.value.map((item) => ({
+    // Get all filtered coupons data
+    const exportData = allFilteredCoupons.value.map((item) => ({
       id: item.id || "N/A",
-      ma_phieu: item.ma_phieu || "N/A",
-      ten_phieu: item.ten_phieu || "N/A",
-      loai_giam_gia:
-        item.loai_giam_gia === "percent" ? "Phần trăm" : "Số tiền cố định",
-      gia_tri:
-        item.loai_giam_gia === "percent"
-          ? `${item.gia_tri}%`
-          : new Intl.NumberFormat("vi-VN").format(item.gia_tri),
-      so_luong: item.so_luong || 0,
-      da_su_dung: item.da_su_dung || 0,
-      ngay_bat_dau: item.ngay_bat_dau
-        ? new Date(item.ngay_bat_dau).toLocaleDateString("vi-VN")
-        : "N/A",
-      ngay_ket_thuc: item.ngay_ket_thuc
-        ? new Date(item.ngay_ket_thuc).toLocaleDateString("vi-VN")
-        : "N/A",
-      trang_thai: item.trang_thai === "active" ? "Hoạt động" : "Tạm dừng",
+      tenPhieuGiamGia: item.tenPhieuGiamGia || "N/A",
+      maPhieuGiamGia: item.maPhieuGiamGia || "N/A",
+      loaiPhieuGiamGia: !item.loaiPhieuGiamGia ? "Phần trăm (%)" : "Số tiền cố định (VND)",
+      giaTriGiamGia: !item.loaiPhieuGiamGia 
+        ? `${item.giaTriGiamGia}%` 
+        : formatCurrency(item.giaTriGiamGia),
+      hoaDonToiThieu: formatCurrency(item.hoaDonToiThieu || 0),
+      soTienToiDa: formatCurrency(item.soTienToiDa || 0),
+      soLuongDung: item.soLuongDung || 0,
+      soLuongDaDung: item.soLuongDaDung || 0,
+      ngayBatDau: item.ngayBatDau || "N/A",
+      ngayKetThuc: item.ngayKetThuc || "N/A",
+      trangThai: getSimpleStatus(item),
+      moTa: item.moTa || "",
     }));
 
+    // Format data for Excel with proper headers
+    const formattedData = formatDataForExcel(exportData, headerMapping);
+
+    // Export to Excel using the utility function
     const result = exportToExcel(
-      filteredData,
-      "Discount_Coupons",
-      "Danh sách phiếu giảm giá",
-      headerMapping
+      formattedData,
+      "PhieuGiamGia_BaoCao",
+      "Danh sách phiếu giảm giá"
     );
 
     if (result && result.success) {
-      alert(`✅ ${result.message}`);
+      showSuccessNotification("Xuất báo cáo Excel thành công!", {
+        message: `Đã xuất ${exportData.length} phiếu giảm giá`,
+        fileName: result.fileName
+      });
     } else {
-      alert(
-        `❌ ${result ? result.message : "Có lỗi xảy ra khi xuất file Excel"}`
+      showErrorNotification(
+        "Có lỗi xảy ra khi xuất file Excel",
+        result ? result.message : "Lỗi không xác định"
       );
     }
   } catch (error) {
-    console.error("Error exporting to Excel:", error);
-    alert(`❌ Có lỗi xảy ra khi xuất file Excel: ${error.message}`);
+    console.error("Error exporting data:", error);
+    showErrorNotification(
+      "Có lỗi xảy ra khi xuất báo cáo", 
+      error.message
+    );
   }
 };
 
@@ -2067,6 +2353,36 @@ watch(
   [searchQuery, selectedType, selectedType2, selectedStatus, fromDate, toDate],
   () => {
     resetPagination();
+  }
+);
+
+/**
+ * Theo dõi thay đổi ngày bắt đầu để cập nhật ngày kết thúc tự động
+ */
+watch(
+  () => couponForm.value.ngayBatDau,
+  (newStartDate) => {
+    if (newStartDate && couponForm.value.ngayKetThuc) {
+      const startDate = new Date(newStartDate);
+      const endDate = new Date(couponForm.value.ngayKetThuc);
+      
+      // If end date is before or same as start date, update it to be one day after
+      if (endDate <= startDate) {
+        const newEndDate = new Date(startDate);
+        newEndDate.setDate(startDate.getDate() + 1);
+        couponForm.value.ngayKetThuc = newEndDate.toISOString().split('T')[0];
+      }
+    }
+  }
+);
+
+/**
+ * Theo dõi thay đổi loại phiếu giảm giá để reset validation error
+ */
+watch(
+  () => couponForm.value.loaiPhieuGiamGia,
+  () => {
+    showDiscountError.value = false; // Reset error when discount type changes
   }
 );
 
@@ -2109,41 +2425,6 @@ onMounted(() => {
 .discount-coupons {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 2rem;
-  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-  border-radius: 16px;
-  padding: 2rem;
-  color: white;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  font-family: "Arial", "Helvetica", sans-serif;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.page-subtitle {
-  font-size: 1.125rem;
-  margin: 0.5rem 0 0 0;
-  opacity: 0.9;
-  font-family: "Inter", sans-serif;
-  letter-spacing: 0.2px;
 }
 
 /* Modern Filter Section */
@@ -2198,54 +2479,43 @@ onMounted(() => {
   letter-spacing: -0.3px;
 }
 
-.filter-stats {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-  color: white;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
+
 
 .filter-content {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
+/* Search Section */
 .search-section {
-  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
 }
 
-.input-group {
+.search-section .filter-group {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-section .input-group {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.input-icon {
+.search-section .input-icon {
   position: absolute;
   left: 1rem;
   font-size: 1.25rem;
   z-index: 1;
+  color: #6b7280;
 }
 
-.search-input {
-  width: 100%;
-  padding: 0.875rem 3rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #f9fafb;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #4ade80;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
-}
-
-.clear-btn {
+.search-section .clear-btn {
   position: absolute;
   right: 1rem;
   background: #ef4444;
@@ -2260,17 +2530,110 @@ onMounted(() => {
   color: white;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  z-index: 1;
 }
 
-.clear-btn:hover {
+.search-section .clear-btn:hover {
   background: #dc2626;
   transform: scale(1.1);
 }
 
+
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 3rem 0.75rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: #374151;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+
+
 .filters-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Date Section */
+.date-section {
+  background: #f0f9ff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #bae6fd;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e0f2fe;
+}
+
+.section-icon {
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-title h4 {
+  margin: 0;
+  color: #0c4a6e;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+}
+
+.date-grid {
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
+  gap: 1.5rem;
+}
+
+/* Actions Section */
+.actions-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: #fefefe;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.actions-left {
+  display: flex;
+  align-items: center;
+}
+
+.actions-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .filter-group {
@@ -2311,6 +2674,54 @@ onMounted(() => {
   transform: scale(1.1);
   background: #f3f4f6;
   border-color: #22c55e;
+}
+
+/* Action Buttons in Actions Section */
+.actions-section .btn-action-primary,
+.actions-section .btn-action-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.actions-section .btn-action-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.actions-section .btn-action-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.actions-section .btn-action-secondary {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.actions-section .btn-action-secondary:hover {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-color: #22c55e;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.actions-section .btn-action-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-sm {
@@ -2390,68 +2801,233 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
-/* Table Styles */
+/* Enhanced Responsive Table Styles */
 .table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(74, 222, 128, 0.1);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  font-family: "Inter", "Poppins", sans-serif;
+  table-layout: auto; /* Allow adaptive column sizing */
 }
 
+/* Compact Table Header for MacBook Screens */
 .table th {
-  background-color: #4ade80;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
   font-weight: 700;
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 0.5rem; /* Reduced padding for compactness */
   text-align: center;
-  font-size: 0.75rem;
+  font-size: clamp(0.7rem, 1.2vw, 0.8rem); /* Slightly smaller font */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   position: relative;
   border-right: none;
   border-left: none;
-  font-family: "Arial", "Helvetica", sans-serif;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  font-family: "Inter", "Arial", sans-serif;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .table th:first-child {
   border-top-left-radius: 20px;
+  width: 60px; /* Fixed width for STT */
+  min-width: 60px;
 }
 
 .table th:last-child {
   border-top-right-radius: 20px;
+  width: 140px; /* Compact width for actions */
+  min-width: 130px;
 }
 
+/* Compact Column Widths for MacBook/Smaller Desktop Screens */
+.table th:nth-child(2) { /* Tên */
+  width: 160px;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.table th:nth-child(3) { /* Đối tượng */
+  width: 100px;
+  min-width: 90px;
+}
+
+.table th:nth-child(4) { /* Loại giảm */
+  width: 60px;
+  min-width: 55px;
+}
+
+.table th:nth-child(5) { /* Giá trị giảm */
+  width: 110px;
+  min-width: 100px;
+}
+
+.table th:nth-child(6) { /* Số tiền tối thiểu */
+  width: 120px;
+  min-width: 110px;
+}
+
+.table th:nth-child(7) { /* Số tiền giảm tối đa */
+  width: 120px;
+  min-width: 110px;
+}
+
+.table th:nth-child(8) { /* Thời gian */
+  width: 140px;
+  min-width: 130px;
+}
+
+.table th:nth-child(9) { /* Số lượng dùng */
+  width: 80px;
+  min-width: 75px;
+}
+
+.table th:nth-child(10) { /* Mô tả */
+  width: auto;
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.table th:nth-child(11) { /* Hiện trạng */
+  width: 100px;
+  min-width: 90px;
+}
+
+.table th:nth-child(12) { /* Trạng thái */
+  width: 100px;
+  min-width: 90px;
+}
+
+/* Compact Table Cells for MacBook Screens */
 .table td {
-  padding: 1.25rem 1rem;
+  padding: 1rem 0.75rem; /* Reduced padding for compactness */
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(74, 222, 128, 0.1);
+  border-bottom: 1px solid rgba(74, 222, 128, 0.08);
   transition: all 0.3s ease;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 1vw, 0.85rem); /* Slightly smaller font */
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Apply same compact column widths to td cells */
+.table td:nth-child(2) { /* Tên */
+  width: 160px;
+  min-width: 140px;
+  max-width: 200px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.table td:nth-child(3) { /* Đối tượng */
+  width: 100px;
+  min-width: 90px;
+}
+
+.table td:nth-child(4) { /* Loại giảm */
+  width: 60px;
+  min-width: 55px;
+  font-weight: 600;
+}
+
+.table td:nth-child(5) { /* Giá trị giảm */
+  width: 110px;
+  min-width: 100px;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.table td:nth-child(6) { /* Số tiền tối thiểu */
+  width: 120px;
+  min-width: 110px;
+  color: #7c3aed;
+}
+
+.table td:nth-child(7) { /* Số tiền giảm tối đa */
+  width: 120px;
+  min-width: 110px;
+  color: #7c3aed;
+}
+
+.table td:nth-child(8) { /* Thời gian */
+  width: 140px;
+  min-width: 130px;
+  font-size: 0.8rem;
+}
+
+.table td:nth-child(9) { /* Số lượng dùng */
+  width: 80px;
+  min-width: 75px;
+  font-weight: 600;
+}
+
+.table td:nth-child(10) { /* Mô tả column */
+  width: auto;
+  min-width: 120px;
+  max-width: 180px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table td:nth-child(10):hover {
+  white-space: normal;
+  overflow: visible;
+  position: relative;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 1rem 0.75rem;
+}
+
+.table td:nth-child(11) { /* Hiện trạng */
+  width: 100px;
+  min-width: 90px;
+}
+
+.table td:nth-child(12) { /* Trạng thái */
+  width: 100px;
+  min-width: 90px;
 }
 
 .table tbody tr {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
 }
 
 .table tbody tr:hover {
   background: linear-gradient(
     135deg,
-    rgba(74, 222, 128, 0.05) 0%,
-    rgba(34, 197, 94, 0.05) 100%
+    rgba(74, 222, 128, 0.08) 0%,
+    rgba(34, 197, 94, 0.08) 100%
   );
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.15);
+  transform: translateY(-3px) scale(1.002);
+  box-shadow: 0 8px 32px rgba(74, 222, 128, 0.2);
+  z-index: 5;
 }
 
 .table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* Enhanced Row Animation */
+.table tbody tr:hover td {
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+.table tbody tr:active {
+  transform: translateY(-1px) scale(1.001);
+  transition: all 0.1s ease;
 }
 
 .coupon-code {
@@ -2467,11 +3043,88 @@ onMounted(() => {
   color: #374151;
 }
 
+/* Enhanced Action Buttons */
 .action-buttons {
   display: flex;
   gap: 0.75rem;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+}
+
+.action-buttons .btn-action {
+  width: 32px; /* Smaller for compact layout */
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem; /* Slightly smaller font */
+  position: relative;
+  overflow: hidden;
+}
+
+.action-buttons .btn-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.action-buttons .btn-action:hover::before {
+  left: 100%;
+}
+
+.action-buttons .btn-action:hover {
+  transform: translateY(-2px) scale(1.1);
+  background: #f8fafc;
+  border-color: #4ade80;
+  box-shadow: 0 8px 25px rgba(74, 222, 128, 0.3);
+}
+
+.action-buttons .btn-action:active {
+  transform: translateY(0) scale(1.05);
+  transition: all 0.1s ease;
+}
+
+/* Specific action button colors */
+.action-buttons .btn-action[title="Xem chi tiết"] {
+  border-color: #3b82f6;
+}
+
+.action-buttons .btn-action[title="Xem chi tiết"]:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.action-buttons .btn-action[title="Chỉnh sửa"] {
+  border-color: #f59e0b;
+}
+
+.action-buttons .btn-action[title="Chỉnh sửa"]:hover {
+  background: #fef3c7;
+  border-color: #d97706;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.action-buttons .btn-action[title="Xóa"] {
+  border-color: #ef4444;
+}
+
+.action-buttons .btn-action[title="Xóa"]:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
 }
 
 /* Status badges */
@@ -2504,19 +3157,166 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
 }
 
-/* Table responsive */
-@media (max-width: 1024px) {
+/* Enhanced Responsive Design for Different Desktop Resolutions */
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .table th {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .table td {
+    padding: 1.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+}
+
+/* MacBook Pro 16" and Standard Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  /* Use compact layout for better MacBook compatibility */
+  .table th {
+    padding: 0.85rem 0.7rem;
+    font-size: 0.8rem;
+  }
+  
+  .table td {
+    padding: 1.2rem 0.7rem;
+    font-size: 0.85rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 36px;
+    height: 36px;
+    font-size: 1.05rem;
+  }
+  
+  /* Adjust column widths for standard MacBook screens */
+  .table th:nth-child(2) { width: 170px; min-width: 150px; } /* Tên */
+  .table th:nth-child(10) { min-width: 140px; max-width: 200px; } /* Mô tả */
+  
+  .table td:nth-child(2) { width: 170px; min-width: 150px; }
+  .table td:nth-child(10) { min-width: 140px; max-width: 200px; }
+}
+
+/* MacBook & Medium Desktop Optimization (1024px - 1439px) */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .table th {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .table td {
+    padding: 1rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Hide less critical columns on MacBook screens for better fit */
+  .table th:nth-child(7), /* Số tiền giảm tối đa */
+  .table td:nth-child(7),
+  .table th:nth-child(10), /* Mô tả */
+  .table td:nth-child(10) {
+    display: none;
+  }
+  
+  /* Adjust remaining column widths for better fit */
+  .table th:nth-child(2) { width: 180px; min-width: 160px; } /* Tên */
+  .table th:nth-child(6) { width: 140px; min-width: 120px; } /* Tối thiểu */
+  .table th:nth-child(8) { width: 160px; min-width: 140px; } /* Thời gian */
+  
+  .table td:nth-child(2) { width: 180px; min-width: 160px; }
+  .table td:nth-child(6) { width: 140px; min-width: 120px; }
+  .table td:nth-child(8) { width: 160px; min-width: 140px; }
+  
+  .action-buttons .btn-action {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablet Landscape (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
   .table {
     font-size: 0.8rem;
+    border-radius: 16px;
   }
 
   .table th,
   .table td {
     padding: 1rem 0.75rem;
   }
+  
+  .table th:first-child,
+  .table th:last-child {
+    border-radius: 16px 16px 0 0;
+  }
+  
+  /* Hide less critical columns on smaller screens */
+  .table th:nth-child(6), /* Số tiền tối thiểu */
+  .table td:nth-child(6),
+  .table th:nth-child(7), /* Số tiền giảm tối đa */
+  .table td:nth-child(7),
+  .table th:nth-child(10), /* Mô tả */
+  .table td:nth-child(10) {
+    display: none;
+  }
+  
+  .action-buttons {
+    gap: 0.5rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
 }
 
-/* Card Styles */
+/* Ultra-wide Desktop Optimization (2560px+) */
+@media (min-width: 2560px) {
+  .discount-coupons {
+    max-width: 2400px;
+  }
+  
+  .table th {
+    padding: 1.5rem 2rem;
+    font-size: 1rem;
+  }
+  
+  .table td {
+    padding: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+  
+  /* Increase column widths for ultra-wide PhieuGiamGia */
+  .table th:nth-child(2) { width: 300px; min-width: 280px; }
+  .table th:nth-child(6) { width: 200px; min-width: 180px; }
+  .table th:nth-child(7) { width: 200px; min-width: 180px; }
+  .table th:nth-child(8) { width: 250px; min-width: 220px; }
+  .table th:nth-child(10) { min-width: 250px; max-width: 400px; }
+  .table th:nth-child(13) { width: 220px; min-width: 200px; }
+  
+  .table td:nth-child(2) { width: 300px; min-width: 280px; }
+  .table td:nth-child(6) { width: 200px; min-width: 180px; }
+  .table td:nth-child(7) { width: 200px; min-width: 180px; }
+  .table td:nth-child(8) { width: 250px; min-width: 220px; }
+  .table td:nth-child(10) { min-width: 250px; max-width: 400px; }
+}
+
+/* Enhanced Card Styles with Horizontal Scroll for MacBook */
 .card {
   background: white;
   border-radius: 20px;
@@ -2524,6 +3324,96 @@ onMounted(() => {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(74, 222, 128, 0.15);
   transition: all 0.3s ease;
+}
+
+.card-body {
+  padding: 1.5rem; /* Reduced padding */
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.02) 0%,
+    rgba(34, 197, 94, 0.02) 100%
+  );
+  overflow-x: auto; /* Enable horizontal scroll */
+}
+
+/* Custom scrollbar for table */
+.card-body::-webkit-scrollbar {
+  height: 8px;
+}
+
+.card-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-radius: 4px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+/* Table Scroll Hint for MacBook Users */
+.table-scroll-hint {
+  display: none; /* Hidden by default */
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #92400e;
+  font-weight: 500;
+  border-radius: 0;
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+
+.table-scroll-hint .scroll-icon {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.table-scroll-hint .hint-text {
+  font-family: "Inter", sans-serif;
+}
+
+/* Show scroll hint on MacBook screens */
+@media (min-width: 1024px) and (max-width: 1680px) {
+  .table-scroll-hint {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  /* Smooth animation for scroll hint */
+  @keyframes slideDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Enhanced card-body for better horizontal scroll experience */
+  .card-body {
+    scroll-behavior: smooth;
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 .card:hover {
@@ -2557,46 +3447,45 @@ onMounted(() => {
   }
 }
 
-/* Pagination */
+/* Separate Pagination Section - Clean and Simple */
 .pagination-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 2px solid rgba(74, 222, 128, 0.2);
-  background: linear-gradient(
-    135deg,
-    rgba(74, 222, 128, 0.05) 0%,
-    rgba(34, 197, 94, 0.05) 100%
-  );
+  margin-top: 2rem; /* Space from table card */
   padding: 1.5rem 2rem;
+  background: white;
   border-radius: 16px;
-  margin-left: -2rem;
-  margin-right: -2rem;
-  margin-bottom: -2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .pagination-info {
   font-weight: 600;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem); /* Responsive font */
   background: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.25rem; /* Slightly reduced padding */
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(74, 222, 128, 0.1);
+  white-space: nowrap; /* Prevent text wrapping */
+  min-width: fit-content;
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem; /* Slightly reduced gap */
   background: white;
   padding: 0.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(74, 222, 128, 0.1);
+  min-width: fit-content;
 }
 
 .page-info {
@@ -2607,11 +3496,12 @@ onMounted(() => {
     rgba(74, 222, 128, 0.1) 0%,
     rgba(34, 197, 94, 0.1) 100%
   );
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.875rem; /* Slightly reduced padding */
   border-radius: 8px;
-  font-size: 0.875rem;
-  min-width: 80px;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem); /* Responsive font */
+  min-width: 70px; /* Reduced min-width */
   text-align: center;
+  white-space: nowrap;
 }
 
 /* Modal Styles */
@@ -2771,12 +3661,6 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-
   .form-row {
     grid-template-columns: 1fr;
   }
@@ -2785,17 +3669,117 @@ onMounted(() => {
     flex-direction: column;
   }
 
-  .pagination-wrapper {
-    flex-direction: column;
+  .filter-content {
+    gap: 1.5rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
     gap: 1rem;
   }
 
+  .date-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .actions-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .actions-left,
+  .actions-right {
+    justify-content: center;
+  }
+
+  .actions-right {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pagination-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+}
+
+/* MacBook-Optimized Pagination (Separate Section) */
+@media (min-width: 1024px) and (max-width: 1680px) {
+  .pagination-wrapper {
+    padding: 1.25rem 1.75rem;
+    margin-top: 1.5rem;
+  }
+  
+  .pagination-info {
+    font-size: 0.8rem;
+  }
+  
+  .pagination {
+    gap: 0.5rem;
+  }
+  
+  .page-info {
+    font-size: 0.8rem;
+    min-width: 60px;
+    padding: 0.4rem 0.75rem;
+  }
+  
+  .btn-sm {
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Compact pagination for smaller MacBook screens */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .pagination-wrapper {
+    padding: 1rem 1.5rem;
+    margin-top: 1.25rem;
+  }
+  
+  .pagination-info {
+    font-size: 0.75rem;
+  }
+  
+  .page-info {
+    font-size: 0.75rem;
+    min-width: 55px;
+    padding: 0.35rem 0.625rem;
+  }
+  
+  .btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
   .modal-overlay {
     padding: 1rem;
   }
 
   .info-grid {
     grid-template-columns: 1fr;
+  }
+
+  .search-section,
+  .date-section {
+    padding: 1rem;
+  }
+
+  .section-title {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .section-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1.25rem;
   }
 }
 
@@ -3009,8 +3993,31 @@ onMounted(() => {
   color: #ef4444;
 }
 
+.text-gray {
+  color: #6b7280;
+}
+
+.text-blue {
+  color: #3b82f6;
+}
+
 .status-text:hover {
   transform: scale(1.05);
+}
+
+.status-clickable {
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+}
+
+.status-clickable:hover {
+  background-color: rgba(16, 185, 129, 0.1);
+  transform: scale(1.05);
+}
+
+.status-clickable:active {
+  transform: scale(0.95);
 }
 
 /* Detail Modal Styles */
@@ -3434,6 +4441,40 @@ onMounted(() => {
 
 .edit-select:focus {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234ade80' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Error styling for input validation */
+.input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.input-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Form Control Override for Edit Modal */

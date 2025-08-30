@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.example.be_sp.entity.ThongTinDonHang;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Getter
 @Setter
@@ -22,7 +23,7 @@ public class ThongTinDonHangResponse {
         this.maDonHang = data.getIdHoaDon().getMaHoaDon();
         this.tenTrangThaiDonHang = data.getIdTrangThaiDonHang().getTenTrangThaiDonHang();
         this.maThongTinDonHang = data.getMaThongTinDonHang();
-        this.thoiGian = data.getThoiGian();
+        this.thoiGian = data.getThoiGian() != null ? data.getThoiGian().atZone(ZoneId.systemDefault()).toLocalDate() : null;
         this.ghiChu = data.getGhiChu();
         this.deleted = data.getDeleted();
     }

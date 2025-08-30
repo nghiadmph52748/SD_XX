@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 @Getter
@@ -22,9 +20,8 @@ public class DiaChiKhachHang {
     @JoinColumn(name = "id_khach_hang", nullable = false)
     private KhachHang idKhachHang;
 
-    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'DC'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_dia_chi", length = 7, insertable = false, updatable = false)
+    @Column(name = "ma_dia_chi", length = 7)
     private String maDiaChi;
 
     @Nationalized

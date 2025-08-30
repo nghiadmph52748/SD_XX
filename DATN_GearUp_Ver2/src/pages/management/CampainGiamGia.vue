@@ -1,66 +1,48 @@
 <template>
   <div class="discount-campaigns">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="page-title">🎯 Quản lý chiến dịch khuyến mãi</h1>
-          <p class="page-subtitle">Tạo và quản lý các chiến dịch khuyến mãi một cách hiệu quả</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-refresh" @click="refreshData">
-            <span class="btn-icon">🔄</span>
-            Làm mới
-          </button>
-          <button class="btn-export" @click="exportData">
-            <span class="btn-icon">📊</span>
-            Xuất báo cáo
-          </button>
-          <button class="btn-export" @click="exportToExcel">
-            <span class="btn-icon">📗</span>
-            Xuất Excel
-          </button>
-          <button class="btn-export" @click="openAddModal">
-            <span class="btn-icon">➕</span>
-            Tạo đợt giảm giá
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Modern Filter Section -->
     <div class="filter-section">
       <div class="filter-card">
         <div class="filter-header">
           <div class="filter-title">
             <span class="filter-icon">🎯</span>
-            <h3>Tìm kiếm chiến dịch</h3>
-          </div>
-          <div class="filter-stats">
-            {{ filteredCampaigns.length }} / {{ campaigns.length }} chiến dịch
+            <h3
+              style="
+                font-family: 'Arial', 'Helvetica', sans-serif;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                color: #4ade80;
+              "
+            >
+              Chiến dịch khuyến mãi
+            </h3>
           </div>
         </div>
 
         <div class="filter-content">
+          <!-- Search Section -->
           <div class="search-section">
-            <div class="input-group">
-              <span class="input-icon">🔍</span>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Tìm kiếm theo tên hoặc mô tả chiến dịch..."
-                class="form-control search-input"
-              />
-              <button
-                v-if="searchQuery"
-                @click="searchQuery = ''"
-                class="clear-btn"
-              >
-                <span>✕</span>
-              </button>
+            <div class="filter-group">
+              <div class="input-group">
+                <span class="input-icon">🔍</span>
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Tìm kiếm theo tên hoặc mô tả chiến dịch..."
+                  class="form-select search-input"
+                />
+                <button
+                  v-if="searchQuery"
+                  @click="searchQuery = ''"
+                  class="clear-btn"
+                >
+                  <span>✕</span>
+                </button>
+              </div>
             </div>
           </div>
 
+          <!-- Filter Grid -->
           <div class="filters-grid">
             <div class="filter-group">
               <label class="filter-label">
@@ -75,26 +57,24 @@
               </select>
             </div>
 
-            <div class="filter-group">
-              <label class="filter-label">
-                <span class="label-icon">💰</span>
-                Loại giảm giá
-              </label>
-              <select v-model="typeFilter" class="form-select">
-                <option value="">Tất cả loại</option>
-                <option value="percentage">📊 Phần trăm (%)</option>
-                <option value="fixed">💵 Số tiền cố định</option>
-              </select>
-            </div>
-
-            <div class="filter-actions">
+            <div class="filter-group button-group">
               <button @click="clearFilters" class="btn btn-outline">
                 <span class="btn-icon">🔄</span>
-                Đặt lại
+                Đặt lại bộ lọc
               </button>
-              <button @click="applyFilters" class="btn btn-primary">
-                <span class="btn-icon">✨</span>
-                Áp dụng
+            </div>
+
+            <div class="filter-group button-group">
+              <button class="btn-action-primary" @click="exportData">
+                <span class="btn-icon">📊</span>
+                Xuất báo cáo
+              </button>
+            </div>
+
+            <div class="filter-group button-group">
+              <button class="btn-action-secondary" @click="openAddModal">
+                <span class="btn-icon">➕</span>
+                Tạo đợt giảm giá
               </button>
             </div>
           </div>
@@ -151,20 +131,20 @@
                 <span
                   :class="[
                     'badge',
-                    campaign.trangThai ? 'badge-success' : 'badge-warning',
+                    campaign.deleted ? 'badge-danger' : (campaign.trangThai ? 'badge-success' : 'badge-warning'),
                   ]"
                 >
-                  {{ campaign.trangThai ? "Đang diễn ra" : "Sắp diễn ra" }}
+                  {{ campaign.deleted ? "Đã xóa" : (campaign.trangThai ? "Hoạt động" : "Ngừng hoạt động") }}
                 </span>
               </td>
               <td>
                 <span
                   :class="[
                     'badge',
-                    !campaign.deleted ? 'badge-success' : 'badge-danger',
+                    campaign.trangThai ? 'badge-success' : 'badge-warning',
                   ]"
                 >
-                  {{ !campaign.deleted ? "Hoạt động" : "Ngừng hoạt động" }}
+                  {{ campaign.trangThai ? "Đang diễn ra" : "Sắp diễn ra" }}
                 </span>
               </td>
               <td>
@@ -309,6 +289,7 @@
                   v-model="formData.ngayBatDau"
                   type="date"
                   class="form-control"
+                  :min="minStartDate"
                   required
                 />
               </div>
@@ -318,6 +299,7 @@
                   v-model="formData.ngayKetThuc"
                   type="date"
                   class="form-control"
+                  :min="minEndDate"
                   required
                 />
               </div>
@@ -348,9 +330,9 @@
 
             <div class="form-group">
               <label class="form-label">Hiện trạng *</label>
-              <select v-model="formData.deleted" class="form-control">
-                <option :value="false">✅ Hoạt động</option>
-                <option :value="true">❌ Ngừng hoạt động</option>
+              <select v-model="formData.trangThai" class="form-control">
+                <option :value="true">✅ Hoạt động</option>
+                <option :value="false">❌ Ngừng hoạt động</option>
               </select>
             </div>
           </div>
@@ -731,6 +713,12 @@
                               >Đã áp dụng</span
                             >
                           </div>
+                          <div class="detail-row" v-if="getProductActiveCampaigns(product.id).length > 1">
+                            <span class="detail-label">Tham gia:</span>
+                            <span class="detail-value multiple-campaigns">
+                              {{ getProductActiveCampaigns(product.id).length }} đợt
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -848,13 +836,13 @@
                 </div>
               </div>
 
-              <!-- Products with existing discount -->
+              <!-- Products with existing discount from higher value campaigns -->
               <div
                 v-if="productsWithDiscount.length > 0"
                 class="product-section"
               >
                 <h5 class="section-title unavailable-title">
-                  ❌ Sản phẩm đã có giảm giá ({{ productsWithDiscount.length }})
+                  ❌ Sản phẩm có giảm giá cao hơn ({{ productsWithDiscount.length }})
                 </h5>
                 <div
                   v-for="product in productsWithDiscount"
@@ -886,7 +874,7 @@
                           <div class="detail-row">
                             <span class="detail-label">Trạng thái:</span>
                             <span class="detail-value discount-active"
-                              >Đang giảm giá</span
+                              >Có giảm giá cao hơn</span
                             >
                           </div>
                         </div>
@@ -922,8 +910,7 @@
               class="empty-available"
             >
               <p class="warning-text">
-                ⚠️ Các sản phẩm còn lại đều đã có đợt giảm giá khác đang hoạt
-                động
+                ⚠️ Các sản phẩm còn lại đều có đợt giảm giá với giá trị cao hơn
               </p>
             </div>
           </div>
@@ -937,7 +924,7 @@
               {{ productsDetails.length }} sản phẩm
               <br />
               <small
-                >Đã áp dụng: {{ currentCampaignProducts.length }} | Từ đợt khác:
+                >Đã áp dụng: {{ currentCampaignProducts.length }} | Có giảm giá cao hơn:
                 {{ productsWithDiscount.length }}</small
               >
             </div>
@@ -954,16 +941,183 @@
         </div>
       </div>
     </div>
+
+    <!-- Notification Modal -->
+    <div
+      v-if="showNotificationModal"
+      class="modal-overlay notification-overlay"
+      @click="closeNotificationModal"
+    >
+      <div class="modal-content notification-modal" @click.stop>
+        <div class="notification-header" :class="notificationData.type">
+          <div class="notification-icon">
+            <span v-if="notificationData.type === 'success'">✅</span>
+            <span v-else>❌</span>
+          </div>
+          <div class="notification-title">
+            <h3>{{ notificationData.title }}</h3>
+            <p>{{ notificationData.message }}</p>
+          </div>
+          <button class="notification-close" @click="closeNotificationModal">
+            ✕
+          </button>
+        </div>
+
+        <div class="notification-body" v-if="notificationData.details">
+          <div class="notification-details">
+            <h4>Chi tiết cập nhật:</h4>
+            <div class="details-grid">
+              <div
+                class="detail-item"
+                v-if="notificationData.details.tenDotGiamGia"
+              >
+                <span class="detail-label">Tên đợt giảm giá:</span>
+                <span class="detail-value">{{
+                  notificationData.details.tenDotGiamGia
+                }}</span>
+              </div>
+              <div
+                class="detail-item"
+                v-if="notificationData.details.giaTriGiamGia"
+              >
+                <span class="detail-label">Giá trị giảm:</span>
+                <span class="detail-value">{{
+                  notificationData.details.giaTriGiamGia
+                }}%</span>
+              </div>
+              <div
+                class="detail-item"
+                v-if="notificationData.details.ngayBatDau"
+              >
+                <span class="detail-label">Ngày bắt đầu:</span>
+                <span class="detail-value">{{
+                  formatDate(notificationData.details.ngayBatDau)
+                }}</span>
+              </div>
+              <div
+                class="detail-item"
+                v-if="notificationData.details.ngayKetThuc"
+              >
+                <span class="detail-label">Ngày kết thúc:</span>
+                <span class="detail-value">{{
+                  formatDate(notificationData.details.ngayKetThuc)
+                }}</span>
+              </div>
+              <div
+                class="detail-item"
+                v-if="notificationData.details.productsAdded !== undefined"
+              >
+                <span class="detail-label">Sản phẩm đã thêm:</span>
+                <span class="detail-value">
+                  {{ notificationData.details.productsAdded }} sản phẩm
+                </span>
+              </div>
+              <div
+                class="detail-item"
+                v-if="notificationData.details.productsRemoved !== undefined"
+              >
+                <span class="detail-label">Sản phẩm đã xóa:</span>
+                <span class="detail-value">
+                  {{ notificationData.details.productsRemoved }} sản phẩm
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notification-footer">
+          <button class="btn btn-primary" @click="closeNotificationModal">
+            <span class="btn-icon">👌</span>
+            Đã hiểu
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteModal"
+      class="modal-overlay delete-overlay"
+      @click="closeDeleteModal"
+    >
+      <div class="modal-content delete-modal" @click.stop>
+        <div class="delete-header">
+          <div class="delete-icon">🗑️</div>
+          <h3>Xác nhận xóa đợt giảm giá</h3>
+        </div>
+
+        <div class="delete-body">
+          <div class="delete-warning">
+            <div class="warning-icon">⚠️</div>
+            <p class="warning-text">
+              Bạn có chắc chắn muốn xóa đợt giảm giá
+              <strong>"{{ deleteCampaignData?.tenDotGiamGia }}"</strong>?
+            </p>
+          </div>
+
+          <div class="delete-details" v-if="deleteCampaignData">
+            <h4>Thông tin đợt giảm giá:</h4>
+            <div class="delete-info-grid">
+              <div class="delete-info-item">
+                <span class="info-label">Mã đợt giảm giá:</span>
+                <span class="info-value">{{
+                  deleteCampaignData.maDotGiamGia || "N/A"
+                }}</span>
+              </div>
+              <div class="delete-info-item">
+                <span class="info-label">Giá trị giảm:</span>
+                <span class="info-value">{{ deleteCampaignData.giaTriGiamGia }}%</span>
+              </div>
+              <div class="delete-info-item">
+                <span class="info-label">Thời gian:</span>
+                <span class="info-value">
+                  {{ formatDateShort(deleteCampaignData.ngayBatDau) }} -
+                  {{ formatDateShort(deleteCampaignData.ngayKetThuc) }}
+                </span>
+              </div>
+              <div class="delete-info-item">
+                <span class="info-label">Sản phẩm áp dụng:</span>
+                <span class="info-value">
+                  {{ getAppliedProductsCount(deleteCampaignData.id) }} sản phẩm
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="delete-consequences">
+            <h4>⚠️ Hậu quả khi xóa:</h4>
+            <ul class="consequences-list">
+              <li>Đợt giảm giá sẽ bị vô hiệu hóa hoàn toàn</li>
+              <li>Không thể khôi phục lại sau khi xóa</li>
+              <li>Tất cả sản phẩm áp dụng sẽ hết giảm giá</li>
+              <li>Dữ liệu thống kê sẽ bị ảnh hưởng</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="delete-footer">
+          <button class="btn btn-outline" @click="closeDeleteModal">
+            <span class="btn-icon">❌</span>
+            Hủy bỏ
+          </button>
+          <button class="btn btn-danger" @click="confirmDelete">
+            <span class="btn-icon">🗑️</span>
+            Xác nhận xóa
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import {
   fetchAllDotGiamGia,
   fetchCreateDotGiamGia,
   fetchUpdateDotGiamGia,
   fetchUpdateStatusDotGiamGia,
+  fetchDeleteDotGiamGia,
 } from "../../services/GiamGia/DotGiamGiaService";
 import {
   fetchAllChiTietDotGiamGia,
@@ -971,19 +1125,30 @@ import {
   fetchUpdateStatusChiTietDotGiamGia,
 } from "../../services/GiamGia/ChiTietDotGiamGiaService";
 import { fetchAllChiTietSanPham } from "../../services/SanPham/ChiTietSanPhamService";
+import { exportToExcel, formatDataForExcel } from "../../utils/xuatExcel";
 
 // Reactive data
 const searchQuery = ref("");
 const statusFilter = ref("");
-const typeFilter = ref("");
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const showDetailModal = ref(false);
 const showApplyModal = ref(false);
+const showNotificationModal = ref(false);
+const showDeleteModal = ref(false);
 const editingCampaign = ref(null);
 const selectedCampaign = ref(null);
 const applyingCampaign = ref(null);
 const selectedProducts = ref([]);
+const deleteCampaignData = ref(null);
+
+// Notification data
+const notificationData = ref({
+  type: "success",
+  title: "",
+  message: "",
+  details: null,
+});
 
 // Pagination data
 const currentPage = ref(1);
@@ -1110,6 +1275,40 @@ const isWithinCampaignPeriod = computed(() => {
   return now >= startDate && now <= endDate;
 });
 
+// Date validation computed properties
+const minStartDate = computed(() => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+});
+
+const minEndDate = computed(() => {
+  if (!formData.value.ngayBatDau) {
+    return minStartDate.value;
+  }
+  const startDate = new Date(formData.value.ngayBatDau);
+  const minEnd = new Date(startDate);
+  minEnd.setDate(startDate.getDate() + 1);
+  return minEnd.toISOString().split('T')[0];
+});
+
+// Watch for start date changes and auto-adjust end date if needed
+watch(
+  () => formData.value.ngayBatDau,
+  (newStartDate) => {
+    if (newStartDate && formData.value.ngayKetThuc) {
+      const startDate = new Date(newStartDate);
+      const endDate = new Date(formData.value.ngayKetThuc);
+
+      // If end date is before or same as start date, update it to be one day after
+      if (endDate <= startDate) {
+        const newEndDate = new Date(startDate);
+        newEndDate.setDate(startDate.getDate() + 1);
+        formData.value.ngayKetThuc = newEndDate.toISOString().split('T')[0];
+      }
+    }
+  }
+);
+
 // Validate and auto-update campaign status based on dates
 const validateCampaignStatus = (campaign) => {
   const now = new Date();
@@ -1160,6 +1359,32 @@ const validateInactiveCampaigns = async () => {
   }
 };
 
+// Auto-update discount priorities when campaigns end
+const updateDiscountPriorities = async () => {
+  const now = new Date();
+  const endedCampaigns = campaigns.value.filter(campaign => {
+    const endDate = new Date(campaign.ngayKetThuc);
+    return endDate < now && campaign.trangThai;
+  });
+
+  for (const endedCampaign of endedCampaigns) {
+    // Set campaign as inactive
+    endedCampaign.trangThai = false;
+    
+    // Update campaign details status
+    await updateCampaignDetailsStatus(endedCampaign.id);
+    
+    console.log(`Campaign "${endedCampaign.tenDotGiamGia}" has ended and been deactivated`);
+  }
+
+  if (endedCampaigns.length > 0) {
+    console.log(`Updated priorities for ${endedCampaigns.length} ended campaigns`);
+    // Refresh data to reflect new priorities
+    await fetchDGG();
+    await fetchChiTietDGG();
+  }
+};
+
 // Methods
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -1195,7 +1420,7 @@ const editCampaign = (campaign) => {
     ngayBatDau: validatedCampaign.ngayBatDau,
     ngayKetThuc: validatedCampaign.ngayKetThuc,
     trangThai: validatedCampaign.trangThai,
-    deleted: validatedCampaign.deleted || false,
+    deleted: false, // Always keep deleted as false during editing
   };
   
   // Đóng popup chi tiết nếu đang mở
@@ -1207,34 +1432,25 @@ const editCampaign = (campaign) => {
   showEditModal.value = true;
 };
 
-const deleteCampaign = async (id) => {
-  if (confirm("Bạn có chắc chắn muốn xóa đợt giảm giá này?")) {
-    try {
-      await fetchUpdateStatusDotGiamGia(id);
-      await fetchDGG();
-      alert("Xóa đợt giảm giá thành công!");
-    } catch (error) {
-      console.error("Lỗi khi xóa đợt giảm giá:", error);
-      alert("Có lỗi xảy ra khi xóa đợt giảm giá");
-    }
-  }
+const deleteCampaign = (id) => {
+  openDeleteModal(id);
 };
 
 const saveCampaign = async () => {
   try {
     // Validate form data
     if (!formData.value.tenDotGiamGia.trim()) {
-      alert("Vui lòng nhập tên đợt giảm giá");
+      showErrorNotification("Thông tin thiếu", "Vui lòng nhập tên đợt giảm giá");
       return;
     }
 
     if (!formData.value.giaTriGiamGia || formData.value.giaTriGiamGia <= 0) {
-      alert("Vui lòng nhập giá trị giảm giá hợp lệ");
+      showErrorNotification("Thông tin thiếu", "Vui lòng nhập giá trị giảm giá hợp lệ");
       return;
     }
 
     if (!formData.value.ngayBatDau || !formData.value.ngayKetThuc) {
-      alert("Vui lòng chọn ngày bắt đầu và kết thúc");
+      showErrorNotification("Thông tin thiếu", "Vui lòng chọn ngày bắt đầu và kết thúc");
       return;
     }
 
@@ -1242,7 +1458,7 @@ const saveCampaign = async () => {
       new Date(formData.value.ngayBatDau) >=
       new Date(formData.value.ngayKetThuc)
     ) {
-      alert("Ngày kết thúc phải sau ngày bắt đầu");
+      showErrorNotification("Ngày không hợp lệ", "Ngày kết thúc phải sau ngày bắt đầu");
       return;
     }
 
@@ -1259,7 +1475,13 @@ const saveCampaign = async () => {
     if (showAddModal.value) {
       await fetchCreateDotGiamGia(formData.value);
       currentPage.value = 1; // Reset to first page
-      alert("Thêm đợt giảm giá thành công!");
+      
+      showSuccessNotification("Thêm đợt giảm giá thành công!", {
+        tenDotGiamGia: formData.value.tenDotGiamGia,
+        giaTriGiamGia: formData.value.giaTriGiamGia,
+        ngayBatDau: formData.value.ngayBatDau,
+        ngayKetThuc: formData.value.ngayKetThuc,
+      });
     } else if (showEditModal.value && editingCampaign.value) {
       const oldStatus = editingCampaign.value.trangThai;
       await fetchUpdateDotGiamGia(editingCampaign.value.id, formData.value);
@@ -1267,11 +1489,23 @@ const saveCampaign = async () => {
       // If campaign status changed from true to false, update related details
       if (oldStatus && !formData.value.trangThai) {
         await updateCampaignDetailsStatus(editingCampaign.value.id);
-        alert(
-          "Cập nhật đợt giảm giá thành công! Các sản phẩm liên quan đã được vô hiệu hóa."
+        showSuccessNotification(
+          "Cập nhật đợt giảm giá thành công!", 
+          {
+            message: "Các sản phẩm liên quan đã được vô hiệu hóa",
+            tenDotGiamGia: formData.value.tenDotGiamGia,
+            giaTriGiamGia: formData.value.giaTriGiamGia,
+            ngayBatDau: formData.value.ngayBatDau,
+            ngayKetThuc: formData.value.ngayKetThuc,
+          }
         );
       } else {
-        alert("Cập nhật đợt giảm giá thành công!");
+        showSuccessNotification("Cập nhật đợt giảm giá thành công!", {
+          tenDotGiamGia: formData.value.tenDotGiamGia,
+          giaTriGiamGia: formData.value.giaTriGiamGia,
+          ngayBatDau: formData.value.ngayBatDau,
+          ngayKetThuc: formData.value.ngayKetThuc,
+        });
       }
     }
 
@@ -1280,7 +1514,10 @@ const saveCampaign = async () => {
     closeModals();
   } catch (error) {
     console.error("Lỗi khi lưu đợt giảm giá:", error);
-    alert("Có lỗi xảy ra khi lưu thông tin đợt giảm giá");
+    showErrorNotification(
+      "Có lỗi xảy ra khi lưu thông tin đợt giảm giá",
+      error.message
+    );
   }
 };
 
@@ -1294,11 +1531,15 @@ const closeModals = () => {
 };
 
 const resetForm = () => {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
   formData.value = {
     tenDotGiamGia: "",
     giaTriGiamGia: 0,
-    ngayBatDau: "",
-    ngayKetThuc: "",
+    ngayBatDau: today.toISOString().split('T')[0], // Set to today
+    ngayKetThuc: tomorrow.toISOString().split('T')[0], // Set to tomorrow
     trangThai: true,
     deleted: false,
   };
@@ -1307,11 +1548,27 @@ const resetForm = () => {
 // Search for products in apply modal
 const searchProductQuery = ref("");
 
-// Check if product already has active discount
+// Check if product already has active discount - returns the campaign with highest discount
 const getProductDiscountStatus = (productId) => {
-  return campaignDetail.value.find(
+  const activeDiscounts = campaignDetail.value.filter(
     (detail) => detail.idChiTietSanPham === productId && !detail.deleted
   );
+  
+  if (activeDiscounts.length === 0) return null;
+  
+  // Find the campaign with highest discount value
+  let highestDiscount = null;
+  let maxDiscountValue = 0;
+  
+  for (const detail of activeDiscounts) {
+    const campaign = campaigns.value.find(c => c.id === detail.idDotGiamGia);
+    if (campaign && campaign.giaTriGiamGia > maxDiscountValue) {
+      maxDiscountValue = campaign.giaTriGiamGia;
+      highestDiscount = detail;
+    }
+  }
+  
+  return highestDiscount;
 };
 
 // Check if product belongs to current campaign
@@ -1325,25 +1582,54 @@ const getProductCurrentCampaignStatus = (productId) => {
   );
 };
 
-// Get available products (not having active discount from OTHER campaigns)
+// Get available products (can be in multiple campaigns, but current campaign should have highest discount)
 const availableProducts = computed(() => {
   return productsDetails.value.filter((product) => {
     const discountStatus = getProductDiscountStatus(product.id);
     const currentCampaignStatus = getProductCurrentCampaignStatus(product.id);
+    const currentCampaign = applyingCampaign.value;
 
-    // Allow if no discount OR discount is from current campaign
-    return !discountStatus || currentCampaignStatus;
+    // Always allow if no active discounts
+    if (!discountStatus) return true;
+    
+    // Allow if current campaign has the highest discount
+    if (currentCampaignStatus && currentCampaign) {
+      const currentDiscountValue = currentCampaign.giaTriGiamGia;
+      const highestDiscountCampaign = campaigns.value.find(c => c.id === discountStatus.idDotGiamGia);
+      
+      // Allow if current campaign has higher or equal discount value
+      return currentDiscountValue >= (highestDiscountCampaign?.giaTriGiamGia || 0);
+    }
+    
+    // Allow if current campaign has higher discount than existing ones
+    if (currentCampaign) {
+      const currentDiscountValue = currentCampaign.giaTriGiamGia;
+      const highestDiscountCampaign = campaigns.value.find(c => c.id === discountStatus.idDotGiamGia);
+      
+      return currentDiscountValue > (highestDiscountCampaign?.giaTriGiamGia || 0);
+    }
+    
+    return false;
   });
 });
 
-// Get products with existing discount from OTHER campaigns
+// Get products with existing discount from OTHER campaigns (with higher discount value)
 const productsWithDiscount = computed(() => {
   return productsDetails.value.filter((product) => {
     const discountStatus = getProductDiscountStatus(product.id);
     const currentCampaignStatus = getProductCurrentCampaignStatus(product.id);
+    const currentCampaign = applyingCampaign.value;
 
-    // Show as unavailable only if has discount AND not from current campaign
-    return discountStatus && !currentCampaignStatus;
+    // Show as unavailable if has discount from other campaign with higher value
+    if (discountStatus && currentCampaign) {
+      const currentDiscountValue = currentCampaign.giaTriGiamGia;
+      const highestDiscountCampaign = campaigns.value.find(c => c.id === discountStatus.idDotGiamGia);
+      
+      // Show as unavailable if existing discount is higher than current campaign
+      return highestDiscountCampaign && highestDiscountCampaign.giaTriGiamGia > currentDiscountValue;
+    }
+    
+    return false;
   });
 });
 
@@ -1354,10 +1640,25 @@ const currentCampaignProducts = computed(() => {
   );
 });
 
+// Get all active campaigns for a product
+const getProductActiveCampaigns = (productId) => {
+  const activeDetails = campaignDetail.value.filter(
+    (detail) => detail.idChiTietSanPham === productId && !detail.deleted
+  );
+  
+  return activeDetails.map(detail => {
+    const campaign = campaigns.value.find(c => c.id === detail.idDotGiamGia);
+    return {
+      ...detail,
+      campaign: campaign,
+      discountValue: campaign?.giaTriGiamGia || 0
+    };
+  }).sort((a, b) => b.discountValue - a.discountValue); // Sort by discount value descending
+};
+
 const clearFilters = () => {
   searchQuery.value = "";
   statusFilter.value = "";
-  typeFilter.value = "";
 };
 
 const applyFilters = () => {
@@ -1365,72 +1666,55 @@ const applyFilters = () => {
   console.log("Filters applied");
 };
 
-const exportData = () => {
-  alert("Xuất báo cáo chiến dịch khuyến mãi");
-};
-
-const exportToExcel = () => {
+const exportData = async () => {
   try {
-    const headerMapping = {
-      id: "ID",
-      name: "Tên chiến dịch",
-      description: "Mô tả",
-      discount_type: "Loại giảm giá",
-      discount_value: "Giá trị giảm",
-      min_order_value: "Giá trị đơn tối thiểu",
-      max_uses: "Số lần sử dụng tối đa",
-      used_count: "Đã sử dụng",
-      start_date: "Ngày bắt đầu",
-      end_date: "Ngày kết thúc",
-      status: "Trạng thái",
-    };
-
-    const filteredData = filteredCampaigns.value.map((item) => ({
-      id: item.id || "N/A",
-      name: item.name || "N/A",
-      description: item.description || "N/A",
-      discount_type:
-        item.discount_type === "percentage" ? "Phần trăm" : "Số tiền cố định",
-      discount_value:
-        item.discount_type === "percentage"
-          ? `${item.discount_value}%`
-          : new Intl.NumberFormat("vi-VN").format(item.discount_value),
-      min_order_value: item.min_order_value
-        ? new Intl.NumberFormat("vi-VN").format(item.min_order_value)
-        : "Không giới hạn",
-      max_uses: item.max_uses || "Không giới hạn",
-      used_count: item.used_count || 0,
-      start_date: item.start_date
-        ? new Date(item.start_date).toLocaleDateString("vi-VN")
-        : "N/A",
-      end_date: item.end_date
-        ? new Date(item.end_date).toLocaleDateString("vi-VN")
-        : "N/A",
-      status:
-        item.status === "active"
-          ? "Đang diễn ra"
-          : item.status === "upcoming"
-          ? "Sắp diễn ra"
-          : "Đã kết thúc",
+    // Prepare data for Excel export
+    const dataToExport = filteredCampaigns.value.map((campaign) => ({
+      id: campaign.id,
+      maDotGiamGia: campaign.maDotGiamGia,
+      tenDotGiamGia: campaign.tenDotGiamGia,
+      giaTriGiamGia: `${campaign.giaTriGiamGia}%`,
+      ngayBatDau: formatDate(campaign.ngayBatDau),
+      ngayKetThuc: formatDate(campaign.ngayKetThuc),
+      trangThai: campaign.trangThai ? "Đang diễn ra" : "Sắp diễn ra",
+      hienTrang: !campaign.deleted ? "Hoạt động" : "Đã xóa",
+      soSanPhamApDung: getAppliedProductsCount(campaign.id),
     }));
 
-    // In a real application, you would use a library like xlsx
-    console.log("Export data:", filteredData);
-    alert("Xuất Excel thành công! (Chức năng đang được phát triển)");
-    return;
+    // Define headers for Vietnamese export
+    const headers = {
+      id: "ID",
+      maDotGiamGia: "Mã đợt giảm giá",
+      tenDotGiamGia: "Tên đợt giảm giá",
+      giaTriGiamGia: "Giá trị giảm giá",
+      ngayBatDau: "Ngày bắt đầu",
+      ngayKetThuc: "Ngày kết thúc",
+      trangThai: "Trạng thái",
+      hienTrang: "Hiện trạng",
+      soSanPhamApDung: "Số sản phẩm áp dụng",
+    };
 
-    if (result && result.success) {
-      alert(`✅ ${result.message}`);
-    } else {
-      alert(
-        `❌ ${result ? result.message : "Có lỗi xảy ra khi xuất file Excel"}`
-      );
-    }
+    // Format data for Excel
+    const formattedData = formatDataForExcel(dataToExport, headers);
+
+    // Export to Excel
+    await exportToExcel(formattedData, "Bao_Cao_Chien_Dich_Giam_Gia");
+
+    showSuccessNotification("Xuất báo cáo thành công!", {
+      message: `Đã xuất ${dataToExport.length} đợt giảm giá ra file Excel`,
+      tenDotGiamGia: "Báo cáo chiến dịch khuyến mãi",
+      soLuong: dataToExport.length,
+    });
   } catch (error) {
-    console.error("Error exporting to Excel:", error);
-    alert(`Có lỗi xảy ra khi xuất file Excel: ${error.message}`);
+    console.error("Lỗi khi xuất báo cáo:", error);
+    showErrorNotification(
+      "Có lỗi xảy ra khi xuất báo cáo",
+      error.message
+    );
   }
 };
+
+
 
 const refreshData = async () => {
   await fetchDGG();
@@ -1462,13 +1746,16 @@ const toggleProductSelection = (productId) => {
 };
 
 const applyDiscountToCampaign = async () => {
-  // Validate if any selected product already has discount from other campaigns
+  // Validate if any selected product already has discount from other campaigns with higher value
   const conflictProducts = validateProductSelection();
   if (conflictProducts.length > 0) {
-    alert(
-      `Các sản phẩm sau đã có đợt giảm giá đang hoạt động:\n${conflictProducts.join(
-        ", "
-      )}\n\nVui lòng bỏ chọn các sản phẩm này!`
+    const conflictDetails = conflictProducts.map(conflict => 
+      `• ${conflict.name}: ${conflict.existingDiscount}% (${conflict.campaignName}) > ${conflict.currentDiscount}% (hiện tại)`
+    ).join('\n');
+    
+    showErrorNotification(
+      "Xung đột sản phẩm có giảm giá cao hơn",
+      `Các sản phẩm sau đã có đợt giảm giá với giá trị cao hơn:\n${conflictDetails}\n\nVui lòng bỏ chọn các sản phẩm này hoặc tăng giá trị giảm giá!`
     );
     return;
   }
@@ -1532,12 +1819,19 @@ const applyDiscountToCampaign = async () => {
       message += ` Đã xóa ${removedCount} sản phẩm.`;
     }
 
-    alert(message);
+    showSuccessNotification(message, {
+      tenDotGiamGia: applyingCampaign.value.tenDotGiamGia,
+      productsAdded: addedCount,
+      productsRemoved: removedCount,
+    });
     showApplyModal.value = false;
     await refreshData();
   } catch (error) {
     console.error("Lỗi khi áp dụng đợt giảm giá:", error);
-    alert("Có lỗi xảy ra khi áp dụng đợt giảm giá");
+    showErrorNotification(
+      "Có lỗi xảy ra khi áp dụng đợt giảm giá",
+      error.message
+    );
   }
 };
 
@@ -1561,18 +1855,30 @@ const clearAllProducts = () => {
   selectedProducts.value = [];
 };
 
-// Validation before applying discount
+// Validation before applying discount - check for conflicts with higher discount campaigns
 const validateProductSelection = () => {
   const conflictProducts = [];
+  const currentCampaign = applyingCampaign.value;
+
+  if (!currentCampaign) return conflictProducts;
 
   for (const productId of selectedProducts.value) {
     const existingDiscount = getProductDiscountStatus(productId);
     const currentCampaignDiscount = getProductCurrentCampaignStatus(productId);
 
-    // Only conflict if has discount from OTHER campaign
+    // Check if product has discount from other campaign with higher value
     if (existingDiscount && !currentCampaignDiscount) {
-      const product = productsDetails.value.find((p) => p.id === productId);
-      conflictProducts.push(product?.tenSanPham || `ID: ${productId}`);
+      const highestDiscountCampaign = campaigns.value.find(c => c.id === existingDiscount.idDotGiamGia);
+      
+      if (highestDiscountCampaign && highestDiscountCampaign.giaTriGiamGia > currentCampaign.giaTriGiamGia) {
+        const product = productsDetails.value.find((p) => p.id === productId);
+        conflictProducts.push({
+          name: product?.tenSanPham || `ID: ${productId}`,
+          currentDiscount: currentCampaign.giaTriGiamGia,
+          existingDiscount: highestDiscountCampaign.giaTriGiamGia,
+          campaignName: highestDiscountCampaign.tenDotGiamGia
+        });
+      }
     }
   }
 
@@ -1596,14 +1902,113 @@ const openAddModal = () => {
   resetForm();
   showAddModal.value = true;
 };
+
+// ===== NOTIFICATION METHODS =====
+/**
+ * Hiển thị thông báo thành công
+ * @param {string} message - Nội dung thông báo
+ * @param {Object} details - Chi tiết bổ sung
+ */
+const showSuccessNotification = (message, details = null) => {
+  notificationData.value = {
+    type: "success",
+    title: "Thành công! 🎉",
+    message: message,
+    details: details,
+  };
+  showNotificationModal.value = true;
+
+  // Auto close after 5 seconds
+  setTimeout(() => {
+    showNotificationModal.value = false;
+  }, 5000);
+};
+
+/**
+ * Hiển thị thông báo lỗi
+ * @param {string} message - Nội dung thông báo lỗi
+ * @param {Object} errorDetails - Chi tiết lỗi
+ */
+const showErrorNotification = (message, errorDetails = null) => {
+  notificationData.value = {
+    type: "error",
+    title: "Có lỗi xảy ra! ❌",
+    message: message,
+    details: errorDetails,
+  };
+  showNotificationModal.value = true;
+
+  // Auto close after 8 seconds for errors
+  setTimeout(() => {
+    showNotificationModal.value = false;
+  }, 8000);
+};
+
+/**
+ * Đóng modal thông báo
+ */
+const closeNotificationModal = () => {
+  showNotificationModal.value = false;
+};
+
+/**
+ * Mở popup xác nhận xóa đợt giảm giá
+ * @param {number} id - ID của đợt giảm giá cần xóa
+ */
+const openDeleteModal = (id) => {
+  const campaign = campaigns.value.find((c) => c.id === id);
+  if (campaign) {
+    deleteCampaignData.value = campaign;
+    showDeleteModal.value = true;
+  }
+};
+
+/**
+ * Đóng popup xác nhận xóa
+ */
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  deleteCampaignData.value = null;
+};
+
+/**
+ * Xác nhận xóa đợt giảm giá
+ * @returns {Promise<void>}
+ */
+const confirmDelete = async () => {
+  if (!deleteCampaignData.value) return;
+
+  // Store campaign data before closing modal to avoid null reference
+  const campaignToDelete = { ...deleteCampaignData.value };
+
+  try {
+    await fetchDeleteDotGiamGia(campaignToDelete.id);
+    await fetchDGG();
+    closeDeleteModal();
+
+    showSuccessNotification("Xóa đợt giảm giá thành công!", {
+      tenDotGiamGia: campaignToDelete.tenDotGiamGia,
+      giaTriGiamGia: campaignToDelete.giaTriGiamGia,
+      ngayBatDau: campaignToDelete.ngayBatDau,
+      ngayKetThuc: campaignToDelete.ngayKetThuc,
+    });
+  } catch (error) {
+    console.error("Lỗi khi xóa đợt giảm giá:", error);
+    showErrorNotification(
+      "Có lỗi xảy ra khi xóa đợt giảm giá",
+      error.message
+    );
+  }
+};
 onMounted(async () => {
   await fetchDGG();
   await fetchChiTietDGG();
   await fetchProductsDetails();
 
-  // Run validation after all data is loaded
+  // Run validation and priority updates after all data is loaded
   setTimeout(async () => {
     await validateInactiveCampaigns();
+    await updateDiscountPriorities();
   }, 1000);
 });
 
@@ -1764,45 +2169,39 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
 
 .filter-content {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
+/* Search Section */
 .search-section {
-  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
 }
 
-.input-group {
+.search-section .filter-group {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-section .input-group {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.input-icon {
+.search-section .input-icon {
   position: absolute;
   left: 1rem;
   font-size: 1.25rem;
   z-index: 1;
+  color: #6b7280;
 }
 
-.search-input {
-  width: 100%;
-  padding: 0.875rem 3rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #f9fafb;
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #4ade80;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
-  transform: translateY(-1px);
-}
-
-.clear-btn {
+.search-section .clear-btn {
   position: absolute;
   right: 1rem;
   background: #ef4444;
@@ -1817,23 +2216,114 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
   color: white;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  z-index: 1;
 }
 
-.clear-btn:hover {
+.search-section .clear-btn:hover {
   background: #dc2626;
   transform: scale(1.1);
 }
 
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+
+
 .filters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 1.5rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  align-items: end;
+}
+
+
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 3rem 0.75rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: #374151;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+/* Action Buttons in Filters Grid */
+.btn-action-primary,
+.btn-action-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-action-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.btn-action-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-action-secondary {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-action-secondary:hover {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  border-color: #22c55e;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-action-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-height: 80px;
+  justify-content: flex-end;
+}
+
+.button-group {
+  min-height: auto;
+  justify-content: center;
+  align-items: center;
 }
 
 .filter-label {
@@ -1868,12 +2358,7 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
   transform: translateY(-1px);
 }
 
-.filter-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  padding-top: 0.5rem;
-}
+
 
 .btn {
   padding: 0.75rem 1.5rem;
@@ -1914,102 +2399,275 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
-/* Table Styles */
+/* Enhanced Responsive Table Styles for CampainGiamGia */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  font-family: "Inter", "Poppins", sans-serif;
+  table-layout: auto; /* Allow adaptive column sizing */
+}
+
 .table th {
-  background: #4ade80;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
-  font-weight: 600;
-  padding: 1rem;
+  font-weight: 700;
+  padding: 1rem 1.25rem;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 1.5vw, 0.875rem); /* Responsive font size */
   white-space: nowrap;
   position: sticky;
   top: 0;
   z-index: 10;
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  font-family: "Inter", "Arial", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-right: none;
+  border-left: none;
+  min-width: fit-content;
 }
 
-/* Điều chỉnh độ rộng của các cột sort */
+.table th:first-child {
+  border-top-left-radius: 20px;
+}
+
+.table th:last-child {
+  border-top-right-radius: 20px;
+}
+
+/* Optimized Adaptive Column Widths for CampainGiamGia */
 .table th:nth-child(1) { /* STT */
-  width: 80px;
-  min-width: 80px;
+  width: 70px;
+  min-width: 60px;
 }
 
 .table th:nth-child(2) { /* Tên đợt giảm giá */
-  width: 300px;
-  min-width: 300px;
+  width: 280px;
+  min-width: 240px;
+  max-width: 350px;
 }
 
 .table th:nth-child(3) { /* Giá trị giảm giá */
-  width: 200px;
-  min-width: 200px;
+  width: 160px;
+  min-width: 140px;
 }
 
 .table th:nth-child(4) { /* Thời gian */
-  width: 180px;
+  width: 200px;
   min-width: 180px;
 }
 
 .table th:nth-child(5) { /* Hiện trạng */
-  width: 150px;
-  min-width: 150px;
+  width: 140px;
+  min-width: 120px;
 }
 
 .table th:nth-child(6) { /* Trạng thái */
-  width: 150px;
-  min-width: 150px;
+  width: 140px;
+  min-width: 120px;
 }
 
 .table th:nth-child(7) { /* Thao tác */
-  width: 200px;
+  width: 220px;
   min-width: 200px;
 }
 
+/* Enhanced Table Cells */
 .table td {
-  padding: 1rem;
+  padding: 1.5rem 1.25rem;
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.875rem;
-  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.08);
+  font-size: clamp(0.8rem, 1.2vw, 0.9rem); /* Responsive font size */
+  font-family: "Inter", "Poppins", sans-serif;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  transition: all 0.3s ease;
 }
 
-/* Điều chỉnh độ rộng của các ô tương ứng */
+/* Apply same column widths to td cells */
 .table td:nth-child(1) { /* STT */
-  width: 80px;
-  min-width: 80px;
+  width: 70px;
+  min-width: 60px;
+  font-weight: 600;
+  color: #6b7280;
 }
 
 .table td:nth-child(2) { /* Tên đợt giảm giá */
-  width: 300px;
-  min-width: 300px;
+  width: 280px;
+  min-width: 240px;
+  max-width: 350px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table td:nth-child(2):hover {
+  overflow: visible;
+  white-space: normal;
+  position: relative;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
 }
 
 .table td:nth-child(3) { /* Giá trị giảm giá */
-  width: 200px;
-  min-width: 200px;
+  width: 160px;
+  min-width: 140px;
 }
 
 .table td:nth-child(4) { /* Thời gian */
-  width: 180px;
+  width: 200px;
   min-width: 180px;
 }
 
 .table td:nth-child(5) { /* Hiện trạng */
-  width: 150px;
-  min-width: 150px;
+  width: 140px;
+  min-width: 120px;
 }
 
 .table td:nth-child(6) { /* Trạng thái */
-  width: 150px;
-  min-width: 150px;
+  width: 140px;
+  min-width: 120px;
 }
 
 .table td:nth-child(7) { /* Thao tác */
-  width: 200px;
+  width: 220px;
   min-width: 200px;
+}
+
+/* Enhanced Table Row Hover Effects */
+.table tbody tr {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(74, 222, 128, 0.08) 0%,
+    rgba(34, 197, 94, 0.08) 100%
+  );
+  transform: translateY(-3px) scale(1.002);
+  box-shadow: 0 8px 32px rgba(74, 222, 128, 0.2);
+  z-index: 5;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Enhanced Row Animation */
+.table tbody tr:hover td {
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+.table tbody tr:active {
+  transform: translateY(-1px) scale(1.001);
+  transition: all 0.1s ease;
+}
+
+/* Enhanced Action Buttons for CampainGiamGia */
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+}
+
+.action-buttons .btn-action {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-buttons .btn-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.action-buttons .btn-action:hover::before {
+  left: 100%;
+}
+
+.action-buttons .btn-action:hover {
+  transform: translateY(-2px) scale(1.1);
+  background: #f8fafc;
+  border-color: #4ade80;
+  box-shadow: 0 8px 25px rgba(74, 222, 128, 0.3);
+}
+
+.action-buttons .btn-action:active {
+  transform: translateY(0) scale(1.05);
+  transition: all 0.1s ease;
+}
+
+/* Specific action button colors for CampainGiamGia */
+.action-buttons .btn-detail {
+  border-color: #3b82f6;
+}
+
+.action-buttons .btn-detail:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.action-buttons .btn-action[title="Chỉnh sửa"] {
+  border-color: #f59e0b;
+}
+
+.action-buttons .btn-action[title="Chỉnh sửa"]:hover {
+  background: #fef3c7;
+  border-color: #d97706;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.action-buttons .btn-delete {
+  border-color: #ef4444;
+}
+
+.action-buttons .btn-delete:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.action-buttons .btn-apply {
+  border-color: #10b981;
+}
+
+.action-buttons .btn-apply:hover {
+  background: #ecfdf5;
+  border-color: #059669;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
 }
 
 /* Campaign Row Styles */
@@ -2396,7 +3054,52 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
   }
 }
 
-@media (max-width: 1024px) {
+/* Enhanced Responsive Design for Different Desktop Resolutions - CampainGiamGia */
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .table th {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .table td {
+    padding: 1.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+  
+  /* Increase column widths for large screens */
+  .table th:nth-child(2) { width: 320px; min-width: 280px; }
+  .table th:nth-child(7) { width: 250px; min-width: 230px; }
+}
+
+/* Standard Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .table th {
+    padding: 1.1rem 1.3rem;
+    font-size: 0.85rem;
+  }
+  
+  .table td {
+    padding: 1.6rem 1.3rem;
+    font-size: 0.95rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 42px;
+    height: 42px;
+    font-size: 1.15rem;
+  }
+}
+
+/* Medium Desktop (1024px - 1439px) */
+@media (min-width: 1024px) and (max-width: 1439px) {
   .search-controls {
     flex-direction: column;
     align-items: stretch;
@@ -2406,28 +3109,74 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
     min-width: auto;
   }
 
+  .table th {
+    padding: 1rem 1.1rem;
+    font-size: 0.8rem;
+  }
+  
+  .table td {
+    padding: 1.4rem 1.1rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Adjust column widths for medium screens */
+  .table th:nth-child(2) { width: 260px; min-width: 220px; }
+  .table th:nth-child(7) { width: 200px; min-width: 180px; }
+}
+
+/* Tablet Landscape (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .filter-content {
+    gap: 1.5rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-height: auto;
+    justify-content: flex-start;
+  }
+
+  .button-group {
+    min-height: auto;
+    justify-content: center;
+  }
+
   .table {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
+    border-radius: 16px;
   }
 
   .table th,
   .table td {
-    padding: 0.75rem 0.5rem;
+    padding: 1rem 0.75rem;
+  }
+  
+  /* Hide less critical columns on smaller screens */
+  .table th:nth-child(5), /* Hiện trạng */
+  .table td:nth-child(5),
+  .table th:nth-child(6), /* Trạng thái */
+  .table td:nth-child(6) {
+    display: none;
+  }
+  
+  .action-buttons {
+    gap: 0.5rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
   }
 }
 
-@media (max-width: 768px) {
-  /* page-header responsive styles are handled in globals.css */
-
-  .search-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter-controls {
-    flex-direction: column;
-  }
-
+/* Mobile Portrait (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
   .pagination-wrapper {
     flex-direction: column;
     gap: 1rem;
@@ -2444,26 +3193,56 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
 
   .table {
     font-size: 0.8125rem;
+    border-radius: 12px;
   }
 
   .table th,
   .table td {
-    padding: 0.5rem 0.25rem;
+    padding: 0.75rem 0.5rem;
   }
 
-  /* Hide less important columns on mobile */
-  .table th:nth-child(4),
+  /* Hide more columns on smaller mobile */
+  .table th:nth-child(3), /* Giá trị giảm giá */
+  .table td:nth-child(3),
+  .table th:nth-child(4), /* Thời gian */
   .table td:nth-child(4),
-  .table th:nth-child(5),
+  .table th:nth-child(5), /* Hiện trạng */
   .table td:nth-child(5),
-  .table th:nth-child(6),
-  .table td:nth-child(6),
-  .table th:nth-child(7),
-  .table td:nth-child(7) {
+  .table th:nth-child(6), /* Trạng thái */
+  .table td:nth-child(6) {
     display: none;
+  }
+
+  .search-section {
+    padding: 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .filter-group {
+    min-height: auto;
+  }
+
+  .button-group {
+    min-height: auto;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
   }
 }
 
+/* Small Mobile (max-width: 480px) */
 @media (max-width: 480px) {
   .discount-campaigns {
     padding: 0 0.5rem;
@@ -2477,10 +3256,44 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
     font-size: 0.75rem;
   }
 
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+  }
+
   .card {
     margin: 0 -0.5rem;
     border-radius: 0;
   }
+  
+  .action-buttons .btn-action {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Ultra-wide Desktop Optimization (2560px+) */
+@media (min-width: 2560px) {
+  .table th {
+    padding: 1.5rem 2rem;
+    font-size: 1rem;
+  }
+  
+  .table td {
+    padding: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .action-buttons .btn-action {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+  
+  /* Increase column widths for ultra-wide */
+  .table th:nth-child(2) { width: 400px; min-width: 350px; }
+  .table th:nth-child(7) { width: 280px; min-width: 250px; }
 }
 
 /* Apply Modal Styles */
@@ -2745,6 +3558,12 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
 .current-campaign {
   color: #1d4ed8;
   font-weight: 600;
+}
+
+.multiple-campaigns {
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.75rem;
 }
 
 .empty-available {
@@ -3692,6 +4511,476 @@ const getDiscountedPrice = (originalPrice, discountPercentage) => {
     width: 35px;
     height: 35px;
     font-size: 1rem;
+  }
+}
+
+/* Notification Modal Styles */
+.notification-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.notification-modal {
+  max-width: 600px;
+  max-height: 80vh;
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+@keyframes slideInFromTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.notification-header.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.notification-header.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.notification-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-title {
+  flex: 1;
+}
+
+.notification-title h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.notification-title p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+  color: white;
+}
+
+.notification-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.notification-body {
+  padding: 1.5rem;
+  background: #f9fafb;
+}
+
+.notification-details h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-details h4::before {
+  content: "📋";
+  font-size: 1.25rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.detail-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #4ade80;
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.notification-footer {
+  padding: 1.5rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+}
+
+.notification-footer .btn {
+  min-width: 120px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.notification-footer .btn-primary {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.notification-footer .btn-primary:hover {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Delete Modal Styles */
+.delete-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+.delete-modal {
+  max-width: 700px;
+  max-height: 85vh;
+  animation: slideInFromCenter 0.4s ease-out;
+}
+
+@keyframes slideInFromCenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.delete-header {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+}
+
+.delete-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.delete-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.delete-body {
+  padding: 2rem;
+  background: #f9fafb;
+}
+
+.delete-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.warning-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.warning-text {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #92400e;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.warning-text strong {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.delete-details {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.delete-details h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delete-details h4::before {
+  content: "📋";
+  font-size: 1.25rem;
+}
+
+.delete-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.delete-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.delete-consequences {
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.delete-consequences h4 {
+  margin: 0 0 1rem 0;
+  color: #dc2626;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.consequences-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #7f1d1d;
+}
+
+.consequences-list li {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.consequences-list li:last-child {
+  margin-bottom: 0;
+}
+
+.delete-footer {
+  padding: 2rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-radius: 0 0 12px 12px;
+}
+
+.delete-footer .btn {
+  min-width: 140px;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.delete-footer .btn-outline {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.delete-footer .btn-outline:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive Design for Notification and Delete Modals */
+@media (max-width: 768px) {
+  .notification-modal,
+  .delete-modal {
+    max-width: 95vw;
+    margin: 1rem;
+  }
+
+  .notification-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .notification-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .details-grid,
+  .delete-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-item,
+  .delete-info-item {
+    padding: 0.75rem;
+  }
+
+  .delete-header {
+    padding: 1.5rem;
+  }
+
+  .delete-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+
+  .delete-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .delete-body {
+    padding: 1.5rem;
+  }
+
+  .delete-warning {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .warning-icon {
+    margin: 0 auto 0.5rem auto;
+  }
+
+  .delete-footer {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  .delete-footer .btn {
+    min-width: 100%;
   }
 }
 </style>

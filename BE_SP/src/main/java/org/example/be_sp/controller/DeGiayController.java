@@ -15,7 +15,7 @@ public class DeGiayController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(deGiayService.getAllDeGiay());
+        return new ResponseObject<>(deGiayService.getAll());
     }
 
     @GetMapping("/paging")
@@ -38,10 +38,5 @@ public class DeGiayController {
     public ResponseObject<?> update(@RequestBody DeGiayRequest deGiayRequest, @PathVariable Integer id) {
         deGiayService.update(id, deGiayRequest);
         return new ResponseObject<>(null,"Cập nhật đế giày thành công");
-    }
-    @PutMapping("/update/status/{id}")
-    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
-        deGiayService.updateStatus(id);
-        return new ResponseObject<>(null, "Cập nhật trạng thái đế giày thành");
     }
 }

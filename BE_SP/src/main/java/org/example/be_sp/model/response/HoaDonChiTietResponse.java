@@ -65,29 +65,7 @@ public class HoaDonChiTietResponse {
 
     private String tenChatLieu;
 
-    private String maDemGiay;
-
-    private String tenDemGiay;
-
-    private String maTrongLuong;
-
-    private String tenTrongLuong;
-
-    private String maMonTheThao;
-
-    private String tenMonTheThao;
-
-    private String maLoaiMua;
-
-    private String tenLoaiMua;
-
-    private String maDoBen;
-
-    private String tenDoBen;
-
-    private String maChongNuoc;
-
-    private String tenChongNuoc;
+    // Removed fields for missing entities
 
     private Integer soLuong;
 
@@ -131,8 +109,7 @@ public class HoaDonChiTietResponse {
         this.tenDeGiay = d.getIdChiTietSanPham().getIdDeGiay().getTenDeGiay();
         this.maChatLieu = d.getIdChiTietSanPham().getIdChatLieu().getMaChatLieu();
         this.tenChatLieu = d.getIdChiTietSanPham().getIdChatLieu().getTenChatLieu();
-        this.maTrongLuong = d.getIdChiTietSanPham().getIdTrongLuong().getMaTrongLuong();
-        this.tenTrongLuong = d.getIdChiTietSanPham().getIdTrongLuong().getTenTrongLuong();
+        // Removed references to missing entities
         this.soLuong = d.getSoLuong();
         this.giaBan = d.getGiaBan();
         this.maHoaDonChiTiet = d.getMaHoaDonChiTiet();

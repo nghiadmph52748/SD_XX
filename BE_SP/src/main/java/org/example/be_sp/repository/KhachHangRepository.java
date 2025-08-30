@@ -6,14 +6,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
+
+
     KhachHang findByEmail(String email);
+
+
     KhachHang findByTenTaiKhoan(String tenTaiKhoan);
 
-    KhachHang getKhachHangById(Integer id);
+    default KhachHang getKhachHangById(Integer id) {
+        return findById(id).orElse(null);
+    }
 
-    KhachHang getById(Integer id);
-
-    KhachHang findKhachHangById(Integer id);
-
-    boolean existsByTenTaiKhoan(String tenTaiKhoan);
+    default KhachHang findKhachHangById(Integer id) {
+        return findById(id).orElse(null);
+    }
 }

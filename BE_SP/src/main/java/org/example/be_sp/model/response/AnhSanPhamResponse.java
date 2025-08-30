@@ -5,8 +5,6 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import org.example.be_sp.entity.AnhSanPham;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,12 +13,7 @@ public class AnhSanPhamResponse {
     String duongDanAnh;
     String loaiAnh;
     String moTa;
-    Boolean trangThai;
     Boolean deleted;
-    LocalDate createAt;
-    Integer createBy;
-    LocalDate updateAt;
-    Integer updateBy;
 
     public AnhSanPhamResponse(AnhSanPham data) {
         this.id = data.getId();
@@ -28,10 +21,5 @@ public class AnhSanPhamResponse {
         this.loaiAnh = data.getLoaiAnh();
         this.moTa = data.getMoTa();
         this.deleted = data.getDeleted();
-        this.trangThai = data.getTrangThai();
-        this.createAt = data.getCreateAt();
-        this.createBy = data.getCreateBy();
-        this.updateAt = data.getUpdateAt();
-        this.updateBy = data.getUpdateBy();
     }
 }

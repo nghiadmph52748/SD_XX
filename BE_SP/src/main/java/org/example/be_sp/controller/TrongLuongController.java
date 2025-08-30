@@ -15,7 +15,7 @@ public class TrongLuongController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(trongLuongService.getAllTrongLuong());
+        return new ResponseObject<>(trongLuongService.getAll());
     }
 
     @GetMapping("/paging")
@@ -39,10 +39,5 @@ public class TrongLuongController {
     public ResponseObject<?> update(@RequestBody TrongLuongRequest request, @PathVariable Integer id) {
         trongLuongService.update(id, request);
         return new ResponseObject<>(null, "Cập nhật thành công");
-    }
-    @PutMapping("/update/status/{id}")
-    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
-        trongLuongService.updateStatus(id);
-        return new ResponseObject<>(null, "Cập nhật trạng thái thành công");
     }
 }

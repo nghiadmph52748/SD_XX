@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NhanVienRequest {
+    private Integer id;
+    private String maNhanVien;
     private String tenNhanVien;
     private String tenTaiKhoan;
     private String matKhau;
@@ -17,12 +19,6 @@ public class NhanVienRequest {
     private String soDienThoai;
     private String anhNhanVien;
     private LocalDate ngaySinh;
-    private String thanhPho;
-    private String quan;
-    private String phuong;
-    private String diaChiCuThe;
-    private String cccd;
-    private Integer idQuyenHan;
-    private Boolean trangThai;
-    private Boolean deleted;
+    private String chucVu;
+    private Integer idQuyenHan; // chỉ để nhận id thôi
 }

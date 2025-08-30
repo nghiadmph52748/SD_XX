@@ -1,26 +1,17 @@
 package org.example.be_sp.service;
 
-import java.util.List;
-
 import org.example.be_sp.entity.ChiTietSanPham;
 import org.example.be_sp.exception.ApiException;
 import org.example.be_sp.model.request.ChiTietSanPhamRequest;
-import org.example.be_sp.model.response.ChiTietSanPhamFullResponse;
+import org.example.be_sp.model.response.ChiTietSanPhamResponse;
 import org.example.be_sp.model.response.PagingResponse;
-import org.example.be_sp.repository.ChatLieuRepository;
-import org.example.be_sp.repository.ChiTietSanPhamRepository;
-import org.example.be_sp.repository.DeGiayRepository;
-import org.example.be_sp.repository.KichThuocRepository;
-import org.example.be_sp.repository.MauSacRepository;
-import org.example.be_sp.repository.SanPhamRepository;
-import org.example.be_sp.repository.TrongLuongRepository;
+import org.example.be_sp.repository.*;
 import org.example.be_sp.util.MapperUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class ChiTietSanPhamService {
@@ -39,26 +30,19 @@ public class ChiTietSanPhamService {
     @Autowired
     TrongLuongRepository trongLuong;
 
-    public List<ChiTietSanPhamFullResponse> getAll() {
-        return repository.findAllByDeleted(false).stream().map(ChiTietSanPhamFullResponse::new).toList();
+    public List<ChiTietSanPhamResponse> getAll() {
+        return repository.findAll().stream().map(ChiTietSanPhamResponse::new).toList();
     }
 
-    public List<ChiTietSanPhamFullResponse> getAllByIdSanPham(Integer idSanPham) {
-        return repository.findAllByDeletedAndIdSanPham_Id(false, idSanPham).stream().map(ChiTietSanPhamFullResponse::new).toList();
+    public ChiTietSanPhamResponse getById(Integer id) {
+        return repository.findById(id).map(ChiTietSanPhamResponse::new).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
     }
 
-    public ChiTietSanPhamFullResponse getById(Integer id) {
-        return repository.findById(id).map(ChiTietSanPhamFullResponse::new).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
+    public PagingResponse<ChiTietSanPhamResponse> paging(Integer page, Integer size) {
+        return new PagingResponse<>(repository.findAll(PageRequest.of(page, size)).map(ChiTietSanPhamResponse::new), page);
     }
 
-    public void updateStatus(Integer id) {
-        ChiTietSanPham chiTietSanPham = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
-        chiTietSanPham.setDeleted(true);
-        chiTietSanPham.setTrangThai(false);
-        repository.save(chiTietSanPham);
-    }
-
-    public Integer add(ChiTietSanPhamRequest request) {
+    public void add(ChiTietSanPhamRequest request) {
         ChiTietSanPham c = MapperUtils.map(request, ChiTietSanPham.class);
         c.setIdSanPham(sanPham.findSanPhamById(request.getIdSanPham()));
         c.setIdMauSac(mauSac.findMauSacById(request.getIdMauSac()));
@@ -66,13 +50,11 @@ public class ChiTietSanPhamService {
         c.setIdDeGiay(deGiay.findDeGiayById(request.getIdDeGiay()));
         c.setIdChatLieu(chatLieu.findChatLieuById(request.getIdChatLieu()));
         c.setIdTrongLuong(trongLuong.findTrongLuongById(request.getIdTrongLuong()));
-        ChiTietSanPham saved = repository.save(c);
-        return saved.getId();
+        repository.save(c);
     }
 
     public void update(ChiTietSanPhamRequest request, Integer id) {
-        ChiTietSanPham e = repository.findById(id).orElseThrow(() -> new ApiException("Chi tiết sản phẩm không tồn tại", "404"));
-        MapperUtils.mapToExisting(request, e);
+        ChiTietSanPham e = MapperUtils.map(request, ChiTietSanPham.class);
         e.setId(id);
         e.setIdSanPham(sanPham.findSanPhamById(request.getIdSanPham()));
         e.setIdMauSac(mauSac.findMauSacById(request.getIdMauSac()));
@@ -81,5 +63,12 @@ public class ChiTietSanPhamService {
         e.setIdChatLieu(chatLieu.findChatLieuById(request.getIdChatLieu()));
         e.setIdTrongLuong(trongLuong.findTrongLuongById(request.getIdTrongLuong()));
         repository.save(e);
+    }
+
+    public void delete(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new ApiException("Chi tiết sản phẩm không tồn tại", "404");
+        }
+        repository.deleteById(id);
     }
 }

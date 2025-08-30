@@ -1,22 +1,24 @@
 package org.example.be_sp.model.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class PhieuGiamGiaCaNhanRequest {
-    Integer idKhachHang;
-    Integer idPhieuGiamGia;
-    String tenPhieuGiamGiaCaNhan;
-    LocalDate ngayNhan;
-    LocalDate ngayHetHan;
-    Boolean trangThai;
-    Boolean deleted;
+    
+    private Integer idKhachHang;
+    private Integer idPhieuGiamGia;
+    private String tenPhieuGiamGiaCaNhan;
+    private LocalDate ngayNhan;
+    private LocalDate ngayHetHan;
+    private Boolean trangThai;
+    
+    // For bulk assignment
+    private List<Integer> idKhachHangList;
+    private String assignmentType; // "individual" or "bulk"
+    private String bulkCriteria; // "all", "new", "vip"
 }

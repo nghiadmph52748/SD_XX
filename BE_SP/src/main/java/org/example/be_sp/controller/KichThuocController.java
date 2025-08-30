@@ -15,7 +15,7 @@ public class KichThuocController {
 
     @GetMapping("/playlist")
     public ResponseObject<?> getAll() {
-        return new ResponseObject<>(kichThuocService.getAllKichThuoc());
+        return new ResponseObject<>(kichThuocService.getAll());
     }
 
     @GetMapping("/paging")
@@ -33,15 +33,5 @@ public class KichThuocController {
     public ResponseObject<?> add(@RequestBody KichThuocRequest kichThuocRequest) {
         kichThuocService.add(kichThuocRequest);
         return new ResponseObject<>(null,"Thêm kích thước thành công");
-    }
-    @PutMapping("/update/{id}")
-    public ResponseObject<?> update(@PathVariable Integer id, @RequestBody KichThuocRequest kichThuocRequest) {
-        kichThuocService.update(id, kichThuocRequest);
-        return new ResponseObject<>(null, "Cập nhật kích thước thành công");
-    }
-    @PutMapping("/update/status/{id}")
-    public ResponseObject<?> updateStatus(@PathVariable Integer id) {
-        kichThuocService.updateStatus(id);
-        return new ResponseObject<>(null, "Cập nhật trạng thái kích thước thành công");
     }
 }

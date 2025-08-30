@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
@@ -23,9 +22,7 @@ public class PhieuGiamGia {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Generated(GenerationTime.ALWAYS)
-    @ColumnDefault("'PGG'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_phieu_giam_gia", length = 8)
+    @Column(name = "ma_phieu_giam_gia", length = 8, updatable = false, insertable = false)
     private String maPhieuGiamGia;
 
     @Nationalized
@@ -67,9 +64,11 @@ public class PhieuGiamGia {
     private Boolean deleted;
 
     @OneToMany(mappedBy = "idPhieuGiamGia")
+    @JsonIgnore
     private Set<HoaDon> hoaDons = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "idPhieuGiamGia")
+    @JsonIgnore
     private Set<PhieuGiamGiaCaNhan> phieuGiamGiaCaNhans = new LinkedHashSet<>();
 
 }

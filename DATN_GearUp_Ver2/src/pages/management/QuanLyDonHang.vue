@@ -716,10 +716,6 @@ import { useRouter } from 'vue-router'
 import { exportToExcel, formatDataForExcel } from '../../utils/xuatExcel.js'
 import axios from "axios"
 
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { exportToExcel, formatDataForExcel } from "../../utils/xuatExcel.js";
-
 
 const router = useRouter();
 
@@ -742,6 +738,7 @@ const selectedOrder = ref(null)
 const backendTotalOrders = ref(0)
 const backendTotalPages = ref(0)
 const loading = ref(false)
+const error = ref(null)
 
 
 const fetchOrders = async () => {
@@ -769,20 +766,7 @@ const fetchOrders = async () => {
   }
 }
 
-const searchQuery = ref("");
-const fromDate = ref("");
-const toDate = ref("");
-const selectedType = ref("");
-const selectedStatus = ref("TAT_CA");
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const viewMode = ref("table"); // 'table' or 'grid'
-const minAmount = ref("");
-const maxAmount = ref("");
-const sortField = ref("");
-const sortDirection = ref("asc"); // 'asc' or 'desc'
-const showDetailModal = ref(false);
-const selectedOrder = ref(null);
+
 
 
 const statusTabs = [

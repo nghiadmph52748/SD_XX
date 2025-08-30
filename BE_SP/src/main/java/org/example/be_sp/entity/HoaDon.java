@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
@@ -35,9 +33,8 @@ public class HoaDon {
     @JoinColumn(name = "id_nhan_vien")
     private NhanVien idNhanVien;
 
-    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'HD'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_hoa_don", length = 7,insertable = false, updatable = false)
+    @Column(name = "ma_hoa_don", length = 7)
     private String maHoaDon;
 
     @Nationalized
@@ -63,16 +60,30 @@ public class HoaDon {
 
     @Nationalized
     @Column(name = "ten_khach_hang")
-    private String tenNguoiNhan;
+    private String tenKhachHang;
 
     @Nationalized
     @Column(name = "dia_chi_khach_hang")
-    private String diaChiNguoiNhan;
+    private String diaChiKhachHang;
 
     @Column(name = "so_dien_thoai_khach_hang", length = 12)
-    private String soDienThoaiNguoiNhan;
+    private String soDienThoaiKhachHang;
 
     @Column(name = "email_khach_hang")
+    private String emailKhachHang;
+
+    @Nationalized
+    @Column(name = "ten_nguoi_nhan")
+    private String tenNguoiNhan;
+
+    @Nationalized
+    @Column(name = "dia_chi_nguoi_nhan")
+    private String diaChiNguoiNhan;
+
+    @Column(name = "so_dien_thoai_nguoi_nhan", length = 12)
+    private String soDienThoaiNguoiNhan;
+
+    @Column(name = "email_nguoi_nhan")
     private String emailNguoiNhan;
 
     @Column(name = "ngay_tao")

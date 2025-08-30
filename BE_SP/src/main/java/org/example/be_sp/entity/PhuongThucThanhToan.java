@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.util.LinkedHashSet;
@@ -21,9 +19,8 @@ public class PhuongThucThanhToan {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'PTTT'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
-    @Column(name = "ma_phuong_thuc_thanh_toan", length = 9, insertable = false, updatable = false)
+    @Column(name = "ma_phuong_thuc_thanh_toan", length = 9)
     private String maPhuongThucThanhToan;
 
     @Nationalized

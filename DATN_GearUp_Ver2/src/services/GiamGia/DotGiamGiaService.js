@@ -40,3 +40,16 @@ export const fetchUpdateStatusDotGiamGia = async (id) => {
         },
     });
 }
+
+export const fetchDeleteDotGiamGia = async (id) => {
+    const response = await fetch(`${API}/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
+    if (!response.ok) {
+        throw new Error("Failed to delete dot giam gia");
+    }
+    return response.json();
+}

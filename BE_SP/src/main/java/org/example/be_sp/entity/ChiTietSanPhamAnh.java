@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @Entity
@@ -25,23 +23,8 @@ public class ChiTietSanPhamAnh {
     @JoinColumn(name = "id_anh_san_pham", nullable = false)
     private AnhSanPham idAnhSanPham;
 
-    @ColumnDefault("1")
-    @Column(name = "trang_thai")
-    private Boolean trangThai;
-
     @ColumnDefault("0")
     @Column(name = "deleted")
     private Boolean deleted;
 
-    @Column(name = "create_at")
-    private LocalDate createAt;
-
-    @Column(name = "create_by")
-    private Integer createBy;
-
-    @Column(name = "update_at")
-    private LocalDate updateAt;
-
-    @Column(name = "update_by")
-    private Integer updateBy;
 }

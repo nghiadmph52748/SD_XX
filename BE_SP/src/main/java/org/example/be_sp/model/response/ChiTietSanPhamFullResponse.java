@@ -37,7 +37,7 @@ public class ChiTietSanPhamFullResponse {
         this.id = s.getId();
         if (s.getChiTietSanPhamAnhs() != null) {
             this.anhSanPham = s.getChiTietSanPhamAnhs().stream()
-                    .filter(anh -> anh != null && anh.getIdAnhSanPham() != null && anh.getTrangThai() == true && anh.getDeleted() == false)
+                    .filter(anh -> anh != null && anh.getIdAnhSanPham() != null && anh.getDeleted() == false)
                     .map(anh -> anh.getIdAnhSanPham().getDuongDanAnh())
                     .filter(duongDan -> duongDan != null)
                     .collect(Collectors.toList());
@@ -83,12 +83,12 @@ public class ChiTietSanPhamFullResponse {
         this.giaBan = s.getGiaBan();
         this.trangThai = s.getTrangThai();
         if (s.getChiTietDotGiamGias() != null) {
-            this.tenDotGiamGia = s.getChiTietDotGiamGias().stream().filter(ct -> ct != null && ct.getIdDotGiamGia() != null && ct.getDeleted() == false && ct.getTrangThai() == true)
+            this.tenDotGiamGia = s.getChiTietDotGiamGias().stream().filter(ct -> ct != null && ct.getIdDotGiamGia() != null && ct.getDeleted() == false)
                     .map(ct -> ct.getIdDotGiamGia().getTenDotGiamGia())
                     .filter(ten -> ten != null)
                     .findFirst()
                     .orElse(null);
-            this.giaTriGiamGia = s.getChiTietDotGiamGias().stream().filter(ct -> ct != null && ct.getIdDotGiamGia() != null && ct.getDeleted() == false && ct.getTrangThai() == true)
+            this.giaTriGiamGia = s.getChiTietDotGiamGias().stream().filter(ct -> ct != null && ct.getIdDotGiamGia() != null && ct.getDeleted() == false)
                     .map(ct -> ct.getIdDotGiamGia().getGiaTriGiamGia())
                     .filter(giaTri -> giaTri != null)
                     .findFirst()
@@ -98,7 +98,7 @@ public class ChiTietSanPhamFullResponse {
             this.giaTriGiamGia = null;
         }
         if (s.getChiTietDotGiamGias() != null) {
-            this.idDotGiamGia = s.getChiTietDotGiamGias().stream().filter(ct -> ct != null && ct.getIdDotGiamGia() != null && ct.getDeleted() == false && ct.getTrangThai() == true)
+            this.idDotGiamGia = s.getChiTietDotGiamGias().stream().filter(ct -> ct != null && ct.getIdDotGiamGia() != null && ct.getDeleted() == false)
                     .map(ct -> ct.getIdDotGiamGia().getId())
                     .filter(id -> id != null)
                     .findFirst()

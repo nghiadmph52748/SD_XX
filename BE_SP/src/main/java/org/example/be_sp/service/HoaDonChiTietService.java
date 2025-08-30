@@ -28,10 +28,13 @@ public class HoaDonChiTietService {
     public List<HoaDonChiTietResponse> getAll() {
         return hoaDonChiTietRepository.findAll().stream().map(HoaDonChiTietResponse::new).toList();
     }
+    // Temporarily commented out to fix startup issue
+    /*
     public PagingResponse<HoaDonChiTietResponse> phanTrang(Integer no, Integer size) {
         Pageable page = PageRequest.of(no, size);
         return new PagingResponse<>(hoaDonChiTietRepository.findAll(page).map(HoaDonChiTietResponse::new), no);
     }
+    */
     public HoaDonChiTietResponse getById(Integer id) {
         return hoaDonChiTietRepository.findById(id).map(HoaDonChiTietResponse::new).orElseThrow(()-> new ApiException("HoaDonChiTiet not found with id: " + id,"404"));
     }

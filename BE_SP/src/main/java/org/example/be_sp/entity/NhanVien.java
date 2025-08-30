@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDate;
@@ -28,7 +26,6 @@ public class NhanVien {
     @JoinColumn(name = "id_quyen_han", nullable = false)
     private QuyenHan idQuyenHan;
 
-    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'NV'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Column(name = "ma_nhan_vien", insertable = false, updatable = false)
     private String maNhanVien;
@@ -49,8 +46,8 @@ public class NhanVien {
     @Column(name = "so_dien_thoai", length = 12)
     private String soDienThoai;
 
-    @Column(name = "anh_nhan_vien")
-    private String anhNhanVien;
+    @Column(name = "anh_nha_vien")
+    private String anhNhaVien;
 
     @Column(name = "ngay_sinh")
     private LocalDate ngaySinh;

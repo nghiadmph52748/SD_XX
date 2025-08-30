@@ -10,6 +10,7 @@ import { exportToCSV } from './xuatCSV.js'
  */
 export const exportToExcel = (data, fileName, sheetName = 'Sheet1', options = {}) => {
   try {
+    console.log('exportToExcel called with:', { data, fileName, sheetName })
     
     // Simple validation
     if (!data || !Array.isArray(data) || data.length === 0) {
@@ -63,6 +64,8 @@ export const exportToExcel = (data, fileName, sheetName = 'Sheet1', options = {}
     // Generate file and save
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
     const fullFileName = `${fileName}_${timestamp}.xlsx`
+    
+    console.log('Attempting to write file:', fullFileName)
     XLSX.writeFile(wb, fullFileName)
     
     return {

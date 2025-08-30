@@ -10,13 +10,12 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class SanPhamRequest {
-    private String tenSanPham;
     private Integer idNhaSanXuat;
     private Integer idXuatXu;
+    private String tenSanPham;
     private Boolean deleted;
-    private Boolean trangThai;
     private LocalDate createAt;
-    private LocalDate updateAt;
     private Integer createBy;
+    private LocalDate updateAt;
     private Integer updateBy;
 }

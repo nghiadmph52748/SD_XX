@@ -1,18 +1,15 @@
 package org.example.be_sp.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
@@ -24,7 +21,6 @@ public class KhachHang {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Generated(GenerationTime.ALWAYS)
     @ColumnDefault("'KH'+right('00000'+CONVERT([varchar](5), [ID]), 5)")
     @Column(name = "ma_khach_hang", insertable = false, updatable = false)
     private String maKhachHang;
@@ -66,16 +62,17 @@ public class KhachHang {
 
     @Column(name = "update_by")
     private Integer updateBy;
-    @JsonBackReference
+
     @OneToMany(mappedBy = "idKhachHang")
+    @JsonIgnore
     private Set<DiaChiKhachHang> diaChiKhachHangs = new LinkedHashSet<>();
 
-    @JsonBackReference
     @OneToMany(mappedBy = "idKhachHang")
+    @JsonIgnore
     private Set<HoaDon> hoaDons = new LinkedHashSet<>();
 
-    @JsonBackReference
     @OneToMany(mappedBy = "idKhachHang")
+    @JsonIgnore
     private Set<PhieuGiamGiaCaNhan> phieuGiamGiaCaNhans = new LinkedHashSet<>();
 
 }
