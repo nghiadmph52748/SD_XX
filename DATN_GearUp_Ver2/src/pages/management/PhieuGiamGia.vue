@@ -1097,10 +1097,10 @@ import {
   fetchUpdatePhieuGiamGia,
   fetchUpdateStatusPhieuGiamGia,
   fetchDeletePhieuGiamGia,
-} from "../../services/GiamGia/PhieuGiamGiaService";
+} from "../../services/GiamGia/PhieuGiamGiaService.js";
 import { dichVuPhieuGiamGia } from "../../services/GiamGia/dichVuPhieuGiamGia.js";
-import { fetchAllPhieuGiamGiaCaNhan } from "../../services/GiamGia/PhieuGiamGiaCaNhanService";
-import { fetchAllKhachHang } from "../../services/KhachHang/KhachHangService";
+import { fetchAllPhieuGiamGiaCaNhan } from "../../services/GiamGia/PhieuGiamGiaCaNhanService.js";
+import { fetchAllKhachHang } from "../../services/KhachHang/KhachHangService.js";
 import { exportToExcel, formatDataForExcel } from "../../utils/xuatExcel.js";
 
 // ===== REACTIVE DATA =====
